@@ -11,20 +11,34 @@
     "href": "index.html",
     "title": "UchidaMizuki",
     "section": "",
-    "text": "news\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\nHarlow Malloc\n\n\n\n\n\n\n  \n\n\n\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nMay 28, 2022\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+    "text": "ioanalysis\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
+    "objectID": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html",
+    "href": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html",
+    "title": "🗾Rで産業連関分析",
     "section": "",
-    "text": "1 + 1\n\n[1] 2"
+    "text": "産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．\nこれまで，産業連関分析では，Excel・VBAが用いられることが多かったようです．\n一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます． これらのプログラミング言語は以下のような特長を持っています．\nそのため今後は，産業連関分析においても，これらのプログラミング言語の利用が 進むのではないかと思われます．\nここでは，Rを用いて産業連関分析を行います． Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが 多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．\n産業連関表として，e-Statのデータベースで公開されている日本（国）の 2013年・13部門産業連関表を用います． ここで使用するデータは， こちら からダウンロードできます．"
   },
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "Since this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+    "objectID": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html#分析の流れ",
+    "href": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html#分析の流れ",
+    "title": "🗾Rで産業連関分析",
+    "section": "分析の流れ",
+    "text": "分析の流れ\n一般的な産業連関分析の流れは以下の通りです．\n\n産業連関表の整形\n投入係数行列の算出\nレオンチェフ逆行列の算出\n経済波及効果の算出\n\n以上の流れに沿って，Rによる産業連関分析の計算例を示します．"
+  },
+  {
+    "objectID": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html#rによる産業連関分析",
+    "href": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html#rによる産業連関分析",
+    "title": "🗾Rで産業連関分析",
+    "section": "Rによる産業連関分析",
+    "text": "Rによる産業連関分析\n\n産業連関表の整形\n\n# library(tidyverse)\n# \n# iotable <- read_csv(\"iotable_ja.csv\",\n#                     col_types = cols(.default = \"c\",\n#                                      value = \"n\"))\n# \n# knitr::kable(head(iotable))\n\n\n# iotable <- read_csv(\"iotable_wider_ja.csv\",\n#                     col_types = cols(.default = \"c\")) |> \n#   separate(input, c(\"input_type\", \"input_name\"),\n#            sep = \"/\") |>\n#   pivot_longer(!c(input_type, input_name),\n#                names_to = c(\"output_type\", \"output_name\"),\n#                names_sep = \"/\",\n#                values_to = \"value\",\n#                values_transform = list(value = parse_number)) |> \n#   drop_na(value)\n\n\n# library(dibble)\n# \n# iotable <- iotable |> \n#   dibble_by(input = c(input_type, input_name),\n#             output = c(output_type, output_name),\n#             .names_sep = \"_\")\n# print(iotable,\n#       n = 5)\n\n\n\n投入係数行列の算出\n\n# total_input <- iotable |>\n#   filter(output$type == \"industry\") |> \n#   apply(\"output\", sum)\n# \n# interindustry <- iotable |> \n#   filter(input$type == \"industry\",\n#          output$type == \"industry\")\n# \n# inputcoeff <- broadcast(interindustry / total_input,\n#                         c(\"input\", \"output\"))\n# print(inputcoeff,\n#       n = 5)\n\n\n\nレオンチェフ逆行列の算出\n\n# localoutput <- iotable |> \n#   filter(input$type == \"industry\",\n#          !output$type %in% c(\"export\", \"import\")) |> \n#   apply(\"input\", sum)\n# \n# import <- iotable |> \n#   filter(input$type == \"industry\",\n#          output$type == \"import\") |> \n#   apply(\"input\", sum) \n# import <- -import\n# \n# importcoeff <- import / localoutput\n# \n# I <- eye(inputcoeff)\n# M <- importcoeff\n# A <- inputcoeff\n# \n# leontiefinv <- broadcast(I - (1 - M) * A,\n#                          c(\"input\", \"output\")) |> \n#   solve()\n# print(leontiefinv,\n#       n = 5)\n\n\n\n経済波及効果の算出\nTODO"
+  },
+  {
+    "objectID": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html#まとめ",
+    "href": "posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html#まとめ",
+    "title": "🗾Rで産業連関分析",
+    "section": "まとめ",
+    "text": "まとめ\nTODO"
   }
 ]

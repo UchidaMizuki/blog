@@ -1,0 +1,139 @@
+---
+title: "🗾Rで産業連関分析"
+lang: ja
+date: "2022-05-31"
+categories: [ioanalysis, R, Japanese]
+---
+
+産業連関分析は，経済波及効果の算出に広く用いられている分析手法です．
+日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが
+作成・公開されており，産業連関分析における基礎データとなっています．
+
+これまで，産業連関分析では，Excel・VBAが用いられることが多かったようです．
+
+一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます．
+これらのプログラミング言語は以下のような特長を持っています．
+
+- 無料で利用することができる
+- 作業の再現性が高まりミスが修正しやすい・他者がミスに気づきやすい
+- 高度な分析手法が簡単に利用できる
+
+そのため今後は，産業連関分析においても，これらのプログラミング言語の利用が
+進むのではないかと思われます．
+
+ここでは，Rを用いて産業連関分析を行います．
+Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが
+多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．
+
+産業連関表として，e-Statのデータベースで公開されている日本（国）の
+2013年・13部門産業連関表を用います．
+ここで使用するデータは，
+[こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r)
+からダウンロードできます．
+
+
+
+## 分析の流れ
+
+一般的な産業連関分析の流れは以下の通りです．
+
+1. 産業連関表の整形
+1. 投入係数行列の算出
+1. レオンチェフ逆行列の算出
+1. 経済波及効果の算出
+
+以上の流れに沿って，Rによる産業連関分析の計算例を示します．
+
+
+
+## Rによる産業連関分析
+### 産業連関表の整形
+
+
+
+```{r message=FALSE}
+# library(tidyverse)
+# 
+# iotable <- read_csv("iotable_ja.csv",
+#                     col_types = cols(.default = "c",
+#                                      value = "n"))
+# 
+# knitr::kable(head(iotable))
+```
+
+```{r message=FALSE}
+# iotable <- read_csv("iotable_wider_ja.csv",
+#                     col_types = cols(.default = "c")) |> 
+#   separate(input, c("input_type", "input_name"),
+#            sep = "/") |>
+#   pivot_longer(!c(input_type, input_name),
+#                names_to = c("output_type", "output_name"),
+#                names_sep = "/",
+#                values_to = "value",
+#                values_transform = list(value = parse_number)) |> 
+#   drop_na(value)
+```
+
+
+```{r message=FALSE}
+# library(dibble)
+# 
+# iotable <- iotable |> 
+#   dibble_by(input = c(input_type, input_name),
+#             output = c(output_type, output_name),
+#             .names_sep = "_")
+# print(iotable,
+#       n = 5)
+```
+
+### 投入係数行列の算出
+
+```{r}
+# total_input <- iotable |>
+#   filter(output$type == "industry") |> 
+#   apply("output", sum)
+# 
+# interindustry <- iotable |> 
+#   filter(input$type == "industry",
+#          output$type == "industry")
+# 
+# inputcoeff <- broadcast(interindustry / total_input,
+#                         c("input", "output"))
+# print(inputcoeff,
+#       n = 5)
+```
+
+### レオンチェフ逆行列の算出
+
+```{r}
+# localoutput <- iotable |> 
+#   filter(input$type == "industry",
+#          !output$type %in% c("export", "import")) |> 
+#   apply("input", sum)
+# 
+# import <- iotable |> 
+#   filter(input$type == "industry",
+#          output$type == "import") |> 
+#   apply("input", sum) 
+# import <- -import
+# 
+# importcoeff <- import / localoutput
+# 
+# I <- eye(inputcoeff)
+# M <- importcoeff
+# A <- inputcoeff
+# 
+# leontiefinv <- broadcast(I - (1 - M) * A,
+#                          c("input", "output")) |> 
+#   solve()
+# print(leontiefinv,
+#       n = 5)
+```
+
+### 経済波及効果の算出
+
+TODO
+
+## まとめ
+
+TODO
