@@ -211,79 +211,351 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="産業連関表の整形" class="level3">
 <h3 class="anchored" data-anchor-id="産業連関表の整形">産業連関表の整形</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># library(tidyverse)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># iotable &lt;- read_csv("iotable_ja.csv",</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                     col_types = cols(.default = "c",</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#                                      value = "n"))</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># knitr::kable(head(iotable))</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>iotable_wider <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"iotable_3sector_2011_wider.csv"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable_wider)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 18%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">input</th>
+<th style="text-align: left;">industry/01_primary</th>
+<th style="text-align: left;">industry/02_secondary</th>
+<th style="text-align: left;">industry/03_tertiary</th>
+<th style="text-align: left;">finaldemand/04_finaldemand</th>
+<th style="text-align: left;">export/05_export</th>
+<th style="text-align: left;">import/06_import</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">industry/01_primary</td>
+<td style="text-align: left;">1456611000000</td>
+<td style="text-align: left;">7850628000000</td>
+<td style="text-align: left;">1373767000000</td>
+<td style="text-align: left;">3869875000000</td>
+<td style="text-align: left;">47890000000</td>
+<td style="text-align: left;">-2562809000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry/02_secondary</td>
+<td style="text-align: left;">2715710000000</td>
+<td style="text-align: left;">161897553000000</td>
+<td style="text-align: left;">62841827000000</td>
+<td style="text-align: left;">132924323000000</td>
+<td style="text-align: left;">54473273000000</td>
+<td style="text-align: left;">-71673715000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry/03_tertiary</td>
+<td style="text-align: left;">2025270000000</td>
+<td style="text-align: left;">66811645000000</td>
+<td style="text-align: left;">155796589000000</td>
+<td style="text-align: left;">352324555000000</td>
+<td style="text-align: left;">16423417000000</td>
+<td style="text-align: left;">-8921553000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">valueadded/04_valueadded</td>
+<td style="text-align: left;">5838371000000</td>
+<td style="text-align: left;">106619145000000</td>
+<td style="text-align: left;">364447740000000</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># iotable &lt;- read_csv("iotable_wider_ja.csv",</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#                     col_types = cols(.default = "c")) |&gt; </span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   separate(input, c("input_type", "input_name"),</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#            sep = "/") |&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   pivot_longer(!c(input_type, input_name),</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#                names_to = c("output_type", "output_name"),</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#                names_sep = "/",</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#                values_to = "value",</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#                values_transform = list(value = parse_number)) |&gt; </span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   drop_na(value)</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> iotable_wider <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(input, <span class="fu">c</span>(<span class="st">"input_type"</span>, <span class="st">"input_name"</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"/"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">!</span><span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"output_type"</span>, <span class="st">"output_name"</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"/"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"value"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_transform =</span> <span class="fu">list</span>(<span class="at">value =</span> parse_number)) <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(value)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">input_type</th>
+<th style="text-align: left;">input_name</th>
+<th style="text-align: left;">output_type</th>
+<th style="text-align: left;">output_name</th>
+<th style="text-align: right;">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">1.456611e+12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">7.850628e+12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">1.373767e+12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">3.869875e+12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">4.789000e+10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-2.562809e+12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">2.715710e+12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">1.618976e+14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">6.284183e+13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">1.329243e+14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">5.447327e+13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-7.167372e+13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">2.025270e+12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">6.681165e+13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">1.557966e+14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">3.523246e+14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">1.642342e+13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-8.921553e+12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">5.838371e+12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">1.066191e+14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">3.644477e+14</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># library(dibble)</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># iotable &lt;- iotable |&gt; </span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   dibble_by(input = c(input_type, input_name),</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#             output = c(output_type, output_name),</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#             .names_sep = "_")</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># print(iotable,</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#       n = 5)</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dibble)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dibble_by</span>(<span class="at">input =</span> <span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">output =</span> <span class="fu">c</span>(output_type, output_name),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>iotable</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   24 x 1
+# Dimensions: input [4], output [6]
+# Measures:   value
+   input$type $name        output$type $name             value
+   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;             &lt;dbl&gt;
+ 1 industry   01_primary   industry    01_primary      1.46e12
+ 2 industry   01_primary   industry    02_secondary    7.85e12
+ 3 industry   01_primary   industry    03_tertiary     1.37e12
+ 4 industry   01_primary   finaldemand 04_finaldemand  3.87e12
+ 5 industry   01_primary   export      05_export       4.79e10
+ 6 industry   01_primary   import      06_import      -2.56e12
+ 7 industry   02_secondary industry    01_primary      2.72e12
+ 8 industry   02_secondary industry    02_secondary    1.62e14
+ 9 industry   02_secondary industry    03_tertiary     6.28e13
+10 industry   02_secondary finaldemand 04_finaldemand  1.33e14
+# … with 14 more rows</code></pre>
+</div>
 </div>
 </section>
 <section id="投入係数行列の算出" class="level3">
 <h3 class="anchored" data-anchor-id="投入係数行列の算出">投入係数行列の算出</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># total_input &lt;- iotable |&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(output$type == "industry") |&gt; </span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   apply("output", sum)</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># interindustry &lt;- iotable |&gt; </span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(input$type == "industry",</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#          output$type == "industry")</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># inputcoeff &lt;- broadcast(interindustry / total_input,</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#                         c("input", "output"))</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># print(inputcoeff,</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#       n = 5)</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>total_input <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"output"</span>, sum)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>interindustry <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>inputcoeff <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(interindustry <span class="sc">/</span> total_input,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>inputcoeff</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: input [3], output [3]
+  input$type $name        output$type $name              .
+  &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
+1 industry   01_primary   industry    01_primary   0.121  
+2 industry   01_primary   industry    02_secondary 0.0229 
+3 industry   01_primary   industry    03_tertiary  0.00235
+4 industry   02_secondary industry    01_primary   0.226  
+5 industry   02_secondary industry    02_secondary 0.472  
+6 industry   02_secondary industry    03_tertiary  0.108  
+7 industry   03_tertiary  industry    01_primary   0.168  
+8 industry   03_tertiary  industry    02_secondary 0.195  
+9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
+</div>
 </div>
 </section>
 <section id="レオンチェフ逆行列の算出" class="level3">
 <h3 class="anchored" data-anchor-id="レオンチェフ逆行列の算出">レオンチェフ逆行列の算出</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># localoutput &lt;- iotable |&gt; </span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(input$type == "industry",</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#          !output$type %in% c("export", "import")) |&gt; </span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   apply("input", sum)</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># import &lt;- iotable |&gt; </span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(input$type == "industry",</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#          output$type == "import") |&gt; </span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   apply("input", sum) </span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># import &lt;- -import</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># importcoeff &lt;- import / localoutput</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># I &lt;- eye(inputcoeff)</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># M &lt;- importcoeff</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># A &lt;- inputcoeff</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># leontiefinv &lt;- broadcast(I - (1 - M) * A,</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#                          c("input", "output")) |&gt; </span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   solve()</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># print(leontiefinv,</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#       n = 5)</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>localoutput <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>output<span class="sc">$</span>type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"export"</span>, <span class="st">"import"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"import"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> <span class="sc">-</span>import</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>importcoeff <span class="ot">&lt;-</span> import <span class="sc">/</span> localoutput</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">eye</span>(inputcoeff)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> inputcoeff</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>leontiefinv <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(I <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> M) <span class="sc">*</span> A,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve</span>()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>leontiefinv</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: output [3], input [3]
+  output$type $name        input$type $name              .
+  &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 industry    01_primary   industry   01_primary   1.12   
+2 industry    01_primary   industry   02_secondary 0.0361 
+3 industry    01_primary   industry   03_tertiary  0.00716
+4 industry    02_secondary industry   01_primary   0.374  
+5 industry    02_secondary industry   02_secondary 1.68   
+6 industry    02_secondary industry   03_tertiary  0.197  
+7 industry    03_tertiary  industry   01_primary   0.348  
+8 industry    03_tertiary  industry   02_secondary 0.445  
+9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
+</div>
 </div>
 </section>
 <section id="経済波及効果の算出" class="level3">

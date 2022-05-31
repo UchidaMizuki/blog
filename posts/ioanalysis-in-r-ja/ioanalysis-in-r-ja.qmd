@@ -51,83 +51,83 @@ Rでは近年，tidyverseなどモダンなデータ分析を行うためのパ�
 
 
 
-```{r message=FALSE}
-# library(tidyverse)
-# 
-# iotable <- read_csv("iotable_ja.csv",
-#                     col_types = cols(.default = "c",
-#                                      value = "n"))
-# 
-# knitr::kable(head(iotable))
+```{r, message=FALSE}
+library(tidyverse)
+
+iotable_wider <- read_csv("iotable_3sector_2011_wider.csv",
+                          col_types = cols(.default = "c"))
+
+knitr::kable(iotable_wider)
 ```
 
-```{r message=FALSE}
-# iotable <- read_csv("iotable_wider_ja.csv",
-#                     col_types = cols(.default = "c")) |> 
-#   separate(input, c("input_type", "input_name"),
-#            sep = "/") |>
-#   pivot_longer(!c(input_type, input_name),
-#                names_to = c("output_type", "output_name"),
-#                names_sep = "/",
-#                values_to = "value",
-#                values_transform = list(value = parse_number)) |> 
-#   drop_na(value)
+```{r, message=FALSE}
+iotable <- iotable_wider |>
+  separate(input, c("input_type", "input_name"),
+           sep = "/") |>
+  pivot_longer(!c(input_type, input_name),
+               names_to = c("output_type", "output_name"),
+               names_sep = "/",
+               values_to = "value",
+               values_transform = list(value = parse_number)) |>
+  drop_na(value)
+
+knitr::kable(iotable)
 ```
 
 
 ```{r message=FALSE}
-# library(dibble)
-# 
-# iotable <- iotable |> 
-#   dibble_by(input = c(input_type, input_name),
-#             output = c(output_type, output_name),
-#             .names_sep = "_")
-# print(iotable,
-#       n = 5)
+library(dibble)
+
+iotable <- iotable |>
+  dibble_by(input = c(input_type, input_name),
+            output = c(output_type, output_name),
+            .names_sep = "_")
+
+iotable
 ```
 
 ### 投入係数行列の算出
 
 ```{r}
-# total_input <- iotable |>
-#   filter(output$type == "industry") |> 
-#   apply("output", sum)
-# 
-# interindustry <- iotable |> 
-#   filter(input$type == "industry",
-#          output$type == "industry")
-# 
-# inputcoeff <- broadcast(interindustry / total_input,
-#                         c("input", "output"))
-# print(inputcoeff,
-#       n = 5)
+total_input <- iotable |>
+  filter(output$type == "industry") |>
+  apply("output", sum)
+
+interindustry <- iotable |>
+  filter(input$type == "industry",
+         output$type == "industry")
+
+inputcoeff <- broadcast(interindustry / total_input,
+                        c("input", "output"))
+
+inputcoeff
 ```
 
 ### レオンチェフ逆行列の算出
 
 ```{r}
-# localoutput <- iotable |> 
-#   filter(input$type == "industry",
-#          !output$type %in% c("export", "import")) |> 
-#   apply("input", sum)
-# 
-# import <- iotable |> 
-#   filter(input$type == "industry",
-#          output$type == "import") |> 
-#   apply("input", sum) 
-# import <- -import
-# 
-# importcoeff <- import / localoutput
-# 
-# I <- eye(inputcoeff)
-# M <- importcoeff
-# A <- inputcoeff
-# 
-# leontiefinv <- broadcast(I - (1 - M) * A,
-#                          c("input", "output")) |> 
-#   solve()
-# print(leontiefinv,
-#       n = 5)
+localoutput <- iotable |>
+  filter(input$type == "industry",
+         !output$type %in% c("export", "import")) |>
+  apply("input", sum)
+
+import <- iotable |>
+  filter(input$type == "industry",
+         output$type == "import") |>
+  apply("input", sum)
+import <- -import
+
+importcoeff <- import / localoutput
+
+I <- eye(inputcoeff)
+M <- importcoeff
+A <- inputcoeff
+
+leontiefinv <- broadcast(I - (1 - M) * A,
+                         c("input", "output")) |>
+  solve()
+
+leontiefinv
 ```
 
 ### 経済波及効果の算出
