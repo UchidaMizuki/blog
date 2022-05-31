@@ -1,16 +1,16 @@
 project:
   type: website
+  favicon: logo.png
   output-dir: docs
 
 website:
-  title: "blog"
+  title: "UchidaMizuki"
   navbar:
     right:
       - about.qmd
       - icon: github
-        href: https://github.com/
-      - icon: twitter
-        href: https://twitter.com
+        href: https://github.com/UchidaMizuki
+
 format:
   html:
     theme: cosmo
