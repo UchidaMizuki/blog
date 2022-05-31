@@ -13,7 +13,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: simplex
     css: styles.css
 
 editor: visual

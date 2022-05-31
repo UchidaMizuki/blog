@@ -1,5 +1,5 @@
 ---
-title: "blog"
+title: "UchidaMizuki"
 listing:
   contents: posts
   sort: "date desc"
