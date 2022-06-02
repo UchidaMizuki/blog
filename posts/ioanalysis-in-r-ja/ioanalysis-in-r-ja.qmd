@@ -49,16 +49,35 @@ Rでは近年，tidyverseなどモダンなデータ分析を行うためのパ�
 ## Rによる産業連関分析
 ### 産業連関表の整形
 
+ここでは，
+[こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r)
+からダウンロードできる日本の2011年の3部門表（`iotable_3sector_2011_wider.csv`）を
+使用します．
 
+こちらの表は，以下のように，日本の2011年の13部門表より作成したものです．
+
+* 13部門の産業分類を第1次・第2次・第3次産業に集計
+* 付加価値部門は1部門に集計
+* 最終需要部門は域内最終需要（`finaldemand`）・輸出（`export`）・輸入（`import`）の3部門に集計
+
+産業連関表のデータ形式は，e-Statのデータベースで提供されている表などを除いて，
+行に投入部門（`input`）・列に産出部門（`output`）を持つ「横長データ」であることが多いと思われます．
+
+ここでも，以下の通り，まずは横長の産業連関表データを読み込みます．
 
 ```{r, message=FALSE}
 library(tidyverse)
 
 iotable_wider <- read_csv("iotable_3sector_2011_wider.csv",
-                          col_types = cols(.default = "c"))
+                          col_types = cols(.default = "c")) |> 
+  mutate(across(-1, parse_number))
 
 knitr::kable(iotable_wider)
 ```
+
+データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが，
+分析しやすい場合が多くあります．
+ここでも，横長の産業連関表を「縦長データ」に変換します．
 
 ```{r, message=FALSE}
 iotable <- iotable_wider |>
@@ -67,13 +86,17 @@ iotable <- iotable_wider |>
   pivot_longer(!c(input_type, input_name),
                names_to = c("output_type", "output_name"),
                names_sep = "/",
-               values_to = "value",
-               values_transform = list(value = parse_number)) |>
-  drop_na(value)
+               values_to = "value_M") |>
+  drop_na(value_M)
 
 knitr::kable(iotable)
 ```
 
+上で構築した表データは，各行のフィルタリングなどが容易にできる一方で，
+産業連関分析に用いられる行列計算などに適していません．
+
+そこで，表データの見た目のまま行列計算を行えるdibbleパッケージを用います．
+以下では，産業連関表をdibbleに変換しています．
 
 ```{r message=FALSE}
 library(dibble)
@@ -87,6 +110,12 @@ iotable
 ```
 
 ### 投入係数行列の算出
+
+投入係数は以下のように表される．
+
+$$
+a_{ij}=\frac{x_{ij}}{X_j}
+$$
 
 ```{r}
 total_input <- iotable |>
@@ -103,7 +132,15 @@ inputcoeff <- broadcast(interindustry / total_input,
 inputcoeff
 ```
 
+
+
 ### レオンチェフ逆行列の算出
+
+TODO
+
+$$
+[I-(I-M)A]^{-1}
+$$
 
 ```{r}
 localoutput <- iotable |>
