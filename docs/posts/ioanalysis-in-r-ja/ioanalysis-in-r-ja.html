@@ -240,19 +240,19 @@ AX + F + E - M = X
 <td style="text-align: center;">投入係数行列</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;"><span class="math inline">\(X\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(X = (X_1, \cdots, X_n) ^ \top\)</span></td>
 <td style="text-align: center;">生産額ベクトル</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;"><span class="math inline">\(F\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(F = (F_1, \cdots, F_n) ^ \top\)</span></td>
 <td style="text-align: center;">最終需要ベクトル</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;"><span class="math inline">\(E\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(E = (E_1, \cdots, E_n) ^ \top\)</span></td>
 <td style="text-align: center;">移輸出ベクトル</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;"><span class="math inline">\(M\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(M = (M_1, \cdots, M_n) ^ \top\)</span></td>
 <td style="text-align: center;">移輸入ベクトル</td>
 </tr>
 </tbody>
@@ -260,22 +260,17 @@ AX + F + E - M = X
 <p>経済波及効果の推計では，<strong>最終需要の変化が生産額に与える波及効果</strong>を算出します．</p>
 <p>特に，日本の産業連関表での経済波及効果の推計では，<strong>移輸入</strong><span class="math inline">\(M\)</span><strong>の扱いに注意が必要</strong>です（これは，日本表の多くが競争移輸入型表と呼ばれる形式を採用しており，投入係数に移輸入分が含まれているためです）．</p>
 <p>最終需要による経済波及効果は，域内の生産額だけでなく域外からの移輸入を誘発すると考えられます．この効果を無視すると経済波及効果を過大評価することにつながるため，通常，<strong>投入係数から移輸入相当分を差し引く</strong>という処理が行われます．</p>
-<p>移輸入は域内需要におおよそ比例すると考えられるため，以下のように，移輸入係数<span class="math inline">\(\hat{m_i}\)</span>が算出できます．</p>
+<p>移輸入は域内需要におおよそ比例すると考えられるため，以下のように，移輸入係数<span class="math inline">\(\hat{M_i}\)</span>が算出できます．</p>
 <p><span class="math display">\[
-\begin{pmatrix}
-\hat{m_1} \\
-\vdots \\
-\hat{m_n}
-\end{pmatrix}
-= \frac{M}{AX + F}
+\hat{M_i} = \frac{M_i}{\sum_{j}a_{ij}X_j + F_i}
 \]</span></p>
 <p>さらに，行列での計算に適した移輸入係数行列<span class="math inline">\(\hat{M}\)</span>が，以下のように定義されます．</p>
 <p><span class="math display">\[
 \hat{M} =
 \begin{pmatrix}
-  \hat{m_1} &amp; &amp; 0 \\
+  \hat{M_1} &amp; &amp; 0 \\
   &amp; \ddots &amp; \\
-  0 &amp; &amp; \hat{m_n} \\
+  0 &amp; &amp; \hat{M_n} \\
 \end{pmatrix}
 \]</span></p>
 <p>以上より，生産額のバランス式（行方向）は，移輸入係数行列<span class="math inline">\(\hat{M}\)</span>を用いて，以下のように変形されます．ただし，<span class="math inline">\(I\)</span>は単位行列（対角成分が1，それ以外が0の正方行列）です．</p>
