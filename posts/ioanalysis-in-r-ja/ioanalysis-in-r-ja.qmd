@@ -5,63 +5,134 @@ date: "2022-05-31"
 categories: [ioanalysis, R, Japanese]
 ---
 
-産業連関分析は，経済波及効果の算出に広く用いられている分析手法です．
-日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが
-作成・公開されており，産業連関分析における基礎データとなっています．
+産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．
 
 これまで，産業連関分析では，Excel・VBAが用いられることが多かったようです．
 
-一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます．
-これらのプログラミング言語は以下のような特長を持っています．
+一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます． これらのプログラミング言語は以下のような特長を持っています．
 
-- 無料で利用することができる
-- 作業の再現性が高まりミスが修正しやすい・他者がミスに気づきやすい
-- 高度な分析手法が簡単に利用できる
+-   無料で利用することができる
+-   作業の再現性が高まりミスが修正しやすい・他者がミスに気づきやすい
+-   高度な分析手法が簡単に利用できる
 
-そのため今後は，産業連関分析においても，これらのプログラミング言語の利用が
-進むのではないかと思われます．
+そのため今後は，産業連関分析においても，これらのプログラミング言語の利用が 進むのではないかと思われます．
 
-ここでは，Rを用いて産業連関分析を行います．
-Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが
-多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．
+ここでは，Rを用いて産業連関分析を行います． Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが 多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．
 
-産業連関表として，e-Statのデータベースで公開されている日本（国）の
-2013年・13部門産業連関表を用います．
-ここで使用するデータは，
-[こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r)
-からダウンロードできます．
+産業連関表として，e-Statのデータベースで公開されている日本（国）の 2013年・13部門産業連関表を用います． ここで使用するデータは， [こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r) からダウンロードできます．
 
+## 産業連関分析の基礎
 
+産業連関分析は一般的に以下の流れに従って行われます．
 
-## 分析の流れ
+1.  **産業連関表**の整形
+2.  **投入係数行列**の算出
+3.  **レオンチェフ逆行列**の算出
+4.  **経済波及効果**の算出
 
-一般的な産業連関分析の流れは以下の通りです．
+まず，産業連関分析において重要な投入係数行列・レオンチェフ逆行列・経済波及効果の算出方法について解説します．
 
-1. 産業連関表の整形
-1. 投入係数行列の算出
-1. レオンチェフ逆行列の算出
-1. 経済波及効果の算出
+### 投入係数行列とは
 
-以上の流れに沿って，Rによる産業連関分析の計算例を示します．
+投入係数は，産業の「**クッキングレシピ**」として呼ばれており，産業$j$の生産物を1単位生産するのに必要な産業$i$の生産物の量を表すものです．具体的には，以下のように中間投入$x_{ij}$を生産額$X_j$（産出額）で割ることで算出できます．
 
+$$
+a_{ij}=\frac{x_{ij}}{X_j}
+$$
 
+産業連関分析では，「クッキングレシピ」に相当する投入係数$a_{ij}$に基づく生産額のバランス式（行方向）を連立方程式として解きます．そこで，以下のように，**投入係数行列**（通常，$A$と表される）と呼ばれる行列を作成することで，連立方程式が簡単に解けるようになります．
+
+$$
+A = \begin{pmatrix}
+  a_{11} & \cdots & a_{1n} \\
+  \vdots & \ddots & \vdots \\
+  a_{n1} & \cdots & a_{nn} \\
+\end{pmatrix}
+$$
+
+### レオンチェフ逆行列による経済波及効果の推計について
+
+生産額のバランス式（行方向）は，行列を用いて以下のように表せます．変数の意味は以下の表の通りです．
+
+$$
+AX + F + E - M = X
+$$
+
+| 変数 |       意味       |
+|:----:|:----------------:|
+| $A$  |   投入係数行列   |
+| $X$  |  生産額ベクトル  |
+| $F$  | 最終需要ベクトル |
+| $E$  |  移輸出ベクトル  |
+| $M$  |  移輸入ベクトル  |
+
+経済波及効果の推計では，**最終需要の変化が生産額に与える波及効果**を算出します．
+
+特に，日本の産業連関表での経済波及効果の推計では，**移輸入**$M$**の扱いに注意が必要**です（これは，日本表の多くが競争移輸入型表と呼ばれる形式を採用しており，投入係数に移輸入分が含まれているためです）．
+
+最終需要による経済波及効果は，域内の生産額だけでなく域外からの移輸入を誘発すると考えられます．この効果を無視すると経済波及効果を過大評価することにつながるため，通常，**投入係数から移輸入相当分を差し引く**という処理が行われます．
+
+移輸入は域内需要におおよそ比例すると考えられるため，以下のように，移輸入係数$\hat{m_i}$が算出できます．
+
+$$
+\begin{pmatrix}
+\hat{m_1} \\
+\vdots \\
+\hat{m_n}
+\end{pmatrix}
+= \frac{M}{AX + F}
+$$
+
+さらに，行列での計算に適した移輸入係数行列$\hat{M}$が，以下のように定義されます．
+
+$$
+\hat{M} = 
+\begin{pmatrix}
+  \hat{m_1} & & 0 \\
+  & \ddots & \\
+  0 & & \hat{m_n} \\
+\end{pmatrix}
+$$
+
+以上より，生産額のバランス式（行方向）は，移輸入係数行列$\hat{M}$を用いて，以下のように変形されます．ただし，$I$は単位行列（対角成分が1，それ以外が0の正方行列）です．
+
+$$
+\begin{align}
+  AX + F + E - \hat{M} (AX + F) &= X \\
+  (I - \hat{M}) (AX + F) + E &= X
+\end{align}
+$$
+
+上のバランス式より，経済波及効果の算出式が，以下のように導出されます．ここで，$\Delta X$，$\Delta F$は，それぞれ，生産額の変化量，最終需要の変化量です．
+
+$$
+\begin{align}
+  X &= (I - \hat{M}) (AX + F) + E \\
+  [I - (I - \hat{M}) A] X &= (I - \hat{M}) F + E \\
+  X &= [I - (I - \hat{M}) A] ^ {-1} [(I - \hat{M}) F + E] \\
+  \Delta X &= [I - (I - \hat{M}) A] ^ {-1} (I - \hat{M}) \Delta F
+\end{align}
+$$
+
+生産額の変化量$\Delta X$の式の右辺の$(I - \hat{M}) \Delta F$は，最終需要の変化量に自給率$I - \hat{M}$を掛けた値となっています．
+
+また，$[I - (I - \hat{M}) A] ^ {-1}$は，最終需要の変化による直接・間接の波及効果を表す行列であり（開放型または競争移輸入型の）**レオンチェフ逆行列**と呼ばれています．
+
+以上のように，最終需要の変化量$\Delta F$から生産額の変化量$\Delta X$を推計するというのが，最も一般的な産業連関分析の方法となっています．
 
 ## Rによる産業連関分析
+
 ### 産業連関表の整形
 
-ここでは，
-[こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r)
-からダウンロードできる日本の2011年の3部門表（`iotable_3sector_2011_wider.csv`）を
-使用します．
+ここでは， [こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r) からダウンロードできる日本の2011年の3部門表（`iotable_3sector_2011_wider.csv`）を使用します．
 
-こちらの表は，以下のように，日本の2011年の13部門表より作成したものです．
+こちらの表は，以下のように，日本の2011年の13部門表より作成したもので，**単位は「百万円」**です．
 
-* 13部門の産業分類を第1次・第2次・第3次産業に集計
-* 付加価値部門は1部門に集計
-* 最終需要部門は域内最終需要（`finaldemand`）・輸出（`export`）・輸入（`import`）の3部門に集計
+-   13部門の産業分類を**第1次・第2次・第3次産業に集計**（注：「分類不明」を第3次産業に分類）
+-   付加価値部門を1部門に集計
+-   最終需要部門を域内最終需要（`finaldemand`）・輸出（`export`）・輸入（`import`）の3部門に集計
 
-産業連関表のデータ形式は，e-Statのデータベースで提供されている表などを除いて，
-行に投入部門（`input`）・列に産出部門（`output`）を持つ「横長データ」であることが多いと思われます．
+産業連関表のデータ形式は，e-Statのデータベースで提供されている表などを除いて， 行に投入部門（`input`）・列に産出部門（`output`）を持つ「横長データ」であることが多いと思われます．
 
 ここでも，以下の通り，まずは横長の産業連関表データを読み込みます．
 
@@ -70,40 +141,47 @@ library(tidyverse)
 
 iotable_wider <- read_csv("iotable_3sector_2011_wider.csv",
                           col_types = cols(.default = "c")) |> 
-  mutate(across(-1, parse_number))
+  
+  # input (投入) 列以外を数値に変換
+  mutate(across(!input, parse_number))
 
 knitr::kable(iotable_wider)
 ```
 
-データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが，
-分析しやすい場合が多くあります．
-ここでも，横長の産業連関表を「縦長データ」に変換します．
+データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが， 分析しやすい場合が多くあります． ここでも，横長の産業連関表を「縦長データ」に変換します．
 
 ```{r, message=FALSE}
 iotable <- iotable_wider |>
+  
+  # input (投入) 列を分類・名称に分割
   separate(input, c("input_type", "input_name"),
            sep = "/") |>
+  
+  # input (投入) と同様にoutput (産出) の分類・名称列を追加し縦長データに
   pivot_longer(!c(input_type, input_name),
                names_to = c("output_type", "output_name"),
                names_sep = "/",
                values_to = "value_M") |>
+  
+  # 数値が存在しない行を削除
   drop_na(value_M)
 
 knitr::kable(iotable)
 ```
 
-上で構築した表データは，各行のフィルタリングなどが容易にできる一方で，
-産業連関分析に用いられる行列計算などに適していません．
+上で構築した表データは，各行のフィルタリングなどが容易にできる一方で， 産業連関分析に用いられる行列計算などに適していません．
 
-そこで，表データの見た目のまま行列計算を行えるdibbleパッケージを用います．
-以下では，産業連関表をdibbleに変換しています．
+そこで，表データの基本的な演算と行列計算を同時に行えるdibbleパッケージを用います． 以下のように，産業連関表をdibbleに変換します．
 
 ```{r message=FALSE}
+# pak::pak("UchidaMizuki/dibble")
 library(dibble)
 
 iotable <- iotable |>
   dibble_by(input = c(input_type, input_name),
             output = c(output_type, output_name),
+            
+            # "_"で列名を分割してinput (投入)・output (産出) 軸を設定
             .names_sep = "_")
 
 iotable
@@ -111,55 +189,57 @@ iotable
 
 ### 投入係数行列の算出
 
-投入係数は以下のように表される．
+産業の「クッキングレシピ」と呼ばれる投入係数行列$A$を以下のように中間投入を生産額で割って算出します．
 
-$$
-a_{ij}=\frac{x_{ij}}{X_j}
-$$
+注：dibbleではブロードキャストが自動で行われますが，安全のため，ブロードキャストを行う際に，警告を発するように設計されています．そのため，`broadcast()`でブロードキャスト後の軸名`c("input", "output")`を与えて警告が出ないようにする必要があります．
 
 ```{r}
+# 生産額
 total_input <- iotable |>
   filter(output$type == "industry") |>
   apply("output", sum)
 
+# 中間投入
 interindustry <- iotable |>
   filter(input$type == "industry",
          output$type == "industry")
 
-inputcoeff <- broadcast(interindustry / total_input,
-                        c("input", "output"))
+# 投入係数
+input_coeff <- broadcast(interindustry / total_input,
+                         c("input", "output"))
 
-inputcoeff
+input_coeff
 ```
-
-
 
 ### レオンチェフ逆行列の算出
 
-TODO
+経済波及効果を表すレオンチェフ逆行列は以下のように，移輸入係数と投入係数を用いて算出できます．
 
-$$
-[I-(I-M)A]^{-1}
-$$
+注：`solve()`で逆行列を算出すると行列の軸名が入れ替わるため注意してください．
 
 ```{r}
-localoutput <- iotable |>
+# 域内需要
+local_demand <- iotable |>
   filter(input$type == "industry",
          !output$type %in% c("export", "import")) |>
   apply("input", sum)
 
+# (移) 輸入
 import <- iotable |>
   filter(input$type == "industry",
          output$type == "import") |>
   apply("input", sum)
+# 符号を正に
 import <- -import
 
-importcoeff <- import / localoutput
+# (移) 輸入係数
+import_coeff <- import / local_demand
 
-I <- eye(inputcoeff)
-M <- importcoeff
-A <- inputcoeff
+I <- eye(input_coeff) # 単位行列
+M <- import_coeff     # 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)
+A <- input_coeff      # 投入係数行列
 
+# レオンチェフ逆行列
 leontiefinv <- broadcast(I - (1 - M) * A,
                          c("input", "output")) |>
   solve()
@@ -169,8 +249,58 @@ leontiefinv
 
 ### 経済波及効果の算出
 
-TODO
+[こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r) からダウンロードできる最終需要がそれぞれ百万円ずつ増加する（`finaldemand_change_3sector.csv`）ケースで経済波及効果を算出しています．
+
+```{r}
+# 最終需要変化量
+finaldemand_change <- read_csv("finaldemand_change_3sector.csv",
+                               col_types = cols(.default = "c",
+                                                value_M = "n")) |> 
+  dibble_by(input = c(input_type, input_name),
+            .names_sep = "_")
+
+L <- leontiefinv         # レオンチェフ逆行列
+M <- import_coeff        # 移輸入係数
+FD <- finaldemand_change # 最終需要変化量
+
+# 経済波及効果
+spillover <- L %*% ((1 - M) * FD)
+
+spillover
+
+spillover |> 
+  as_tibble(n = "value_M") |> 
+  unpack(output, "_") |> 
+  ggplot(aes(output_name, value_M)) +
+  geom_col()
+```
 
 ## まとめ
 
-TODO
+Rを用いた産業連関分析の方法について紹介しました．
+
+ここまでの計算を，[jpio](https://github.com/UchidaMizuki/jpio)にパッケージ形式でまとめました．以下のように，ここまでの計算と同様の計算を行うことができます．
+
+```{r}
+# pak::pak("UchidaMizuki/jpio")
+
+# 産業連関表
+iotable <- read_csv("iotable_3sector_2011.csv",
+                    col_types = cols(.default = "c",
+                                     value_M = "n")) |> 
+  jpio::as_iotable()
+
+iotable
+
+# 投入係数
+jpio::input_coeff(iotable)
+
+# レオンチェフ逆行列
+jpio::leontief_inv(iotable)
+
+# 経済波及効果
+jpio::spillover_effect(iotable,
+                       list(`01_primary` = 1,
+                            `02_secondary` = 1,
+                            `03_tertiary` = 1))
+```
