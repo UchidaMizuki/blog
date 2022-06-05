@@ -1,0 +1,173 @@
+---
+title: "🗾Rで地域メッシュ統計（jpgridパッケージ）"
+lang: ja
+date: "2022-06-04"
+categories: [grid-square-stats, jpgrid, R, Japanese]
+fig-align: center
+image: station_main_grid500m.png
+---
+
+**地域メッシュ**（**Grid Squares**）とは「**緯度・経度に基づいて日本の国土をほぼ正方形の区画に分割したもの**」で，約80 km四方～約100 m四方など様々な大きさのメッシュに対してそれぞれメッシュコードが割り振られています．
+
+これらのメッシュコードに統計データを対応させたデータは[地域メッシュ統計](https://www.stat.go.jp/data/mesh/index.html)と呼ばれています．
+
+ここでは，地域メッシュを扱うためのRパッケージである[jpgrid](https://github.com/UchidaMizuki/jpgrid)のサンプルコードを紹介します．
+
+使用したサンプルデータは，[こちら](https://github.com/UchidaMizuki/blog-grid-square-stats-in-r)からダウンロードできます．
+
+## 東京の主要駅周辺のメッシュ人口
+
+東京の主要駅周辺のメッシュ人口を図示してみましょう．ここでは，駅の位置データ（`station_5339_2019.gpkg`）と500 mメッシュ人口データ（`pop_grid500m_5339_2015`）を利用します．
+
+［データ出典］
+
+-   `station_5339_2019.gpkg`：[国土数値情報の2019年鉄道データ](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02-v2_3.html)より作成（80 kmメッシュ：5339のみ）
+
+-   `pop_grid500m_5339_2015`：[地図で見る統計の2015年国勢調査の4次メッシュデータ](https://www.e-stat.go.jp/gis/statmap-search?page=5&type=1&toukeiCode=00200521&toukeiYear=2015&aggregateUnit=H&serveyId=H002005112015&statsId=T000847)より作成
+
+### 駅の位置データ
+
+`station_5339_2019.gpkg` には東京都近辺（80 kmメッシュ：5339）の2019年の駅データが格納されています．
+
+```{r, message=FALSE, warning=FALSE}
+# pak::pak("UchidaMizuki/jpgrid")
+library(tidyverse)
+library(sf)
+library(arrow)
+library(jpgrid)
+
+# crs
+WGS84 <- 4326
+
+# ggspatial
+annotation_map_tile <- function(zoomin = -1, 
+                                progress = "none", ...) {
+  list(ggspatial::annotation_map_tile(zoomin = zoomin, 
+                                      progress = progress, ...),
+       labs(caption = "© OpenStreetMap contributors"))
+}
+
+station <- read_sf("station_5339_2019.gpkg")
+
+ggplot(station,
+       aes(color = line)) +
+  annotation_map_tile() +
+  geom_sf(show.legend = FALSE) +
+  scale_color_viridis_d(option = "turbo")
+```
+
+### 東京主要駅の500 mメッシュ駅勢圏の作成
+
+東京の主要駅である新宿駅・渋谷駅・池袋駅・東京駅の4つの駅に対して，500 mメッシュで駅勢圏を作成してみます．ここでは，駅の代表点から約1.5 kmを駅勢圏とします．
+
+jpgridでは，`geometry_to_grid()` で**sfパッケージのジオメトリをメッシュコードに変換**することができます．また，逆に，`grid_as_sf()` で**メッシュコードを持つデータフレームをsfパッケージのジオメトリデータに変換**することもできます．
+
+```{r, message=FALSE, warning=FALSE, fig.height=8}
+# 駅勢圏の距離
+dist_station <- units::set_units(1.5, km)
+
+# 主要駅の代表点を中心とする駅勢圏ジオメトリ
+station_main <- station |>
+  filter(station %in% c("新宿", "渋谷", "池袋", "東京")) |>
+  group_by(station = as_factor(station)) |>
+  summarise(.groups = "drop") |>
+  
+  # 重心点を作成
+  st_centroid() |>
+  
+  # 重心点を中心とする円を作成
+  st_buffer(dist_station)
+
+# 駅勢圏の500 mメッシュデータ
+station_main_grid500m <- station_main |>
+  mutate(grid500m = geom |>
+           
+           # sfジオメトリ -> 500 mメッシュ
+           geometry_to_grid("500m")) |>
+  st_drop_geometry() |>
+  unnest(grid500m) |>
+  
+  # 500 mメッシュ -> sfジオメトリ
+  grid_as_sf(crs = WGS84)
+
+ggplot(station_main,
+       aes(fill = station,
+           label = station)) +
+  annotation_map_tile() +
+  geom_sf(data = station_main_grid500m,
+          alpha = 0.5) +
+  geom_sf(fill = "transparent",
+          linetype = "dashed") +
+  geom_sf_text() +
+  scale_fill_brewer(palette = "Set2") +
+  theme(legend.position = "none")
+```
+
+## 東京主要駅の駅勢圏におけるメッシュ人口
+
+東京の主要駅の駅勢圏における2015年のメッシュ人口を図示してみます．`grid_500m()` などの関数を用いることで文字列のメッシュコード（`"533900054"`など）をjpgridのメッシュコードに変換できます．
+
+グラフより以下のことが確認できました．
+
+-   4つの駅の駅勢圏人口は池袋駅で最も多く東京駅で最も少ない
+
+-   駅や皇居・公園などの周辺で人口が少ないことが地図からも確認できる
+
+```{r, message=FALSE, fig.height=8}
+# 500 mメッシュ人口
+pop_grid500m <- read_parquet("pop_grid500m_5339_2015.parquet") |> 
+  mutate(grid500m = grid_500m(grid500m))
+
+# 500 mメッシュ駅勢圏データに人口を付与
+station_main_grid500m <- station_main_grid500m |> 
+  left_join(pop_grid500m,
+            by = "grid500m") |> 
+  replace_na(list(pop = 0))
+
+limits <- c(0, max(station_main_grid500m$pop))
+
+station_main_grid500m |> 
+  group_by(station) |> 
+  group_map(~ {
+    ggplot(.x,
+           aes(fill = pop)) +
+      annotation_map_tile() +
+      geom_sf(alpha = 0.5) +
+      scale_fill_viridis_c("人口",
+                           limits = limits,
+                           option = "turbo") +
+      ggtitle(.y$station) +
+      theme(plot.title = element_text(hjust = 0.5),
+            axis.text = element_blank())
+  }) |> 
+  patchwork::wrap_plots() +
+  patchwork::plot_layout(guides = "collect")
+```
+
+```{r, include=FALSE}
+ggsave("station_main_grid500m.png",
+       width = 8,
+       height = 8)
+```
+
+```{r}
+station_main_grid500m |> 
+  st_drop_geometry() |> 
+  group_by(station) |> 
+  summarise(pop = sum(pop)) |> 
+  ggplot(aes(station, pop)) +
+  geom_col(aes(fill = station),
+           show.legend = FALSE) +
+  geom_text(aes(label = pop),
+            vjust = 2) +
+  scale_x_discrete("東京の主要駅") +
+  scale_y_continuous("駅勢圏メッシュ人口 [千人]",
+                     labels = scales::label_comma(scale = 1e-3)) +
+  scale_fill_brewer(palette = "Set2")
+```
+
+## まとめ
+
+Rパッケージのjpgridによる地域メッシュ統計のサンプルコードを紹介しました．
+
+jpgridを使うことで，**緯度経度やジオメトリのデータを簡単に地域メッシュ統計と紐づけられます**．皆さんもぜひ使ってみてください．

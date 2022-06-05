@@ -46,9 +46,9 @@ ul.task-list{list-style: none;}
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-description","listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -69,6 +69,7 @@ ul.task-list{list-style: none;}
 <script src="site_libs\quarto-search\fuse.min.js"></script>
 <script src="site_libs\quarto-search\quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./logo.png" rel="icon" type="image/png">
 <script src="site_libs\quarto-listing\list.min.js"></script>
 <script src="site_libs\quarto-listing\quarto-listing.js"></script>
 <script src="site_libs\quarto-html\quarto.js"></script>
@@ -104,6 +105,9 @@ ul.task-list{list-style: none;}
 </i> 
  </a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://soundcloud.com/uchidamizuki">SoundCloud</a>
+  </li>  
 </ul>
               <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
@@ -131,7 +135,7 @@ ul.task-list{list-style: none;}
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Japanese">Japanese <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ioanalysis">ioanalysis <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Japanese">Japanese <span class="quarto-category-count">(2)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(2)</span></div><div class="category" data-category="dibble">dibble <span class="quarto-category-count">(1)</span></div><div class="category" data-category="grid-square-stats">grid-square-stats <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ioanalysis">ioanalysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="jpgrid">jpgrid <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -144,7 +148,55 @@ ul.task-list{list-style: none;}
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="ioanalysis,R,Japanese" data-listing-date-sort="1653922800000" data-listing-file-modified-sort="1654328727257" data-listing-reading-time-sort="5.27">
+<div class="quarto-post image-right" data-index="0" data-categories="grid-square-stats,jpgrid,R,Japanese" data-listing-date-sort="1654268400000" data-listing-file-modified-sort="1654414133893" data-listing-reading-time-sort="3.23">
+<div class="thumbnail">
+<p><a href="./posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html"> <img src="./posts/grid-square-stats-in-r-ja/station_main_grid500m.png" class="thumnail-image"> </a></p>
+</div>
+<div class="body">
+<a href="./posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html">
+<h3 class="no-anchor listing-title">
+🗾Rで地域メッシュ統計
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('grid-square-stats'); return false;">
+grid-square-stats
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('jpgrid'); return false;">
+jpgrid
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('R'); return false;">
+R
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('Japanese'); return false;">
+Japanese
+</div>
+</div>
+<a href="./posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html">
+<div class="listing-description">
+<strong>地域メッシュ</strong>（<strong>Grid Squares</strong>）とは「<strong>緯度・経度に基づいて日本の国土をほぼ正方形の区画に分割したもの</strong>」で，約80 km四方～約100 m四方など様々な大きさのメッシュに対してそれぞれメッシュコードが割り振られています．
+</div>
+</a>
+</div>
+<div class="metadata">
+<a href="./posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html">
+<div class="listing-date">
+Jun 4, 2022
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="ioanalysis,dibble,R,Japanese" data-listing-date-sort="1653922800000" data-listing-file-modified-sort="1654354809793" data-listing-reading-time-sort="5.27">
+<div class="thumbnail">
+<a href="./posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html">
+<div class="thumbnail-image">
+
+</div>
+</a><p><a href="./posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html"></a></p>
+</div>
 <div class="body">
 <a href="./posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html">
 <h3 class="no-anchor listing-title">
@@ -157,6 +209,9 @@ ul.task-list{list-style: none;}
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('ioanalysis'); return false;">
 ioanalysis
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('dibble'); return false;">
+dibble
 </div>
 <div class="listing-category" onclick="window.quartoListingCategory('R'); return false;">
 R

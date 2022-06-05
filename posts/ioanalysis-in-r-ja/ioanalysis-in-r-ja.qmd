@@ -2,7 +2,7 @@
 title: "🗾Rで産業連関分析"
 lang: ja
 date: "2022-05-31"
-categories: [ioanalysis, R, Japanese]
+categories: [ioanalysis, dibble, R, Japanese]
 ---
 
 産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．

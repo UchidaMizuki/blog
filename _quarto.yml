@@ -1,15 +1,17 @@
 project:
   type: website
-  favicon: logo.png
   output-dir: docs
 
 website:
   title: "UchidaMizuki"
+  favicon: logo.png
   navbar:
     right:
       - about.qmd
       - icon: github
         href: https://github.com/UchidaMizuki
+      - text: SoundCloud
+        href: https://soundcloud.com/uchidamizuki
 
 format:
   html:
