@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>UchidaMizuki - 🗾Rで地域メッシュ統計</title>
+<title>UchidaMizuki - 🗾Rで地域メッシュ統計（jpgridパッケージ）</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -99,6 +99,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-submit-button-title": "検索"
   }
 }</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-VW3C30XP8C"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
+</script>
 
 
 <script src="..\..\site_libs\quarto-nav\quarto-nav.js"></script>
@@ -199,7 +208,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>［データ出典］</p>
 <ul>
 <li><p><code>station_5339_2019.gpkg</code>：<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02-v2_3.html">国土数値情報の2019年鉄道データ</a>より作成（80 kmメッシュ：5339のみ）</p></li>
-<li><p><code>pop_grid500m_5339_2015</code>：<a href="https://www.e-stat.go.jp/gis/statmap-search?page=5&amp;type=1&amp;toukeiCode=00200521&amp;toukeiYear=2015&amp;aggregateUnit=H&amp;serveyId=H002005112015&amp;statsId=T000847">地図で見る統計の2015年国勢調査の4次メッシュデータ</a>より作成</p></li>
+<li><p><code>pop_grid500m_5339_2015.parquet</code>：<a href="https://www.e-stat.go.jp/gis/statmap-search?page=5&amp;type=1&amp;toukeiCode=00200521&amp;toukeiYear=2015&amp;aggregateUnit=H&amp;serveyId=H002005112015&amp;statsId=T000847">地図で見る統計の2015年国勢調査の4次メッシュデータ</a>より作成</p></li>
 </ul>
 <section id="駅の位置データ" class="level3">
 <h3 class="anchored" data-anchor-id="駅の位置データ">駅の位置データ</h3>
@@ -295,7 +304,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="東京主要駅の駅勢圏におけるメッシュ人口" class="level2">
 <h2 class="anchored" data-anchor-id="東京主要駅の駅勢圏におけるメッシュ人口">東京主要駅の駅勢圏におけるメッシュ人口</h2>
-<p>東京の主要駅の駅勢圏における2015年のメッシュ人口を図示してみます．<code>grid_500m()</code> などの関数を用いることで文字列のメッシュコード（<code>"533900054"</code>など）をjpgridのメッシュコードに変換できます．</p>
+<p>東京の主要駅の駅勢圏における2015年のメッシュ人口（<code>pop_grid500m_5339_2015.parquet</code>）を図示してみます．<code>grid_500m()</code> などの関数を用いることで文字列のメッシュコード（<code>"533900054"</code>など）をjpgridのメッシュコードに変換できます．</p>
 <p>グラフより以下のことが確認できました．</p>
 <ul>
 <li><p>4つの駅の駅勢圏人口は池袋駅で最も多く東京駅で最も少ない</p></li>
