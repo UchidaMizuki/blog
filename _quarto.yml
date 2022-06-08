@@ -19,3 +19,7 @@ format:
     theme: simplex
 
 editor: visual
+
+comments:
+  giscus: 
+    repo: UchidaMizuki/UchidaMizuki.github.io

@@ -625,10 +625,10 @@ AX + F + E - M = X
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>)</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 投入係数</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>input_coeff <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(interindustry <span class="sc">/</span> total_input,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>inputcoeff <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(interindustry <span class="sc">/</span> total_input,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>))</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>input_coeff</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>inputcoeff</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   9
 # Dimensions: input [3], output [3]
@@ -652,7 +652,7 @@ AX + F + E - M = X
 <p>注：<code>solve()</code>で逆行列を算出すると行列の軸名が入れ替わるため注意してください．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 域内需要</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>local_demand <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>localdemand <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>output<span class="sc">$</span>type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"export"</span>, <span class="st">"import"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
@@ -666,11 +666,11 @@ AX + F + E - M = X
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> <span class="sc">-</span>import</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># (移) 輸入係数</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>import_coeff <span class="ot">&lt;-</span> import <span class="sc">/</span> local_demand</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>importcoeff <span class="ot">&lt;-</span> import <span class="sc">/</span> localdemand</span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">eye</span>(input_coeff) <span class="co"># 単位行列</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> import_coeff     <span class="co"># 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> input_coeff      <span class="co"># 投入係数行列</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">eye</span>(inputcoeff) <span class="co"># 単位行列</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff     <span class="co"># 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> inputcoeff      <span class="co"># 投入係数行列</span></span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># レオンチェフ逆行列</span></span>
 <span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>leontiefinv <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(I <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> M) <span class="sc">*</span> A,</span>
@@ -707,7 +707,7 @@ AX + F + E - M = X
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names_sep =</span> <span class="st">"_"</span>)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> leontiefinv         <span class="co"># レオンチェフ逆行列</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> import_coeff        <span class="co"># 移輸入係数</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff         <span class="co"># 移輸入係数</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>FD <span class="ot">&lt;-</span> finaldemand_change <span class="co"># 最終需要変化量</span></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 経済波及効果</span></span>
@@ -723,13 +723,17 @@ AX + F + E - M = X
 2 industry    02_secondary 1.85 
 3 industry    03_tertiary  2.03 </code></pre>
 </div>
+</div>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>spillover <span class="sc">|&gt;</span> </span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">n =</span> <span class="st">"value_M"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unpack</span>(output, <span class="st">"_"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(output_name, value_M)) <span class="sc">+</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(output_name, value_M,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> output_name)) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="ioanalysis-in-r-ja_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+<p><img src="ioanalysis-in-r-ja_files/figure-html/plot-spillover-1.png" class="img-fluid" style="width:100.0%"></p>
 </div>
 </div>
 </section>
@@ -897,6 +901,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     });
   }
 });
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/UchidaMizuki.github.io" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
 

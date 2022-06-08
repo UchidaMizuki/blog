@@ -3,6 +3,7 @@ title: "🗾Rで産業連関分析"
 lang: ja
 date: "2022-05-31"
 categories: [ioanalysis, dibble, R, Japanese]
+image: spillover.png
 ---
 
 産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．
@@ -131,7 +132,10 @@ $$
 
 ここでも，以下の通り，まずは横長の産業連関表データを読み込みます．
 
-```{r, message=FALSE}
+```{r}
+#| label: iotable_wider
+#| message: false
+
 library(tidyverse)
 
 iotable_wider <- read_csv("iotable_3sector_2011_wider.csv",
@@ -145,7 +149,10 @@ knitr::kable(iotable_wider)
 
 データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが， 分析しやすい場合が多くあります． ここでも，横長の産業連関表を「縦長データ」に変換します．
 
-```{r, message=FALSE}
+```{r}
+#| label: iotable
+#| message: false
+
 iotable <- iotable_wider |>
   
   # input (投入) 列を分類・名称に分割
@@ -168,7 +175,10 @@ knitr::kable(iotable)
 
 そこで，表データの基本的な演算と行列計算を同時に行えるdibbleパッケージを用います． 以下のように，産業連関表をdibbleに変換します．
 
-```{r message=FALSE}
+```{r}
+#| label: iotable-dibble
+#| message: false
+
 # pak::pak("UchidaMizuki/dibble")
 library(dibble)
 
@@ -189,6 +199,8 @@ iotable
 注：dibbleではブロードキャストが自動で行われますが，安全のため，ブロードキャストを行う際に，警告を発するように設計されています．そのため，`broadcast()`でブロードキャスト後の軸名`c("input", "output")`を与えて警告が出ないようにする必要があります．
 
 ```{r}
+#| label: inputcoeff
+
 # 生産額
 total_input <- iotable |>
   filter(output$type == "industry") |>
@@ -200,10 +212,10 @@ interindustry <- iotable |>
          output$type == "industry")
 
 # 投入係数
-input_coeff <- broadcast(interindustry / total_input,
-                         c("input", "output"))
+inputcoeff <- broadcast(interindustry / total_input,
+                        c("input", "output"))
 
-input_coeff
+inputcoeff
 ```
 
 ### レオンチェフ逆行列の算出
@@ -213,8 +225,10 @@ input_coeff
 注：`solve()`で逆行列を算出すると行列の軸名が入れ替わるため注意してください．
 
 ```{r}
+#| label: leontiefinv
+
 # 域内需要
-local_demand <- iotable |>
+localdemand <- iotable |>
   filter(input$type == "industry",
          !output$type %in% c("export", "import")) |>
   apply("input", sum)
@@ -228,11 +242,11 @@ import <- iotable |>
 import <- -import
 
 # (移) 輸入係数
-import_coeff <- import / local_demand
+importcoeff <- import / localdemand
 
-I <- eye(input_coeff) # 単位行列
-M <- import_coeff     # 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)
-A <- input_coeff      # 投入係数行列
+I <- eye(inputcoeff) # 単位行列
+M <- importcoeff     # 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)
+A <- inputcoeff      # 投入係数行列
 
 # レオンチェフ逆行列
 leontiefinv <- broadcast(I - (1 - M) * A,
@@ -247,6 +261,8 @@ leontiefinv
 [こちら](https://github.com/UchidaMizuki/blog-ioanalysis-in-r) からダウンロードできる最終需要がそれぞれ百万円ずつ増加する（`finaldemand_change_3sector.csv`）ケースで経済波及効果を算出しています．
 
 ```{r}
+#| label: spillover
+
 # 最終需要変化量
 finaldemand_change <- read_csv("finaldemand_change_3sector.csv",
                                col_types = cols(.default = "c",
@@ -255,19 +271,37 @@ finaldemand_change <- read_csv("finaldemand_change_3sector.csv",
             .names_sep = "_")
 
 L <- leontiefinv         # レオンチェフ逆行列
-M <- import_coeff        # 移輸入係数
+M <- importcoeff         # 移輸入係数
 FD <- finaldemand_change # 最終需要変化量
 
 # 経済波及効果
 spillover <- L %*% ((1 - M) * FD)
 
 spillover
+```
+
+```{r}
+#| label: plot-spillover
+#| fig-width: 3
+#| fig-height: 3
+#| out-width: 100%
 
 spillover |> 
   as_tibble(n = "value_M") |> 
   unpack(output, "_") |> 
-  ggplot(aes(output_name, value_M)) +
-  geom_col()
+  ggplot(aes(output_name, value_M,
+             fill = output_name)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_brewer(palette = "Set2")
+```
+
+```{r}
+#| label: save-plot-spillover
+#| include: false
+
+ggsave("spillover.png",
+       width = 3,
+       height = 3)
 ```
 
 ## まとめ
@@ -277,6 +311,8 @@ Rを用いた産業連関分析の方法について紹介しました．
 ここまでの計算を，[jpio](https://github.com/UchidaMizuki/jpio)にパッケージ形式でまとめました．以下のように，ここまでの計算と同様の計算を行うことができます．
 
 ```{r}
+#| label: jpio
+
 # pak::pak("UchidaMizuki/jpio")
 
 # 産業連関表

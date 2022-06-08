@@ -1,0 +1,113 @@
+---
+title: "🗾CSVの代わりにParquetを使ってみよう！"
+lang: ja
+date: "2022-06-07"
+categories: [parquet, arrow, R, Japanese]
+fig-align: center
+draft: true
+---
+
+データフレーム（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．
+
+Rの[tibble](https://tibble.tidyverse.org)・[dplyr](https://dplyr.tidyverse.org)やPythonの[pandas](https://pandas.pydata.org)などのデータフレーム操作のためのパッケージを使えば，これまでExcelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行うことができます．
+
+このようにデータ分析のためのツールが充実する一方で，データフレームの保存にはExcelなどとの互換性が高いCSVが未だに広く使われています．
+
+CSVは，テキストデータであるため，様々なソフトと互換性があるなどの利点がありますが，必ずしもデータ分析に適したファイル形式とは言えません．
+
+CSVの代替として有望なファイル形式に，Parquetと呼ばれるものがあります．
+
+以下では，CSVとParquetを比較し，Parquetのメリットを紹介します．
+
+## サンプルデータ（tidy dataについて）
+
+ここでは，Rのarrowパッケージを用いてParquetの保存を行ってみます．
+
+サンプルデータとして，tidyrパッケージで提供されている`who` （[世界保健機関（WHO）結核データ](https://www.who.int/teams/global-tuberculosis-programme/data)）を用います．
+
+データ分析では，近年，Rコミュニティを中心に整然データ（[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)）の概念が普及しています．`who` は，tidy dataになっていないため，[こちら](https://tidyr.tidyverse.org/articles/pivot.html)に従って整然データである`who_longer`に変形します．
+
+データ分析では，`who` より`who_longer` のほうが分析が行いやすい一方で，行数は`who`（約7,000行）より`who_longer` （約400,000行）のほうが約50倍多いことがわかります．そのため，`who_longer`のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．
+
+```{r}
+#| message: false
+
+library(tidyverse)
+library(arrow)
+library(fs)
+```
+
+```{r}
+#| code-fold: true
+
+levels_gender <- c("f", "m")
+levels_age <- c("014", "1524", "2534", "3544", "4554", "5564", "65")
+
+who_longer <- who |> 
+  pivot_longer(cols = new_sp_m014:newrel_f65,
+               names_to = c("diagnosis", "gender", "age"), 
+               names_pattern = "new_?(.*)_(.)(.*)",
+               names_transform = list(gender = ~ .x |> 
+                                        readr::parse_factor(levels = levels_gender),
+                                      age = ~ .x |> 
+                                        readr::parse_factor(levels = levels_age,
+                                                            ordered = TRUE)),
+               values_to = "count")
+```
+
+```{r}
+# データ整形前
+who
+
+# データ整形後
+who_longer
+```
+
+## Parquetの保存方法
+
+`write_csv()` でCSVを保存できるとの同様に`write_parquet()` で簡単に，Parquetを保存することができます．tidy dataである`who_longer`を保存してみましょう．
+
+```{r}
+# CSVを保存
+write_csv(who_longer, "who_longer.csv")
+
+# Parquetを保存
+write_parquet(who_longer, "who_longer.parquet")
+```
+
+## Parquetのメリット
+
+### メリット1: CSVと比べてファイル容量が軽い
+
+```{r}
+# CSV
+file_size("who_longer.csv")
+
+# Parquet
+file_size("who_longer.parquet")
+```
+
+```{r}
+# file_size_csv <- file_size("who_longer.csv")
+# file_size_parquet <- file_size("who_longer.parquet")
+# 
+# file_size_csv / file_size_parquet
+# 
+# dir_create("who_longer")
+# who_longer_splitted <- who_longer |> 
+#   group_by(age) |> 
+#   group_walk(~ .x |> 
+#                write_parquet(str_glue("who_longer/who_longer_{.y$age}.parquet")),
+#   .keep = TRUE)
+# 
+# read_parquet("who_longer.parquet")
+# 
+# open_dataset("who_longer") |> 
+#   collect()
+```
+
+```{python}
+# import pandas as pd
+# 
+# pd.read_parquet('who_longer.parquet')
+```

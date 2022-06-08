@@ -29,7 +29,11 @@ image: station_main_grid500m.png
 
 `station_5339_2019.gpkg` には東京都近辺（80 kmメッシュ：5339）の2019年の駅データが格納されています．
 
-```{r, message=FALSE, warning=FALSE}
+```{r}
+#| label: station
+#| message: false
+#| warning: false
+
 # pak::pak("UchidaMizuki/jpgrid")
 library(tidyverse)
 library(sf)
@@ -62,7 +66,12 @@ ggplot(station,
 
 jpgridでは，`geometry_to_grid()` で**sfパッケージのジオメトリをメッシュコードに変換**することができます．また，逆に，`grid_as_sf()` で**メッシュコードを持つデータフレームをsfパッケージのジオメトリデータに変換**することもできます．
 
-```{r, message=FALSE, warning=FALSE, fig.height=8}
+```{r}
+#| label: station_main_grid500m
+#| message: false
+#| warning: false
+#| fig-height: 8
+
 # 駅勢圏の距離
 dist_station <- units::set_units(1.5, km)
 
@@ -113,7 +122,11 @@ ggplot(station_main,
 
 -   駅や皇居・公園などの周辺で人口が少ないことが地図からも確認できる
 
-```{r, message=FALSE, fig.height=8}
+```{r}
+#| label: pop-station_main_grid500m
+#| message: false
+#| fig-height: 8
+
 # 500 mメッシュ人口
 pop_grid500m <- read_parquet("pop_grid500m_5339_2015.parquet") |> 
   mutate(grid500m = grid_500m(grid500m))
@@ -144,13 +157,21 @@ station_main_grid500m |>
   patchwork::plot_layout(guides = "collect")
 ```
 
-```{r, include=FALSE}
+```{r}
+#| label: save-plot-station_main_grid500m
+#| include: false
+
 ggsave("station_main_grid500m.png",
        width = 7,
        height = 7)
 ```
 
-```{r, fig.width=4, fig.height=3, out.width="100%"}
+```{r}
+#| label: plot-station_main_grid500m
+#| fig-width: 4
+#| fig-height: 3
+#| out-width: 100%
+
 station_main_grid500m |> 
   st_drop_geometry() |> 
   group_by(station) |> 
