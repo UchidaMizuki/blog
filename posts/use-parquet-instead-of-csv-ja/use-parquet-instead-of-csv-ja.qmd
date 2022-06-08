@@ -4,6 +4,7 @@ lang: ja
 date: "2022-06-07"
 categories: [parquet, arrow, R, Japanese]
 fig-align: center
+image: https://www.apache.org/logos/res/parquet/parquet.png
 draft: true
 ---
 
@@ -25,11 +26,14 @@ CSVの代替として有望なファイル形式に，Parquetと呼ばれるも�
 
 サンプルデータとして，tidyrパッケージで提供されている`who` （[世界保健機関（WHO）結核データ](https://www.who.int/teams/global-tuberculosis-programme/data)）を用います．
 
-データ分析では，近年，Rコミュニティを中心に整然データ（[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)）の概念が普及しています．`who` は，tidy dataになっていないため，[こちら](https://tidyr.tidyverse.org/articles/pivot.html)に従って整然データである`who_longer`に変形します．
+データ分析では，近年，整然データ（[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)）の概念が普及してきています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．
 
-データ分析では，`who` より`who_longer` のほうが分析が行いやすい一方で，行数は`who`（約7,000行）より`who_longer` （約400,000行）のほうが約50倍多いことがわかります．そのため，`who_longer`のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．
+`who`は，tidy dataと言えるでしょうか？`who`には，`"new_sp_m014"` ～`"newrel_f65"` の列が存在しますが，これらの列名には，列ごとに，診断結果（`sp`や`sel`）・性別（`m`と`f`）・年齢階級（`014`や`65`）といった複数の変数が含まれています．そのため，`who` は，tidy dataでないといえます．そこで，[こちら](https://tidyr.tidyverse.org/articles/pivot.html)に従ってtidy dataである`who_longer`に変形します．
+
+データ分析では，`who` より`who_longer` のほうを分析が行いやすい一方で，行数は`who`（約7,000行）より`who_longer` （約400,000行）のほうが約50倍多いことがわかります．そのため，`who_longer`のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．
 
 ```{r}
+#| label: load-packages
 #| message: false
 
 library(tidyverse)
@@ -38,6 +42,7 @@ library(fs)
 ```
 
 ```{r}
+#| label: who_longer
 #| code-fold: true
 
 levels_gender <- c("f", "m")
@@ -56,16 +61,17 @@ who_longer <- who |>
 ```
 
 ```{r}
+#| label: print-who_longer
 # データ整形前
-who
+print(who, n = 5)
 
 # データ整形後
-who_longer
+print(who_longer, n = 5)
 ```
 
 ## Parquetの保存方法
 
-`write_csv()` でCSVを保存できるとの同様に`write_parquet()` で簡単に，Parquetを保存することができます．tidy dataである`who_longer`を保存してみましょう．
+`write_csv()` でCSVを保存できるとの同様に`write_parquet()` で簡単に，Parquetを保存することができます．`who_longer`を保存してみましょう．
 
 ```{r}
 # CSVを保存
@@ -110,4 +116,13 @@ file_size("who_longer.parquet")
 # import pandas as pd
 # 
 # pd.read_parquet('who_longer.parquet')
+```
+
+```{r}
+#| include: false
+
+fs::file_delete("who_longer.csv")
+fs::file_delete("who_longer.parquet")
+fs::dir_ls("who_longer") |> 
+  fs::file_delete()
 ```

@@ -208,8 +208,9 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 <h2 class="anchored" data-anchor-id="サンプルデータtidy-dataについて">サンプルデータ（tidy dataについて）</h2>
 <p>ここでは，Rのarrowパッケージを用いてParquetの保存を行ってみます．</p>
 <p>サンプルデータとして，tidyrパッケージで提供されている<code>who</code> （<a href="https://www.who.int/teams/global-tuberculosis-programme/data">世界保健機関（WHO）結核データ</a>）を用います．</p>
-<p>データ分析では，近年，Rコミュニティを中心に整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）の概念が普及しています．<code>who</code> は，tidy dataになっていないため，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従って整然データである<code>who_longer</code>に変形します．</p>
-<p>データ分析では，<code>who</code> より<code>who_longer</code> のほうが分析が行いやすい一方で，行数は<code>who</code>（約7,000行）より<code>who_longer</code> （約400,000行）のほうが約50倍多いことがわかります．そのため，<code>who_longer</code>のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．</p>
+<p>データ分析では，近年，整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）の概念が普及してきています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．</p>
+<p><code>who</code>は，tidy dataと言えるでしょうか？<code>who</code>には，<code>"new_sp_m014"</code> ～<code>"newrel_f65"</code> の列が存在しますが，これらの列名には，列ごとに，診断結果（<code>sp</code>や<code>sel</code>）・性別（<code>m</code>と<code>f</code>）・年齢階級（<code>014</code>や<code>65</code>）といった複数の変数が含まれています．そのため，<code>who</code> は，tidy dataでないといえます．そこで，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従ってtidy dataである<code>who_longer</code>に変形します．</p>
+<p>データ分析では，<code>who</code> より<code>who_longer</code> のほうを分析が行いやすい一方で，行数は<code>who</code>（約7,000行）より<code>who_longer</code> （約400,000行）のほうが約50倍多いことがわかります．そのため，<code>who_longer</code>のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
@@ -235,22 +236,17 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># データ整形前</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>who</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(who, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 7,240 × 60
-   country  iso2  iso3   year new_sp_m014 new_sp_m1524 new_sp_m2534 new_sp_m3544
-   &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt; &lt;int&gt;       &lt;int&gt;        &lt;int&gt;        &lt;int&gt;        &lt;int&gt;
- 1 Afghani… AF    AFG    1980          NA           NA           NA           NA
- 2 Afghani… AF    AFG    1981          NA           NA           NA           NA
- 3 Afghani… AF    AFG    1982          NA           NA           NA           NA
- 4 Afghani… AF    AFG    1983          NA           NA           NA           NA
- 5 Afghani… AF    AFG    1984          NA           NA           NA           NA
- 6 Afghani… AF    AFG    1985          NA           NA           NA           NA
- 7 Afghani… AF    AFG    1986          NA           NA           NA           NA
- 8 Afghani… AF    AFG    1987          NA           NA           NA           NA
- 9 Afghani… AF    AFG    1988          NA           NA           NA           NA
-10 Afghani… AF    AFG    1989          NA           NA           NA           NA
-# … with 7,230 more rows, and 52 more variables: new_sp_m4554 &lt;int&gt;,
+  country   iso2  iso3   year new_sp_m014 new_sp_m1524 new_sp_m2534 new_sp_m3544
+  &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;int&gt;       &lt;int&gt;        &lt;int&gt;        &lt;int&gt;        &lt;int&gt;
+1 Afghanis… AF    AFG    1980          NA           NA           NA           NA
+2 Afghanis… AF    AFG    1981          NA           NA           NA           NA
+3 Afghanis… AF    AFG    1982          NA           NA           NA           NA
+4 Afghanis… AF    AFG    1983          NA           NA           NA           NA
+5 Afghanis… AF    AFG    1984          NA           NA           NA           NA
+# … with 7,235 more rows, and 52 more variables: new_sp_m4554 &lt;int&gt;,
 #   new_sp_m5564 &lt;int&gt;, new_sp_m65 &lt;int&gt;, new_sp_f014 &lt;int&gt;,
 #   new_sp_f1524 &lt;int&gt;, new_sp_f2534 &lt;int&gt;, new_sp_f3544 &lt;int&gt;,
 #   new_sp_f4554 &lt;int&gt;, new_sp_f5564 &lt;int&gt;, new_sp_f65 &lt;int&gt;,
@@ -259,28 +255,23 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 #   new_sn_m65 &lt;int&gt;, new_sn_f014 &lt;int&gt;, new_sn_f1524 &lt;int&gt;, …</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># データ整形後</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>who_longer</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(who_longer, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 405,440 × 8
-   country     iso2  iso3   year diagnosis gender age   count
-   &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;chr&gt;     &lt;fct&gt;  &lt;ord&gt; &lt;int&gt;
- 1 Afghanistan AF    AFG    1980 sp        m      014      NA
- 2 Afghanistan AF    AFG    1980 sp        m      1524     NA
- 3 Afghanistan AF    AFG    1980 sp        m      2534     NA
- 4 Afghanistan AF    AFG    1980 sp        m      3544     NA
- 5 Afghanistan AF    AFG    1980 sp        m      4554     NA
- 6 Afghanistan AF    AFG    1980 sp        m      5564     NA
- 7 Afghanistan AF    AFG    1980 sp        m      65       NA
- 8 Afghanistan AF    AFG    1980 sp        f      014      NA
- 9 Afghanistan AF    AFG    1980 sp        f      1524     NA
-10 Afghanistan AF    AFG    1980 sp        f      2534     NA
-# … with 405,430 more rows</code></pre>
+  country     iso2  iso3   year diagnosis gender age   count
+  &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;chr&gt;     &lt;fct&gt;  &lt;ord&gt; &lt;int&gt;
+1 Afghanistan AF    AFG    1980 sp        m      014      NA
+2 Afghanistan AF    AFG    1980 sp        m      1524     NA
+3 Afghanistan AF    AFG    1980 sp        m      2534     NA
+4 Afghanistan AF    AFG    1980 sp        m      3544     NA
+5 Afghanistan AF    AFG    1980 sp        m      4554     NA
+# … with 405,435 more rows</code></pre>
 </div>
 </div>
 </section>
 <section id="parquetの保存方法" class="level2">
 <h2 class="anchored" data-anchor-id="parquetの保存方法">Parquetの保存方法</h2>
-<p><code>write_csv()</code> でCSVを保存できるとの同様に<code>write_parquet()</code> で簡単に，Parquetを保存することができます．tidy dataである<code>who_longer</code>を保存してみましょう．</p>
+<p><code>write_csv()</code> でCSVを保存できるとの同様に<code>write_parquet()</code> で簡単に，Parquetを保存することができます．<code>who_longer</code>を保存してみましょう．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CSVを保存</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(who_longer, <span class="st">"who_longer.csv"</span>)</span>

@@ -9,6 +9,7 @@ about:
       href: https://github.com/UchidaMizuki
     - text: SoundCloud
       href: https://soundcloud.com/UchidaMizuki
+comments: false
 ---
 
 My name is Uchida Mizuki.
