@@ -202,6 +202,10 @@ jpmap::layout_islands(plot,
 #| label: save-plot
 #| eval: false
 
+jpmap::layout_islands(plot,
+                      ogasawara = FALSE) +
+  theme(legend.position = "bottom")
+
 ggsave("foreigner_ratio_2015.png",
        width = 5,
        height = 5)
