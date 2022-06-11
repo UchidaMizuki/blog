@@ -1,5 +1,5 @@
 ---
-title: "🗾CSVの代わりにParquetを使ってみよう！"
+title: "🗾CSVの代わりにParquetを使ってみよう"
 lang: ja
 date: "2022-06-07"
 categories: [parquet, arrow, R, Japanese]

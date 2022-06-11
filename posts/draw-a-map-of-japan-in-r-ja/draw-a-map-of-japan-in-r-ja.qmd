@@ -1,0 +1,221 @@
+---
+title: "🗾Rで日本地図を描いてみよう"
+lang: ja
+date: "2022-06-11"
+categories: [ggplot2, sf, jpmap, R, Japanese]
+fig-align: center
+out-width: 100%
+image: foreigner_ratio_2015.png
+---
+
+Rでは，ggplot2などのパッケージを利用するだけで，きれいな日本地図（都道府県別）を描くことができます．
+
+ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．
+
+## 地図描画用のサンプルデータ
+
+ここでは，[こちら](https://www.e-stat.go.jp/dbview?sid=0000010201)からダウンロードできる社会・人口統計体系の2015年の都道府県別外国人人口比率データ（10万人あたり外国人人口）を地図描画用のサンプルデータとしました．
+
+```{r}
+#| label: library
+#| message: false
+
+library(tidyverse)
+```
+
+データのダウンロード
+
+```{r}
+#| label: collect-data
+#| code-fold: true
+#| eval: false
+
+library(jpstat)
+library(arrow)
+
+appId <- keyring::key_get("estat-api")
+foreigner_ratio_2015 <- estat(appId, "https://www.e-stat.go.jp/en/dbview?sid=0000010201",
+                              lang = "E")
+foreigner_ratio_2015 <- foreigner_ratio_2015 |> 
+  activate(tab) |> 
+  select() |> 
+  
+  activate(cat01) |> 
+  # Ratio of population of foreigners (per 100,000 persons)
+  filter(code == "#A01601") |> 
+  select() |> 
+  
+  activate(area) |> 
+  filter(name != "All Japan") |> 
+  select(code, name) |> 
+  rekey("pref") |> 
+  
+  activate(time) |> 
+  filter(name == "2015") |> 
+  select()
+foreigner_ratio_2015 <- foreigner_ratio_2015 |> 
+  collect("foreigners_per_100K")
+
+write_parquet(foreigner_ratio_2015, "foreigner_ratio_2015.parquet")
+
+```
+
+データの読み込み
+
+```{r}
+#| label: read-data
+#| message: false
+#| code-fold: true
+
+library(arrow)
+
+foreigner_ratio_2015 <- read_parquet("foreigner_ratio_2015.parquet") |> 
+  mutate(pref_code = pref_code |> 
+           str_extract("^\\d{2}") |> 
+           parse_integer(),
+         
+         pref_name = pref_name |> 
+           str_remove("-.+$"),
+         pref_name = case_when(pref_name == "Gumma" ~ "Gunma",
+                               TRUE ~ pref_name),
+         
+         foreigner_ratio = parse_number(foreigners_per_100K) / 1e5,
+         .keep = "unused")
+
+```
+
+```{r}
+#| label: data
+
+foreigner_ratio_2015
+
+```
+
+## `geom_map()` を使って日本地図を描く
+
+ggplot2では，`map_data()` や`geom_map()` を使うことで，世界の国々を描画することができます．これには，mapsパッケージを予めダウンロードする必要があります．また，日本地図を利用するには，mapsパッケージに加えて，mapdataパッケージが必要になります．
+
+`map_data("japan")` とすることで，mapsパッケージの地図データがデータフレームに変換されます．このデータフレームの`region` 列が都道府県のIDとなるため，`aes(map_id = region)`を設定した上で，`geom_map()` することで，描画したいデータの`region` 列と都道府県ジオメトリがリンクします．
+
+ただし，`map_data("japan")` は，以下の点に注意が必要です．
+
+-   `region` 列はすべてアルファベット表記である
+
+-   他の都道府県と違い，奈良県だけがが`NARA` と大文字表記になっているなど，元データに問題あり
+
+    -   ここでは，`str_to_title()`で修正
+
+また，日本地図全体を表示するためには，`expand_limits()` などで軸を設定すること必要になります．
+
+```{r}
+#| label: geom_map
+#| message: false
+
+# pak::pak("maps")
+# pak::pak("mapdata")
+library(tidyverse)
+library(mapdata)
+
+map_data_japan <- map_data("japan") |> 
+  as_tibble() |> 
+  mutate(region = str_to_title(region))
+map_data_japan
+
+ggplot(foreigner_ratio_2015 |> 
+         rename(region = pref_name),
+       aes(map_id = region)) +
+  geom_map(aes(fill = foreigner_ratio),
+           map = map_data_japan) +
+  expand_limits(x = map_data_japan$long,
+                y = map_data_japan$lat) +
+  scale_fill_viridis_c("外国人人口比率",
+                       limits = c(0, 0.03),
+                       labels = scales::label_percent(),
+                       option = "turbo")
+```
+
+## sfパッケージを使って日本地図を描く
+
+最近では，sfパッケージのジオメトリがggplot2で簡単に描画できるようになっています．
+
+また，maps・mapdataパッケージの提供する地図データは，sfパッケージの`st_as_sf()` でsfのジオメトリデータに変換することができます．
+
+日本地図データをsfに変換することで，先ほどよりも直感的に地図を描くことができます．
+
+```{r}
+#| label: sf
+
+library(sf)
+
+map_japan <- maps::map("japan", 
+                       plot = FALSE,
+                       fill = TRUE) |> 
+  st_as_sf() |> 
+  rename(pref_name = ID) |> 
+  mutate(pref_name = str_to_title(pref_name))
+
+map_japan |> 
+  left_join(foreigner_ratio_2015,
+            by = "pref_name") |> 
+  ggplot(aes(fill = foreigner_ratio)) +
+  geom_sf(color = "transparent") +
+  scale_fill_viridis_c("外国人人口比率",
+                       limits = c(0, 0.03),
+                       labels = scales::label_percent(),
+                       option = "turbo")
+
+```
+
+## jpmapでもっと簡単に日本地図を描く
+
+[jpmap](https://github.com/UchidaMizuki/jpmap)は，ggplot2による日本地図の描画をより簡単にするためのパッケージです．
+
+jpmapは，以下の2つの機能を持ちます．
+
+-   日本語の都道府県名や都道府県コードが含む都道府県データを提供（`jpmap::prefecture`）
+
+-   琉球諸島・小笠原諸島を再配置したレイアウトを可能に（`jpmap::layout_islands()`）
+
+`jpmap::layout_islands()` で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなりました．
+
+```{r}
+#| label: jpmap
+
+# pak::pak("UchidaMizuki/jpmap")
+jpmap::prefecture
+
+plot <- jpmap::prefecture |> 
+  left_join(foreigner_ratio_2015,
+            by = c("pref_code", "pref_name")) |> 
+  ggplot(aes(fill = foreigner_ratio)) +
+  geom_sf(color = "transparent") +
+  scale_fill_viridis_c("外国人人口比率",
+                       limits = c(0, 0.03),
+                       labels = scales::label_percent(),
+                       option = "turbo")
+
+jpmap::layout_islands(plot,
+                      ogasawara = FALSE)
+```
+
+```{r}
+#| label: save-plot
+#| eval: false
+
+ggsave("foreigner_ratio_2015.png",
+       width = 5,
+       height = 5)
+
+```
+
+## まとめ（地図からわかったこと）
+
+2015年の都道府県別外国人人口比率に関する日本地図から以下のことがわかりました．
+
+-   2015年では**どの都道府県でも外国人人口比率が3％以下**である
+
+-   **東京都**は外国人人口比率が最も多く，**愛知県**や**群馬県**なども外国人口比率が高い．
+
+ここまで，ggplot2などのパッケージを活用した日本地図の描画を試してみました．
+
+その結果，Rを使えば，自前でデータを整備しなくても，簡単に日本地図を描けることがわかりました．みなさんもぜひ，ggplot2を使って，色々な地図を使ってみてください！
