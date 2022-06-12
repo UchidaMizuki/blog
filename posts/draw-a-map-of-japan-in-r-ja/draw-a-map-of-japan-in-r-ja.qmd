@@ -166,7 +166,7 @@ map_japan |>
 
 ```
 
-## jpmapでもっと簡単に日本地図を描く
+## もっと簡単に日本地図を描く
 
 [jpmap](https://github.com/UchidaMizuki/jpmap)は，ggplot2による日本地図の描画をより簡単にするためのパッケージです．
 
@@ -176,7 +176,7 @@ jpmapは，以下の2つの機能を持ちます．
 
 -   琉球諸島・小笠原諸島を再配置したレイアウトを可能に（`jpmap::layout_islands()`）
 
-`jpmap::layout_islands()` で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなりました．
+`jpmap::layout_islands()` で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．
 
 ```{r}
 #| label: jpmap
@@ -201,6 +201,7 @@ jpmap::layout_islands(plot,
 ```{r}
 #| label: save-plot
 #| eval: false
+#| include: false
 
 jpmap::layout_islands(plot,
                       ogasawara = FALSE) +
