@@ -1,48 +1,42 @@
 ---
 title: "🗾CSVの代わりにParquetを使ってみよう"
 lang: ja
-date: "2022-06-07"
-categories: [parquet, arrow, R, Japanese]
+date: "2022-06-12"
+categories: [parquet, arrow, R, Python, Japanese]
 fig-align: center
 image: https://www.apache.org/logos/res/parquet/parquet.png
-draft: true
 ---
 
-データフレーム（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．
+本記事では，**CSVの代替として有望かつビッグデータ分析にも適している[Parquet](https://parquet.apache.org)**を紹介します．
 
-Rの[tibble](https://tibble.tidyverse.org)・[dplyr](https://dplyr.tidyverse.org)やPythonの[pandas](https://pandas.pydata.org)などのデータフレーム操作のためのパッケージを使えば，これまでExcelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行うことができます．
+さて，**データフレーム**（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．**Rの[tibble](https://tibble.tidyverse.org)・[dplyr](https://dplyr.tidyverse.org)**や**Pythonの[pandas](https://pandas.pydata.org)**などのデータフレーム操作のためのパッケージを使えば，これまで**Excelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行う**ことができます．
 
-このようにデータ分析のためのツールが充実する一方で，データフレームの保存にはExcelなどとの互換性が高いCSVが未だに広く使われています．
+このようにデータ分析ツールが充実している一方で，データの保存には**Excelなどとの互換性が高いCSV**が未だに広く使われています．しかし，CSVは，必ずしもデータ分析に適したファイル形式とは言えません．そこで，**CSVの代替**として使われることが多くなっているParquetをCSVと比較してみましょう．
 
-CSVは，テキストデータであるため，様々なソフトと互換性があるなどの利点がありますが，必ずしもデータ分析に適したファイル形式とは言えません．
+## サンプルデータの準備
 
-CSVの代替として有望なファイル形式に，Parquetと呼ばれるものがあります．
+CSVとParquetを比較するため，まずは，データ分析にありがちなサンプルデータを用意しましょう．今回は，tidyrパッケージで提供されている`who` （[世界保健機関（WHO）結核データ](https://www.who.int/teams/global-tuberculosis-programme/data)）からサンプルデータをつくります．
 
-以下では，CSVとParquetを比較し，Parquetのメリットを紹介します．
+近年，データ分析では，**整然データ（[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)）**の概念が普及しています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．
 
-## サンプルデータ（tidy dataについて）
+それでは，`who`は，tidy dataと言えるでしょうか？`who`には，`"new_sp_m014"` ～`"newrel_f65"` といったたくさんの列が存在しますが，これらには，1列ごとに，診断結果（`sp`や`sel`）・性別（`m`と`f`）・年齢階級（`014`や`65`）といった複数の変数が含まれています．そのため，**`who` は，tidy dataでない**といえます．そこで，[こちら](https://tidyr.tidyverse.org/articles/pivot.html)に従って**tidy dataである`who_longer`に変形**します．
 
-ここでは，Rのarrowパッケージを用いてParquetの保存を行ってみます．
+データ分析では，`who` よりtidy dataである`who_longer` のほうを分析が行いやすい一方で，行数は`who`（約7,000行）より`who_longer` （約400,000行）のほうが約50倍多いことがわかります．そのため，tidy dataである`who_longer`のようなデータをテキストファイルであるCSVで保存すると容量が増大してしまいます．
 
-サンプルデータとして，tidyrパッケージで提供されている`who` （[世界保健機関（WHO）結核データ](https://www.who.int/teams/global-tuberculosis-programme/data)）を用います．
+このように，**tidy dataはデータ分析に適している一方で，CSVのようなテキストファイルでの保存に適していない**ことがわかります．しかし，このような**データ保存上の課題はParquetを使えば解決する**ことができます．
 
-データ分析では，近年，整然データ（[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)）の概念が普及してきています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．
-
-`who`は，tidy dataと言えるでしょうか？`who`には，`"new_sp_m014"` ～`"newrel_f65"` の列が存在しますが，これらの列名には，列ごとに，診断結果（`sp`や`sel`）・性別（`m`と`f`）・年齢階級（`014`や`65`）といった複数の変数が含まれています．そのため，`who` は，tidy dataでないといえます．そこで，[こちら](https://tidyr.tidyverse.org/articles/pivot.html)に従ってtidy dataである`who_longer`に変形します．
-
-データ分析では，`who` より`who_longer` のほうを分析が行いやすい一方で，行数は`who`（約7,000行）より`who_longer` （約400,000行）のほうが約50倍多いことがわかります．そのため，`who_longer`のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．
+ここで，tidy dataでない`who` とtidy dataである`who_longer` を見比べてみましょう．
 
 ```{r}
 #| label: load-packages
 #| message: false
 
 library(tidyverse)
-library(arrow)
 library(fs)
 ```
 
 ```{r}
-#| label: who_longer
+#| label: sample-data
 #| code-fold: true
 
 levels_gender <- c("f", "m")
@@ -61,7 +55,7 @@ who_longer <- who |>
 ```
 
 ```{r}
-#| label: print-who_longer
+#| label: print-data
 # データ整形前
 print(who, n = 5)
 
@@ -69,11 +63,18 @@ print(who, n = 5)
 print(who_longer, n = 5)
 ```
 
-## Parquetの保存方法
+## CSV・Parquetの保存方法
 
-`write_csv()` でCSVを保存できるとの同様に`write_parquet()` で簡単に，Parquetを保存することができます．`who_longer`を保存してみましょう．
+Rでは，`write_csv()` でCSVを保存できます．同様に，arrowパッケージの`write_parquet()` でParquetを保存することができます．`who_longer`をCSVとParquetで保存してみましょう．
+
+CSVとParquetでは，どちらも簡単にデータ保存ができることがわかります．
 
 ```{r}
+#| label: write-data
+#| message: false
+
+library(arrow)
+
 # CSVを保存
 write_csv(who_longer, "who_longer.csv")
 
@@ -81,48 +82,142 @@ write_csv(who_longer, "who_longer.csv")
 write_parquet(who_longer, "who_longer.parquet")
 ```
 
-## Parquetのメリット
+## Parquetのメリット・CSVとの比較
 
-### メリット1: CSVと比べてファイル容量が軽い
+ここからは，保存した`who_longer` のCSV・Parquetファイルを比較して，CSVに対するParquetのメリットを紹介していきます．
+
+### メリット1：CSVよりデータ容量が軽い
+
+tidy dataは行数が多くなるため，CSVでの保存に適しておらず，Parquetを使ったほうがよいことを既に述べました．
+
+実際に，`who_longer` のCSV・Parquetのデータ容量は，それぞれ，14.1 MBと154 KBとなり，**ParquetはCSVの約1 %のデータ容量**しかないことがわかります．
+
+どのようなケースでもこのようなデータ容量の削減が見込めるわけではありませんが，**Parquetは列指向でデータ圧縮**を行うため，Rなどでよく用いられる**tidy dataの保存に適したデータ形式**であるといえます．
 
 ```{r}
+#| label: size-data
+#| size: 100
+
 # CSV
 file_size("who_longer.csv")
 
 # Parquet
 file_size("who_longer.parquet")
+
+units::set_units(file_size("who_longer.parquet") / file_size("who_longer.csv")) |> 
+  units::set_units(`%`)
+```
+
+### メリット2：CSVより読み込みが簡単
+
+`write_csv()`・`write_parquet()` でデータを書き込めるのと同様に，**`read_csv()`・`read_parquet()` でCSV・Parquetデータを読み込む**ことができます．
+
+**CSV**はテキスト形式であるため，**読み込み時に`col_types`で各列の型を指定する必要**があります（デフォルトでは自動で型を推測）．
+
+一方，**Parquet**は，書き込み時に各列の型情報も保存されているため読み込み時に**型を指定する必要がありません**．
+
+```{r}
+#| label: read-data
+#| results: hide
+
+# CSVの読み込み
+read_csv("who_longer.csv",
+         col_types = cols(.default = "c",
+                          year = "i",
+                          count = "i"))
+
+# Parquetの読み込み
+read_parquet("who_longer.parquet")
+```
+
+### メリット3：CSVよりビッグデータの読み込み・集計に適している
+
+CSVはビッグデータの保存に適しておらず，これまでは，ビッグデータの保存にはSQLを用いるなどの使い分けが必要でした．
+
+Rでは，dplyr（dbplyr）・DBIなどのパッケージで簡単にSQLが使えますが，データベースへの接続・切断などが必要なSQLは，CSVと使い勝手が異なり，初学者にとってはハードルがあるかもしれません．
+
+また，（ほとんどの？）**SQLは行指向**であるため，**データの追加・更新・削除などに適しています**が，データ分析に用いられる**データの保存・集計には列指向であるParquetのほうが適している**と思われます．
+
+CSVファイルを用いてビッグデータを集計する場合には，一度，全データをメモリに移す必要があります．そのため，データの読み込みでメモリが逼迫するおそれがあります．
+
+Parquetでは，**読み込み時に`as_data_frame = FALSE`**とすることで，SQLと同様に**メモリにデータを移すことなくデータのフィルタリング・集計などが可能**です．
+
+ここでは，日本の年・症例別の患者数を計算してみましょう．**dplyrの`filter()` ・`group_by()` ・`summarise()` などを使って効率的にクエリを作成**することができます．**最後に`collect()` を行えばデータフレームを出力**することができます．
+
+```{r}
+#| label: summarise-data
+
+read_parquet("who_longer.parquet",
+             as_data_frame = FALSE) |> 
+  filter(country == "Japan",
+         !is.na(count)) |> 
+  group_by(country, year, diagnosis) |> 
+  summarise(count = sum(count),
+            .groups = "drop") |> 
+  collect()
+
+```
+
+### メリット4：複数のデータからなるデータセットを扱える
+
+Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，**Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える**ため，このようなデメリットを簡単に解決することができます．
+
+ここでは，年齢階級別のデータが格納された`"who_longer_byage"` フォルダをデータセットのサンプルとして用いましょう．
+
+**`open_dataset("who_longer_byage")`** とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の**データ集計を簡単に行うことができます**．
+
+```{r}
+#| label: sample-dataset
+#| code-fold: true
+
+dir_create("who_longer_byage")
+who_longer |> 
+  group_by(age) |> 
+  group_walk(~ .x |> 
+               write_parquet(str_glue("who_longer_byage/who_longer_{.y$age}.parquet")),
+  .keep = TRUE)
+
 ```
 
 ```{r}
-# file_size_csv <- file_size("who_longer.csv")
-# file_size_parquet <- file_size("who_longer.parquet")
-# 
-# file_size_csv / file_size_parquet
-# 
-# dir_create("who_longer")
-# who_longer_splitted <- who_longer |> 
-#   group_by(age) |> 
-#   group_walk(~ .x |> 
-#                write_parquet(str_glue("who_longer/who_longer_{.y$age}.parquet")),
-#   .keep = TRUE)
-# 
-# read_parquet("who_longer.parquet")
-# 
-# open_dataset("who_longer") |> 
-#   collect()
+#| label: summarise-dataset
+
+open_dataset("who_longer_byage") |> 
+  filter(country == "Japan",
+         !is.na(count)) |> 
+  group_by(country, year, diagnosis) |> 
+  summarise(count = sum(count),
+            .groups = "drop") |> 
+  collect()
 ```
+
+### メリット5：R・Python間でのデータのやり取りに適している
+
+PythonのpandasパッケージはParquetの読み書きに対応しているため，Parquetは，R・Python間でのデータのやり取りにも適しています．
+
+Rで作成した`'who_longer.parquet'` をpandasで読み込んでみましょう．
 
 ```{python}
-# import pandas as pd
-# 
-# pd.read_parquet('who_longer.parquet')
+#| label: read-data-py
+import pandas as pd
+
+pd.read_parquet('who_longer.parquet')
 ```
 
+## まとめ
+
+ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．
+
+また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる[sfarrow](https://github.com/wcjochem/sfarrow)なども登場しています．
+
+CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．
+
 ```{r}
+#| label: delete-data
 #| include: false
 
-fs::file_delete("who_longer.csv")
-fs::file_delete("who_longer.parquet")
-fs::dir_ls("who_longer") |> 
-  fs::file_delete()
+file_delete("who_longer.csv")
+file_delete("who_longer.parquet")
+dir_ls("who_longer_byage") |> 
+  file_delete()
 ```

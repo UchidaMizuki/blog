@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html",
       "/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html",
       "/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html",
       "/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html"

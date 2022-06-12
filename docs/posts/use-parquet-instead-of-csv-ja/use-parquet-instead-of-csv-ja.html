@@ -164,11 +164,12 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">🗾CSVの代わりにParquetを使ってみよう！</h1>
+      <h1 class="title">🗾CSVの代わりにParquetを使ってみよう</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">parquet</div>
                 <div class="quarto-category">arrow</div>
                 <div class="quarto-category">R</div>
+                <div class="quarto-category">Python</div>
                 <div class="quarto-category">Japanese</div>
               </div>
                   </div>
@@ -181,7 +182,7 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2022年6月7日</p>
+        <p class="date">2022年6月12日</p>
       </div>
     </div>
       
@@ -198,23 +199,20 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 
 
 
-<p>データフレーム（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．</p>
-<p>Rの<a href="https://tibble.tidyverse.org">tibble</a>・<a href="https://dplyr.tidyverse.org">dplyr</a>やPythonの<a href="https://pandas.pydata.org">pandas</a>などのデータフレーム操作のためのパッケージを使えば，これまでExcelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行うことができます．</p>
-<p>このようにデータ分析のためのツールが充実する一方で，データフレームの保存にはExcelなどとの互換性が高いCSVが未だに広く使われています．</p>
-<p>CSVは，テキストデータであるため，様々なソフトと互換性があるなどの利点がありますが，必ずしもデータ分析に適したファイル形式とは言えません．</p>
-<p>CSVの代替として有望なファイル形式に，Parquetと呼ばれるものがあります．</p>
-<p>以下では，CSVとParquetを比較し，Parquetのメリットを紹介します．</p>
-<section id="サンプルデータtidy-dataについて" class="level2">
-<h2 class="anchored" data-anchor-id="サンプルデータtidy-dataについて">サンプルデータ（tidy dataについて）</h2>
-<p>ここでは，Rのarrowパッケージを用いてParquetの保存を行ってみます．</p>
-<p>サンプルデータとして，tidyrパッケージで提供されている<code>who</code> （<a href="https://www.who.int/teams/global-tuberculosis-programme/data">世界保健機関（WHO）結核データ</a>）を用います．</p>
-<p>データ分析では，近年，整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）の概念が普及してきています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．</p>
-<p><code>who</code>は，tidy dataと言えるでしょうか？<code>who</code>には，<code>"new_sp_m014"</code> ～<code>"newrel_f65"</code> の列が存在しますが，これらの列名には，列ごとに，診断結果（<code>sp</code>や<code>sel</code>）・性別（<code>m</code>と<code>f</code>）・年齢階級（<code>014</code>や<code>65</code>）といった複数の変数が含まれています．そのため，<code>who</code> は，tidy dataでないといえます．そこで，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従ってtidy dataである<code>who_longer</code>に変形します．</p>
-<p>データ分析では，<code>who</code> より<code>who_longer</code> のほうを分析が行いやすい一方で，行数は<code>who</code>（約7,000行）より<code>who_longer</code> （約400,000行）のほうが約50倍多いことがわかります．そのため，<code>who_longer</code>のようなデータを，テキストファイルであるCSVで保存すると容量が増大してしまいます．</p>
+<p>本記事では，<strong>CSVの代替として有望かつビッグデータ分析にも適している<a href="https://parquet.apache.org">Parquet</a></strong>を紹介します．</p>
+<p>さて，<strong>データフレーム</strong>（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．<strong>Rの<a href="https://tibble.tidyverse.org">tibble</a>・<a href="https://dplyr.tidyverse.org">dplyr</a></strong>や<strong>Pythonの<a href="https://pandas.pydata.org">pandas</a></strong>などのデータフレーム操作のためのパッケージを使えば，これまで<strong>Excelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行う</strong>ことができます．</p>
+<p>このようにデータ分析ツールが充実している一方で，データの保存には<strong>Excelなどとの互換性が高いCSV</strong>が未だに広く使われています．しかし，CSVは，必ずしもデータ分析に適したファイル形式とは言えません．そこで，<strong>CSVの代替</strong>として使われることが多くなっているParquetをCSVと比較してみましょう．</p>
+<section id="サンプルデータの準備" class="level2">
+<h2 class="anchored" data-anchor-id="サンプルデータの準備">サンプルデータの準備</h2>
+<p>CSVとParquetを比較するため，まずは，データ分析にありがちなサンプルデータを用意しましょう．今回は，tidyrパッケージで提供されている<code>who</code> （<a href="https://www.who.int/teams/global-tuberculosis-programme/data">世界保健機関（WHO）結核データ</a>）からサンプルデータをつくります．</p>
+<p>近年，データ分析では，<strong>整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）</strong>の概念が普及しています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．</p>
+<p>それでは，<code>who</code>は，tidy dataと言えるでしょうか？<code>who</code>には，<code>"new_sp_m014"</code> ～<code>"newrel_f65"</code> といったたくさんの列が存在しますが，これらには，1列ごとに，診断結果（<code>sp</code>や<code>sel</code>）・性別（<code>m</code>と<code>f</code>）・年齢階級（<code>014</code>や<code>65</code>）といった複数の変数が含まれています．そのため，<strong><code>who</code> は，tidy dataでない</strong>といえます．そこで，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従って<strong>tidy dataである<code>who_longer</code>に変形</strong>します．</p>
+<p>データ分析では，<code>who</code> よりtidy dataである<code>who_longer</code> のほうを分析が行いやすい一方で，行数は<code>who</code>（約7,000行）より<code>who_longer</code> （約400,000行）のほうが約50倍多いことがわかります．そのため，tidy dataである<code>who_longer</code>のようなデータをテキストファイルであるCSVで保存すると容量が増大してしまいます．</p>
+<p>このように，<strong>tidy dataはデータ分析に適している一方で，CSVのようなテキストファイルでの保存に適していない</strong>ことがわかります．しかし，このような<strong>データ保存上の課題はParquetを使えば解決する</strong>ことができます．</p>
+<p>ここで，tidy dataでない<code>who</code> とtidy dataである<code>who_longer</code> を見比べてみましょう．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <details>
@@ -269,21 +267,28 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 </div>
 </div>
 </section>
-<section id="parquetの保存方法" class="level2">
-<h2 class="anchored" data-anchor-id="parquetの保存方法">Parquetの保存方法</h2>
-<p><code>write_csv()</code> でCSVを保存できるとの同様に<code>write_parquet()</code> で簡単に，Parquetを保存することができます．<code>who_longer</code>を保存してみましょう．</p>
+<section id="csvparquetの保存方法" class="level2">
+<h2 class="anchored" data-anchor-id="csvparquetの保存方法">CSV・Parquetの保存方法</h2>
+<p>Rでは，<code>write_csv()</code> でCSVを保存できます．同様に，arrowパッケージの<code>write_parquet()</code> でParquetを保存することができます．<code>who_longer</code>をCSVとParquetで保存してみましょう．</p>
+<p>CSVとParquetでは，どちらも簡単にデータ保存ができることがわかります．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CSVを保存</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(who_longer, <span class="st">"who_longer.csv"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Parquetを保存</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_parquet</span>(who_longer, <span class="st">"who_longer.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># CSVを保存</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(who_longer, <span class="st">"who_longer.csv"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Parquetを保存</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">write_parquet</span>(who_longer, <span class="st">"who_longer.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="parquetのメリット" class="level2">
-<h2 class="anchored" data-anchor-id="parquetのメリット">Parquetのメリット</h2>
-<section id="メリット1-csvと比べてファイル容量が軽い" class="level3">
-<h3 class="anchored" data-anchor-id="メリット1-csvと比べてファイル容量が軽い">メリット1: CSVと比べてファイル容量が軽い</h3>
+<section id="parquetのメリットcsvとの比較" class="level2">
+<h2 class="anchored" data-anchor-id="parquetのメリットcsvとの比較">Parquetのメリット・CSVとの比較</h2>
+<p>ここからは，保存した<code>who_longer</code> のCSV・Parquetファイルを比較して，CSVに対するParquetのメリットを紹介していきます．</p>
+<section id="メリット1csvよりデータ容量が軽い" class="level3">
+<h3 class="anchored" data-anchor-id="メリット1csvよりデータ容量が軽い">メリット1：CSVよりデータ容量が軽い</h3>
+<p>tidy dataは行数が多くなるため，CSVでの保存に適しておらず，Parquetを使ったほうがよいことを既に述べました．</p>
+<p>実際に，<code>who_longer</code> のCSV・Parquetのデータ容量は，それぞれ，14.1 MBと154 KBとなり，<strong>ParquetはCSVの約1 %のデータ容量</strong>しかないことがわかります．</p>
+<p>どのようなケースでもこのようなデータ容量の削減が見込めるわけではありませんが，<strong>Parquetは列指向でデータ圧縮</strong>を行うため，Rなどでよく用いられる<strong>tidy dataの保存に適したデータ形式</strong>であるといえます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CSV</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">file_size</span>(<span class="st">"who_longer.csv"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -295,33 +300,140 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 <div class="cell-output cell-output-stdout">
 <pre><code>154K</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>units<span class="sc">::</span><span class="fu">set_units</span>(<span class="fu">file_size</span>(<span class="st">"who_longer.parquet"</span>) <span class="sc">/</span> <span class="fu">file_size</span>(<span class="st">"who_longer.csv"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">set_units</span>(<span class="st">`</span><span class="at">%</span><span class="st">`</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1.070468 [%]</code></pre>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># file_size_csv &lt;- file_size("who_longer.csv")</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># file_size_parquet &lt;- file_size("who_longer.parquet")</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># file_size_csv / file_size_parquet</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># dir_create("who_longer")</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># who_longer_splitted &lt;- who_longer |&gt; </span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_by(age) |&gt; </span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_walk(~ .x |&gt; </span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#                write_parquet(str_glue("who_longer/who_longer_{.y$age}.parquet")),</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   .keep = TRUE)</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co"># read_parquet("who_longer.parquet")</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># open_dataset("who_longer") |&gt; </span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   collect()</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># import pandas as pd</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># pd.read_parquet('who_longer.parquet')</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-
-
 </section>
+<section id="メリット2csvより読み込みが簡単" class="level3">
+<h3 class="anchored" data-anchor-id="メリット2csvより読み込みが簡単">メリット2：CSVより読み込みが簡単</h3>
+<p><code>write_csv()</code>・<code>write_parquet()</code> でデータを書き込めるのと同様に，<strong><code>read_csv()</code>・<code>read_parquet()</code> でCSV・Parquetデータを読み込む</strong>ことができます．</p>
+<p><strong>CSV</strong>はテキスト形式であるため，<strong>読み込み時に<code>col_types</code>で各列の型を指定する必要</strong>があります（デフォルトでは自動で型を推測）．</p>
+<p>一方，<strong>Parquet</strong>は，書き込み時に各列の型情報も保存されているため読み込み時に<strong>型を指定する必要がありません</strong>．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CSVの読み込み</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read_csv</span>(<span class="st">"who_longer.csv"</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">year =</span> <span class="st">"i"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">count =</span> <span class="st">"i"</span>))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Parquetの読み込み</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">read_parquet</span>(<span class="st">"who_longer.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="メリット3csvよりビッグデータの読み込み集計に適している" class="level3">
+<h3 class="anchored" data-anchor-id="メリット3csvよりビッグデータの読み込み集計に適している">メリット3：CSVよりビッグデータの読み込み・集計に適している</h3>
+<p>CSVはビッグデータの保存に適しておらず，これまでは，ビッグデータの保存にはSQLを用いるなどの使い分けが必要でした．</p>
+<p>Rでは，dplyr（dbplyr）・DBIなどのパッケージで簡単にSQLが使えますが，データベースへの接続・切断などが必要なSQLは，CSVと使い勝手が異なり，初学者にとってはハードルがあるかもしれません．</p>
+<p>また，（ほとんどの？）<strong>SQLは行指向</strong>であるため，<strong>データの追加・更新・削除などに適しています</strong>が，データ分析に用いられる<strong>データの保存・集計には列指向であるParquetのほうが適している</strong>と思われます．</p>
+<p>CSVファイルを用いてビッグデータを集計する場合には，一度，全データをメモリに移す必要があります．そのため，データの読み込みでメモリが逼迫するおそれがあります．</p>
+<p>Parquetでは，<strong>読み込み時に<code>as_data_frame = FALSE</code></strong>とすることで，SQLと同様に<strong>メモリにデータを移すことなくデータのフィルタリング・集計などが可能</strong>です．</p>
+<p>ここでは，日本の年・症例別の患者数を計算してみましょう．<strong>dplyrの<code>filter()</code> ・<code>group_by()</code> ・<code>summarise()</code> などを使って効率的にクエリを作成</strong>することができます．<strong>最後に<code>collect()</code> を行えばデータフレームを出力</strong>することができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_parquet</span>(<span class="st">"who_longer.parquet"</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">as_data_frame =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"Japan"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(count)) <span class="sc">|&gt;</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, year, diagnosis) <span class="sc">|&gt;</span> </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">sum</span>(count),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 33 × 4
+   country  year diagnosis count
+   &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;     &lt;int&gt;
+ 1 Japan    1995 sp        14367
+ 2 Japan    1996 sp        12867
+ 3 Japan    1997 sp        13571
+ 4 Japan    1998 sp        11935
+ 5 Japan    1999 sp        12909
+ 6 Japan    2000 sp        11853
+ 7 Japan    2001 sp        11408
+ 8 Japan    2002 sp        10807
+ 9 Japan    2003 sp        10843
+10 Japan    2004 sp        10471
+# … with 23 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="メリット4複数のデータからなるデータセットを扱える" class="level3">
+<h3 class="anchored" data-anchor-id="メリット4複数のデータからなるデータセットを扱える">メリット4：複数のデータからなるデータセットを扱える</h3>
+<p>Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，<strong>Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える</strong>ため，このようなデメリットを簡単に解決することができます．</p>
+<p>ここでは，年齢階級別のデータが格納された<code>"who_longer_byage"</code> フォルダをデータセットのサンプルとして用いましょう．</p>
+<p><strong><code>open_dataset("who_longer_byage")</code></strong> とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の<strong>データ集計を簡単に行うことができます</strong>．</p>
+<div class="cell">
+<details>
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir_create</span>(<span class="st">"who_longer_byage"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>who_longer <span class="sc">|&gt;</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(age) <span class="sc">|&gt;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_walk</span>(<span class="sc">~</span> .x <span class="sc">|&gt;</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>               <span class="fu">write_parquet</span>(<span class="fu">str_glue</span>(<span class="st">"who_longer_byage/who_longer_{.y$age}.parquet"</span>)),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">.keep =</span> <span class="cn">TRUE</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">open_dataset</span>(<span class="st">"who_longer_byage"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"Japan"</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(count)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, year, diagnosis) <span class="sc">|&gt;</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">sum</span>(count),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 33 × 4
+   country  year diagnosis count
+   &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;     &lt;int&gt;
+ 1 Japan    1995 sp        14367
+ 2 Japan    1996 sp        12867
+ 3 Japan    1997 sp        13571
+ 4 Japan    1998 sp        11935
+ 5 Japan    1999 sp        12909
+ 6 Japan    2000 sp        11853
+ 7 Japan    2001 sp        11408
+ 8 Japan    2002 sp        10807
+ 9 Japan    2003 sp        10843
+10 Japan    2004 sp        10471
+# … with 23 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="メリット5rpython間でのデータのやり取りに適している" class="level3">
+<h3 class="anchored" data-anchor-id="メリット5rpython間でのデータのやり取りに適している">メリット5：R・Python間でのデータのやり取りに適している</h3>
+<p>PythonのpandasパッケージはParquetの読み書きに対応しているため，Parquetは，R・Python間でのデータのやり取りにも適しています．</p>
+<p>Rで作成した<code>'who_longer.parquet'</code> をpandasで読み込んでみましょう．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>pd.read_parquet(<span class="st">'who_longer.parquet'</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            country iso2 iso3  year diagnosis gender   age   count
+0       Afghanistan   AF  AFG  1980        sp      m   014     NaN
+1       Afghanistan   AF  AFG  1980        sp      m  1524     NaN
+2       Afghanistan   AF  AFG  1980        sp      m  2534     NaN
+3       Afghanistan   AF  AFG  1980        sp      m  3544     NaN
+4       Afghanistan   AF  AFG  1980        sp      m  4554     NaN
+...             ...  ...  ...   ...       ...    ...   ...     ...
+405435     Zimbabwe   ZW  ZWE  2013       rel      f  2534  4649.0
+405436     Zimbabwe   ZW  ZWE  2013       rel      f  3544  3526.0
+405437     Zimbabwe   ZW  ZWE  2013       rel      f  4554  1453.0
+405438     Zimbabwe   ZW  ZWE  2013       rel      f  5564   811.0
+405439     Zimbabwe   ZW  ZWE  2013       rel      f    65   725.0
+
+[405440 rows x 8 columns]</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．</p>
+<p>また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる<a href="https://github.com/wcjochem/sfarrow">sfarrow</a>なども登場しています．</p>
+<p>CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．</p>
+
+
 </section>
 
 </main> <!-- /main -->
