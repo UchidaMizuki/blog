@@ -162,7 +162,7 @@ read_parquet("who_longer.parquet",
 
 Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，**Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える**ため，このようなデメリットを簡単に解決することができます．
 
-ここでは，年齢階級別のデータが格納された`"who_longer_byage"` フォルダをデータセットのサンプルとして用いましょう．
+ここでは，`who_longer`を年齢階級別に分割したParquetファイルを格納した`"who_longer_byage"` フォルダをデータセットのサンプルとして用いましょう．
 
 **`open_dataset("who_longer_byage")`** とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の**データ集計を簡単に行うことができます**．
 
@@ -208,7 +208,7 @@ pd.read_parquet('who_longer.parquet')
 
 ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．
 
-また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる[sfarrow](https://github.com/wcjochem/sfarrow)なども登場しています．
+また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる[sfarrow](https://wcjochem.github.io/sfarrow/)なども登場しています．
 
 CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．
 

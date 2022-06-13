@@ -200,7 +200,6 @@ jpmap::layout_islands(plot,
 
 ```{r}
 #| label: save-plot
-#| eval: false
 #| include: false
 
 jpmap::layout_islands(plot,

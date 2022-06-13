@@ -361,7 +361,7 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 <section id="メリット4複数のデータからなるデータセットを扱える" class="level3">
 <h3 class="anchored" data-anchor-id="メリット4複数のデータからなるデータセットを扱える">メリット4：複数のデータからなるデータセットを扱える</h3>
 <p>Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，<strong>Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える</strong>ため，このようなデメリットを簡単に解決することができます．</p>
-<p>ここでは，年齢階級別のデータが格納された<code>"who_longer_byage"</code> フォルダをデータセットのサンプルとして用いましょう．</p>
+<p>ここでは，<code>who_longer</code>を年齢階級別に分割したParquetファイルを格納した<code>"who_longer_byage"</code> フォルダをデータセットのサンプルとして用いましょう．</p>
 <p><strong><code>open_dataset("who_longer_byage")</code></strong> とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の<strong>データ集計を簡単に行うことができます</strong>．</p>
 <div class="cell">
 <details>
@@ -430,7 +430,7 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 <section id="まとめ" class="level2">
 <h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．</p>
-<p>また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる<a href="https://github.com/wcjochem/sfarrow">sfarrow</a>なども登場しています．</p>
+<p>また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる<a href="https://wcjochem.github.io/sfarrow/">sfarrow</a>なども登場しています．</p>
 <p>CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．</p>
 
 
