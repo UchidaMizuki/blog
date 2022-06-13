@@ -4,6 +4,7 @@ project:
 
 website:
   title: "UchidaMizuki"
+  site-url: "https://uchidamizuki.github.io"
   favicon: logo.png
   navbar:
     right:

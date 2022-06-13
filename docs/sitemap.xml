@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://uchidamizuki.github.io/about.html</loc>
+    <lastmod>2022-06-13T23:25:00.360Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/index.html</loc>
+    <lastmod>2022-06-13T23:25:01.347Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html</loc>
+    <lastmod>2022-06-13T23:25:03.424Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html</loc>
+    <lastmod>2022-06-13T23:25:05.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html</loc>
+    <lastmod>2022-06-13T23:25:06.584Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html</loc>
+    <lastmod>2022-06-13T23:25:08.015Z</lastmod>
+  </url>
+</urlset>
