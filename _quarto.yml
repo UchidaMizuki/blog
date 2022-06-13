@@ -23,3 +23,6 @@ editor: visual
 comments:
   giscus: 
     repo: UchidaMizuki/UchidaMizuki.github.io
+
+plugins:
+  - jekyll-sitemap
