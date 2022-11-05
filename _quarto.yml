@@ -24,3 +24,6 @@ editor: visual
 comments:
   giscus: 
     repo: UchidaMizuki/UchidaMizuki.github.io
+
+execute:
+  freeze: auto
