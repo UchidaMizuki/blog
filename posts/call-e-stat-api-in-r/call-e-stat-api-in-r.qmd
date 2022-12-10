@@ -193,6 +193,8 @@ knitr::kable(head(data_sleep_2015, 10))
 
 ```{r}
 data_sleep_2015 |> 
+  mutate(ageclass_name = as_factor(ageclass_name),
+         sleeptime_name = as_factor(sleeptime_name)) |> 
   group_by(ageclass_name) |> 
   mutate(prop = person / sum(person)) |> 
   ungroup() |> 

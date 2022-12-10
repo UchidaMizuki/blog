@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uchidamizuki.github.io/about.html</loc>
-    <lastmod>2022-11-05T10:55:51.890Z</lastmod>
+    <lastmod>2022-12-10T08:48:02.525Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/index.html</loc>
-    <lastmod>2022-12-10T07:35:15.271Z</lastmod>
+    <lastmod>2022-12-10T08:49:03.521Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html</loc>
@@ -26,6 +26,6 @@
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/call-e-stat-api-in-r/call-e-stat-api-in-r.html</loc>
-    <lastmod>2022-12-10T07:35:13.960Z</lastmod>
+    <lastmod>2022-12-10T08:49:08.380Z</lastmod>
   </url>
 </urlset>
