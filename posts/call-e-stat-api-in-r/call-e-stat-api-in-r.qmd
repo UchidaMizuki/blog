@@ -1,0 +1,209 @@
+---
+title: "Rで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）"
+lang: ja
+date: "2022-12-01"
+categories: [jpstat, R, Japanese]
+out-width: 100%
+image: https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true
+---
+
+2021年，日本で政府統計の整備が始まって150年を迎えました（[平成・令和の統計年表](https://www.stat.go.jp/museum/toukei150/img/nenpyo/pdf/nenpyo_heisei_reiwa.pdf)）．最近では，[政府統計の総合窓口（e-Stat）](https://www.e-stat.go.jp)で，様々な政府統計データを閲覧・ダウンロードすることができるようになりました．
+
+e-Statには，便利な[API機能](https://www.e-stat.go.jp/api/)も提供されています（利用ガイドは[こちら](https://www.e-stat.go.jp/api/api-info/api-guide)．あらかじめ[利用規約](https://www.e-stat.go.jp/api/agreement/)を確認してください）．API機能を利用する際は，事前に[ユーザ登録](https://www.e-stat.go.jp/mypage/user/preregister)を行ってください．
+
+本記事では，Rの[jpstat](https://uchidamizuki.github.io/jpstat/)パッケージを使って，e-Stat APIを効率的に用いる方法を紹介します．
+
+## e-Statについて
+
+e-Statでのデータの閲覧方法について概説します．e-Statには，様々な政府統計のデータベースが整理されていますが，ここでは，2015年国民健康・栄養調査の調査結果から[睡眠時間に関するデータベース](https://www.e-stat.go.jp/dbview?sid=0003224282)を見てみましょう．
+
+データベースを開くと以下のように統計表が表示され，右上の「ダウンロード」ボタンからデータをダウンロードすることができます．
+
+![e-Statデータベース：統計表表示画面](images/estat_1.png){width="60%"}
+
+画面左上の「表示項目選択」をクリックすると，表示するデータの項目（年齢階級・性別など）を選択することができます．
+
+![e-Statデータベース：表示項目選択画面](images/estat_2.png){width="60%"}
+
+たとえば，年齢階級を選択したい場合は，年齢階級の「項目を選択」をクリックすると以下のような画面で年齢階級を選択することができます．
+
+![e-Statデータベース：表示項目の設定画面](images/estat_3.png){width="60%"}
+
+表示項目を選択した後に，「ダウンロード」ボタンをクリックすると，選択した項目のデータのみをダウンロードすることができます．
+
+このように，e-Statでは，簡単にデータを抽出・ダウンロードすることができます．しかし，データ取得作業の再現性を高めたり，プログラムを用いたデータ抽出・取得の効率化を行ったりしたい場合は，e-Stat APIを用いるのがおすすめです．
+
+## jpstatパッケージでe-Stat APIを使う
+
+e-Stat APIでは，様々な機能が提供されています（[API仕様](https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0)）．
+
+上で説明したe-Statでのデータの抽出・ダウンロードをe-Stat APIで行うためには，以下のようなステップを踏む必要があります．
+
+1.  [メタ情報取得](https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_2_2)・パラメータ設定：表示項目データを取得・選択，選択項目に対応する[APIパラメータ](https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_3_4)を設定
+2.  [統計データ取得](https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_2_3)：選択したデータを取得・表データに整形する
+
+[jpstat](https://uchidamizuki.github.io/jpstat/)パッケージは，これらの一連の作業をR上で効率的に行うため開発されたものです．jpstatパッケージは，CRANからインストールすることができます．
+
+ここでは，**年齢階級別の睡眠時間をグラフ化**することを目指して，さきほど取り上げた[睡眠時間に関するデータベース](https://www.e-stat.go.jp/dbview?sid=0003224282)（2015年）からデータを取得してみましょう．まず，必要なパッケージを読み込みます．
+
+```{r}
+#| label: install
+#| eval: false
+
+install.packages("jpstat")
+
+```
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(jpstat)
+
+```
+
+```{r}
+#| label: setup-hidden
+#| echo: false
+
+appId <- keyring::key_get("estat-api")
+theme_set(theme_gray(base_family = "HiraKakuProN-W3")) 
+
+```
+
+e-Stat APIを用いるためには，事前に[ユーザ登録](https://www.e-stat.go.jp/mypage/user/preregister)を行い，`appId` と呼ばれるアプリケーションIDを取得する必要があります．
+
+### ステップ1：メタ情報（表示項目）の取得する
+
+`estat()` 関数に，`appId` とデータベースのURL（または統計表ID：`statsDataId`）を入力することでメタ情報（表示項目）を取得することができます．
+
+はじめに，メタ情報のうち「年齢階級（`cat01`）」のデータを見てみましょう（`cat01`はAPI上での分類名です）．`activate()` 関数によりメタ情報を表示することができます．さらに，`filter()` 関数により項目を選択することができます．ここでは，年齢階級別データのみが必要であるため，「総数」データを削除します[^1]．
+
+[^1]: ただし，各パラメータの項目数には，100件という上限が設定されているため，フィルタリング後の項目数が多くなる場合には，フィルタリングを行わず，全ての項目を選択することをおすすめします．
+
+```{r}
+#| label: appId
+#| eval: false
+
+# ご自身のappIdに置き換えてください
+appId <- "Your appId"
+
+```
+
+```{r}
+#| label: get-meta-data
+
+estat_sleep_2015 <- estat(appId, "https://www.e-stat.go.jp/dbview?sid=0003224282")
+
+```
+
+```{r}
+#| label: activate-an-item
+
+# メタ情報の閲覧・選択
+estat_sleep_2015 |> 
+  activate(cat01) |> 
+  filter(name != "総数")
+
+```
+
+### ステップ2：統計データの取得（ダウンロード）する
+
+データ抽出は，パイプ演算子`|>` を使うことで，続けて行うことができます．データの抽出後に`collect()` を適用することで統計データを取得することができます（また，`collect()`の`n`引数で，取得するデータ列を名付けることができます）．ただし，取得したデータ`data_sleep_2015` には多くの列が存在し，分析しづらくなっています．以下では，データ取得とデータ整形を同時に行う方法について説明します．
+
+```{r}
+data_sleep_2015 <- estat_sleep_2015 |> 
+  
+  # 表章項目
+  activate(tab) |> 
+  filter(name == "人数") |> 
+  
+  # 年齢階級
+  activate(cat01) |> 
+  filter(name != "総数") |> 
+  
+  # 睡眠の質
+  activate(cat02) |> 
+  filter(name == "総数") |> 
+  
+  # 性別
+  activate(cat03) |> 
+  filter(name == "総数") |> 
+  
+  # データ取得・数値に変換
+  collect(n = "person") |> 
+  mutate(person = parse_number(person))
+
+knitr::kable(head(data_sleep_2015, 10))
+```
+
+### ステップ2+α：データ取得とデータ整形を同時に行う
+
+jpstatでe-Statのデータを取得すると，パラメータ名（`cat01`など）と各項目の列名（`code`， `name`など）から列（`cat01_code`，`cat01_name`など）が作成されます．
+
+jpstatでは，`rekey()` 関数によりパラメータ名を変更したり，`select()` 関数で項目別に列を選択したりすることでデータを整理することができます[^2]．以下のように書くことで，すっきりとしたデータを作成することができました．
+
+[^2]: `select()` 関数である項目の列を全て削除することもできます．これは，「総数」のみを選択する場合など，分析に不要な項目を削除する場合に便利です．
+
+```{r}
+data_sleep_2015 <- estat_sleep_2015 |> 
+  activate(tab) |> 
+  filter(name == "人数") |> 
+  select() |> 
+  
+  activate(cat01) |> 
+  rekey("ageclass") |> 
+  filter(name != "総数") |> 
+  select(name) |> 
+  
+  activate(cat02) |> 
+  filter(name == "総数") |> 
+  select() |> 
+  
+  activate(cat03) |> 
+  filter(name == "総数") |> 
+  select() |> 
+  
+  activate(cat04) |> 
+  rekey("sleeptime") |> 
+  select(name) |> 
+  
+  activate(time) |> 
+  select() |> 
+  
+  collect(n = "person") |> 
+  mutate(person = parse_number(person))
+
+knitr::kable(head(data_sleep_2015, 10))
+```
+
+### 取得したデータのグラフ化の例
+
+最後に，取得したデータをグラフ化してみましょう．
+
+```{r}
+data_sleep_2015 |> 
+  group_by(ageclass_name) |> 
+  mutate(prop = person / sum(person)) |> 
+  ungroup() |> 
+  ggplot(aes(ageclass_name, prop,
+             fill = fct_rev(sleeptime_name))) +
+  geom_col() +
+  geom_text(aes(label = if_else(prop > 0.05,
+                                scales::label_percent(accuracy = 0.1)(prop),
+                                "")),
+            position = position_stack(vjust = 0.5)) +
+  scale_x_discrete("年齢階級") +
+  scale_y_continuous("割合", 
+                     labels = scales::label_percent(accuracy = 1)) +
+  scale_fill_brewer("睡眠時間",
+                    palette = "Spectral")
+```
+
+## まとめ
+
+本記事では，e-Stat APIと[jpstat](https://uchidamizuki.github.io/jpstat/)パッケージで日本の統計データを効率的に取得する方法について紹介しました．
+
+Rで統計データを取得することで，作業の再現性や効率性を高めることができます．また，jpstatパッケージを使うことで，データ取得とデータ整形を同時に行うことができるため便利です．みなさんもぜひ使ってみてください．
