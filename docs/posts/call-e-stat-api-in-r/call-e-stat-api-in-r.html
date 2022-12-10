@@ -188,7 +188,7 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2022年12月1日</p>
+        <p class="date">2022年12月12日</p>
       </div>
     </div>
       
@@ -205,9 +205,13 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 
 
 
-<p>2021年，日本で政府統計の整備が始まって150年を迎えました（<a href="https://www.stat.go.jp/museum/toukei150/img/nenpyo/pdf/nenpyo_heisei_reiwa.pdf">平成・令和の統計年表</a>）．最近では，<a href="https://www.e-stat.go.jp">政府統計の総合窓口（e-Stat）</a>で，様々な政府統計データを閲覧・ダウンロードすることができるようになりました．</p>
+<section id="この記事について" class="level2">
+<h2 class="anchored" data-anchor-id="この記事について">この記事について</h2>
+<p>この記事は「<a href="https://qiita.com/advent-calendar/2022/rlang">R Advent Calendar 2022</a>」の12日目の記事です．</p>
+<p>昨年，日本で政府統計の整備が始まって150年を迎えました（<a href="https://www.stat.go.jp/museum/toukei150/img/nenpyo/pdf/nenpyo_heisei_reiwa.pdf">平成・令和の統計年表</a>）．最近では，<a href="https://www.e-stat.go.jp">政府統計の総合窓口（e-Stat）</a>で，様々な政府統計データを閲覧・ダウンロードすることができるようになりました．</p>
 <p>e-Statには，便利な<a href="https://www.e-stat.go.jp/api/">API機能</a>も提供されています（利用ガイドは<a href="https://www.e-stat.go.jp/api/api-info/api-guide">こちら</a>．あらかじめ<a href="https://www.e-stat.go.jp/api/agreement/">利用規約</a>を確認してください）．API機能を利用する際は，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister">ユーザ登録</a>を行ってください．</p>
-<p>本記事では，Rの<a href="https://uchidamizuki.github.io/jpstat/">jpstat</a>パッケージを使って，e-Stat APIを効率的に用いる方法を紹介します．</p>
+<p>この記事では，Rの<a href="https://uchidamizuki.github.io/jpstat/">jpstat</a>パッケージを使って，e-Stat APIを効率的に用いる方法を紹介します．</p>
+</section>
 <section id="e-statについて" class="level2">
 <h2 class="anchored" data-anchor-id="e-statについて">e-Statについて</h2>
 <p>e-Statでのデータの閲覧方法について概説します．e-Statには，様々な政府統計のデータベースが整理されていますが，ここでは，2015年国民健康・栄養調査の調査結果から<a href="https://www.e-stat.go.jp/dbview?sid=0003224282">睡眠時間に関するデータベース</a>を見てみましょう．</p>
