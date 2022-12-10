@@ -209,7 +209,7 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 <h2 class="anchored" data-anchor-id="この記事について">この記事について</h2>
 <p>この記事は「<a href="https://qiita.com/advent-calendar/2022/rlang">R Advent Calendar 2022</a>」の12日目の記事です．</p>
 <p>昨年，日本で政府統計の整備が始まって150年を迎えました（<a href="https://www.stat.go.jp/museum/toukei150/img/nenpyo/pdf/nenpyo_heisei_reiwa.pdf">平成・令和の統計年表</a>）．最近では，<a href="https://www.e-stat.go.jp">政府統計の総合窓口（e-Stat）</a>で，様々な政府統計データを閲覧・ダウンロードすることができるようになりました．</p>
-<p>e-Statには，便利な<a href="https://www.e-stat.go.jp/api/">API機能</a>も提供されています（利用ガイドは<a href="https://www.e-stat.go.jp/api/api-info/api-guide">こちら</a>．あらかじめ<a href="https://www.e-stat.go.jp/api/agreement/">利用規約</a>を確認してください）．API機能を利用する際は，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister">ユーザ登録</a>を行ってください．</p>
+<p>e-Statには，便利な<a href="https://www.e-stat.go.jp/api/">API機能</a>も提供されています（利用ガイドは<a href="https://www.e-stat.go.jp/api/api-info/api-guide">こちら</a>．あらかじめ<a href="https://www.e-stat.go.jp/api/agreement/">利用規約</a>を確認してください．API機能を利用する際は，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister">ユーザ登録</a>を行ってください）．</p>
 <p>この記事では，Rの<a href="https://uchidamizuki.github.io/jpstat/">jpstat</a>パッケージを使って，e-Stat APIを効率的に用いる方法を紹介します．</p>
 </section>
 <section id="e-statについて" class="level2">
@@ -260,8 +260,8 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 
 </div>
 <p>e-Stat APIを用いるためには，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister">ユーザ登録</a>を行い，<code>appId</code> と呼ばれるアプリケーションIDを取得する必要があります．</p>
-<section id="ステップ1メタ情報表示項目の取得する" class="level3">
-<h3 class="anchored" data-anchor-id="ステップ1メタ情報表示項目の取得する">ステップ1：メタ情報（表示項目）の取得する</h3>
+<section id="ステップ1メタ情報表示項目の表示抽出する" class="level3">
+<h3 class="anchored" data-anchor-id="ステップ1メタ情報表示項目の表示抽出する">ステップ1：メタ情報（表示項目）の表示・抽出する</h3>
 <p><code>estat()</code> 関数に，<code>appId</code> とデータベースのURL（または統計表ID：<code>statsDataId</code>）を入力することでメタ情報（表示項目）を取得することができます．</p>
 <p>はじめに，メタ情報のうち「年齢階級（<code>cat01</code>）」のデータを見てみましょう（<code>cat01</code>はAPI上での分類名です）．<code>activate()</code> 関数によりメタ情報を表示することができます．さらに，<code>filter()</code> 関数により項目を選択することができます．ここでは，年齢階級別データのみが必要であるため，「総数」データを削除します<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
 <div class="cell">
@@ -298,7 +298,9 @@ gtag('config', 'G-VW3C30XP8C', { 'anonymize_ip': true});
 </section>
 <section id="ステップ2統計データの取得ダウンロードする" class="level3">
 <h3 class="anchored" data-anchor-id="ステップ2統計データの取得ダウンロードする">ステップ2：統計データの取得（ダウンロード）する</h3>
-<p>データ抽出は，パイプ演算子<code>|&gt;</code> を使うことで，続けて行うことができます．データの抽出後に<code>collect()</code> を適用することで統計データを取得することができます（また，<code>collect()</code>の<code>n</code>引数で，取得するデータ列を名付けることができます）．ただし，取得したデータ<code>data_sleep_2015</code> には多くの列が存在し，分析しづらくなっています．以下では，データ取得とデータ整形を同時に行う方法について説明します．</p>
+<p>ここでは，年齢階級・睡眠時間別の回答者数のデータを取得してみましょう．</p>
+<p>データ抽出は，以下のように，パイプ演算子<code>|&gt;</code> を使うことで，続けて行うことができます．データの抽出後に<code>collect()</code> を適用することで統計データを取得することができます（また，<code>collect()</code>の<code>n</code>引数で，取得するデータ列を名付けることができます）．</p>
+<p>ただし，取得したデータ<code>data_sleep_2015</code> には多くの列が存在し，分析しづらくなっています．以下では，データ取得とデータ整形を同時に行う方法について説明します．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_sleep_2015 <span class="ot">&lt;-</span> estat_sleep_2015 <span class="sc">|&gt;</span> </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  </span>

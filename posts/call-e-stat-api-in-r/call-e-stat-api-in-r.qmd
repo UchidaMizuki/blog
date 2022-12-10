@@ -13,7 +13,7 @@ image: https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw
 
 昨年，日本で政府統計の整備が始まって150年を迎えました（[平成・令和の統計年表](https://www.stat.go.jp/museum/toukei150/img/nenpyo/pdf/nenpyo_heisei_reiwa.pdf)）．最近では，[政府統計の総合窓口（e-Stat）](https://www.e-stat.go.jp)で，様々な政府統計データを閲覧・ダウンロードすることができるようになりました．
 
-e-Statには，便利な[API機能](https://www.e-stat.go.jp/api/)も提供されています（利用ガイドは[こちら](https://www.e-stat.go.jp/api/api-info/api-guide)．あらかじめ[利用規約](https://www.e-stat.go.jp/api/agreement/)を確認してください）．API機能を利用する際は，事前に[ユーザ登録](https://www.e-stat.go.jp/mypage/user/preregister)を行ってください．
+e-Statには，便利な[API機能](https://www.e-stat.go.jp/api/)も提供されています（利用ガイドは[こちら](https://www.e-stat.go.jp/api/api-info/api-guide)．あらかじめ[利用規約](https://www.e-stat.go.jp/api/agreement/)を確認してください．API機能を利用する際は，事前に[ユーザ登録](https://www.e-stat.go.jp/mypage/user/preregister)を行ってください）．
 
 この記事では，Rの[jpstat](https://uchidamizuki.github.io/jpstat/)パッケージを使って，e-Stat APIを効率的に用いる方法を紹介します．
 
@@ -79,7 +79,7 @@ theme_set(theme_gray(base_family = "HiraKakuProN-W3"))
 
 e-Stat APIを用いるためには，事前に[ユーザ登録](https://www.e-stat.go.jp/mypage/user/preregister)を行い，`appId` と呼ばれるアプリケーションIDを取得する必要があります．
 
-### ステップ1：メタ情報（表示項目）の取得する
+### ステップ1：メタ情報（表示項目）の表示・抽出する
 
 `estat()` 関数に，`appId` とデータベースのURL（または統計表ID：`statsDataId`）を入力することでメタ情報（表示項目）を取得することができます．
 
@@ -115,7 +115,11 @@ estat_sleep_2015 |>
 
 ### ステップ2：統計データの取得（ダウンロード）する
 
-データ抽出は，パイプ演算子`|>` を使うことで，続けて行うことができます．データの抽出後に`collect()` を適用することで統計データを取得することができます（また，`collect()`の`n`引数で，取得するデータ列を名付けることができます）．ただし，取得したデータ`data_sleep_2015` には多くの列が存在し，分析しづらくなっています．以下では，データ取得とデータ整形を同時に行う方法について説明します．
+ここでは，年齢階級・睡眠時間別の回答者数のデータを取得してみましょう．
+
+データ抽出は，以下のように，パイプ演算子`|>` を使うことで，続けて行うことができます．データの抽出後に`collect()` を適用することで統計データを取得することができます（また，`collect()`の`n`引数で，取得するデータ列を名付けることができます）．
+
+ただし，取得したデータ`data_sleep_2015` には多くの列が存在し，分析しづらくなっています．以下では，データ取得とデータ整形を同時に行う方法について説明します．
 
 ```{r}
 data_sleep_2015 <- estat_sleep_2015 |> 
