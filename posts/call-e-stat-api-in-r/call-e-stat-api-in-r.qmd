@@ -48,7 +48,7 @@ e-Statには，様々な政府統計のデータベースが整理されてい�
 
 [^1]: e-Stat APIでは，メタ情報取得・統計データ取得以外にも，様々な機能が提供されています（[API仕様](https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0)）．
 
-ここでは，**年齢階級別の睡眠時間をグラフ化**することを目標として，さきほど取り上げた[睡眠時間に関するデータベース](https://www.e-stat.go.jp/dbview?sid=0003224282)（2015年）からデータを取得してみましょう．まず，必要なパッケージを読み込みます．
+ここでは，**男女・年齢階級別の睡眠時間をグラフ化**することを目標として，さきほど取り上げた[睡眠時間に関するデータベース](https://www.e-stat.go.jp/dbview?sid=0003224282)（2015年）からデータを取得してみましょう．まず，必要なパッケージを読み込みます．
 
 ```{r}
 #| label: install
@@ -105,7 +105,7 @@ appId <- "Your appId"
 ```{r}
 #| label: get-meta-data
 
-estat_sleep_2015 <- estat(appId, "https://www.e-stat.go.jp/dbview?sid=0003224282")
+estat_sleeptime_2015 <- estat(appId, "https://www.e-stat.go.jp/dbview?sid=0003224282")
 
 ```
 
@@ -113,14 +113,14 @@ estat_sleep_2015 <- estat(appId, "https://www.e-stat.go.jp/dbview?sid=0003224282
 #| label: activate-an-item
 
 # メタ情報の閲覧・選択
-estat_sleep_2015 |> 
+estat_sleeptime_2015 |> 
   activate(cat01) |> 
   filter(name != "総数")
 
 ```
 
 ```{r}
-estat_sleep_2015_filtered <- estat_sleep_2015 |> 
+estat_sleeptime_2015_filtered <- estat_sleeptime_2015 |> 
   
   # 表章項目
   activate(tab) |> 
@@ -136,7 +136,7 @@ estat_sleep_2015_filtered <- estat_sleep_2015 |>
   
   # 性別
   activate(cat03) |> 
-  filter(name == "総数")
+  filter(name %in% c("男性", "女性"))
 ```
 
 ### ステップ2：統計データを取得（ダウンロード）する
@@ -145,16 +145,16 @@ estat_sleep_2015_filtered <- estat_sleep_2015 |>
 
 データの抽出後に`collect()` を適用することで統計データを取得することができます（また，`collect()`の`n`引数で，取得するデータの列を`"person"`と名付けています）．
 
-ただし，現状では，取得したデータ`data_sleep_2015` に多くの列が存在するため，分析しづらくなっています．**ステップα**で，データ取得とデータ整形を同時に行う方法について説明します．
+ただし，現状では，取得したデータ`data_sleeptime_2015` に多くの列が存在するため，分析しづらくなっています．**ステップα**で，データ取得とデータ整形を同時に行う方法について説明します．
 
 ```{r}
-data_sleep_2015 <- estat_sleep_2015_filtered |> 
+data_sleeptime_2015 <- estat_sleeptime_2015_filtered |> 
   
   # データ取得・数値に変換
   collect(n = "person") |> 
   mutate(person = parse_number(person))
 
-knitr::kable(head(data_sleep_2015, 10))
+knitr::kable(head(data_sleeptime_2015, 10))
 ```
 
 ### ステップα：データ取得とデータ整形を同時に行う
@@ -166,7 +166,7 @@ jpstatでは，`rekey()` 関数によりパラメータ名を変更したり，`
 [^5]: `select()` 関数である項目の列を全て削除することもできます．これは，「総数」のみを選択する場合など，分析に不要な項目を削除する場合に便利です．
 
 ```{r}
-data_sleep_2015 <- estat_sleep_2015 |> 
+data_sleeptime_2015 <- estat_sleeptime_2015 |> 
   activate(tab) |> 
   filter(name == "人数") |> 
   select() |> 
@@ -181,8 +181,9 @@ data_sleep_2015 <- estat_sleep_2015 |>
   select() |> 
   
   activate(cat03) |> 
-  filter(name == "総数") |> 
-  select() |> 
+  rekey("sex") |> 
+  filter(name %in% c("男性", "女性")) |> 
+  select(name) |> 
   
   activate(cat04) |> 
   rekey("sleeptime") |> 
@@ -194,32 +195,38 @@ data_sleep_2015 <- estat_sleep_2015 |>
   collect(n = "person") |> 
   mutate(person = parse_number(person))
 
-knitr::kable(head(data_sleep_2015, 10))
+knitr::kable(head(data_sleeptime_2015, 10))
 ```
 
 ### おまけ：取得したデータのグラフ化
 
-最後に，取得したデータをグラフ化してみましょう．
+最後に，取得したデ男女・年齢階級別の睡眠時間（2015年）をグラフ化してみましょう．グラフより，男性と女性では年齢階級別の睡眠時間の傾向が異なることがわかります．
 
 ```{r}
-data_sleep_2015 |> 
+#| fig-width: 8
+#| fig-height: 5
+
+data_sleeptime_2015 |> 
   mutate(ageclass_name = as_factor(ageclass_name),
+         sex_name = as_factor(sex_name),
          sleeptime_name = as_factor(sleeptime_name)) |> 
-  group_by(ageclass_name) |> 
+  group_by(ageclass_name, sex_name) |> 
   mutate(prop = person / sum(person)) |> 
   ungroup() |> 
   ggplot(aes(ageclass_name, prop,
              fill = fct_rev(sleeptime_name))) +
   geom_col() +
   geom_text(aes(label = if_else(prop > 0.05,
-                                scales::label_percent(accuracy = 0.1)(prop),
+                                scales::label_percent(accuracy = 1)(prop),
                                 "")),
             position = position_stack(vjust = 0.5)) +
   scale_x_discrete("年齢階級") +
   scale_y_continuous("割合", 
                      labels = scales::label_percent(accuracy = 1)) +
   scale_fill_brewer("睡眠時間",
-                    palette = "Spectral")
+                    palette = "Spectral") +
+  facet_wrap(~ sex_name) +
+  guides(x = guide_axis(n.dodge = 2))
 ```
 
 ## まとめ
