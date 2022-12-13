@@ -77,7 +77,7 @@
 <p>e-Stat APIを用いるためには，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister"><strong>ユーザ登録</strong></a>を行い，<strong><code>appId</code> と呼ばれるアプリケーションIDを取得</strong>する必要があります<sup>2</sup>．</p>
 <p><code>estat()</code> 関数に，<code>appId</code> とデータベースのURL（または統計表ID：<code>statsDataId</code>）を入力することでメタ情報（表示項目）を取得することができます<sup>3</sup>．</p>
 <p>はじめに，メタ情報のうち「年齢階級（<code>cat01</code>）」のデータを見てみましょう（<code>cat01</code>はAPI上での分類名です）．<code>activate()</code> 関数によりメタ情報を表示することができます．さらに，<code>filter()</code> 関数により項目を選択することができます．ここでは，年齢階級別データのみが必要であるため，「総数」データを削除します<sup>4</sup>．</p>
-<p>パイプ演算子<code>|&gt;</code> を使うことで，以下のように，<code>cat01</code>以外のメタ情報のデータ抽出を続けて行うことができます．</p>
+<p>パイプ演算子<code>|&gt;</code> を使うことで，以下のように，<code>cat01</code>以外のメタ情報のデータ抽出を続けて行うことができます．ここでは，<strong>男女・年齢階級・睡眠時間別の回答者数</strong>データを抽出しています．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;"># ご自身のappIdに置き換えてください</span></span>
 <span id="cb3-2">appId <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"Your appId"</span></span></code></pre></div>
@@ -131,9 +131,8 @@
 </section>
 <section id="ステップ2統計データを取得ダウンロードする" class="level3">
 <h3 class="anchored" data-anchor-id="ステップ2統計データを取得ダウンロードする">ステップ2：統計データを取得（ダウンロード）する</h3>
-<p>ここでは，年齢階級・睡眠時間別の回答者数のデータを取得してみましょう．</p>
-<p>データの抽出後に<code>collect()</code> を適用することで統計データを取得することができます（また，<code>collect()</code>の<code>n</code>引数で，取得するデータの列を<code>"person"</code>と名付けています）．</p>
-<p>ただし，現状では，取得したデータ<code>data_sleeptime_2015</code> に多くの列が存在するため，分析しづらくなっています．<strong>ステップα</strong>で，データ取得とデータ整形を同時に行う方法について説明します．</p>
+<p>データの抽出後に<code>collect()</code> を適用することで統計データを取得することができます．また，<code>collect()</code>の<code>n</code>引数で，取得するデータの列を名付けることができます．ここでは，<code>"person"</code>と名付けます．</p>
+<p>取得したデータ<code>data_sleeptime_2015</code>を見ると，（たくさんの列が存在する）分析しづらいデータになっていることがわかります．<strong>ステップα</strong>で，データ取得とデータ整形を同時に行う方法について説明します．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">data_sleeptime_2015 <span class="ot" style="color: #003B4F;">&lt;-</span> estat_sleeptime_2015_filtered <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
 <span id="cb8-2">  </span>
@@ -581,7 +580,7 @@
 </section>
 <section id="おまけ取得したデータのグラフ化" class="level3">
 <h3 class="anchored" data-anchor-id="おまけ取得したデータのグラフ化">おまけ：取得したデータのグラフ化</h3>
-<p>最後に，取得したデ男女・年齢階級別の睡眠時間（2015年）をグラフ化してみましょう．グラフより，男性と女性では年齢階級別の睡眠時間の傾向が異なることがわかります．</p>
+<p>最後に，取得した<strong>2015年の男女・年齢階級別の睡眠時間</strong>データをグラフ化してみましょう．グラフより，男性と女性では年齢階級別の睡眠時間の傾向が異なることがわかります．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">data_sleeptime_2015 <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
 <span id="cb14-2">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">ageclass_name =</span> <span class="fu" style="color: #4758AB;">as_factor</span>(ageclass_name),</span>
