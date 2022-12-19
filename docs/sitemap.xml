@@ -2,30 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uchidamizuki.github.io/about.html</loc>
-    <lastmod>2022-12-10T08:48:02.525Z</lastmod>
+    <lastmod>2022-12-19T16:04:56.173Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/index.html</loc>
-    <lastmod>2022-12-13T13:53:28.218Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.github.io/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html</loc>
-    <lastmod>2022-12-05T13:59:59.188Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.github.io/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html</loc>
-    <lastmod>2022-12-05T14:00:04.930Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.github.io/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html</loc>
-    <lastmod>2022-12-05T14:00:01.096Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.github.io/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html</loc>
-    <lastmod>2022-12-05T14:00:03.000Z</lastmod>
+    <lastmod>2022-12-19T16:04:57.221Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/call-e-stat-api-in-r/call-e-stat-api-in-r.html</loc>
-    <lastmod>2022-12-13T13:53:27.171Z</lastmod>
+    <lastmod>2022-12-19T16:04:59.238Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html</loc>
+    <lastmod>2022-12-19T16:05:01.057Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html</loc>
+    <lastmod>2022-12-19T16:05:02.641Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html</loc>
+    <lastmod>2022-12-19T16:05:04.320Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html</loc>
+    <lastmod>2022-12-19T16:05:05.716Z</lastmod>
   </url>
 </urlset>

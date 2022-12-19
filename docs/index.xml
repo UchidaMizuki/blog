@@ -682,20 +682,20 @@
 <span id="cb3-2"><span class="fu" style="color: #4758AB;">print</span>(who, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 7,240 × 60
-  country   iso2  iso3   year new_sp_m014 new_sp_m1524 new_sp_m2534 new_sp_m3544
-  &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;int&gt;       &lt;int&gt;        &lt;int&gt;        &lt;int&gt;        &lt;int&gt;
-1 Afghanis… AF    AFG    1980          NA           NA           NA           NA
-2 Afghanis… AF    AFG    1981          NA           NA           NA           NA
-3 Afghanis… AF    AFG    1982          NA           NA           NA           NA
-4 Afghanis… AF    AFG    1983          NA           NA           NA           NA
-5 Afghanis… AF    AFG    1984          NA           NA           NA           NA
-# … with 7,235 more rows, and 52 more variables: new_sp_m4554 &lt;int&gt;,
-#   new_sp_m5564 &lt;int&gt;, new_sp_m65 &lt;int&gt;, new_sp_f014 &lt;int&gt;,
-#   new_sp_f1524 &lt;int&gt;, new_sp_f2534 &lt;int&gt;, new_sp_f3544 &lt;int&gt;,
-#   new_sp_f4554 &lt;int&gt;, new_sp_f5564 &lt;int&gt;, new_sp_f65 &lt;int&gt;,
-#   new_sn_m014 &lt;int&gt;, new_sn_m1524 &lt;int&gt;, new_sn_m2534 &lt;int&gt;,
-#   new_sn_m3544 &lt;int&gt;, new_sn_m4554 &lt;int&gt;, new_sn_m5564 &lt;int&gt;,
-#   new_sn_m65 &lt;int&gt;, new_sn_f014 &lt;int&gt;, new_sn_f1524 &lt;int&gt;, …</code></pre>
+  country     iso2  iso3   year new_sp…¹ new_s…² new_s…³ new_s…⁴ new_s…⁵ new_s…⁶
+  &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; &lt;int&gt;    &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;   &lt;int&gt;
+1 Afghanistan AF    AFG    1980       NA      NA      NA      NA      NA      NA
+2 Afghanistan AF    AFG    1981       NA      NA      NA      NA      NA      NA
+3 Afghanistan AF    AFG    1982       NA      NA      NA      NA      NA      NA
+4 Afghanistan AF    AFG    1983       NA      NA      NA      NA      NA      NA
+5 Afghanistan AF    AFG    1984       NA      NA      NA      NA      NA      NA
+# … with 7,235 more rows, 50 more variables: new_sp_m65 &lt;int&gt;,
+#   new_sp_f014 &lt;int&gt;, new_sp_f1524 &lt;int&gt;, new_sp_f2534 &lt;int&gt;,
+#   new_sp_f3544 &lt;int&gt;, new_sp_f4554 &lt;int&gt;, new_sp_f5564 &lt;int&gt;,
+#   new_sp_f65 &lt;int&gt;, new_sn_m014 &lt;int&gt;, new_sn_m1524 &lt;int&gt;,
+#   new_sn_m2534 &lt;int&gt;, new_sn_m3544 &lt;int&gt;, new_sn_m4554 &lt;int&gt;,
+#   new_sn_m5564 &lt;int&gt;, new_sn_m65 &lt;int&gt;, new_sn_f014 &lt;int&gt;,
+#   new_sn_f1524 &lt;int&gt;, new_sn_f2534 &lt;int&gt;, new_sn_f3544 &lt;int&gt;, …</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;"># データ整形後</span></span>
 <span id="cb5-2"><span class="fu" style="color: #4758AB;">print</span>(who_longer, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
@@ -748,7 +748,7 @@
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">units<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">set_units</span>(<span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>) <span class="sc" style="color: #5E5E5E;">/</span> <span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
 <span id="cb12-2">  units<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">set_units</span>(<span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">%</span><span class="st" style="color: #20794D;">`</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>1.070468 [%]</code></pre>
+<pre><code>1.071028 [%]</code></pre>
 </div>
 </div>
 </section>
@@ -889,7 +889,6 @@
   <category>Japanese</category>
   <guid>https://uchidamizuki.github.io/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html</guid>
   <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://www.apache.org/logos/res/parquet/parquet.png" medium="image" type="image/png"/>
 </item>
 <item>
   <title>🗾Rで日本地図を描いてみよう</title>

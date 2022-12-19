@@ -4,7 +4,7 @@ lang: ja
 date: "2022-06-12"
 categories: [parquet, arrow, R, Python, Japanese]
 fig-align: center
-image: https://www.apache.org/logos/res/parquet/parquet.png
+# image: https://www.apache.org/logos/res/parquet/parquet.png
 ---
 
 本記事では，**CSVの代替として有望かつビッグデータ分析にも適している[Parquet](https://parquet.apache.org)**を紹介します．
