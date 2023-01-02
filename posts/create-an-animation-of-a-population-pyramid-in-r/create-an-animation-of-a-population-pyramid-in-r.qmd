@@ -2,7 +2,7 @@
 title: "Rで人口ピラミッドのアニメーションを作る"
 lang: ja
 date: "2023-01-01"
-categories: [ggplot2, gganimate, e-Stat, jpstat, R, Python, Japanese]
+categories: [ggplot2, gganimate, e-Stat, jpstat, R, Japanese]
 out-width: 100%
 image: poppyramid.gif
 ---
@@ -30,7 +30,7 @@ library(jpstat)
 ```
 
 ```{r}
-#| label: set-appId-eval
+#| label: setup-hidden
 #| echo: false
 
 appId <- keyring::key_get("estat-api")
@@ -38,7 +38,7 @@ appId <- keyring::key_get("estat-api")
 ```
 
 ```{r}
-#| label: set-appId-echo
+#| label: set-appId
 #| eval: false
 
 appId <- "Your e-Stat appId"
@@ -119,7 +119,9 @@ Rのgganimateパッケージを用いることでggplot2のグラフをアニメ
 
 library(gganimate)
 
-theme_set(theme_light())
+# macOSで作成
+family <- "HiraKakuProN-W3"
+theme_set(theme_light(base_family = family))
 
 # 年齢層を表示するためのデータ
 agegroup <- pop |> 
@@ -132,9 +134,7 @@ agegroup <- pop |>
 poppyramid <- pop |> 
   
   # 人口ピラミッドを作成するため男性人口をマイナスに変換
-  mutate(pop = if_else(sex == "男",
-                       -pop,
-                       pop)) |> 
+  mutate(pop = if_else(sex == "男", -pop, pop)) |> 
   
   ggplot(aes(ageclass, pop,
              group = sex,
@@ -143,7 +143,8 @@ poppyramid <- pop |>
   geom_text(data = agegroup,
             aes(label = agegroup,
                 hjust = hjust),
-            y = 0) +
+            y = 0,
+            family = family) +
   scale_x_discrete(NULL) +
   scale_y_continuous("人口［千人］",
                      
@@ -161,8 +162,10 @@ poppyramid <- pop |>
 
 # 幅・高さを変更
 animate(poppyramid, 
-        width = 400,
-        height = 300)
+        width = 800,
+        height = 600,
+        res = 150,
+        renderer = gifski_renderer())
 ```
 
 ```{r}

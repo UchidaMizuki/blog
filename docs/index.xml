@@ -166,50 +166,55 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;">library</span>(gganimate)</span>
 <span id="cb6-2"></span>
-<span id="cb6-3"><span class="fu" style="color: #4758AB;">theme_set</span>(<span class="fu" style="color: #4758AB;">theme_light</span>())</span>
-<span id="cb6-4"></span>
-<span id="cb6-5"><span class="co" style="color: #5E5E5E;"># 年齢層を表示するためのデータ</span></span>
-<span id="cb6-6">agegroup <span class="ot" style="color: #003B4F;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb6-7">  <span class="fu" style="color: #4758AB;">group_by</span>(sex, agegroup) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb6-8">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">ageclass =</span> <span class="fu" style="color: #4758AB;">mean</span>(<span class="fu" style="color: #4758AB;">as.integer</span>(ageclass)),</span>
-<span id="cb6-9">            <span class="at" style="color: #657422;">.groups =</span> <span class="st" style="color: #20794D;">"drop"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb6-10">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">hjust =</span> <span class="fu" style="color: #4758AB;">case_when</span>(sex <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"男"</span> <span class="sc" style="color: #5E5E5E;">~</span> <span class="fl" style="color: #AD0000;">1.25</span>,</span>
-<span id="cb6-11">                           sex <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"女"</span> <span class="sc" style="color: #5E5E5E;">~</span> <span class="sc" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.25</span>))</span>
-<span id="cb6-12"></span>
-<span id="cb6-13">poppyramid <span class="ot" style="color: #003B4F;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb6-14">  </span>
-<span id="cb6-15">  <span class="co" style="color: #5E5E5E;"># 人口ピラミッドを作成するため男性人口をマイナスに変換</span></span>
-<span id="cb6-16">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">pop =</span> <span class="fu" style="color: #4758AB;">if_else</span>(sex <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"男"</span>,</span>
-<span id="cb6-17">                       <span class="sc" style="color: #5E5E5E;">-</span>pop,</span>
-<span id="cb6-18">                       pop)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb6-19">  </span>
-<span id="cb6-20">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(ageclass, pop,</span>
-<span id="cb6-21">             <span class="at" style="color: #657422;">group =</span> sex,</span>
-<span id="cb6-22">             <span class="at" style="color: #657422;">fill =</span> agegroup)) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-23">  <span class="fu" style="color: #4758AB;">geom_col</span>(<span class="at" style="color: #657422;">show.legend =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-24">  <span class="fu" style="color: #4758AB;">geom_text</span>(<span class="at" style="color: #657422;">data =</span> agegroup,</span>
-<span id="cb6-25">            <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">label =</span> agegroup,</span>
-<span id="cb6-26">                <span class="at" style="color: #657422;">hjust =</span> hjust),</span>
-<span id="cb6-27">            <span class="at" style="color: #657422;">y =</span> <span class="dv" style="color: #AD0000;">0</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-28">  <span class="fu" style="color: #4758AB;">scale_x_discrete</span>(<span class="cn" style="color: #8f5902;">NULL</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-29">  <span class="fu" style="color: #4758AB;">scale_y_continuous</span>(<span class="st" style="color: #20794D;">"人口［千人］"</span>,</span>
-<span id="cb6-30">                     </span>
-<span id="cb6-31">                     <span class="co" style="color: #5E5E5E;"># ラベルを絶対値・千人単位に変換</span></span>
-<span id="cb6-32">                     <span class="at" style="color: #657422;">labels =</span> purrr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">compose</span>(scales<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">label_comma</span>(<span class="at" style="color: #657422;">scale =</span> <span class="fl" style="color: #AD0000;">1e-3</span>), abs)) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-33">  <span class="fu" style="color: #4758AB;">scale_fill_brewer</span>(<span class="at" style="color: #657422;">palette =</span> <span class="st" style="color: #20794D;">"Set2"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-34">  <span class="fu" style="color: #4758AB;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-35">  <span class="fu" style="color: #4758AB;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;">~</span> sex,</span>
-<span id="cb6-36">             <span class="at" style="color: #657422;">scales =</span> <span class="st" style="color: #20794D;">"free_x"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-37">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"{frame_time %/% 5 * 5}年"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-38">  <span class="fu" style="color: #4758AB;">theme</span>(<span class="at" style="color: #657422;">plot.title =</span> <span class="fu" style="color: #4758AB;">element_text</span>(<span class="at" style="color: #657422;">hjust =</span> <span class="fl" style="color: #AD0000;">0.5</span>)) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb6-39">  </span>
-<span id="cb6-40">  <span class="co" style="color: #5E5E5E;"># アニメーションに変換</span></span>
-<span id="cb6-41">  <span class="fu" style="color: #4758AB;">transition_time</span>(year)</span>
-<span id="cb6-42"></span>
-<span id="cb6-43"><span class="co" style="color: #5E5E5E;"># 幅・高さを変更</span></span>
-<span id="cb6-44"><span class="fu" style="color: #4758AB;">animate</span>(poppyramid, </span>
-<span id="cb6-45">        <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">400</span>,</span>
-<span id="cb6-46">        <span class="at" style="color: #657422;">height =</span> <span class="dv" style="color: #AD0000;">300</span>)</span></code></pre></div>
+<span id="cb6-3"><span class="co" style="color: #5E5E5E;"># macOSで作成</span></span>
+<span id="cb6-4">family <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"HiraKakuProN-W3"</span></span>
+<span id="cb6-5"><span class="fu" style="color: #4758AB;">theme_set</span>(<span class="fu" style="color: #4758AB;">theme_light</span>(<span class="at" style="color: #657422;">base_family =</span> family))</span>
+<span id="cb6-6"></span>
+<span id="cb6-7"><span class="co" style="color: #5E5E5E;"># 年齢層を表示するためのデータ</span></span>
+<span id="cb6-8">agegroup <span class="ot" style="color: #003B4F;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-9">  <span class="fu" style="color: #4758AB;">group_by</span>(sex, agegroup) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">ageclass =</span> <span class="fu" style="color: #4758AB;">mean</span>(<span class="fu" style="color: #4758AB;">as.integer</span>(ageclass)),</span>
+<span id="cb6-11">            <span class="at" style="color: #657422;">.groups =</span> <span class="st" style="color: #20794D;">"drop"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-12">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">hjust =</span> <span class="fu" style="color: #4758AB;">case_when</span>(sex <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"男"</span> <span class="sc" style="color: #5E5E5E;">~</span> <span class="fl" style="color: #AD0000;">1.25</span>,</span>
+<span id="cb6-13">                           sex <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"女"</span> <span class="sc" style="color: #5E5E5E;">~</span> <span class="sc" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.25</span>))</span>
+<span id="cb6-14"></span>
+<span id="cb6-15">poppyramid <span class="ot" style="color: #003B4F;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-16">  </span>
+<span id="cb6-17">  <span class="co" style="color: #5E5E5E;"># 人口ピラミッドを作成するため男性人口をマイナスに変換</span></span>
+<span id="cb6-18">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">pop =</span> <span class="fu" style="color: #4758AB;">if_else</span>(sex <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"男"</span>,</span>
+<span id="cb6-19">                       <span class="sc" style="color: #5E5E5E;">-</span>pop,</span>
+<span id="cb6-20">                       pop)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-21">  </span>
+<span id="cb6-22">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(ageclass, pop,</span>
+<span id="cb6-23">             <span class="at" style="color: #657422;">group =</span> sex,</span>
+<span id="cb6-24">             <span class="at" style="color: #657422;">fill =</span> agegroup)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-25">  <span class="fu" style="color: #4758AB;">geom_col</span>(<span class="at" style="color: #657422;">show.legend =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-26">  <span class="fu" style="color: #4758AB;">geom_text</span>(<span class="at" style="color: #657422;">data =</span> agegroup,</span>
+<span id="cb6-27">            <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">label =</span> agegroup,</span>
+<span id="cb6-28">                <span class="at" style="color: #657422;">hjust =</span> hjust),</span>
+<span id="cb6-29">            <span class="at" style="color: #657422;">y =</span> <span class="dv" style="color: #AD0000;">0</span>,</span>
+<span id="cb6-30">            <span class="at" style="color: #657422;">family =</span> family) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-31">  <span class="fu" style="color: #4758AB;">scale_x_discrete</span>(<span class="cn" style="color: #8f5902;">NULL</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-32">  <span class="fu" style="color: #4758AB;">scale_y_continuous</span>(<span class="st" style="color: #20794D;">"人口［千人］"</span>,</span>
+<span id="cb6-33">                     </span>
+<span id="cb6-34">                     <span class="co" style="color: #5E5E5E;"># ラベルを絶対値・千人単位に変換</span></span>
+<span id="cb6-35">                     <span class="at" style="color: #657422;">labels =</span> purrr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">compose</span>(scales<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">label_comma</span>(<span class="at" style="color: #657422;">scale =</span> <span class="fl" style="color: #AD0000;">1e-3</span>), abs)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-36">  <span class="fu" style="color: #4758AB;">scale_fill_brewer</span>(<span class="at" style="color: #657422;">palette =</span> <span class="st" style="color: #20794D;">"Set2"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-37">  <span class="fu" style="color: #4758AB;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-38">  <span class="fu" style="color: #4758AB;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;">~</span> sex,</span>
+<span id="cb6-39">             <span class="at" style="color: #657422;">scales =</span> <span class="st" style="color: #20794D;">"free_x"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-40">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"{frame_time %/% 5 * 5}年"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-41">  <span class="fu" style="color: #4758AB;">theme</span>(<span class="at" style="color: #657422;">plot.title =</span> <span class="fu" style="color: #4758AB;">element_text</span>(<span class="at" style="color: #657422;">hjust =</span> <span class="fl" style="color: #AD0000;">0.5</span>)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-42">  </span>
+<span id="cb6-43">  <span class="co" style="color: #5E5E5E;"># アニメーションに変換</span></span>
+<span id="cb6-44">  <span class="fu" style="color: #4758AB;">transition_time</span>(year)</span>
+<span id="cb6-45"></span>
+<span id="cb6-46"><span class="co" style="color: #5E5E5E;"># 幅・高さを変更</span></span>
+<span id="cb6-47"><span class="fu" style="color: #4758AB;">animate</span>(poppyramid, </span>
+<span id="cb6-48">        <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">800</span>,</span>
+<span id="cb6-49">        <span class="at" style="color: #657422;">height =</span> <span class="dv" style="color: #AD0000;">600</span>,</span>
+<span id="cb6-50">        <span class="at" style="color: #657422;">res =</span> <span class="dv" style="color: #AD0000;">150</span>,</span>
+<span id="cb6-51">        <span class="at" style="color: #657422;">renderer =</span> <span class="fu" style="color: #4758AB;">gifski_renderer</span>())</span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="https://uchidamizuki.github.io/posts/create-an-animation-of-a-population-pyramid-in-r/create-an-animation-of-a-population-pyramid-in-r_files/figure-html/create-gif-1.gif" class="img-fluid"></p>
 </div>
@@ -227,7 +232,6 @@
   <category>e-Stat</category>
   <category>jpstat</category>
   <category>R</category>
-  <category>Python</category>
   <category>Japanese</category>
   <guid>https://uchidamizuki.github.io/posts/create-an-animation-of-a-population-pyramid-in-r/create-an-animation-of-a-population-pyramid-in-r.html</guid>
   <pubDate>Sat, 31 Dec 2022 15:00:00 GMT</pubDate>
