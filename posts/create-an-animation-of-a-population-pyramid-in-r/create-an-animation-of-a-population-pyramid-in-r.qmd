@@ -1,0 +1,173 @@
+---
+title: "Rで人口ピラミッドのアニメーションを作る"
+lang: ja
+date: "2023-01-01"
+categories: [ggplot2, gganimate, e-Stat, jpstat, R, Python, Japanese]
+out-width: 100%
+image: poppyramid.gif
+---
+
+## この記事について
+
+国立社会保障・人口問題研究所（社人研）の公開している[人口ピラミッドの推移アニメーション](https://www.ipss.go.jp/site-ad/TopPageData/Pyramid_a.html)を参考に，以下のようなアニメーションをRのggplot2で作成してみました．
+
+![](poppyramid.gif)
+
+## 国勢調査の時系列データの取得
+
+まず，e-Statで公開されている[国勢調査の男女・5最階級別人口の時系列データ](https://www.e-stat.go.jp/dbview?sid=0003410380)をRのjpstatパッケージを用いて取得します．
+
+jpstatパッケージからe-Stat APIを用いるためには，アプリケーションID（`appId`）を取得する必要があります．
+
+```{r}
+#| label: load-packages
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(jpstat)
+
+```
+
+```{r}
+#| label: set-appId-eval
+#| echo: false
+
+appId <- keyring::key_get("estat-api")
+
+```
+
+```{r}
+#| label: set-appId-echo
+#| eval: false
+
+appId <- "Your e-Stat appId"
+
+```
+
+```{r}
+#| label: get-data
+
+census <- estat(appId, "https://www.e-stat.go.jp/dbview?sid=0003410380")
+
+pop <- census |> 
+  activate(tab) |> 
+  filter(name == "人口") |> 
+  select() |> 
+  
+  # 性別の抽出
+  activate(cat01) |> 
+  rekey("sex") |> 
+  filter(name %in% c("男", "女")) |> 
+  select(name) |> 
+  
+  # 年齢階級の抽出
+  activate(cat02) |> 
+  rekey("ageclass") |> 
+  filter(str_detect(name, "^\\d+～\\d+歳$") |
+           name == "85歳以上" |
+           name == "110歳以上") |> 
+  select(name) |> 
+  
+  # 年の抽出
+  activate(time) |> 
+  rekey("year") |> 
+  filter(str_detect(name, "^\\d+年$")) |> 
+  select(name) |> 
+  
+  # e-Statデータの取得
+  collect(n = "pop") |> 
+  
+  rename_with(~ .x |> 
+                str_remove("_name$")) |> 
+  mutate(sex = as_factor(sex),
+         year = parse_number(year),
+         
+         # 各年齢階級の最低年齢を取得
+         age_from = ageclass |> 
+           str_extract("^\\d+") |> 
+           stringi::stri_trans_nfkc() |> 
+           as.integer(),
+         
+         # 最高の年齢階級を「85歳以上」とする
+         ageclass = case_when(age_from >= 85 ~ "85歳以上",
+                              TRUE ~ ageclass) |> 
+           as_factor(),
+         
+         # 年齢層を追加
+         agegroup = case_when(between(age_from, 0, 10) ~ "年少人口",
+                              between(age_from, 15, 60) ~ "生産年齢人口",
+                              between(age_from, 65, 70) ~ "前期老年人口",
+                              age_from >= 75 ~ "後期老年人口") |> 
+           as_factor(),
+         pop = parse_number(pop)) |> 
+  
+  # 「85歳以上」人口を集計
+  group_by(year, sex, ageclass, agegroup) |> 
+  summarise(pop = sum(pop),
+            .groups = "drop")
+
+knitr::kable(head(pop))
+```
+
+## 人口ピラミッドアニメーションの作成
+
+Rのgganimateパッケージを用いることでggplot2のグラフをアニメーションにすることができます．
+
+```{r}
+#| label: create-gif
+
+library(gganimate)
+
+theme_set(theme_light())
+
+# 年齢層を表示するためのデータ
+agegroup <- pop |> 
+  group_by(sex, agegroup) |>
+  summarise(ageclass = mean(as.integer(ageclass)),
+            .groups = "drop") |> 
+  mutate(hjust = case_when(sex == "男" ~ 1.25,
+                           sex == "女" ~ -0.25))
+
+poppyramid <- pop |> 
+  
+  # 人口ピラミッドを作成するため男性人口をマイナスに変換
+  mutate(pop = if_else(sex == "男",
+                       -pop,
+                       pop)) |> 
+  
+  ggplot(aes(ageclass, pop,
+             group = sex,
+             fill = agegroup)) +
+  geom_col(show.legend = FALSE) +
+  geom_text(data = agegroup,
+            aes(label = agegroup,
+                hjust = hjust),
+            y = 0) +
+  scale_x_discrete(NULL) +
+  scale_y_continuous("人口［千人］",
+                     
+                     # ラベルを絶対値・千人単位に変換
+                     labels = purrr::compose(scales::label_comma(scale = 1e-3), abs)) +
+  scale_fill_brewer(palette = "Set2") +
+  coord_flip() +
+  facet_wrap(~ sex,
+             scales = "free_x") +
+  labs(title = "{frame_time %/% 5 * 5}年") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  
+  # アニメーションに変換
+  transition_time(year)
+
+# 幅・高さを変更
+animate(poppyramid, 
+        width = 400,
+        height = 300)
+```
+
+```{r}
+#| label: save-gif
+#| echo: false
+
+anim_save("poppyramid.gif")
+```

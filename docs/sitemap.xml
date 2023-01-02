@@ -2,30 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uchidamizuki.github.io/about.html</loc>
-    <lastmod>2022-12-19T16:04:56.173Z</lastmod>
+    <lastmod>2023-01-02T05:01:41.041Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/index.html</loc>
-    <lastmod>2022-12-19T16:04:57.221Z</lastmod>
+    <lastmod>2023-01-02T05:07:05.816Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/call-e-stat-api-in-r/call-e-stat-api-in-r.html</loc>
-    <lastmod>2022-12-19T16:04:59.238Z</lastmod>
+    <lastmod>2023-01-02T05:01:43.576Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/create-an-animation-of-a-population-pyramid-in-r/create-an-animation-of-a-population-pyramid-in-r.html</loc>
+    <lastmod>2023-01-02T05:07:08.604Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html</loc>
-    <lastmod>2022-12-19T16:05:01.057Z</lastmod>
+    <lastmod>2023-01-02T05:01:46.556Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html</loc>
-    <lastmod>2022-12-19T16:05:02.641Z</lastmod>
+    <lastmod>2023-01-02T05:01:48.398Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html</loc>
-    <lastmod>2022-12-19T16:05:04.320Z</lastmod>
+    <lastmod>2023-01-02T05:01:50.010Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html</loc>
-    <lastmod>2022-12-19T16:05:05.716Z</lastmod>
+    <lastmod>2023-01-02T05:01:51.321Z</lastmod>
   </url>
 </urlset>
