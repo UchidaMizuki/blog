@@ -7,11 +7,23 @@ about:
     - icon: github
       text: Github
       href: https://github.com/UchidaMizuki
-    - text: SoundCloud
+    - icon: soundwave
+      text: SoundCloud
       href: https://soundcloud.com/UchidaMizuki
+    - icon: spotify
+      text: Awesome Classical
+      href: https://open.spotify.com/playlist/5iG2wT4LoDMGlxKdYCRi4B?si=eecf00b8051a47af
 comments: false
 ---
 
 My name is Uchida Mizuki.
 
 I am a classical music lover.
+
+## Apps
+
+[jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/)
+
+## Games
+
+[multpl](https://uchidamizuki.github.io/multpl-ui/)
