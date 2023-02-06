@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>UchidaMizuki - 🗾Rで産業連関分析</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../logo.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "一致なし",
+    "search-matching-documents-text": "一致した文書",
+    "search-copy-link-title": "検索へのリンクをコピー",
+    "search-hide-matches-text": "追加の検索結果を非表示",
+    "search-more-match-text": "追加の検索結果",
+    "search-more-matches-text": "追加の検索結果",
+    "search-clear-button-title": "消去",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "検索"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">UchidaMizuki</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/UchidaMizuki"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://soundcloud.com/uchidamizuki"><i class="bi bi-soundwave" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://open.spotify.com/playlist/5iG2wT4LoDMGlxKdYCRi4B?si=eecf00b8051a47af"><i class="bi bi-spotify" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">🗾Rで産業連関分析</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">ioanalysis</div>
+                <div class="quarto-category">dibble</div>
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">Japanese</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">公開</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">2022年5月31日</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p>産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．</p>
+<p>これまで，産業連関分析では，Excel・VBAが用いられることが多かったようです．</p>
+<p>一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます． これらのプログラミング言語は以下のような特長を持っています．</p>
+<ul>
+<li>無料で利用することができる</li>
+<li>作業の再現性が高まりミスが修正しやすい・他者がミスに気づきやすい</li>
+<li>高度な分析手法が簡単に利用できる</li>
+</ul>
+<p>そのため今後は，産業連関分析においても，これらのプログラミング言語の利用が 進むのではないかと思われます．</p>
+<p>ここでは，Rを用いて産業連関分析を行います． Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが 多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．</p>
+<p>産業連関表として，e-Statのデータベースで公開されている日本（国）の 2013年・13部門産業連関表を用います． ここで使用するデータは， <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできます．</p>
+<section id="産業連関分析の基礎" class="level2">
+<h2 class="anchored" data-anchor-id="産業連関分析の基礎">産業連関分析の基礎</h2>
+<p>産業連関分析は一般的に以下の流れに従って行われます．</p>
+<ol type="1">
+<li><strong>産業連関表</strong>の整形</li>
+<li><strong>投入係数行列</strong>の算出</li>
+<li><strong>レオンチェフ逆行列</strong>の算出</li>
+<li><strong>経済波及効果</strong>の算出</li>
+</ol>
+<p>まず，産業連関分析において重要な投入係数行列・レオンチェフ逆行列・経済波及効果の算出方法について解説します．</p>
+<section id="投入係数行列とは" class="level3">
+<h3 class="anchored" data-anchor-id="投入係数行列とは">投入係数行列とは</h3>
+<p>投入係数は，産業の「<strong>クッキングレシピ</strong>」として呼ばれており，産業<span class="math inline">\(j\)</span>の生産物を1単位生産するのに必要な産業<span class="math inline">\(i\)</span>の生産物の量を表すものです．具体的には，以下のように中間投入<span class="math inline">\(x_{ij}\)</span>を生産額<span class="math inline">\(X_j\)</span>（産出額）で割ることで算出できます．</p>
+<p><span class="math display">\[
+a_{ij}=\frac{x_{ij}}{X_j}
+\]</span></p>
+<p>産業連関分析では，「クッキングレシピ」に相当する投入係数<span class="math inline">\(a_{ij}\)</span>に基づく生産額のバランス式（行方向）を連立方程式として解きます．そこで，以下のように，<strong>投入係数行列</strong>（通常，<span class="math inline">\(A\)</span>と表される）と呼ばれる行列を作成することで，連立方程式が簡単に解けるようになります．</p>
+<p><span class="math display">\[
+A = \begin{pmatrix}
+  a_{11} &amp; \cdots &amp; a_{1n} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  a_{n1} &amp; \cdots &amp; a_{nn} \\
+\end{pmatrix}
+\]</span></p>
+</section>
+<section id="レオンチェフ逆行列による経済波及効果の推計について" class="level3">
+<h3 class="anchored" data-anchor-id="レオンチェフ逆行列による経済波及効果の推計について">レオンチェフ逆行列による経済波及効果の推計について</h3>
+<p>生産額のバランス式（行方向）は，行列を用いて以下のように表せます．変数の意味は以下の表の通りです．</p>
+<p><span class="math display">\[
+AX + F + E - M = X
+\]</span></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">変数</th>
+<th style="text-align: center;">意味</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(A\)</span></td>
+<td style="text-align: center;">投入係数行列</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(X = (X_1, \cdots, X_n) ^ \top\)</span></td>
+<td style="text-align: center;">生産額ベクトル</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(F = (F_1, \cdots, F_n) ^ \top\)</span></td>
+<td style="text-align: center;">最終需要ベクトル</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(E = (E_1, \cdots, E_n) ^ \top\)</span></td>
+<td style="text-align: center;">移輸出ベクトル</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(M = (M_1, \cdots, M_n) ^ \top\)</span></td>
+<td style="text-align: center;">移輸入ベクトル</td>
+</tr>
+</tbody>
+</table>
+<p>経済波及効果の推計では，<strong>最終需要の変化が生産額に与える波及効果</strong>を算出します．</p>
+<p>特に，日本の産業連関表での経済波及効果の推計では，<strong>移輸入</strong><span class="math inline">\(M\)</span><strong>の扱いに注意が必要</strong>です（これは，日本表の多くが競争移輸入型表と呼ばれる形式を採用しており，投入係数に移輸入分が含まれているためです）．</p>
+<p>最終需要による経済波及効果は，域内の生産額だけでなく域外からの移輸入を誘発すると考えられます．この効果を無視すると経済波及効果を過大評価することにつながるため，通常，<strong>投入係数から移輸入相当分を差し引く</strong>という処理が行われます．</p>
+<p>移輸入は域内需要におおよそ比例すると考えられるため，以下のように，移輸入係数<span class="math inline">\(\hat{M_i}\)</span>が算出できます．</p>
+<p><span class="math display">\[
+\hat{M_i} = \frac{M_i}{\sum_{j}a_{ij}X_j + F_i}
+\]</span></p>
+<p>さらに，行列での計算に適した移輸入係数行列<span class="math inline">\(\hat{M}\)</span>が，以下のように定義されます．</p>
+<p><span class="math display">\[
+\hat{M} =
+\begin{pmatrix}
+  \hat{M_1} &amp; &amp; 0 \\
+  &amp; \ddots &amp; \\
+  0 &amp; &amp; \hat{M_n} \\
+\end{pmatrix}
+\]</span></p>
+<p>以上より，生産額のバランス式（行方向）は，移輸入係数行列<span class="math inline">\(\hat{M}\)</span>を用いて，以下のように変形されます．ただし，<span class="math inline">\(I\)</span>は単位行列（対角成分が1，それ以外が0の正方行列）です．</p>
+<p><span class="math display">\[
+\begin{align}
+  AX + F + E - \hat{M} (AX + F) &amp;= X \\
+  (I - \hat{M}) (AX + F) + E &amp;= X
+\end{align}
+\]</span></p>
+<p>上のバランス式より，経済波及効果の算出式が，以下のように導出されます．ここで，<span class="math inline">\(\Delta X\)</span>，<span class="math inline">\(\Delta F\)</span>は，それぞれ，生産額の変化量，最終需要の変化量です．</p>
+<p><span class="math display">\[
+\begin{align}
+  X &amp;= (I - \hat{M}) (AX + F) + E \\
+  [I - (I - \hat{M}) A] X &amp;= (I - \hat{M}) F + E \\
+  X &amp;= [I - (I - \hat{M}) A] ^ {-1} [(I - \hat{M}) F + E] \\
+  \Delta X &amp;= [I - (I - \hat{M}) A] ^ {-1} (I - \hat{M}) \Delta F
+\end{align}
+\]</span></p>
+<p>生産額の変化量<span class="math inline">\(\Delta X\)</span>の式の右辺の<span class="math inline">\((I - \hat{M}) \Delta F\)</span>は，最終需要の変化量に自給率<span class="math inline">\(I - \hat{M}\)</span>を掛けた値となっています．</p>
+<p>また，<span class="math inline">\([I - (I - \hat{M}) A] ^ {-1}\)</span>は，最終需要の変化による直接・間接の波及効果を表す行列であり（開放型または競争移輸入型の）<strong>レオンチェフ逆行列</strong>と呼ばれています．</p>
+<p>以上のように，最終需要の変化量<span class="math inline">\(\Delta F\)</span>から生産額の変化量<span class="math inline">\(\Delta X\)</span>を推計するというのが，最も一般的な産業連関分析の方法となっています．</p>
+</section>
+</section>
+<section id="rによる産業連関分析" class="level2">
+<h2 class="anchored" data-anchor-id="rによる産業連関分析">Rによる産業連関分析</h2>
+<section id="産業連関表の整形" class="level3">
+<h3 class="anchored" data-anchor-id="産業連関表の整形">産業連関表の整形</h3>
+<p>ここでは， <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる日本の2011年の3部門表（<code>iotable_3sector_2011_wider.csv</code>）を使用します．</p>
+<p>こちらの表は，以下のように，日本の2011年の13部門表より作成したもので，<strong>単位は「百万円」</strong>です．</p>
+<ul>
+<li>13部門の産業分類を<strong>第1次・第2次・第3次産業に集計</strong>（注：「分類不明」を第3次産業に分類）</li>
+<li>付加価値部門を1部門に集計</li>
+<li>最終需要部門を域内最終需要（<code>finaldemand</code>）・輸出（<code>export</code>）・輸入（<code>import</code>）の3部門に集計</li>
+</ul>
+<p>産業連関表のデータ形式は，e-Statのデータベースで提供されている表などを除いて， 行に投入部門（<code>input</code>）・列に産出部門（<code>output</code>）を持つ「横長データ」であることが多いと思われます．</p>
+<p>ここでも，以下の通り，まずは横長の産業連関表データを読み込みます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>iotable_wider <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"iotable_3sector_2011_wider.csv"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># input (投入) 列以外を数値に変換</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">!</span>input, parse_number))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable_wider)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 18%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">input</th>
+<th style="text-align: right;">industry/01_primary</th>
+<th style="text-align: right;">industry/02_secondary</th>
+<th style="text-align: right;">industry/03_tertiary</th>
+<th style="text-align: right;">finaldemand/04_finaldemand</th>
+<th style="text-align: right;">export/05_export</th>
+<th style="text-align: right;">import/06_import</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">industry/01_primary</td>
+<td style="text-align: right;">1456611</td>
+<td style="text-align: right;">7850628</td>
+<td style="text-align: right;">1373767</td>
+<td style="text-align: right;">3869875</td>
+<td style="text-align: right;">47890</td>
+<td style="text-align: right;">-2562809</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry/02_secondary</td>
+<td style="text-align: right;">2715710</td>
+<td style="text-align: right;">161897553</td>
+<td style="text-align: right;">62841827</td>
+<td style="text-align: right;">132924323</td>
+<td style="text-align: right;">54473273</td>
+<td style="text-align: right;">-71673715</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry/03_tertiary</td>
+<td style="text-align: right;">2025270</td>
+<td style="text-align: right;">66811645</td>
+<td style="text-align: right;">155796589</td>
+<td style="text-align: right;">352324555</td>
+<td style="text-align: right;">16423417</td>
+<td style="text-align: right;">-8921553</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">valueadded/04_valueadded</td>
+<td style="text-align: right;">5838371</td>
+<td style="text-align: right;">106619145</td>
+<td style="text-align: right;">364447740</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが， 分析しやすい場合が多くあります． ここでも，横長の産業連関表を「縦長データ」に変換します．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> iotable_wider <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># input (投入) 列を分類・名称に分割</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(input, <span class="fu">c</span>(<span class="st">"input_type"</span>, <span class="st">"input_name"</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"/"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># input (投入) と同様にoutput (産出) の分類・名称列を追加し縦長データに</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">!</span><span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"output_type"</span>, <span class="st">"output_name"</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"/"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"value_M"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 数値が存在しない行を削除</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(value_M)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">input_type</th>
+<th style="text-align: left;">input_name</th>
+<th style="text-align: left;">output_type</th>
+<th style="text-align: left;">output_name</th>
+<th style="text-align: right;">value_M</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">1456611</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">7850628</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">1373767</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">3869875</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">47890</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-2562809</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">2715710</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">161897553</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">62841827</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">132924323</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">54473273</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-71673715</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">2025270</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">66811645</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">155796589</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">352324555</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">16423417</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-8921553</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">5838371</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">106619145</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">364447740</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>上で構築した表データは，各行のフィルタリングなどが容易にできる一方で， 産業連関分析に用いられる行列計算などに適していません．</p>
+<p>そこで，表データの基本的な演算と行列計算を同時に行えるdibbleパッケージを用います． 以下のように，産業連関表をdibbleに変換します．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/dibble")</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dibble)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dibble_by</span>(<span class="at">input =</span> <span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">output =</span> <span class="fu">c</span>(output_type, output_name),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="co"># "_"で列名を分割してinput (投入)・output (産出) 軸を設定</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>iotable</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   24 x 1
+# Dimensions: input [4], output [6]
+# Measures:   value_M
+   input$type $name        output$type $name            value_M
+   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;              &lt;dbl&gt;
+ 1 industry   01_primary   industry    01_primary       1456611
+ 2 industry   01_primary   industry    02_secondary     7850628
+ 3 industry   01_primary   industry    03_tertiary      1373767
+ 4 industry   01_primary   finaldemand 04_finaldemand   3869875
+ 5 industry   01_primary   export      05_export          47890
+ 6 industry   01_primary   import      06_import       -2562809
+ 7 industry   02_secondary industry    01_primary       2715710
+ 8 industry   02_secondary industry    02_secondary   161897553
+ 9 industry   02_secondary industry    03_tertiary     62841827
+10 industry   02_secondary finaldemand 04_finaldemand 132924323
+# … with 14 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="投入係数行列の算出" class="level3">
+<h3 class="anchored" data-anchor-id="投入係数行列の算出">投入係数行列の算出</h3>
+<p>産業の「クッキングレシピ」と呼ばれる投入係数行列<span class="math inline">\(A\)</span>を以下のように中間投入を生産額で割って算出します．</p>
+<p>注：dibbleではブロードキャストが自動で行われますが，安全のため，ブロードキャストを行う際に，警告を発するように設計されています．そのため，<code>broadcast()</code>でブロードキャスト後の軸名<code>c("input", "output")</code>を与えて警告が出ないようにする必要があります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 生産額</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>total_input <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"output"</span>, sum)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 中間投入</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>interindustry <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 投入係数</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>inputcoeff <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(interindustry <span class="sc">/</span> total_input,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>inputcoeff</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: input [3], output [3]
+  input$type $name        output$type $name              .
+  &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
+1 industry   01_primary   industry    01_primary   0.121  
+2 industry   01_primary   industry    02_secondary 0.0229 
+3 industry   01_primary   industry    03_tertiary  0.00235
+4 industry   02_secondary industry    01_primary   0.226  
+5 industry   02_secondary industry    02_secondary 0.472  
+6 industry   02_secondary industry    03_tertiary  0.108  
+7 industry   03_tertiary  industry    01_primary   0.168  
+8 industry   03_tertiary  industry    02_secondary 0.195  
+9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
+</div>
+</div>
+</section>
+<section id="レオンチェフ逆行列の算出" class="level3">
+<h3 class="anchored" data-anchor-id="レオンチェフ逆行列の算出">レオンチェフ逆行列の算出</h3>
+<p>経済波及効果を表すレオンチェフ逆行列は以下のように，移輸入係数と投入係数を用いて算出できます．</p>
+<p>注：<code>solve()</code>で逆行列を算出すると行列の軸名が入れ替わるため注意してください．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 域内需要</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>localdemand <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>output<span class="sc">$</span>type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"export"</span>, <span class="st">"import"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (移) 輸入</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"import"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 符号を正に</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> <span class="sc">-</span>import</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># (移) 輸入係数</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>importcoeff <span class="ot">&lt;-</span> import <span class="sc">/</span> localdemand</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">eye</span>(inputcoeff) <span class="co"># 単位行列</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff     <span class="co"># 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> inputcoeff      <span class="co"># 投入係数行列</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># レオンチェフ逆行列</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>leontiefinv <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(I <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> M) <span class="sc">*</span> A,</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve</span>()</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>leontiefinv</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: output [3], input [3]
+  output$type $name        input$type $name              .
+  &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 industry    01_primary   industry   01_primary   1.12   
+2 industry    01_primary   industry   02_secondary 0.0361 
+3 industry    01_primary   industry   03_tertiary  0.00716
+4 industry    02_secondary industry   01_primary   0.374  
+5 industry    02_secondary industry   02_secondary 1.68   
+6 industry    02_secondary industry   03_tertiary  0.197  
+7 industry    03_tertiary  industry   01_primary   0.348  
+8 industry    03_tertiary  industry   02_secondary 0.445  
+9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
+</div>
+</div>
+</section>
+<section id="経済波及効果の算出" class="level3">
+<h3 class="anchored" data-anchor-id="経済波及効果の算出">経済波及効果の算出</h3>
+<p><a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる最終需要がそれぞれ百万円ずつ増加する（<code>finaldemand_change_3sector.csv</code>）ケースで経済波及効果を算出しています．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 最終需要変化量</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>finaldemand_change <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"finaldemand_change_3sector.csv"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">value_M =</span> <span class="st">"n"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dibble_by</span>(<span class="at">input =</span> <span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> leontiefinv         <span class="co"># レオンチェフ逆行列</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff         <span class="co"># 移輸入係数</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>FD <span class="ot">&lt;-</span> finaldemand_change <span class="co"># 最終需要変化量</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 経済波及効果</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>spillover <span class="ot">&lt;-</span> L <span class="sc">%*%</span> ((<span class="dv">1</span> <span class="sc">-</span> M) <span class="sc">*</span> FD)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>spillover</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   3
+# Dimensions: output [3]
+  output$type $name            .
+  &lt;chr&gt;       &lt;chr&gt;        &lt;dbl&gt;
+1 industry    01_primary   0.958
+2 industry    02_secondary 1.85 
+3 industry    03_tertiary  2.03 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>spillover <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">n =</span> <span class="st">"value_M"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unpack</span>(output, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">names_sep =</span> <span class="st">"_"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(output_name, value_M,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> output_name)) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ioanalysis-in-r-ja_files/figure-html/plot-spillover-1.png" class="img-fluid" style="width:100.0%"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>Rを用いた産業連関分析の方法について紹介しました．</p>
+<p>ここまでの計算を，<a href="https://github.com/UchidaMizuki/jpio">jpio</a>にパッケージ形式でまとめました．以下のように，ここまでの計算と同様の計算を行うことができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/jpio")</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 産業連関表</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"iotable_3sector_2011.csv"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">value_M =</span> <span class="st">"n"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  jpio<span class="sc">::</span><span class="fu">as_iotable</span>()</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>iotable</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   24
+# Dimensions: input [4], output [6]
+   input$type $name        output$type $name                  .
+   &lt;fct&gt;      &lt;chr&gt;        &lt;fct&gt;       &lt;chr&gt;              &lt;dbl&gt;
+ 1 industry   01_primary   industry    01_primary       1456611
+ 2 industry   01_primary   industry    02_secondary     7850628
+ 3 industry   01_primary   industry    03_tertiary      1373767
+ 4 industry   01_primary   finaldemand 04_finaldemand   3869875
+ 5 industry   01_primary   export      05_export          47890
+ 6 industry   01_primary   import      06_import       -2562809
+ 7 industry   02_secondary industry    01_primary       2715710
+ 8 industry   02_secondary industry    02_secondary   161897553
+ 9 industry   02_secondary industry    03_tertiary     62841827
+10 industry   02_secondary finaldemand 04_finaldemand 132924323
+# … with 14 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 投入係数</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>jpio<span class="sc">::</span><span class="fu">input_coef</span>(iotable)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: input [3], output [3]
+  input$type $name        output$type $name              .
+  &lt;fct&gt;      &lt;chr&gt;        &lt;fct&gt;       &lt;chr&gt;          &lt;dbl&gt;
+1 industry   01_primary   industry    01_primary   0.121  
+2 industry   01_primary   industry    02_secondary 0.0229 
+3 industry   01_primary   industry    03_tertiary  0.00235
+4 industry   02_secondary industry    01_primary   0.226  
+5 industry   02_secondary industry    02_secondary 0.472  
+6 industry   02_secondary industry    03_tertiary  0.108  
+7 industry   03_tertiary  industry    01_primary   0.168  
+8 industry   03_tertiary  industry    02_secondary 0.195  
+9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># レオンチェフ逆行列</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>jpio<span class="sc">::</span><span class="fu">leontief_inv</span>(iotable)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: output [3], input [3]
+  output$type $name        input$type $name              .
+  &lt;fct&gt;       &lt;chr&gt;        &lt;fct&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 industry    01_primary   industry   01_primary   1.12   
+2 industry    01_primary   industry   02_secondary 0.0361 
+3 industry    01_primary   industry   03_tertiary  0.00716
+4 industry    02_secondary industry   01_primary   0.374  
+5 industry    02_secondary industry   02_secondary 1.68   
+6 industry    02_secondary industry   03_tertiary  0.197  
+7 industry    03_tertiary  industry   01_primary   0.348  
+8 industry    03_tertiary  industry   02_secondary 0.445  
+9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 経済波及効果</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>jpio<span class="sc">::</span><span class="fu">spillover_effect</span>(iotable,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">list</span>(<span class="st">`</span><span class="at">01_primary</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                            <span class="st">`</span><span class="at">02_secondary</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                            <span class="st">`</span><span class="at">03_tertiary</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   3
+# Dimensions: output [3]
+  output$type $name            .
+  &lt;fct&gt;       &lt;chr&gt;        &lt;dbl&gt;
+1 industry    01_primary   0.958
+2 industry    02_secondary 1.85 
+3 industry    03_tertiary  2.03 </code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "コピーしました");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "コピーしました");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/UchidaMizuki.github.io" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

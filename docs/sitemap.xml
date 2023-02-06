@@ -2,34 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uchidamizuki.github.io/about.html</loc>
-    <lastmod>2023-01-15T15:16:38.122Z</lastmod>
+    <lastmod>2023-02-06T15:21:36.918Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/index.html</loc>
-    <lastmod>2023-01-15T15:15:24.054Z</lastmod>
+    <lastmod>2023-02-06T15:22:52.157Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.github.io/posts/call-e-stat-api-in-r/call-e-stat-api-in-r.html</loc>
-    <lastmod>2023-01-15T15:15:25.877Z</lastmod>
+    <loc>https://uchidamizuki.github.io/posts/2022/05/ioanalysis-in-r-ja.html</loc>
+    <lastmod>2023-02-06T15:23:24.921Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.github.io/posts/create-an-animation-of-a-population-pyramid-in-r/create-an-animation-of-a-population-pyramid-in-r.html</loc>
-    <lastmod>2023-01-15T15:15:27.305Z</lastmod>
+    <loc>https://uchidamizuki.github.io/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</loc>
+    <lastmod>2023-02-06T15:21:41.463Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.github.io/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html</loc>
-    <lastmod>2023-01-15T15:15:28.741Z</lastmod>
+    <loc>https://uchidamizuki.github.io/posts/2022/06/use-parquet-instead-of-csv-ja.html</loc>
+    <lastmod>2023-02-06T15:22:28.019Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.github.io/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html</loc>
-    <lastmod>2023-01-15T15:15:30.297Z</lastmod>
+    <loc>https://uchidamizuki.github.io/posts/2022/12/call-e-stat-api-in-r.html</loc>
+    <lastmod>2023-02-06T15:21:46.290Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.github.io/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html</loc>
-    <lastmod>2023-01-15T15:15:32.040Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.github.io/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html</loc>
-    <lastmod>2023-01-15T15:15:33.361Z</lastmod>
+    <loc>https://uchidamizuki.github.io/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</loc>
+    <lastmod>2023-02-06T15:22:15.106Z</lastmod>
   </url>
 </urlset>

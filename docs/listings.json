@@ -2,12 +2,11 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/create-an-animation-of-a-population-pyramid-in-r/create-an-animation-of-a-population-pyramid-in-r.html",
-      "/posts/call-e-stat-api-in-r/call-e-stat-api-in-r.html",
-      "/posts/use-parquet-instead-of-csv-ja/use-parquet-instead-of-csv-ja.html",
-      "/posts/draw-a-map-of-japan-in-r-ja/draw-a-map-of-japan-in-r-ja.html",
-      "/posts/grid-square-stats-in-r-ja/grid-square-stats-in-r-ja.html",
-      "/posts/ioanalysis-in-r-ja/ioanalysis-in-r-ja.html"
+      "/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html",
+      "/posts/2022/12/call-e-stat-api-in-r.html",
+      "/posts/2022/06/use-parquet-instead-of-csv-ja.html",
+      "/posts/2022/06/draw-a-map-of-japan-in-r-ja.html",
+      "/posts/2022/05/ioanalysis-in-r-ja.html"
     ]
   }
 ]
