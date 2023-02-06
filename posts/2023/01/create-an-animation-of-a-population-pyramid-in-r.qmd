@@ -119,10 +119,6 @@ Rのgganimateパッケージを用いることでggplot2のグラフをアニメ
 
 library(gganimate)
 
-# macOSで作成
-family <- "HiraKakuProN-W3"
-theme_set(theme_light(base_family = family))
-
 # 年齢層を表示するためのデータ
 agegroup <- pop |> 
   group_by(sex, agegroup) |>
@@ -143,8 +139,7 @@ poppyramid <- pop |>
   geom_text(data = agegroup,
             aes(label = agegroup,
                 hjust = hjust),
-            y = 0,
-            family = family) +
+            y = 0) +
   scale_x_discrete(NULL) +
   scale_y_continuous("人口［千人］",
                      
