@@ -73,7 +73,7 @@ library(jpstat)
 #| echo: false
 
 appId <- keyring::key_get("estat-api")
-theme_set(theme_gray(base_family = "HiraKakuProN-W3")) 
+# theme_set(theme_gray(base_family = "HiraKakuProN-W3")) 
 
 ```
 

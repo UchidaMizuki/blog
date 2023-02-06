@@ -2541,39 +2541,6 @@ family not found in Windows font database</code></pre>
 <span id="cb14-19">                    <span class="at" style="color: #657422;">palette =</span> <span class="st" style="color: #20794D;">"Spectral"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
 <span id="cb14-20">  <span class="fu" style="color: #4758AB;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;">~</span> sex_name) <span class="sc" style="color: #5E5E5E;">+</span></span>
 <span id="cb14-21">  <span class="fu" style="color: #4758AB;">guides</span>(<span class="at" style="color: #657422;">x =</span> <span class="fu" style="color: #4758AB;">guide_axis</span>(<span class="at" style="color: #657422;">n.dodge =</span> <span class="dv" style="color: #AD0000;">2</span>))</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
-not found in Windows font database
-
-Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
-not found in Windows font database</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
-family not found in Windows font database
-
-Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
-family not found in Windows font database</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
-font family not found in Windows font database</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
-family not found in Windows font database</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
-font family not found in Windows font database</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
-family not found in Windows font database
-
-Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
-family not found in Windows font database</code></pre>
-</div>
 <div class="cell-output-display">
 <p><img src="https://uchidamizuki.github.io/posts/2022/12/call-e-stat-api-in-r_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="768"></p>
 </div>
