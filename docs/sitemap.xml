@@ -2,30 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uchidamizuki.github.io/about.html</loc>
-    <lastmod>2023-02-06T15:27:30.084Z</lastmod>
+    <lastmod>2023-02-15T14:24:10.691Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/index.html</loc>
-    <lastmod>2023-02-06T15:31:25.564Z</lastmod>
+    <lastmod>2023-02-15T14:24:12.005Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/2022/05/ioanalysis-in-r-ja.html</loc>
-    <lastmod>2023-02-06T15:27:32.860Z</lastmod>
+    <lastmod>2023-02-15T14:24:14.500Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</loc>
-    <lastmod>2023-02-06T15:27:34.360Z</lastmod>
+    <lastmod>2023-02-15T14:24:16.036Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/2022/06/use-parquet-instead-of-csv-ja.html</loc>
-    <lastmod>2023-02-06T15:27:37.923Z</lastmod>
+    <lastmod>2023-02-15T14:24:18.817Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/2022/12/call-e-stat-api-in-r.html</loc>
-    <lastmod>2023-02-06T15:27:39.483Z</lastmod>
+    <lastmod>2023-02-15T14:24:20.363Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.github.io/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</loc>
-    <lastmod>2023-02-06T15:31:32.354Z</lastmod>
+    <lastmod>2023-02-15T14:24:21.922Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.github.io/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</loc>
+    <lastmod>2023-02-15T14:24:24.567Z</lastmod>
   </url>
 </urlset>

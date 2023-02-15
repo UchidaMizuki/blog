@@ -1,0 +1,123 @@
+---
+title: "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）"
+lang: ja
+date: "2023-02-16"
+categories: [Shiny, jpgrid, R, Japanese]
+image: images/grid_city.png
+---
+
+## このアプリについて
+
+[R Shiny](https://shiny.rstudio.com)を使って[地域メッシュデータを使うためのWEBアプリ](https://uchidamizuki.shinyapps.io/jpgrid-app/)をつくってみました．
+
+[地域メッシュ](https://www.stat.go.jp/data/mesh/m_tuite.html)とは，経度・緯度にもとづいて（日本の）地域をほぼ正方形のメッシュに分割したもので，統計データの集計区分としてよく利用されています．
+
+今回つくったアプリは，Rパッケージの[jpgrid](https://uchidamizuki.github.io/jpgrid/)パッケージの機能の一部を提供しています． このアプリの提供機能は以下の通りです．
+
+1.  市区町村別の地域メッシュデータ生成
+2.  メッシュ文字列を含む表データから地域メッシュデータ生成
+3.  経度・緯度を含む表データから地域メッシュデータ生成
+
+[![アプリの外観（クリックするとアプリが開きます）](/posts/2023/02/images/about.png)](https://uchidamizuki.shinyapps.io/jpgrid-app/)
+
+## アプリの提供機能について
+
+### 市区町村別の地域メッシュデータ生成
+
+総務省統計局の公開する[市区町村別メッシュ・コード一覧](市区町村別メッシュ・コード一覧 "https://www.stat.go.jp/data/mesh/m_itiran.html")から市区町村別のメッシュを取得します．
+
+以下のような手順で市区町村別のメッシュを生成・保存できます．
+
+1.  都道府県を選択（複数選択可）
+2.  市区町村を選択（複数選択可）
+3.  メッシュサイズ（1 km／10 km／80 kmのいずれか）を選択し「メッシュ表示」を押す
+4.  データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す
+
+![市区町村別メッシュの表示イメージ](images/grid_city.png)
+
+jpgridパッケージでは，`grid_city` データで市区町村別メッシュデータが提供されています．
+
+以下のように，市区町村別メッシュデータを図示することができます．
+
+```{r}
+#| message: false
+#| warning: false
+
+library(jpgrid)
+library(tidyverse)
+
+JGD2011 <- 6668
+
+grid_city |> 
+  filter(city_name_ja %in% c("千葉市中央区", "千葉市花見川区", "千葉市稲毛区")) |> 
+  grid_as_sf(crs = 6668) |> 
+  ggplot(aes(fill = city_name_ja)) +
+  geom_sf() +
+  scale_fill_brewer(palette = "Set2")
+```
+
+### メッシュ文字列を含む表データから地域メッシュデータ生成
+
+以下のような手順でメッシュ文字列を含む表データから地域メッシュを生成・保存できます．
+
+1.  データを選択（CSVまたはExcel）
+2.  メッシュ文字列の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す
+3.  データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す
+
+jpgridパッケージでは，`parse_grid()` で文字列から地域メッシュを生成することができます．
+
+```{r}
+#| warning: false
+#| echo: false
+
+coords_grid_japan <- rnaturalearth::ne_states("japan",
+                                              returnclass = "sf") |> 
+  sf::st_centroid() |> 
+  sf::st_coordinates() |> 
+  as_tibble() |> 
+  mutate(grid = coords_to_grid(X, Y, "80km") |> 
+           as.character())
+
+fs::dir_create("data")
+write_csv(coords_grid_japan, "data/coords_grid_japan.csv")
+```
+
+![](images/parse_grid.png)
+
+### 経度・緯度を含む表データから地域メッシュデータ生成
+
+同様に，以下の手順で経度・緯度を含む表データから地域メッシュを生成・保存できます．
+
+1.  データを選択（CSVまたはExcel）
+2.  経度（X）・緯度（Y）の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す
+3.  データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す
+
+jpgridパッケージでは，`coords_to_grid()` で文字列から地域メッシュを生成することができます．
+
+![](images/coords_to_grid.png)
+
+## おわりに
+
+R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．
+
+WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，[こちら](こちら "https://uchidamizuki.github.io/jpgrid/")をご覧ください．
+
+例として，ジオメトリをメッシュに変換する`geometry_to_grid()` などがあります．
+
+地域メッシュデータの分析に，WEBアプリやRパッケージなどを活用してはいかがでしょうか？
+
+```{r}
+japan <- rnaturalearth::ne_countries(country = "japan",
+                                     scale = "medium",
+                                     returnclass = "sf")
+grid_japan <- japan |> 
+  geometry_to_grid("80km") |> 
+  dplyr::first() |> 
+  grid_as_sf(crs = sf::st_crs(japan))
+
+japan |> 
+  ggplot() +
+  geom_sf() +
+  geom_sf(data = grid_japan,
+          fill = "transparent")
+```

@@ -10,7 +10,132 @@
 <atom:link href="https://uchidamizuki.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.2.269</generator>
-<lastBuildDate>Sat, 31 Dec 2022 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 15 Feb 2023 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid）</title>
+  <link>https://uchidamizuki.github.io/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="このアプリについて" class="level2">
+<h2 class="anchored" data-anchor-id="このアプリについて">このアプリについて</h2>
+<p><a href="https://shiny.rstudio.com">R Shiny</a>を使って<a href="https://uchidamizuki.shinyapps.io/jpgrid-app/">地域メッシュデータを使うためのWEBアプリ</a>をつくってみました．</p>
+<p><a href="https://www.stat.go.jp/data/mesh/m_tuite.html">地域メッシュ</a>とは，経度・緯度にもとづいて（日本の）地域をほぼ正方形のメッシュに分割したもので，統計データの集計区分としてよく利用されています．</p>
+<p>今回つくったアプリは，Rパッケージの<a href="https://uchidamizuki.github.io/jpgrid/">jpgrid</a>パッケージの機能の一部を提供しています． このアプリの提供機能は以下の通りです．</p>
+<ol type="1">
+<li>市区町村別の地域メッシュデータ生成</li>
+<li>メッシュ文字列を含む表データから地域メッシュデータ生成</li>
+<li>経度・緯度を含む表データから地域メッシュデータ生成</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="https://uchidamizuki.github.io/posts/2023/02/images/about.png" class="img-fluid figure-img"></a></p>
+<p></p><figcaption class="figure-caption">アプリの外観（クリックするとアプリが開きます）</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="アプリの提供機能について" class="level2">
+<h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
+<section id="市区町村別の地域メッシュデータ生成" class="level3">
+<h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
+<p>総務省統計局の公開する<a href="市区町村別メッシュ・コード一覧" title="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
+<p>以下のような手順で市区町村別のメッシュを生成・保存できます．</p>
+<ol type="1">
+<li>都道府県を選択（複数選択可）</li>
+<li>市区町村を選択（複数選択可）</li>
+<li>メッシュサイズ（1 km／10 km／80 kmのいずれか）を選択し「メッシュ表示」を押す</li>
+<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://uchidamizuki.github.io/posts/2023/02/images/grid_city.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">市区町村別メッシュの表示イメージ</figcaption><p></p>
+</figure>
+</div>
+<p>jpgridパッケージでは，<code>grid_city</code> データで市区町村別メッシュデータが提供されています．</p>
+<p>以下のように，市区町村別メッシュデータを図示することができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(jpgrid)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4">JGD2011 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="dv" style="color: #AD0000;">6668</span></span>
+<span id="cb1-5"></span>
+<span id="cb1-6">grid_city <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-7">  <span class="fu" style="color: #4758AB;">filter</span>(city_name_ja <span class="sc" style="color: #5E5E5E;">%in%</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"千葉市中央区"</span>, <span class="st" style="color: #20794D;">"千葉市花見川区"</span>, <span class="st" style="color: #20794D;">"千葉市稲毛区"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-8">  <span class="fu" style="color: #4758AB;">grid_as_sf</span>(<span class="at" style="color: #657422;">crs =</span> <span class="dv" style="color: #AD0000;">6668</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-9">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">fill =</span> city_name_ja)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb1-10">  <span class="fu" style="color: #4758AB;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb1-11">  <span class="fu" style="color: #4758AB;">scale_fill_brewer</span>(<span class="at" style="color: #657422;">palette =</span> <span class="st" style="color: #20794D;">"Set2"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://uchidamizuki.github.io/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="メッシュ文字列を含む表データから地域メッシュデータ生成" class="level3">
+<h3 class="anchored" data-anchor-id="メッシュ文字列を含む表データから地域メッシュデータ生成">メッシュ文字列を含む表データから地域メッシュデータ生成</h3>
+<p>以下のような手順でメッシュ文字列を含む表データから地域メッシュを生成・保存できます．</p>
+<ol type="1">
+<li>データを選択（CSVまたはExcel）</li>
+<li>メッシュ文字列の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す</li>
+<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
+</ol>
+<p>jpgridパッケージでは，<code>parse_grid()</code> で文字列から地域メッシュを生成することができます．</p>
+<div class="cell">
+
+</div>
+<p><img src="https://uchidamizuki.github.io/posts/2023/02/images/parse_grid.png" class="img-fluid"></p>
+</section>
+<section id="経度緯度を含む表データから地域メッシュデータ生成" class="level3">
+<h3 class="anchored" data-anchor-id="経度緯度を含む表データから地域メッシュデータ生成">経度・緯度を含む表データから地域メッシュデータ生成</h3>
+<p>同様に，以下の手順で経度・緯度を含む表データから地域メッシュを生成・保存できます．</p>
+<ol type="1">
+<li>データを選択（CSVまたはExcel）</li>
+<li>経度（X）・緯度（Y）の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す</li>
+<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
+</ol>
+<p>jpgridパッケージでは，<code>coords_to_grid()</code> で文字列から地域メッシュを生成することができます．</p>
+<p><img src="https://uchidamizuki.github.io/posts/2023/02/images/coords_to_grid.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="おわりに" class="level2">
+<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
+<p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
+<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="こちら" title="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
+<p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
+<p>地域メッシュデータの分析に，WEBアプリやRパッケージなどを活用してはいかがでしょうか？</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">japan <span class="ot" style="color: #003B4F;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">ne_countries</span>(<span class="at" style="color: #657422;">country =</span> <span class="st" style="color: #20794D;">"japan"</span>,</span>
+<span id="cb2-2">                                     <span class="at" style="color: #657422;">scale =</span> <span class="st" style="color: #20794D;">"medium"</span>,</span>
+<span id="cb2-3">                                     <span class="at" style="color: #657422;">returnclass =</span> <span class="st" style="color: #20794D;">"sf"</span>)</span>
+<span id="cb2-4">grid_japan <span class="ot" style="color: #003B4F;">&lt;-</span> japan <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb2-5">  <span class="fu" style="color: #4758AB;">geometry_to_grid</span>(<span class="st" style="color: #20794D;">"80km"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb2-6">  dplyr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">first</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb2-7">  <span class="fu" style="color: #4758AB;">grid_as_sf</span>(<span class="at" style="color: #657422;">crs =</span> sf<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">st_crs</span>(japan))</span>
+<span id="cb2-8"></span>
+<span id="cb2-9">japan <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb2-10">  <span class="fu" style="color: #4758AB;">ggplot</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb2-11">  <span class="fu" style="color: #4758AB;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb2-12">  <span class="fu" style="color: #4758AB;">geom_sf</span>(<span class="at" style="color: #657422;">data =</span> grid_japan,</span>
+<span id="cb2-13">          <span class="at" style="color: #657422;">fill =</span> <span class="st" style="color: #20794D;">"transparent"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://uchidamizuki.github.io/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+
+ ]]></description>
+  <category>Shiny</category>
+  <category>jpgrid</category>
+  <category>R</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.github.io/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</guid>
+  <pubDate>Wed, 15 Feb 2023 15:00:00 GMT</pubDate>
+  <media:content url="https://uchidamizuki.github.io/posts/2023/02/images/grid_city.png" medium="image" type="image/png" height="74" width="144"/>
+</item>
 <item>
   <title>Rで人口ピラミッドのアニメーションを作る</title>
   <link>https://uchidamizuki.github.io/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</link>

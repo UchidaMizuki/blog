@@ -25,7 +25,7 @@
     "href": "index.html",
     "title": "UchidaMizuki",
     "section": "",
-    "text": "Rで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n🗾CSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\n🗾Rで日本地図を描いてみよう\n\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n  \n\n\n\n\n🗾Rで産業連関分析\n\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
+    "text": "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n🗾CSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\n🗾Rで日本地図を描いてみよう\n\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n  \n\n\n\n\n🗾Rで産業連関分析\n\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/2022/05/ioanalysis-in-r-ja.html",
@@ -180,5 +180,26 @@
     "title": "Rで人口ピラミッドのアニメーションを作る",
     "section": "人口ピラミッドアニメーションの作成",
     "text": "人口ピラミッドアニメーションの作成\nRのgganimateパッケージを用いることでggplot2のグラフをアニメーションにすることができます．\n\nlibrary(gganimate)\n\n# 年齢層を表示するためのデータ\nagegroup <- pop |> \n  group_by(sex, agegroup) |>\n  summarise(ageclass = mean(as.integer(ageclass)),\n            .groups = \"drop\") |> \n  mutate(hjust = case_when(sex == \"男\" ~ 1.25,\n                           sex == \"女\" ~ -0.25))\n\npoppyramid <- pop |> \n  \n  # 人口ピラミッドを作成するため男性人口をマイナスに変換\n  mutate(pop = if_else(sex == \"男\", -pop, pop)) |> \n  \n  ggplot(aes(ageclass, pop,\n             group = sex,\n             fill = agegroup)) +\n  geom_col(show.legend = FALSE) +\n  geom_text(data = agegroup,\n            aes(label = agegroup,\n                hjust = hjust),\n            y = 0) +\n  scale_x_discrete(NULL) +\n  scale_y_continuous(\"人口［千人］\",\n                     \n                     # ラベルを絶対値・千人単位に変換\n                     labels = purrr::compose(scales::label_comma(scale = 1e-3), abs)) +\n  scale_fill_brewer(palette = \"Set2\") +\n  coord_flip() +\n  facet_wrap(~ sex,\n             scales = \"free_x\") +\n  labs(title = \"{frame_time %/% 5 * 5}年\") +\n  theme(plot.title = element_text(hjust = 0.5)) +\n  \n  # アニメーションに変換\n  transition_time(year)\n\n# 幅・高さを変更\nanimate(poppyramid, \n        width = 800,\n        height = 600,\n        res = 150,\n        renderer = gifski_renderer())"
+  },
+  {
+    "objectID": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html",
+    "href": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html",
+    "title": "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）",
+    "section": "",
+    "text": "R Shinyを使って地域メッシュデータを使うためのWEBアプリをつくってみました．\n地域メッシュとは，経度・緯度にもとづいて（日本の）地域をほぼ正方形のメッシュに分割したもので，統計データの集計区分としてよく利用されています．\n今回つくったアプリは，Rパッケージのjpgridパッケージの機能の一部を提供しています． このアプリの提供機能は以下の通りです．\n\n市区町村別の地域メッシュデータ生成\nメッシュ文字列を含む表データから地域メッシュデータ生成\n経度・緯度を含む表データから地域メッシュデータ生成\n\n\n\n\nアプリの外観（クリックするとアプリが開きます）"
+  },
+  {
+    "objectID": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html#アプリの提供機能について",
+    "href": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html#アプリの提供機能について",
+    "title": "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）",
+    "section": "アプリの提供機能について",
+    "text": "アプリの提供機能について\n\n市区町村別の地域メッシュデータ生成\n総務省統計局の公開する市区町村別メッシュ・コード一覧から市区町村別のメッシュを取得します．\n以下のような手順で市区町村別のメッシュを生成・保存できます．\n\n都道府県を選択（複数選択可）\n市区町村を選択（複数選択可）\nメッシュサイズ（1 km／10 km／80 kmのいずれか）を選択し「メッシュ表示」を押す\nデータ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す\n\n\n\n\n市区町村別メッシュの表示イメージ\n\n\njpgridパッケージでは，grid_city データで市区町村別メッシュデータが提供されています．\n以下のように，市区町村別メッシュデータを図示することができます．\n\nlibrary(jpgrid)\nlibrary(tidyverse)\n\nJGD2011 <- 6668\n\ngrid_city |> \n  filter(city_name_ja %in% c(\"千葉市中央区\", \"千葉市花見川区\", \"千葉市稲毛区\")) |> \n  grid_as_sf(crs = 6668) |> \n  ggplot(aes(fill = city_name_ja)) +\n  geom_sf() +\n  scale_fill_brewer(palette = \"Set2\")\n\n\n\n\n\n\nメッシュ文字列を含む表データから地域メッシュデータ生成\n以下のような手順でメッシュ文字列を含む表データから地域メッシュを生成・保存できます．\n\nデータを選択（CSVまたはExcel）\nメッシュ文字列の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す\nデータ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す\n\njpgridパッケージでは，parse_grid() で文字列から地域メッシュを生成することができます．\n\n\n\n\n\n\n経度・緯度を含む表データから地域メッシュデータ生成\n同様に，以下の手順で経度・緯度を含む表データから地域メッシュを生成・保存できます．\n\nデータを選択（CSVまたはExcel）\n経度（X）・緯度（Y）の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す\nデータ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す\n\njpgridパッケージでは，coords_to_grid() で文字列から地域メッシュを生成することができます．"
+  },
+  {
+    "objectID": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html#おわりに",
+    "href": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html#おわりに",
+    "title": "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）",
+    "section": "おわりに",
+    "text": "おわりに\nR Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．\nWEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，こちらをご覧ください．\n例として，ジオメトリをメッシュに変換するgeometry_to_grid() などがあります．\n地域メッシュデータの分析に，WEBアプリやRパッケージなどを活用してはいかがでしょうか？\n\njapan <- rnaturalearth::ne_countries(country = \"japan\",\n                                     scale = \"medium\",\n                                     returnclass = \"sf\")\ngrid_japan <- japan |> \n  geometry_to_grid(\"80km\") |> \n  dplyr::first() |> \n  grid_as_sf(crs = sf::st_crs(japan))\n\njapan |> \n  ggplot() +\n  geom_sf() +\n  geom_sf(data = grid_japan,\n          fill = \"transparent\")"
   }
 ]
