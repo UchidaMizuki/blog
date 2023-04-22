@@ -314,6 +314,7 @@ pop_2020 |>
 
 ```{r}
 #| label: get-vote-disparity-between-generation
+#| message: false
 #| code-fold: true
 #| code-summary: 世代間の「1票の格差」の定量化
 

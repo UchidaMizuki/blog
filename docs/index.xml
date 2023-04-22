@@ -367,14 +367,9 @@
 <span id="cb6-40"></span>
 <span id="cb6-41"></span>
 <span id="cb6-42"><span class="fu" style="color: #4758AB;">ggsave</span>(<span class="st" style="color: #20794D;">"quantify-vote-disparity-between-generations/plot_vote_disparity.png"</span>,</span>
-<span id="cb6-43">       <span class="at" style="color: #657422;">plot =</span> plot_vote_disparity)</span></code></pre></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Saving 7 x 5 in image</code></pre>
-</div>
-<details>
-<summary>世代間の「1票の格差」の定量化</summary>
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">plot_vote_disparity</span></code></pre></div>
+<span id="cb6-43">       <span class="at" style="color: #657422;">plot =</span> plot_vote_disparity)</span>
+<span id="cb6-44"></span>
+<span id="cb6-45">plot_vote_disparity</span></code></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="https://uchidamizuki.github.io/posts/2023/04/quantify-vote-disparity-between-generations_files/figure-html/get-vote-disparity-between-generation-1.png" class="img-fluid" width="672"></p>
