@@ -1,5 +1,5 @@
 ---
-title: "🗾Rで地域メッシュ統計（jpgridパッケージ）"
+title: "Rで地域メッシュ統計（jpgridパッケージ）"
 lang: ja
 date: "2022-06-04"
 categories: [grid-square-stats, jpgrid, R, Japanese]

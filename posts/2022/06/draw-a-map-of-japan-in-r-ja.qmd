@@ -1,5 +1,5 @@
 ---
-title: "🗾Rで日本地図を描いてみよう"
+title: "Rで日本地図を描いてみよう"
 lang: ja
 date: "2022-06-11"
 categories: [ggplot2, sf, jpmap, R, Japanese]
@@ -19,15 +19,17 @@ Rでは，ggplot2などのパッケージを利用するだけで，きれいな
 ```{r}
 #| label: library
 #| message: false
+#| warning: false
+#| code-fold: true
+#| code-summary: パッケージの読み込み
 
 library(tidyverse)
 ```
 
-データのダウンロード
-
 ```{r}
 #| label: collect-data
 #| code-fold: true
+#| code-summary: データのダウンロード
 #| eval: false
 
 library(jpstat)
@@ -60,12 +62,12 @@ write_parquet(foreigner_ratio_2015, "foreigner_ratio_2015.parquet")
 
 ```
 
-データの読み込み
-
 ```{r}
 #| label: read-data
 #| message: false
+#| warning: false
 #| code-fold: true
+#| code-summary: データの読み込み
 
 library(arrow)
 
@@ -144,6 +146,8 @@ ggplot(foreigner_ratio_2015 |>
 
 ```{r}
 #| label: sf
+#| message: false
+#| warning: false
 
 library(sf)
 
@@ -202,8 +206,8 @@ jpmap::layout_islands(plot,
 #| label: save-plot
 #| include: false
 
-jpmap::layout_islands(plot,
-                      ogasawara = FALSE) +
+jpmap::layout_japan(plot,
+                    ogasawara = FALSE) +
   theme(legend.position = "bottom")
 
 ggsave("foreigner_ratio_2015.png",

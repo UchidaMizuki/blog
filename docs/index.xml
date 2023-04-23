@@ -26,9 +26,9 @@
 <p>現在，日本の都市部と地方は以下の表のような関係にあるとされ，「1票の格差」が「地方で新幹線が整備される一方で東京の通勤ラッシュが解消されない」といった経済効率性の低下などを引き起こすことが問題視されています<sup>3</sup>．</p>
 <table class="table">
 <colgroup>
-<col style="width: 17%">
-<col style="width: 48%">
-<col style="width: 32%">
+<col style="width: 15%">
+<col style="width: 50%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -60,8 +60,8 @@
 <p>さきほど示した都市・地方部の関係と同様に，若年層と高齢者層は，以下の表のような関係にあると考えられます．地方における人口減少・人手不足が深刻となった最近になってようやく，国は，少子化対策を国の最重要課題に位置づけましたが，これまで，こうした若年層向けの政策が十分に行われなかった<sup>6</sup>のは世代間の「1票の格差」の影響によるものかもしれません．</p>
 <table class="table">
 <colgroup>
-<col style="width: 17%">
-<col style="width: 48%">
+<col style="width: 16%">
+<col style="width: 49%">
 <col style="width: 32%">
 </colgroup>
 <thead>
@@ -402,6 +402,9 @@
 <li id="fn11"><p><a href="https://www.stat.go.jp/info/today/114.htm">「人口ピラミッド」から日本の未来が見えてくる！？～高齢化と「団塊世代」、少子化と「団塊ジュニア」～</a>↩︎</p></li>
 </ol>
 </section></div> ]]></description>
+  <category>Politics</category>
+  <category>R</category>
+  <category>Japanese</category>
   <guid>https://uchidamizuki.github.io/posts/2023/04/quantify-vote-disparity-between-generations.html</guid>
   <pubDate>Sat, 22 Apr 2023 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.github.io/posts/2023/04/quantify-vote-disparity-between-generations/plot_vote_disparity.png" medium="image" type="image/png" height="103" width="144"/>
@@ -1376,7 +1379,7 @@
   <media:content url="https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true" medium="image"/>
 </item>
 <item>
-  <title>🗾CSVの代わりにParquetを使ってみよう</title>
+  <title>CSVの代わりにParquetを使ってみよう</title>
   <link>https://uchidamizuki.github.io/posts/2022/06/use-parquet-instead-of-csv-ja.html</link>
   <description><![CDATA[ 
 
@@ -1395,49 +1398,58 @@
 <p>このように，<strong>tidy dataはデータ分析に適している一方で，CSVのようなテキストファイルでの保存に適していない</strong>ことがわかります．しかし，このような<strong>データ保存上の課題はParquetを使えば解決する</strong>ことができます．</p>
 <p>ここで，tidy dataでない<code>who</code> とtidy dataである<code>who_longer</code> を見比べてみましょう．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
-<span id="cb1-2"><span class="fu" style="color: #4758AB;">library</span>(fs)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.2.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tibble' was built under R version 4.2.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.2.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;">library</span>(fs)</span></code></pre></div>
 </div>
 <div class="cell">
 <details>
 <summary>コード</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">levels_gender <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"f"</span>, <span class="st" style="color: #20794D;">"m"</span>)</span>
-<span id="cb2-2">levels_age <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"014"</span>, <span class="st" style="color: #20794D;">"1524"</span>, <span class="st" style="color: #20794D;">"2534"</span>, <span class="st" style="color: #20794D;">"3544"</span>, <span class="st" style="color: #20794D;">"4554"</span>, <span class="st" style="color: #20794D;">"5564"</span>, <span class="st" style="color: #20794D;">"65"</span>)</span>
-<span id="cb2-3"></span>
-<span id="cb2-4">who_longer <span class="ot" style="color: #003B4F;">&lt;-</span> who <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb2-5">  <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="at" style="color: #657422;">cols =</span> new_sp_m014<span class="sc" style="color: #5E5E5E;">:</span>newrel_f65,</span>
-<span id="cb2-6">               <span class="at" style="color: #657422;">names_to =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"diagnosis"</span>, <span class="st" style="color: #20794D;">"gender"</span>, <span class="st" style="color: #20794D;">"age"</span>), </span>
-<span id="cb2-7">               <span class="at" style="color: #657422;">names_pattern =</span> <span class="st" style="color: #20794D;">"new_?(.*)_(.)(.*)"</span>,</span>
-<span id="cb2-8">               <span class="at" style="color: #657422;">names_transform =</span> <span class="fu" style="color: #4758AB;">list</span>(<span class="at" style="color: #657422;">gender =</span> <span class="sc" style="color: #5E5E5E;">~</span> .x <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb2-9">                                        readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">parse_factor</span>(<span class="at" style="color: #657422;">levels =</span> levels_gender),</span>
-<span id="cb2-10">                                      <span class="at" style="color: #657422;">age =</span> <span class="sc" style="color: #5E5E5E;">~</span> .x <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb2-11">                                        readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">parse_factor</span>(<span class="at" style="color: #657422;">levels =</span> levels_age,</span>
-<span id="cb2-12">                                                            <span class="at" style="color: #657422;">ordered =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)),</span>
-<span id="cb2-13">               <span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"count"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">levels_gender <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"f"</span>, <span class="st" style="color: #20794D;">"m"</span>)</span>
+<span id="cb6-2">levels_age <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"014"</span>, <span class="st" style="color: #20794D;">"1524"</span>, <span class="st" style="color: #20794D;">"2534"</span>, <span class="st" style="color: #20794D;">"3544"</span>, <span class="st" style="color: #20794D;">"4554"</span>, <span class="st" style="color: #20794D;">"5564"</span>, <span class="st" style="color: #20794D;">"65"</span>)</span>
+<span id="cb6-3"></span>
+<span id="cb6-4">who_longer <span class="ot" style="color: #003B4F;">&lt;-</span> who <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="at" style="color: #657422;">cols =</span> new_sp_m014<span class="sc" style="color: #5E5E5E;">:</span>newrel_f65,</span>
+<span id="cb6-6">               <span class="at" style="color: #657422;">names_to =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"diagnosis"</span>, <span class="st" style="color: #20794D;">"gender"</span>, <span class="st" style="color: #20794D;">"age"</span>), </span>
+<span id="cb6-7">               <span class="at" style="color: #657422;">names_pattern =</span> <span class="st" style="color: #20794D;">"new_?(.*)_(.)(.*)"</span>,</span>
+<span id="cb6-8">               <span class="at" style="color: #657422;">names_transform =</span> <span class="fu" style="color: #4758AB;">list</span>(<span class="at" style="color: #657422;">gender =</span> <span class="sc" style="color: #5E5E5E;">~</span> .x <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-9">                                        readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">parse_factor</span>(<span class="at" style="color: #657422;">levels =</span> levels_gender),</span>
+<span id="cb6-10">                                      <span class="at" style="color: #657422;">age =</span> <span class="sc" style="color: #5E5E5E;">~</span> .x <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-11">                                        readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">parse_factor</span>(<span class="at" style="color: #657422;">levels =</span> levels_age,</span>
+<span id="cb6-12">                                                            <span class="at" style="color: #657422;">ordered =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)),</span>
+<span id="cb6-13">               <span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"count"</span>)</span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;"># データ整形前</span></span>
-<span id="cb3-2"><span class="fu" style="color: #4758AB;">print</span>(who, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;"># データ整形前</span></span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;">print</span>(who, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 7,240 × 60
-  country     iso2  iso3   year new_sp…¹ new_s…² new_s…³ new_s…⁴ new_s…⁵ new_s…⁶
-  &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-1 Afghanistan AF    AFG    1980       NA      NA      NA      NA      NA      NA
-2 Afghanistan AF    AFG    1981       NA      NA      NA      NA      NA      NA
-3 Afghanistan AF    AFG    1982       NA      NA      NA      NA      NA      NA
-4 Afghanistan AF    AFG    1983       NA      NA      NA      NA      NA      NA
-5 Afghanistan AF    AFG    1984       NA      NA      NA      NA      NA      NA
-# … with 7,235 more rows, 50 more variables: new_sp_m65 &lt;dbl&gt;,
-#   new_sp_f014 &lt;dbl&gt;, new_sp_f1524 &lt;dbl&gt;, new_sp_f2534 &lt;dbl&gt;,
-#   new_sp_f3544 &lt;dbl&gt;, new_sp_f4554 &lt;dbl&gt;, new_sp_f5564 &lt;dbl&gt;,
-#   new_sp_f65 &lt;dbl&gt;, new_sn_m014 &lt;dbl&gt;, new_sn_m1524 &lt;dbl&gt;,
-#   new_sn_m2534 &lt;dbl&gt;, new_sn_m3544 &lt;dbl&gt;, new_sn_m4554 &lt;dbl&gt;,
-#   new_sn_m5564 &lt;dbl&gt;, new_sn_m65 &lt;dbl&gt;, new_sn_f014 &lt;dbl&gt;,
-#   new_sn_f1524 &lt;dbl&gt;, new_sn_f2534 &lt;dbl&gt;, new_sn_f3544 &lt;dbl&gt;, …</code></pre>
+  country   iso2  iso3   year new_sp_m014 new_sp_m1524 new_sp_m2534 new_sp_m3544
+  &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
+1 Afghanis… AF    AFG    1980          NA           NA           NA           NA
+2 Afghanis… AF    AFG    1981          NA           NA           NA           NA
+3 Afghanis… AF    AFG    1982          NA           NA           NA           NA
+4 Afghanis… AF    AFG    1983          NA           NA           NA           NA
+5 Afghanis… AF    AFG    1984          NA           NA           NA           NA
+# ℹ 7,235 more rows
+# ℹ 52 more variables: new_sp_m4554 &lt;dbl&gt;, new_sp_m5564 &lt;dbl&gt;,
+#   new_sp_m65 &lt;dbl&gt;, new_sp_f014 &lt;dbl&gt;, new_sp_f1524 &lt;dbl&gt;,
+#   new_sp_f2534 &lt;dbl&gt;, new_sp_f3544 &lt;dbl&gt;, new_sp_f4554 &lt;dbl&gt;,
+#   new_sp_f5564 &lt;dbl&gt;, new_sp_f65 &lt;dbl&gt;, new_sn_m014 &lt;dbl&gt;,
+#   new_sn_m1524 &lt;dbl&gt;, new_sn_m2534 &lt;dbl&gt;, new_sn_m3544 &lt;dbl&gt;,
+#   new_sn_m4554 &lt;dbl&gt;, new_sn_m5564 &lt;dbl&gt;, new_sn_m65 &lt;dbl&gt;, …</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;"># データ整形後</span></span>
-<span id="cb5-2"><span class="fu" style="color: #4758AB;">print</span>(who_longer, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;"># データ整形後</span></span>
+<span id="cb9-2"><span class="fu" style="color: #4758AB;">print</span>(who_longer, <span class="at" style="color: #657422;">n =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 405,440 × 8
   country     iso2  iso3   year diagnosis gender age   count
@@ -1447,7 +1459,7 @@
 3 Afghanistan AF    AFG    1980 sp        m      2534     NA
 4 Afghanistan AF    AFG    1980 sp        m      3544     NA
 5 Afghanistan AF    AFG    1980 sp        m      4554     NA
-# … with 405,435 more rows</code></pre>
+# ℹ 405,435 more rows</code></pre>
 </div>
 </div>
 </section>
@@ -1456,13 +1468,15 @@
 <p>Rでは，<code>write_csv()</code> でCSVを保存できます．同様に，arrowパッケージの<code>write_parquet()</code> でParquetを保存することができます．<code>who_longer</code>をCSVとParquetで保存してみましょう．</p>
 <p>CSVとParquetでは，どちらも簡単にデータ保存ができることがわかります．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;">library</span>(arrow)</span>
-<span id="cb7-2"></span>
-<span id="cb7-3"><span class="co" style="color: #5E5E5E;"># CSVを保存</span></span>
-<span id="cb7-4"><span class="fu" style="color: #4758AB;">write_csv</span>(who_longer, <span class="st" style="color: #20794D;">"who_longer.csv"</span>)</span>
-<span id="cb7-5"></span>
-<span id="cb7-6"><span class="co" style="color: #5E5E5E;"># Parquetを保存</span></span>
-<span id="cb7-7"><span class="fu" style="color: #4758AB;">write_parquet</span>(who_longer, <span class="st" style="color: #20794D;">"who_longer.parquet"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;">library</span>(arrow)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'arrow' was built under R version 4.2.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;"># CSVを保存</span></span>
+<span id="cb13-2"><span class="fu" style="color: #4758AB;">write_csv</span>(who_longer, <span class="st" style="color: #20794D;">"who_longer.csv"</span>)</span>
+<span id="cb13-3"></span>
+<span id="cb13-4"><span class="co" style="color: #5E5E5E;"># Parquetを保存</span></span>
+<span id="cb13-5"><span class="fu" style="color: #4758AB;">write_parquet</span>(who_longer, <span class="st" style="color: #20794D;">"who_longer.parquet"</span>)</span></code></pre></div>
 </div>
 </section>
 <section id="parquetのメリットcsvとの比較" class="level2">
@@ -1474,18 +1488,18 @@
 <p>実際に，<code>who_longer</code> のCSV・Parquetのデータ容量は，それぞれ，14.1 MBと154 KBとなり，<strong>ParquetはCSVの約1 %のデータ容量</strong>しかないことがわかります．</p>
 <p>どのようなケースでもこのようなデータ容量の削減が見込めるわけではありませんが，<strong>Parquetは列指向でデータ圧縮</strong>を行うため，Rなどでよく用いられる<strong>tidy dataの保存に適したデータ形式</strong>であるといえます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;"># CSV</span></span>
-<span id="cb8-2"><span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;"># CSV</span></span>
+<span id="cb14-2"><span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>14.1M</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;"># Parquet</span></span>
-<span id="cb10-2"><span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;"># Parquet</span></span>
+<span id="cb16-2"><span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>156K</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">units<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">set_units</span>(<span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>) <span class="sc" style="color: #5E5E5E;">/</span> <span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb12-2">  units<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">set_units</span>(<span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">%</span><span class="st" style="color: #20794D;">`</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">units<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">set_units</span>(<span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>) <span class="sc" style="color: #5E5E5E;">/</span> <span class="fu" style="color: #4758AB;">file_size</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb18-2">  units<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">set_units</span>(<span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">%</span><span class="st" style="color: #20794D;">`</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1.080502 [%]</code></pre>
 </div>
@@ -1497,14 +1511,14 @@
 <p><strong>CSV</strong>はテキスト形式であるため，<strong>読み込み時に<code>col_types</code>で各列の型を指定する必要</strong>があります（デフォルトでは自動で型を推測）．</p>
 <p>一方，<strong>Parquet</strong>は，書き込み時に各列の型情報も保存されているため読み込み時に<strong>型を指定する必要がありません</strong>．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;"># CSVの読み込み</span></span>
-<span id="cb14-2"><span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>,</span>
-<span id="cb14-3">         <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>,</span>
-<span id="cb14-4">                          <span class="at" style="color: #657422;">year =</span> <span class="st" style="color: #20794D;">"i"</span>,</span>
-<span id="cb14-5">                          <span class="at" style="color: #657422;">count =</span> <span class="st" style="color: #20794D;">"i"</span>))</span>
-<span id="cb14-6"></span>
-<span id="cb14-7"><span class="co" style="color: #5E5E5E;"># Parquetの読み込み</span></span>
-<span id="cb14-8"><span class="fu" style="color: #4758AB;">read_parquet</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;"># CSVの読み込み</span></span>
+<span id="cb20-2"><span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"who_longer.csv"</span>,</span>
+<span id="cb20-3">         <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>,</span>
+<span id="cb20-4">                          <span class="at" style="color: #657422;">year =</span> <span class="st" style="color: #20794D;">"i"</span>,</span>
+<span id="cb20-5">                          <span class="at" style="color: #657422;">count =</span> <span class="st" style="color: #20794D;">"i"</span>))</span>
+<span id="cb20-6"></span>
+<span id="cb20-7"><span class="co" style="color: #5E5E5E;"># Parquetの読み込み</span></span>
+<span id="cb20-8"><span class="fu" style="color: #4758AB;">read_parquet</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>)</span></code></pre></div>
 </div>
 </section>
 <section id="メリット3csvよりビッグデータの読み込み集計に適している" class="level3">
@@ -1516,14 +1530,14 @@
 <p>Parquetでは，<strong>読み込み時に<code>as_data_frame = FALSE</code></strong>とすることで，SQLと同様に<strong>メモリにデータを移すことなくデータのフィルタリング・集計などが可能</strong>です．</p>
 <p>ここでは，日本の年・症例別の患者数を計算してみましょう．<strong>dplyrの<code>filter()</code> ・<code>group_by()</code> ・<code>summarise()</code> などを使って効率的にクエリを作成</strong>することができます．<strong>最後に<code>collect()</code> を行えばデータフレームを出力</strong>することができます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;">read_parquet</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>,</span>
-<span id="cb15-2">             <span class="at" style="color: #657422;">as_data_frame =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb15-3">  <span class="fu" style="color: #4758AB;">filter</span>(country <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"Japan"</span>,</span>
-<span id="cb15-4">         <span class="sc" style="color: #5E5E5E;">!</span><span class="fu" style="color: #4758AB;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb15-5">  <span class="fu" style="color: #4758AB;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb15-6">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">count =</span> <span class="fu" style="color: #4758AB;">sum</span>(count),</span>
-<span id="cb15-7">            <span class="at" style="color: #657422;">.groups =</span> <span class="st" style="color: #20794D;">"drop"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb15-8">  <span class="fu" style="color: #4758AB;">collect</span>()</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;">read_parquet</span>(<span class="st" style="color: #20794D;">"who_longer.parquet"</span>,</span>
+<span id="cb21-2">             <span class="at" style="color: #657422;">as_data_frame =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-3">  <span class="fu" style="color: #4758AB;">filter</span>(country <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"Japan"</span>,</span>
+<span id="cb21-4">         <span class="sc" style="color: #5E5E5E;">!</span><span class="fu" style="color: #4758AB;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-5">  <span class="fu" style="color: #4758AB;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-6">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">count =</span> <span class="fu" style="color: #4758AB;">sum</span>(count),</span>
+<span id="cb21-7">            <span class="at" style="color: #657422;">.groups =</span> <span class="st" style="color: #20794D;">"drop"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-8">  <span class="fu" style="color: #4758AB;">collect</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 33 × 4
    country  year diagnosis count
@@ -1538,7 +1552,7 @@
  8 Japan    2004 sp        10471
  9 Japan    1999 sp        12909
 10 Japan    2000 sp        11853
-# … with 23 more rows</code></pre>
+# ℹ 23 more rows</code></pre>
 </div>
 </div>
 </section>
@@ -1550,22 +1564,22 @@
 <div class="cell">
 <details>
 <summary>コード</summary>
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;">dir_create</span>(<span class="st" style="color: #20794D;">"who_longer_byage"</span>)</span>
-<span id="cb17-2">who_longer <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb17-3">  <span class="fu" style="color: #4758AB;">group_by</span>(age) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb17-4">  <span class="fu" style="color: #4758AB;">group_walk</span>(<span class="sc" style="color: #5E5E5E;">~</span> .x <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb17-5">               <span class="fu" style="color: #4758AB;">write_parquet</span>(<span class="fu" style="color: #4758AB;">str_glue</span>(<span class="st" style="color: #20794D;">"who_longer_byage/who_longer_{.y$age}.parquet"</span>)),</span>
-<span id="cb17-6">  <span class="at" style="color: #657422;">.keep =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;">dir_create</span>(<span class="st" style="color: #20794D;">"who_longer_byage"</span>)</span>
+<span id="cb23-2">who_longer <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb23-3">  <span class="fu" style="color: #4758AB;">group_by</span>(age) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb23-4">  <span class="fu" style="color: #4758AB;">group_walk</span>(<span class="sc" style="color: #5E5E5E;">~</span> .x <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb23-5">               <span class="fu" style="color: #4758AB;">write_parquet</span>(<span class="fu" style="color: #4758AB;">str_glue</span>(<span class="st" style="color: #20794D;">"who_longer_byage/who_longer_{.y$age}.parquet"</span>)),</span>
+<span id="cb23-6">  <span class="at" style="color: #657422;">.keep =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)</span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;">open_dataset</span>(<span class="st" style="color: #20794D;">"who_longer_byage"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb18-2">  <span class="fu" style="color: #4758AB;">filter</span>(country <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"Japan"</span>,</span>
-<span id="cb18-3">         <span class="sc" style="color: #5E5E5E;">!</span><span class="fu" style="color: #4758AB;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb18-4">  <span class="fu" style="color: #4758AB;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb18-5">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">count =</span> <span class="fu" style="color: #4758AB;">sum</span>(count),</span>
-<span id="cb18-6">            <span class="at" style="color: #657422;">.groups =</span> <span class="st" style="color: #20794D;">"drop"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb18-7">  <span class="fu" style="color: #4758AB;">collect</span>()</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;">open_dataset</span>(<span class="st" style="color: #20794D;">"who_longer_byage"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb24-2">  <span class="fu" style="color: #4758AB;">filter</span>(country <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"Japan"</span>,</span>
+<span id="cb24-3">         <span class="sc" style="color: #5E5E5E;">!</span><span class="fu" style="color: #4758AB;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb24-4">  <span class="fu" style="color: #4758AB;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb24-5">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">count =</span> <span class="fu" style="color: #4758AB;">sum</span>(count),</span>
+<span id="cb24-6">            <span class="at" style="color: #657422;">.groups =</span> <span class="st" style="color: #20794D;">"drop"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb24-7">  <span class="fu" style="color: #4758AB;">collect</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 33 × 4
    country  year diagnosis count
@@ -1580,7 +1594,7 @@
  8 Japan    2004 sp        10471
  9 Japan    2005 sp        10931
 10 Japan    2006 sp        10159
-# … with 23 more rows</code></pre>
+# ℹ 23 more rows</code></pre>
 </div>
 </div>
 </section>
@@ -1589,9 +1603,9 @@
 <p>PythonのpandasパッケージはParquetの読み書きに対応しているため，Parquetは，R・Python間でのデータのやり取りにも適しています．</p>
 <p>Rで作成した<code>'who_longer.parquet'</code> をpandasで読み込んでみましょう．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><span class="im" style="color: #00769E;">import</span> pandas <span class="im" style="color: #00769E;">as</span> pd</span>
-<span id="cb20-2"></span>
-<span id="cb20-3">pd.read_parquet(<span class="st" style="color: #20794D;">'who_longer.parquet'</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="im" style="color: #00769E;">import</span> pandas <span class="im" style="color: #00769E;">as</span> pd</span>
+<span id="cb26-2"></span>
+<span id="cb26-3">pd.read_parquet(<span class="st" style="color: #20794D;">'who_longer.parquet'</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            country iso2 iso3    year diagnosis gender   age   count
 0       Afghanistan   AF  AFG  1980.0        sp      m   014     NaN
@@ -1630,7 +1644,7 @@
   <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>🗾Rで日本地図を描いてみよう</title>
+  <title>Rで日本地図を描いてみよう</title>
   <link>https://uchidamizuki.github.io/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</link>
   <description><![CDATA[ 
 
@@ -1643,12 +1657,14 @@
 <h2 class="anchored" data-anchor-id="地図描画用のサンプルデータ">地図描画用のサンプルデータ</h2>
 <p>ここでは，<a href="https://www.e-stat.go.jp/dbview?sid=0000010201">こちら</a>からダウンロードできる社会・人口統計体系の2015年の都道府県別外国人人口比率データ（10万人あたり外国人人口）を地図描画用のサンプルデータとしました．</p>
 <div class="cell">
+<details>
+<summary>パッケージの読み込み</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span></code></pre></div>
+</details>
 </div>
-<p>データのダウンロード</p>
 <div class="cell">
 <details>
-<summary>コード</summary>
+<summary>データのダウンロード</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;">library</span>(jpstat)</span>
 <span id="cb2-2"><span class="fu" style="color: #4758AB;">library</span>(arrow)</span>
 <span id="cb2-3"></span>
@@ -1678,10 +1694,9 @@
 <span id="cb2-27"><span class="fu" style="color: #4758AB;">write_parquet</span>(foreigner_ratio_2015, <span class="st" style="color: #20794D;">"foreigner_ratio_2015.parquet"</span>)</span></code></pre></div>
 </details>
 </div>
-<p>データの読み込み</p>
 <div class="cell">
 <details>
-<summary>コード</summary>
+<summary>データの読み込み</summary>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;">library</span>(arrow)</span>
 <span id="cb3-2"></span>
 <span id="cb3-3">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_parquet</span>(<span class="st" style="color: #20794D;">"foreigner_ratio_2015.parquet"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
@@ -1714,7 +1729,7 @@
  8         8 Ibaraki           0.0142 
  9         9 Tochigi           0.0134 
 10        10 Gunma             0.0188 
-# … with 37 more rows</code></pre>
+# ℹ 37 more rows</code></pre>
 </div>
 </div>
 </section>
@@ -1755,7 +1770,7 @@
  8  140.  42.3     1     8 Hokkaido &lt;NA&gt;     
  9  140.  42.3     1     9 Hokkaido &lt;NA&gt;     
 10  140.  42.3     1    10 Hokkaido &lt;NA&gt;     
-# … with 46,965 more rows</code></pre>
+# ℹ 46,965 more rows</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;">ggplot</span>(foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
 <span id="cb8-2">         <span class="fu" style="color: #4758AB;">rename</span>(<span class="at" style="color: #657422;">region =</span> pref_name),</span>
@@ -1779,26 +1794,24 @@
 <p>また，maps・mapdataパッケージの提供する地図データは，sfパッケージの<code>st_as_sf()</code> でsfのジオメトリデータに変換することができます．</p>
 <p>日本地図データをsfに変換することで，先ほどよりも直感的に地図を描くことができます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;">library</span>(sf)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Linking to GEOS 3.9.3, GDAL 3.5.2, PROJ 8.2.1; sf_use_s2() is TRUE</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">map_japan <span class="ot" style="color: #003B4F;">&lt;-</span> maps<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">map</span>(<span class="st" style="color: #20794D;">"japan"</span>, </span>
-<span id="cb11-2">                       <span class="at" style="color: #657422;">plot =</span> <span class="cn" style="color: #8f5902;">FALSE</span>,</span>
-<span id="cb11-3">                       <span class="at" style="color: #657422;">fill =</span> <span class="cn" style="color: #8f5902;">TRUE</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-4">  <span class="fu" style="color: #4758AB;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-5">  <span class="fu" style="color: #4758AB;">rename</span>(<span class="at" style="color: #657422;">pref_name =</span> ID) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-6">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">pref_name =</span> <span class="fu" style="color: #4758AB;">str_to_title</span>(pref_name))</span>
-<span id="cb11-7"></span>
-<span id="cb11-8">map_japan <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-9">  <span class="fu" style="color: #4758AB;">left_join</span>(foreigner_ratio_2015,</span>
-<span id="cb11-10">            <span class="at" style="color: #657422;">by =</span> <span class="st" style="color: #20794D;">"pref_name"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-11">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb11-12">  <span class="fu" style="color: #4758AB;">geom_sf</span>(<span class="at" style="color: #657422;">color =</span> <span class="st" style="color: #20794D;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb11-13">  <span class="fu" style="color: #4758AB;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;">"外国人人口比率"</span>,</span>
-<span id="cb11-14">                       <span class="at" style="color: #657422;">limits =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">0</span>, <span class="fl" style="color: #AD0000;">0.03</span>),</span>
-<span id="cb11-15">                       <span class="at" style="color: #657422;">labels =</span> scales<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">label_percent</span>(),</span>
-<span id="cb11-16">                       <span class="at" style="color: #657422;">option =</span> <span class="st" style="color: #20794D;">"turbo"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;">library</span>(sf)</span>
+<span id="cb9-2"></span>
+<span id="cb9-3">map_japan <span class="ot" style="color: #003B4F;">&lt;-</span> maps<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">map</span>(<span class="st" style="color: #20794D;">"japan"</span>, </span>
+<span id="cb9-4">                       <span class="at" style="color: #657422;">plot =</span> <span class="cn" style="color: #8f5902;">FALSE</span>,</span>
+<span id="cb9-5">                       <span class="at" style="color: #657422;">fill =</span> <span class="cn" style="color: #8f5902;">TRUE</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-6">  <span class="fu" style="color: #4758AB;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-7">  <span class="fu" style="color: #4758AB;">rename</span>(<span class="at" style="color: #657422;">pref_name =</span> ID) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-8">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">pref_name =</span> <span class="fu" style="color: #4758AB;">str_to_title</span>(pref_name))</span>
+<span id="cb9-9"></span>
+<span id="cb9-10">map_japan <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-11">  <span class="fu" style="color: #4758AB;">left_join</span>(foreigner_ratio_2015,</span>
+<span id="cb9-12">            <span class="at" style="color: #657422;">by =</span> <span class="st" style="color: #20794D;">"pref_name"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-13">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb9-14">  <span class="fu" style="color: #4758AB;">geom_sf</span>(<span class="at" style="color: #657422;">color =</span> <span class="st" style="color: #20794D;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb9-15">  <span class="fu" style="color: #4758AB;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;">"外国人人口比率"</span>,</span>
+<span id="cb9-16">                       <span class="at" style="color: #657422;">limits =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">0</span>, <span class="fl" style="color: #AD0000;">0.03</span>),</span>
+<span id="cb9-17">                       <span class="at" style="color: #657422;">labels =</span> scales<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">label_percent</span>(),</span>
+<span id="cb9-18">                       <span class="at" style="color: #657422;">option =</span> <span class="st" style="color: #20794D;">"turbo"</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="https://uchidamizuki.github.io/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/sf-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1814,8 +1827,8 @@
 </ul>
 <p><code>jpmap::layout_islands()</code> で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;"># pak::pak("UchidaMizuki/jpmap")</span></span>
-<span id="cb12-2">jpmap<span class="sc" style="color: #5E5E5E;">::</span>prefecture</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;"># pak::pak("UchidaMizuki/jpmap")</span></span>
+<span id="cb10-2">jpmap<span class="sc" style="color: #5E5E5E;">::</span>prefecture</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Simple feature collection with 47 features and 3 fields
 Geometry type: MULTIPOLYGON
@@ -1835,20 +1848,20 @@ Geodetic CRS:  JGD2011
  8         8 Ibaraki   茨城県       (((140.7973 36.84649, 140.7931 36.83755, 14…
  9         9 Tochigi   栃木県       (((139.6537 36.20314, 139.6385 36.22575, 13…
 10        10 Gunma     群馬県       (((138.6795 36.73065, 138.7227 36.74918, 13…
-# … with 37 more rows</code></pre>
+# ℹ 37 more rows</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">plot <span class="ot" style="color: #003B4F;">&lt;-</span> jpmap<span class="sc" style="color: #5E5E5E;">::</span>prefecture <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb14-2">  <span class="fu" style="color: #4758AB;">left_join</span>(foreigner_ratio_2015,</span>
-<span id="cb14-3">            <span class="at" style="color: #657422;">by =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"pref_code"</span>, <span class="st" style="color: #20794D;">"pref_name"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb14-4">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb14-5">  <span class="fu" style="color: #4758AB;">geom_sf</span>(<span class="at" style="color: #657422;">color =</span> <span class="st" style="color: #20794D;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb14-6">  <span class="fu" style="color: #4758AB;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;">"外国人人口比率"</span>,</span>
-<span id="cb14-7">                       <span class="at" style="color: #657422;">limits =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">0</span>, <span class="fl" style="color: #AD0000;">0.03</span>),</span>
-<span id="cb14-8">                       <span class="at" style="color: #657422;">labels =</span> scales<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">label_percent</span>(),</span>
-<span id="cb14-9">                       <span class="at" style="color: #657422;">option =</span> <span class="st" style="color: #20794D;">"turbo"</span>)</span>
-<span id="cb14-10"></span>
-<span id="cb14-11">jpmap<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">layout_islands</span>(plot,</span>
-<span id="cb14-12">                      <span class="at" style="color: #657422;">ogasawara =</span> <span class="cn" style="color: #8f5902;">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">plot <span class="ot" style="color: #003B4F;">&lt;-</span> jpmap<span class="sc" style="color: #5E5E5E;">::</span>prefecture <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb12-2">  <span class="fu" style="color: #4758AB;">left_join</span>(foreigner_ratio_2015,</span>
+<span id="cb12-3">            <span class="at" style="color: #657422;">by =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"pref_code"</span>, <span class="st" style="color: #20794D;">"pref_name"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb12-4">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb12-5">  <span class="fu" style="color: #4758AB;">geom_sf</span>(<span class="at" style="color: #657422;">color =</span> <span class="st" style="color: #20794D;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb12-6">  <span class="fu" style="color: #4758AB;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;">"外国人人口比率"</span>,</span>
+<span id="cb12-7">                       <span class="at" style="color: #657422;">limits =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">0</span>, <span class="fl" style="color: #AD0000;">0.03</span>),</span>
+<span id="cb12-8">                       <span class="at" style="color: #657422;">labels =</span> scales<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">label_percent</span>(),</span>
+<span id="cb12-9">                       <span class="at" style="color: #657422;">option =</span> <span class="st" style="color: #20794D;">"turbo"</span>)</span>
+<span id="cb12-10"></span>
+<span id="cb12-11">jpmap<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">layout_islands</span>(plot,</span>
+<span id="cb12-12">                      <span class="at" style="color: #657422;">ogasawara =</span> <span class="cn" style="color: #8f5902;">FALSE</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: `layout_islands()` was deprecated in jpmap 0.2.0.
 ℹ Please use `layout_japan()` instead.</code></pre>
@@ -1882,7 +1895,7 @@ Geodetic CRS:  JGD2011
   <media:content url="https://uchidamizuki.github.io/posts/2022/06/foreigner_ratio_2015.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 <item>
-  <title>🗾Rで産業連関分析</title>
+  <title>Rで産業連関分析</title>
   <link>https://uchidamizuki.github.io/posts/2022/05/ioanalysis-in-r-ja.html</link>
   <description><![CDATA[ 
 
@@ -1981,15 +1994,23 @@ Geodetic CRS:  JGD2011
 <p>産業連関表のデータ形式は，e-Statのデータベースで提供されている表などを除いて， 行に投入部門（<code>input</code>）・列に産出部門（<code>output</code>）を持つ「横長データ」であることが多いと思われます．</p>
 <p>ここでも，以下の通り，まずは横長の産業連関表データを読み込みます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
-<span id="cb1-2"></span>
-<span id="cb1-3">iotable_wider <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"iotable_3sector_2011_wider.csv"</span>,</span>
-<span id="cb1-4">                          <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb1-5">  </span>
-<span id="cb1-6">  <span class="co" style="color: #5E5E5E;"># input (投入) 列以外を数値に変換</span></span>
-<span id="cb1-7">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="fu" style="color: #4758AB;">across</span>(<span class="sc" style="color: #5E5E5E;">!</span>input, parse_number))</span>
-<span id="cb1-8"></span>
-<span id="cb1-9">knitr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">kable</span>(iotable_wider)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.2.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tibble' was built under R version 4.2.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.2.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">iotable_wider <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"iotable_3sector_2011_wider.csv"</span>,</span>
+<span id="cb5-2">                          <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-3">  </span>
+<span id="cb5-4">  <span class="co" style="color: #5E5E5E;"># input (投入) 列以外を数値に変換</span></span>
+<span id="cb5-5">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="fu" style="color: #4758AB;">across</span>(<span class="sc" style="color: #5E5E5E;">!</span>input, parse_number))</span>
+<span id="cb5-6"></span>
+<span id="cb5-7">knitr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">kable</span>(iotable_wider)</span></code></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <colgroup>
@@ -2055,22 +2076,22 @@ Geodetic CRS:  JGD2011
 </div>
 <p>データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが， 分析しやすい場合が多くあります． ここでも，横長の産業連関表を「縦長データ」に変換します．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">iotable <span class="ot" style="color: #003B4F;">&lt;-</span> iotable_wider <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb2-2">  </span>
-<span id="cb2-3">  <span class="co" style="color: #5E5E5E;"># input (投入) 列を分類・名称に分割</span></span>
-<span id="cb2-4">  <span class="fu" style="color: #4758AB;">separate</span>(input, <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"input_type"</span>, <span class="st" style="color: #20794D;">"input_name"</span>),</span>
-<span id="cb2-5">           <span class="at" style="color: #657422;">sep =</span> <span class="st" style="color: #20794D;">"/"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb2-6">  </span>
-<span id="cb2-7">  <span class="co" style="color: #5E5E5E;"># input (投入) と同様にoutput (産出) の分類・名称列を追加し縦長データに</span></span>
-<span id="cb2-8">  <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="sc" style="color: #5E5E5E;">!</span><span class="fu" style="color: #4758AB;">c</span>(input_type, input_name),</span>
-<span id="cb2-9">               <span class="at" style="color: #657422;">names_to =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"output_type"</span>, <span class="st" style="color: #20794D;">"output_name"</span>),</span>
-<span id="cb2-10">               <span class="at" style="color: #657422;">names_sep =</span> <span class="st" style="color: #20794D;">"/"</span>,</span>
-<span id="cb2-11">               <span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"value_M"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb2-12">  </span>
-<span id="cb2-13">  <span class="co" style="color: #5E5E5E;"># 数値が存在しない行を削除</span></span>
-<span id="cb2-14">  <span class="fu" style="color: #4758AB;">drop_na</span>(value_M)</span>
-<span id="cb2-15"></span>
-<span id="cb2-16">knitr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">kable</span>(iotable)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">iotable <span class="ot" style="color: #003B4F;">&lt;-</span> iotable_wider <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb6-2">  </span>
+<span id="cb6-3">  <span class="co" style="color: #5E5E5E;"># input (投入) 列を分類・名称に分割</span></span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;">separate</span>(input, <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"input_type"</span>, <span class="st" style="color: #20794D;">"input_name"</span>),</span>
+<span id="cb6-5">           <span class="at" style="color: #657422;">sep =</span> <span class="st" style="color: #20794D;">"/"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb6-6">  </span>
+<span id="cb6-7">  <span class="co" style="color: #5E5E5E;"># input (投入) と同様にoutput (産出) の分類・名称列を追加し縦長データに</span></span>
+<span id="cb6-8">  <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="sc" style="color: #5E5E5E;">!</span><span class="fu" style="color: #4758AB;">c</span>(input_type, input_name),</span>
+<span id="cb6-9">               <span class="at" style="color: #657422;">names_to =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"output_type"</span>, <span class="st" style="color: #20794D;">"output_name"</span>),</span>
+<span id="cb6-10">               <span class="at" style="color: #657422;">names_sep =</span> <span class="st" style="color: #20794D;">"/"</span>,</span>
+<span id="cb6-11">               <span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"value_M"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb6-12">  </span>
+<span id="cb6-13">  <span class="co" style="color: #5E5E5E;"># 数値が存在しない行を削除</span></span>
+<span id="cb6-14">  <span class="fu" style="color: #4758AB;">drop_na</span>(value_M)</span>
+<span id="cb6-15"></span>
+<span id="cb6-16">knitr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">kable</span>(iotable)</span></code></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <thead>
@@ -2237,17 +2258,17 @@ Geodetic CRS:  JGD2011
 <p>上で構築した表データは，各行のフィルタリングなどが容易にできる一方で， 産業連関分析に用いられる行列計算などに適していません．</p>
 <p>そこで，表データの基本的な演算と行列計算を同時に行えるdibbleパッケージを用います． 以下のように，産業連関表をdibbleに変換します．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;"># pak::pak("UchidaMizuki/dibble")</span></span>
-<span id="cb3-2"><span class="fu" style="color: #4758AB;">library</span>(dibble)</span>
-<span id="cb3-3"></span>
-<span id="cb3-4">iotable <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb3-5">  <span class="fu" style="color: #4758AB;">dibble_by</span>(<span class="at" style="color: #657422;">input =</span> <span class="fu" style="color: #4758AB;">c</span>(input_type, input_name),</span>
-<span id="cb3-6">            <span class="at" style="color: #657422;">output =</span> <span class="fu" style="color: #4758AB;">c</span>(output_type, output_name),</span>
-<span id="cb3-7">            </span>
-<span id="cb3-8">            <span class="co" style="color: #5E5E5E;"># "_"で列名を分割してinput (投入)・output (産出) 軸を設定</span></span>
-<span id="cb3-9">            <span class="at" style="color: #657422;">.names_sep =</span> <span class="st" style="color: #20794D;">"_"</span>)</span>
-<span id="cb3-10"></span>
-<span id="cb3-11">iotable</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;"># pak::pak("UchidaMizuki/dibble")</span></span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;">library</span>(dibble)</span>
+<span id="cb7-3"></span>
+<span id="cb7-4">iotable <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;">dibble_by</span>(<span class="at" style="color: #657422;">input =</span> <span class="fu" style="color: #4758AB;">c</span>(input_type, input_name),</span>
+<span id="cb7-6">            <span class="at" style="color: #657422;">output =</span> <span class="fu" style="color: #4758AB;">c</span>(output_type, output_name),</span>
+<span id="cb7-7">            </span>
+<span id="cb7-8">            <span class="co" style="color: #5E5E5E;"># "_"で列名を分割してinput (投入)・output (産出) 軸を設定</span></span>
+<span id="cb7-9">            <span class="at" style="color: #657422;">.names_sep =</span> <span class="st" style="color: #20794D;">"_"</span>)</span>
+<span id="cb7-10"></span>
+<span id="cb7-11">iotable</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   24 x 1
 # Dimensions: input [4], output [6]
@@ -2264,7 +2285,7 @@ Geodetic CRS:  JGD2011
  8 industry   02_secondary industry    02_secondary   161897553
  9 industry   02_secondary industry    03_tertiary     62841827
 10 industry   02_secondary finaldemand 04_finaldemand 132924323
-# … with 14 more rows</code></pre>
+# ℹ 14 more rows</code></pre>
 </div>
 </div>
 </section>
@@ -2273,21 +2294,21 @@ Geodetic CRS:  JGD2011
 <p>産業の「クッキングレシピ」と呼ばれる投入係数行列<img src="https://latex.codecogs.com/png.latex?A">を以下のように中間投入を生産額で割って算出します．</p>
 <p>注：dibbleではブロードキャストが自動で行われますが，安全のため，ブロードキャストを行う際に，警告を発するように設計されています．そのため，<code>broadcast()</code>でブロードキャスト後の軸名<code>c("input", "output")</code>を与えて警告が出ないようにする必要があります．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;"># 生産額</span></span>
-<span id="cb5-2">total_input <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb5-3">  <span class="fu" style="color: #4758AB;">filter</span>(output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb5-4">  <span class="fu" style="color: #4758AB;">apply</span>(<span class="st" style="color: #20794D;">"output"</span>, sum)</span>
-<span id="cb5-5"></span>
-<span id="cb5-6"><span class="co" style="color: #5E5E5E;"># 中間投入</span></span>
-<span id="cb5-7">interindustry <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb5-8">  <span class="fu" style="color: #4758AB;">filter</span>(input<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>,</span>
-<span id="cb5-9">         output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>)</span>
-<span id="cb5-10"></span>
-<span id="cb5-11"><span class="co" style="color: #5E5E5E;"># 投入係数</span></span>
-<span id="cb5-12">inputcoeff <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">broadcast</span>(interindustry <span class="sc" style="color: #5E5E5E;">/</span> total_input,</span>
-<span id="cb5-13">                        <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"input"</span>, <span class="st" style="color: #20794D;">"output"</span>))</span>
-<span id="cb5-14"></span>
-<span id="cb5-15">inputcoeff</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;"># 生産額</span></span>
+<span id="cb9-2">total_input <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-3">  <span class="fu" style="color: #4758AB;">filter</span>(output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-4">  <span class="fu" style="color: #4758AB;">apply</span>(<span class="st" style="color: #20794D;">"output"</span>, sum)</span>
+<span id="cb9-5"></span>
+<span id="cb9-6"><span class="co" style="color: #5E5E5E;"># 中間投入</span></span>
+<span id="cb9-7">interindustry <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-8">  <span class="fu" style="color: #4758AB;">filter</span>(input<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>,</span>
+<span id="cb9-9">         output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>)</span>
+<span id="cb9-10"></span>
+<span id="cb9-11"><span class="co" style="color: #5E5E5E;"># 投入係数</span></span>
+<span id="cb9-12">inputcoeff <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">broadcast</span>(interindustry <span class="sc" style="color: #5E5E5E;">/</span> total_input,</span>
+<span id="cb9-13">                        <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"input"</span>, <span class="st" style="color: #20794D;">"output"</span>))</span>
+<span id="cb9-14"></span>
+<span id="cb9-15">inputcoeff</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   9
 # Dimensions: input [3], output [3]
@@ -2310,33 +2331,33 @@ Geodetic CRS:  JGD2011
 <p>経済波及効果を表すレオンチェフ逆行列は以下のように，移輸入係数と投入係数を用いて算出できます．</p>
 <p>注：<code>solve()</code>で逆行列を算出すると行列の軸名が入れ替わるため注意してください．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;"># 域内需要</span></span>
-<span id="cb7-2">localdemand <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb7-3">  <span class="fu" style="color: #4758AB;">filter</span>(input<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>,</span>
-<span id="cb7-4">         <span class="sc" style="color: #5E5E5E;">!</span>output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">%in%</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"export"</span>, <span class="st" style="color: #20794D;">"import"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb7-5">  <span class="fu" style="color: #4758AB;">apply</span>(<span class="st" style="color: #20794D;">"input"</span>, sum)</span>
-<span id="cb7-6"></span>
-<span id="cb7-7"><span class="co" style="color: #5E5E5E;"># (移) 輸入</span></span>
-<span id="cb7-8">import <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb7-9">  <span class="fu" style="color: #4758AB;">filter</span>(input<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>,</span>
-<span id="cb7-10">         output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"import"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb7-11">  <span class="fu" style="color: #4758AB;">apply</span>(<span class="st" style="color: #20794D;">"input"</span>, sum)</span>
-<span id="cb7-12"><span class="co" style="color: #5E5E5E;"># 符号を正に</span></span>
-<span id="cb7-13">import <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="sc" style="color: #5E5E5E;">-</span>import</span>
-<span id="cb7-14"></span>
-<span id="cb7-15"><span class="co" style="color: #5E5E5E;"># (移) 輸入係数</span></span>
-<span id="cb7-16">importcoeff <span class="ot" style="color: #003B4F;">&lt;-</span> import <span class="sc" style="color: #5E5E5E;">/</span> localdemand</span>
-<span id="cb7-17"></span>
-<span id="cb7-18">I <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">eye</span>(inputcoeff) <span class="co" style="color: #5E5E5E;"># 単位行列</span></span>
-<span id="cb7-19">M <span class="ot" style="color: #003B4F;">&lt;-</span> importcoeff     <span class="co" style="color: #5E5E5E;"># 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)</span></span>
-<span id="cb7-20">A <span class="ot" style="color: #003B4F;">&lt;-</span> inputcoeff      <span class="co" style="color: #5E5E5E;"># 投入係数行列</span></span>
-<span id="cb7-21"></span>
-<span id="cb7-22"><span class="co" style="color: #5E5E5E;"># レオンチェフ逆行列</span></span>
-<span id="cb7-23">leontiefinv <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">broadcast</span>(I <span class="sc" style="color: #5E5E5E;">-</span> (<span class="dv" style="color: #AD0000;">1</span> <span class="sc" style="color: #5E5E5E;">-</span> M) <span class="sc" style="color: #5E5E5E;">*</span> A,</span>
-<span id="cb7-24">                         <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"input"</span>, <span class="st" style="color: #20794D;">"output"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
-<span id="cb7-25">  <span class="fu" style="color: #4758AB;">solve</span>()</span>
-<span id="cb7-26"></span>
-<span id="cb7-27">leontiefinv</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;"># 域内需要</span></span>
+<span id="cb11-2">localdemand <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb11-3">  <span class="fu" style="color: #4758AB;">filter</span>(input<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>,</span>
+<span id="cb11-4">         <span class="sc" style="color: #5E5E5E;">!</span>output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">%in%</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"export"</span>, <span class="st" style="color: #20794D;">"import"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb11-5">  <span class="fu" style="color: #4758AB;">apply</span>(<span class="st" style="color: #20794D;">"input"</span>, sum)</span>
+<span id="cb11-6"></span>
+<span id="cb11-7"><span class="co" style="color: #5E5E5E;"># (移) 輸入</span></span>
+<span id="cb11-8">import <span class="ot" style="color: #003B4F;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb11-9">  <span class="fu" style="color: #4758AB;">filter</span>(input<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"industry"</span>,</span>
+<span id="cb11-10">         output<span class="sc" style="color: #5E5E5E;">$</span>type <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"import"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb11-11">  <span class="fu" style="color: #4758AB;">apply</span>(<span class="st" style="color: #20794D;">"input"</span>, sum)</span>
+<span id="cb11-12"><span class="co" style="color: #5E5E5E;"># 符号を正に</span></span>
+<span id="cb11-13">import <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="sc" style="color: #5E5E5E;">-</span>import</span>
+<span id="cb11-14"></span>
+<span id="cb11-15"><span class="co" style="color: #5E5E5E;"># (移) 輸入係数</span></span>
+<span id="cb11-16">importcoeff <span class="ot" style="color: #003B4F;">&lt;-</span> import <span class="sc" style="color: #5E5E5E;">/</span> localdemand</span>
+<span id="cb11-17"></span>
+<span id="cb11-18">I <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">eye</span>(inputcoeff) <span class="co" style="color: #5E5E5E;"># 単位行列</span></span>
+<span id="cb11-19">M <span class="ot" style="color: #003B4F;">&lt;-</span> importcoeff     <span class="co" style="color: #5E5E5E;"># 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)</span></span>
+<span id="cb11-20">A <span class="ot" style="color: #003B4F;">&lt;-</span> inputcoeff      <span class="co" style="color: #5E5E5E;"># 投入係数行列</span></span>
+<span id="cb11-21"></span>
+<span id="cb11-22"><span class="co" style="color: #5E5E5E;"># レオンチェフ逆行列</span></span>
+<span id="cb11-23">leontiefinv <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">broadcast</span>(I <span class="sc" style="color: #5E5E5E;">-</span> (<span class="dv" style="color: #AD0000;">1</span> <span class="sc" style="color: #5E5E5E;">-</span> M) <span class="sc" style="color: #5E5E5E;">*</span> A,</span>
+<span id="cb11-24">                         <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"input"</span>, <span class="st" style="color: #20794D;">"output"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb11-25">  <span class="fu" style="color: #4758AB;">solve</span>()</span>
+<span id="cb11-26"></span>
+<span id="cb11-27">leontiefinv</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   9
 # Dimensions: output [3], input [3]
@@ -2358,21 +2379,21 @@ Geodetic CRS:  JGD2011
 <h3 class="anchored" data-anchor-id="経済波及効果の算出">経済波及効果の算出</h3>
 <p><a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる最終需要がそれぞれ百万円ずつ増加する（<code>finaldemand_change_3sector.csv</code>）ケースで経済波及効果を算出しています．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;"># 最終需要変化量</span></span>
-<span id="cb9-2">finaldemand_change <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"finaldemand_change_3sector.csv"</span>,</span>
-<span id="cb9-3">                               <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>,</span>
-<span id="cb9-4">                                                <span class="at" style="color: #657422;">value_M =</span> <span class="st" style="color: #20794D;">"n"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb9-5">  <span class="fu" style="color: #4758AB;">dibble_by</span>(<span class="at" style="color: #657422;">input =</span> <span class="fu" style="color: #4758AB;">c</span>(input_type, input_name),</span>
-<span id="cb9-6">            <span class="at" style="color: #657422;">.names_sep =</span> <span class="st" style="color: #20794D;">"_"</span>)</span>
-<span id="cb9-7"></span>
-<span id="cb9-8">L <span class="ot" style="color: #003B4F;">&lt;-</span> leontiefinv         <span class="co" style="color: #5E5E5E;"># レオンチェフ逆行列</span></span>
-<span id="cb9-9">M <span class="ot" style="color: #003B4F;">&lt;-</span> importcoeff         <span class="co" style="color: #5E5E5E;"># 移輸入係数</span></span>
-<span id="cb9-10">FD <span class="ot" style="color: #003B4F;">&lt;-</span> finaldemand_change <span class="co" style="color: #5E5E5E;"># 最終需要変化量</span></span>
-<span id="cb9-11"></span>
-<span id="cb9-12"><span class="co" style="color: #5E5E5E;"># 経済波及効果</span></span>
-<span id="cb9-13">spillover <span class="ot" style="color: #003B4F;">&lt;-</span> L <span class="sc" style="color: #5E5E5E;">%*%</span> ((<span class="dv" style="color: #AD0000;">1</span> <span class="sc" style="color: #5E5E5E;">-</span> M) <span class="sc" style="color: #5E5E5E;">*</span> FD)</span>
-<span id="cb9-14"></span>
-<span id="cb9-15">spillover</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;"># 最終需要変化量</span></span>
+<span id="cb13-2">finaldemand_change <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"finaldemand_change_3sector.csv"</span>,</span>
+<span id="cb13-3">                               <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>,</span>
+<span id="cb13-4">                                                <span class="at" style="color: #657422;">value_M =</span> <span class="st" style="color: #20794D;">"n"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb13-5">  <span class="fu" style="color: #4758AB;">dibble_by</span>(<span class="at" style="color: #657422;">input =</span> <span class="fu" style="color: #4758AB;">c</span>(input_type, input_name),</span>
+<span id="cb13-6">            <span class="at" style="color: #657422;">.names_sep =</span> <span class="st" style="color: #20794D;">"_"</span>)</span>
+<span id="cb13-7"></span>
+<span id="cb13-8">L <span class="ot" style="color: #003B4F;">&lt;-</span> leontiefinv         <span class="co" style="color: #5E5E5E;"># レオンチェフ逆行列</span></span>
+<span id="cb13-9">M <span class="ot" style="color: #003B4F;">&lt;-</span> importcoeff         <span class="co" style="color: #5E5E5E;"># 移輸入係数</span></span>
+<span id="cb13-10">FD <span class="ot" style="color: #003B4F;">&lt;-</span> finaldemand_change <span class="co" style="color: #5E5E5E;"># 最終需要変化量</span></span>
+<span id="cb13-11"></span>
+<span id="cb13-12"><span class="co" style="color: #5E5E5E;"># 経済波及効果</span></span>
+<span id="cb13-13">spillover <span class="ot" style="color: #003B4F;">&lt;-</span> L <span class="sc" style="color: #5E5E5E;">%*%</span> ((<span class="dv" style="color: #AD0000;">1</span> <span class="sc" style="color: #5E5E5E;">-</span> M) <span class="sc" style="color: #5E5E5E;">*</span> FD)</span>
+<span id="cb13-14"></span>
+<span id="cb13-15">spillover</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   3
 # Dimensions: output [3]
@@ -2384,14 +2405,16 @@ Geodetic CRS:  JGD2011
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">spillover <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-2">  <span class="fu" style="color: #4758AB;">as_tibble</span>(<span class="at" style="color: #657422;">n =</span> <span class="st" style="color: #20794D;">"value_M"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-3">  <span class="fu" style="color: #4758AB;">unpack</span>(output, </span>
-<span id="cb11-4">         <span class="at" style="color: #657422;">names_sep =</span> <span class="st" style="color: #20794D;">"_"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb11-5">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(output_name, value_M,</span>
-<span id="cb11-6">             <span class="at" style="color: #657422;">fill =</span> output_name)) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb11-7">  <span class="fu" style="color: #4758AB;">geom_col</span>(<span class="at" style="color: #657422;">show.legend =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
-<span id="cb11-8">  <span class="fu" style="color: #4758AB;">scale_fill_brewer</span>(<span class="at" style="color: #657422;">palette =</span> <span class="st" style="color: #20794D;">"Set2"</span>)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;">theme_set</span>(<span class="fu" style="color: #4758AB;">theme_light</span>())</span>
+<span id="cb15-2"></span>
+<span id="cb15-3">spillover <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb15-4">  <span class="fu" style="color: #4758AB;">as_tibble</span>(<span class="at" style="color: #657422;">n =</span> <span class="st" style="color: #20794D;">"value_M"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;">unpack</span>(output, </span>
+<span id="cb15-6">         <span class="at" style="color: #657422;">names_sep =</span> <span class="st" style="color: #20794D;">"_"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb15-7">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(output_name, value_M,</span>
+<span id="cb15-8">             <span class="at" style="color: #657422;">fill =</span> output_name)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb15-9">  <span class="fu" style="color: #4758AB;">geom_col</span>(<span class="at" style="color: #657422;">show.legend =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb15-10">  <span class="fu" style="color: #4758AB;">scale_fill_brewer</span>(<span class="at" style="color: #657422;">palette =</span> <span class="st" style="color: #20794D;">"Set2"</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="https://uchidamizuki.github.io/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/plot-spillover-1.png" class="img-fluid" style="width:100.0%"></p>
 </div>
@@ -2403,15 +2426,15 @@ Geodetic CRS:  JGD2011
 <p>Rを用いた産業連関分析の方法について紹介しました．</p>
 <p>ここまでの計算を，<a href="https://github.com/UchidaMizuki/jpio">jpio</a>にパッケージ形式でまとめました．以下のように，ここまでの計算と同様の計算を行うことができます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;"># pak::pak("UchidaMizuki/jpio")</span></span>
-<span id="cb12-2"></span>
-<span id="cb12-3"><span class="co" style="color: #5E5E5E;"># 産業連関表</span></span>
-<span id="cb12-4">iotable <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"iotable_3sector_2011.csv"</span>,</span>
-<span id="cb12-5">                    <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>,</span>
-<span id="cb12-6">                                     <span class="at" style="color: #657422;">value_M =</span> <span class="st" style="color: #20794D;">"n"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
-<span id="cb12-7">  jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">as_iotable</span>()</span>
-<span id="cb12-8"></span>
-<span id="cb12-9">iotable</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;"># pak::pak("UchidaMizuki/jpio")</span></span>
+<span id="cb16-2"></span>
+<span id="cb16-3"><span class="co" style="color: #5E5E5E;"># 産業連関表</span></span>
+<span id="cb16-4">iotable <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">"iotable_3sector_2011.csv"</span>,</span>
+<span id="cb16-5">                    <span class="at" style="color: #657422;">col_types =</span> <span class="fu" style="color: #4758AB;">cols</span>(<span class="at" style="color: #657422;">.default =</span> <span class="st" style="color: #20794D;">"c"</span>,</span>
+<span id="cb16-6">                                     <span class="at" style="color: #657422;">value_M =</span> <span class="st" style="color: #20794D;">"n"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb16-7">  jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">as_iotable</span>()</span>
+<span id="cb16-8"></span>
+<span id="cb16-9">iotable</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   24
 # Dimensions: input [4], output [6]
@@ -2427,10 +2450,10 @@ Geodetic CRS:  JGD2011
  8 industry   02_secondary industry    02_secondary   161897553
  9 industry   02_secondary industry    03_tertiary     62841827
 10 industry   02_secondary finaldemand 04_finaldemand 132924323
-# … with 14 more rows</code></pre>
+# ℹ 14 more rows</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;"># 投入係数</span></span>
-<span id="cb14-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">input_coef</span>(iotable)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="co" style="color: #5E5E5E;"># 投入係数</span></span>
+<span id="cb18-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">input_coef</span>(iotable)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   9
 # Dimensions: input [3], output [3]
@@ -2446,8 +2469,8 @@ Geodetic CRS:  JGD2011
 8 industry   03_tertiary  industry    02_secondary 0.195  
 9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;"># レオンチェフ逆行列</span></span>
-<span id="cb16-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">leontief_inv</span>(iotable)</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;"># レオンチェフ逆行列</span></span>
+<span id="cb20-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">leontief_inv</span>(iotable)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   9
 # Dimensions: output [3], input [3]
@@ -2463,11 +2486,11 @@ Geodetic CRS:  JGD2011
 8 industry    03_tertiary  industry   02_secondary 0.445  
 9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="co" style="color: #5E5E5E;"># 経済波及効果</span></span>
-<span id="cb18-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">spillover_effect</span>(iotable,</span>
-<span id="cb18-3">                       <span class="fu" style="color: #4758AB;">list</span>(<span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">01_primary</span><span class="st" style="color: #20794D;">`</span> <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">1</span>,</span>
-<span id="cb18-4">                            <span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">02_secondary</span><span class="st" style="color: #20794D;">`</span> <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">1</span>,</span>
-<span id="cb18-5">                            <span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">03_tertiary</span><span class="st" style="color: #20794D;">`</span> <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">1</span>))</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;"># 経済波及効果</span></span>
+<span id="cb22-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">spillover_effect</span>(iotable,</span>
+<span id="cb22-3">                       <span class="fu" style="color: #4758AB;">list</span>(<span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">01_primary</span><span class="st" style="color: #20794D;">`</span> <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">1</span>,</span>
+<span id="cb22-4">                            <span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">02_secondary</span><span class="st" style="color: #20794D;">`</span> <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">1</span>,</span>
+<span id="cb22-5">                            <span class="st" style="color: #20794D;">`</span><span class="at" style="color: #657422;">03_tertiary</span><span class="st" style="color: #20794D;">`</span> <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">1</span>))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A dibble:   3
 # Dimensions: output [3]
@@ -2476,6 +2499,12 @@ Geodetic CRS:  JGD2011
 1 industry    01_primary   0.958
 2 industry    02_secondary 1.85 
 3 industry    03_tertiary  2.03 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;"># スカイラインチャート</span></span>
+<span id="cb24-2">jpio<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">skyline_chart</span>(iotable, </span>
+<span id="cb24-3">                    <span class="at" style="color: #657422;">ylim =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="sc" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.5</span>, <span class="cn" style="color: #8f5902;">NA</span>))</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://uchidamizuki.github.io/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/jpio-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
@@ -2489,7 +2518,7 @@ Geodetic CRS:  JGD2011
   <category>Japanese</category>
   <guid>https://uchidamizuki.github.io/posts/2022/05/ioanalysis-in-r-ja.html</guid>
   <pubDate>Mon, 30 May 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.github.io/posts/2022/05/spillover.png" medium="image" type="image/png" height="144" width="144"/>
+  <media:content url="https://uchidamizuki.github.io/posts/2022/05/skyline_chart.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 </channel>
 </rss>

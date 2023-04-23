@@ -1,9 +1,9 @@
 ---
-title: "🗾Rで産業連関分析"
+title: "Rで産業連関分析"
 lang: ja
 date: "2022-05-31"
 categories: [ioanalysis, dibble, R, Japanese]
-image: spillover.png
+image: skyline_chart.png
 ---
 
 産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．
@@ -286,6 +286,8 @@ spillover
 #| fig-height: 3
 #| out-width: 100%
 
+theme_set(theme_light())
+
 spillover |> 
   as_tibble(n = "value_M") |> 
   unpack(output, 
@@ -294,15 +296,6 @@ spillover |>
              fill = output_name)) +
   geom_col(show.legend = FALSE) +
   scale_fill_brewer(palette = "Set2")
-```
-
-```{r}
-#| label: save-plot-spillover
-#| include: false
-
-ggsave("spillover.png",
-       width = 3,
-       height = 3)
 ```
 
 ## まとめ
@@ -335,4 +328,18 @@ jpio::spillover_effect(iotable,
                        list(`01_primary` = 1,
                             `02_secondary` = 1,
                             `03_tertiary` = 1))
+
+# スカイラインチャート
+jpio::skyline_chart(iotable, 
+                    ylim = c(-0.5, NA))
+```
+
+```{r}
+#| label: save-plot-spillover
+#| include: false
+#| message: false
+
+ggsave("skyline_chart.png",
+       width = 7,
+       height = 5)
 ```
