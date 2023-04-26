@@ -104,9 +104,11 @@ WEBアプリの作成に利用したjpgridパッケージでは，このアプ�
 
 例として，ジオメトリをメッシュに変換する`geometry_to_grid()` などがあります．
 
-地域メッシュデータの分析に，WEBアプリやRパッケージなどを活用してはいかがでしょうか？
+ぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．
 
 ```{r}
+#| dev: ragg_png
+
 japan <- rnaturalearth::ne_countries(country = "japan",
                                      scale = "medium",
                                      returnclass = "sf")

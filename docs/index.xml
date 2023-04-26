@@ -502,7 +502,7 @@
 <p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
 <p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="こちら" title="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
 <p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
-<p>地域メッシュデータの分析に，WEBアプリやRパッケージなどを活用してはいかがでしょうか？</p>
+<p>ぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">japan <span class="ot" style="color: #003B4F;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">ne_countries</span>(<span class="at" style="color: #657422;">country =</span> <span class="st" style="color: #20794D;">"japan"</span>,</span>
 <span id="cb2-2">                                     <span class="at" style="color: #657422;">scale =</span> <span class="st" style="color: #20794D;">"medium"</span>,</span>

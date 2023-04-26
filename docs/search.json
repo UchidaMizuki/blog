@@ -200,7 +200,7 @@
     "href": "posts/2023/02/web-app-for-grid-square-codes-in-japan.html#おわりに",
     "title": "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）",
     "section": "おわりに",
-    "text": "おわりに\nR Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．\nWEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，こちらをご覧ください．\n例として，ジオメトリをメッシュに変換するgeometry_to_grid() などがあります．\n地域メッシュデータの分析に，WEBアプリやRパッケージなどを活用してはいかがでしょうか？\n\njapan <- rnaturalearth::ne_countries(country = \"japan\",\n                                     scale = \"medium\",\n                                     returnclass = \"sf\")\ngrid_japan <- japan |> \n  geometry_to_grid(\"80km\") |> \n  dplyr::first() |> \n  grid_as_sf(crs = sf::st_crs(japan))\n\njapan |> \n  ggplot() +\n  geom_sf() +\n  geom_sf(data = grid_japan,\n          fill = \"transparent\")"
+    "text": "おわりに\nR Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．\nWEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，こちらをご覧ください．\n例として，ジオメトリをメッシュに変換するgeometry_to_grid() などがあります．\nぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．\n\njapan <- rnaturalearth::ne_countries(country = \"japan\",\n                                     scale = \"medium\",\n                                     returnclass = \"sf\")\ngrid_japan <- japan |> \n  geometry_to_grid(\"80km\") |> \n  dplyr::first() |> \n  grid_as_sf(crs = sf::st_crs(japan))\n\njapan |> \n  ggplot() +\n  geom_sf() +\n  geom_sf(data = grid_japan,\n          fill = \"transparent\")"
   },
   {
     "objectID": "posts/2023/04/quantify-vote-disparity-between-generations.html",
