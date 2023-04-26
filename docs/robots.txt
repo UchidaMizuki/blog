@@ -1,1 +1,1 @@
-Sitemap: https://uchidamizuki.github.io/sitemap.xml
+Sitemap: https://uchidamizuki.quarto.pub/sitemap.xml
