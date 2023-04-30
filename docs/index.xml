@@ -10,7 +10,98 @@
 <atom:link href="https://uchidamizuki.quarto.pub/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.2.269</generator>
-<lastBuildDate>Sat, 22 Apr 2023 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 29 Apr 2023 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>なぜベイズの定理が重要なのか～PCR検査を例に～</title>
+  <link>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="ベイズの定理とは" class="level2">
+<h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
+<p>この記事では，コロナ禍で普及したPCR検査を例に，統計学において最も有名な定理の一つであるベイズの定理の重要性について説明したいと思います．</p>
+<p>ベイズの定理は， 式&nbsp;1 のように表すことができます．</p>
+<p><span id="eq-bayes"><img src="https://latex.codecogs.com/png.latex?%0AP(A%7CB)%20%5Cpropto%20P(B%7CA)%20P(A)%0A%5Ctag%7B1%7D"></span></p>
+<p>式&nbsp;1 は，以下のことを示しています．</p>
+<ul>
+<li>ある結果<img src="https://latex.codecogs.com/png.latex?B">が生じた場合に，それが原因<img src="https://latex.codecogs.com/png.latex?A">によるものである確率<img src="https://latex.codecogs.com/png.latex?P(A%7CB)">は</li>
+<li>ある原因<img src="https://latex.codecogs.com/png.latex?A">の生じる確率<img src="https://latex.codecogs.com/png.latex?P(A)">とある原因<img src="https://latex.codecogs.com/png.latex?A">のもとで結果<img src="https://latex.codecogs.com/png.latex?B">が生じる確率<img src="https://latex.codecogs.com/png.latex?P(B%7CA)">の掛け算に比例（<img src="https://latex.codecogs.com/png.latex?%5Cpropto">）する</li>
+</ul>
+<p>もっと身近なもので例えてみましょう． たとえば，</p>
+<ul>
+<li>原因<img src="https://latex.codecogs.com/png.latex?A">：新型コロナへの感染の有無</li>
+<li>結果<img src="https://latex.codecogs.com/png.latex?B">：PCR検査などでの診断結果</li>
+</ul>
+<p>と考えれば， 式&nbsp;1 を 式&nbsp;2 のように置き換えることができます．</p>
+<p><span id="eq-bayes-covid19"><img src="https://latex.codecogs.com/png.latex?%0AP(%E6%84%9F%E6%9F%93%E3%81%AE%E6%9C%89%E7%84%A1%7C%E8%A8%BA%E6%96%AD%E7%B5%90%E6%9E%9C)%20%5Cpropto%20P(%E8%A8%BA%E6%96%AD%E7%B5%90%E6%9E%9C%7C%E6%84%9F%E6%9F%93%E3%81%AE%E6%9C%89%E7%84%A1)%20P(%E6%84%9F%E6%9F%93%E3%81%AE%E6%9C%89%E7%84%A1)%0A%5Ctag%7B2%7D"></span></p>
+</section>
+<section id="なぜベイズの定理が重要なのか" class="level2">
+<h2 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h2>
+<p>式&nbsp;2 に基づき，ベイズの定理の重要性について考えてみましょう． 実は， 式&nbsp;2 に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， 式&nbsp;2 からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．</p>
+<table class="table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">確率</th>
+<th style="text-align: center;"><strong>医療分野で対応する指標</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?P(%E8%A8%BA%E6%96%AD%E7%B5%90%E6%9E%9C%7C%E6%84%9F%E6%9F%93%E3%81%AE%E6%9C%89%E7%84%A1)"></td>
+<td style="text-align: center;"><p><strong>検査後確率</strong>：統計学では<strong>事後確率</strong>と呼ばれる</p>
+<ul>
+<li><strong>陽性的中率</strong>：陽性と診断されたとき実際に感染</li>
+<li><strong>陰性的中率</strong>：陰性と診断されたとき実際に未感染</li>
+</ul></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?P(%E8%A8%BA%E6%96%AD%E7%B5%90%E6%9E%9C%7C%E6%84%9F%E6%9F%93%E3%81%AE%E6%9C%89%E7%84%A1)"></td>
+<td style="text-align: center;"><ul>
+<li><strong>感度</strong>：感染者が陽性と診断される確率↔︎<strong>偽陰性</strong>に関連</li>
+<li><strong>特異度</strong>：未感染者が陰性と診断される確率↔︎<strong>偽陽性</strong>に関連</li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?P(%E6%84%9F%E6%9F%93%E3%81%AE%E6%9C%89%E7%84%A1)"></td>
+<td style="text-align: center;"><p><strong>検査前確率</strong>：統計学では<strong>事前確率</strong>と呼ばれる</p>
+<ul>
+<li>検査対象者のなかでの感染者の割合</li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+<p>たとえば，以下のような状況を考えてみましょう．</p>
+<ul>
+<li>感度・特異度はともに99 %（偽陰性・偽陽性がいずれも1 %の確率で生じる）</li>
+<li>検査前確率は1 %（感染者は100 人中1 人で残りの99 人は未感染者）</li>
+</ul>
+<p>この場合，陽性と診断された場合に感染者である確率<img src="https://latex.codecogs.com/png.latex?P(%E6%84%9F%E6%9F%93%7C%E9%99%BD%E6%80%A7)">と，陽性と診断された場合に未感染者である確率<img src="https://latex.codecogs.com/png.latex?P(%E6%9C%AA%E6%84%9F%E6%9F%93%7C%E9%99%BD%E6%80%A7)">は， それぞれ 式&nbsp;3 となります．</p>
+<p><span id="eq-bayes-covid19-positive"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20P(%E6%84%9F%E6%9F%93%7C%E9%99%BD%E6%80%A7)%20%5Cpropto%20P(%E9%99%BD%E6%80%A7%7C%E6%84%9F%E6%9F%93)P(%E6%84%9F%E6%9F%93)%20&amp;=%200.99%20%5Ctimes%200.01%20=%200.0099%20%5C%5C%0A%20%20P(%E6%9C%AA%E6%84%9F%E6%9F%93%7C%E9%99%BD%E6%80%A7)%20%5Cpropto%20P(%E9%99%BD%E6%80%A7%7C%E6%9C%AA%E6%84%9F%E6%9F%93)P(%E6%9C%AA%E6%84%9F%E6%9F%93)%20&amp;=%20(1%20-%200.99)%20%5Ctimes%20(1%20-%200.01)%20=%200.0099%0A%5Cend%7Balign%7D%0A%5Ctag%7B3%7D"></span></p>
+<p>式&nbsp;3 より，<img src="https://latex.codecogs.com/png.latex?P(%E6%84%9F%E6%9F%93%7C%E9%99%BD%E6%80%A7)">と<img src="https://latex.codecogs.com/png.latex?P(%E6%9C%AA%E6%84%9F%E6%9F%93%7C%E9%99%BD%E6%80%A7)">は等しいことがわかり， 陽性的中率は50 %となります． つまり，陽性と診断された検査対象者のなかで，実際に，感染者である人は2人に1人しかいないことがわかります．</p>
+<p>このように，ベイズの定理を用いることで 「検査の精度（感度・特異度）が高くても検査前確率が低ければ陽性的中率が低くなってしまう」といった 重要な関係性が明らかとなります．</p>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>コロナ禍で普及したPCR検査を例に，ベイズの定理の重要性について説明しました．</p>
+<p>現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
+
+
+</section>
+
+ ]]></description>
+  <category>Bayes</category>
+  <category>R</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</guid>
+  <pubDate>Sat, 29 Apr 2023 15:00:00 GMT</pubDate>
+  <media:content url="https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important/bayes-theorem.png" medium="image" type="image/png" height="14" width="144"/>
+</item>
 <item>
   <title>世代間の「1票の格差」を定量化してみる</title>
   <link>https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations.html</link>

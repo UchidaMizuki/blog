@@ -25,7 +25,7 @@
     "href": "index.html",
     "title": "UchidaMizuki",
     "section": "",
-    "text": "世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n  \n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
+    "text": "なぜベイズの定理が重要なのか～PCR検査を例に～\n\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n  \n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n  \n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/2022/05/ioanalysis-in-r-ja.html",
@@ -222,5 +222,26 @@
     "title": "世代間の「1票の格差」を定量化してみる",
     "section": "まとめ",
     "text": "まとめ\nオープンデータである国勢調査と生命表を用いて，世代間の「1票の格差」を定量化してみました．\n実は，若者の投票率の低さも世代間の「1票の格差」の大きな要因となっているといわれています．今後は，世代間の「1票の格差」に対する議論を深めつつ，若者の投票率が上がるような魅力的な政策を多く打ち出していくことが必要であると考えられます．"
+  },
+  {
+    "objectID": "posts/2023/04/why-is-bayes-theorem-important.html",
+    "href": "posts/2023/04/why-is-bayes-theorem-important.html",
+    "title": "なぜベイズの定理が重要なのか～PCR検査を例に～",
+    "section": "",
+    "text": "この記事では，コロナ禍で普及したPCR検査を例に，統計学において最も有名な定理の一つであるベイズの定理の重要性について説明したいと思います．\nベイズの定理は， 式 1 のように表すことができます．\n\\[\nP(A|B) \\propto P(B|A) P(A)\n\\tag{1}\\]\n式 1 は，以下のことを示しています．\n\nある結果\\(B\\)が生じた場合に，それが原因\\(A\\)によるものである確率\\(P(A|B)\\)は\nある原因\\(A\\)の生じる確率\\(P(A)\\)とある原因\\(A\\)のもとで結果\\(B\\)が生じる確率\\(P(B|A)\\)の掛け算に比例（\\(\\propto\\)）する\n\nもっと身近なもので例えてみましょう． たとえば，\n\n原因\\(A\\)：新型コロナへの感染の有無\n結果\\(B\\)：PCR検査などでの診断結果\n\nと考えれば， 式 1 を 式 2 のように置き換えることができます．\n\\[\nP(感染の有無|診断結果) \\propto P(診断結果|感染の有無) P(感染の有無)\n\\tag{2}\\]"
+  },
+  {
+    "objectID": "posts/2023/04/why-is-bayes-theorem-important.html#なぜベイズの定理が重要なのか",
+    "href": "posts/2023/04/why-is-bayes-theorem-important.html#なぜベイズの定理が重要なのか",
+    "title": "なぜベイズの定理が重要なのか～PCR検査を例に～",
+    "section": "なぜベイズの定理が重要なのか？",
+    "text": "なぜベイズの定理が重要なのか？\n式 2 に基づき，ベイズの定理の重要性について考えてみましょう． 実は， 式 2 に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， 式 2 からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．\n\n\n\n\n\n\n\n確率\n医療分野で対応する指標\n\n\n\n\n\\(P(診断結果|感染の有無)\\)\n検査後確率：統計学では事後確率と呼ばれる\n\n陽性的中率：陽性と診断されたとき実際に感染\n陰性的中率：陰性と診断されたとき実際に未感染\n\n\n\n\\(P(診断結果|感染の有無)\\)\n\n感度：感染者が陽性と診断される確率↔︎偽陰性に関連\n特異度：未感染者が陰性と診断される確率↔︎偽陽性に関連\n\n\n\n\\(P(感染の有無)\\)\n検査前確率：統計学では事前確率と呼ばれる\n\n検査対象者のなかでの感染者の割合\n\n\n\n\nたとえば，以下のような状況を考えてみましょう．\n\n感度・特異度はともに99 %（偽陰性・偽陽性がいずれも1 %の確率で生じる）\n検査前確率は1 %（感染者は100 人中1 人で残りの99 人は未感染者）\n\nこの場合，陽性と診断された場合に感染者である確率\\(P(感染|陽性)\\)と，陽性と診断された場合に未感染者である確率\\(P(未感染|陽性)\\)は， それぞれ 式 3 となります．\n\\[\n\\begin{align}\n  P(感染|陽性) \\propto P(陽性|感染)P(感染) &= 0.99 \\times 0.01 = 0.0099 \\\\\n  P(未感染|陽性) \\propto P(陽性|未感染)P(未感染) &= (1 - 0.99) \\times (1 - 0.01) = 0.0099\n\\end{align}\n\\tag{3}\\]\n式 3 より，\\(P(感染|陽性)\\)と\\(P(未感染|陽性)\\)は等しいことがわかり， 陽性的中率は50 %となります． つまり，陽性と診断された検査対象者のなかで，実際に，感染者である人は2人に1人しかいないことがわかります．\nこのように，ベイズの定理を用いることで 「検査の精度（感度・特異度）が高くても検査前確率が低ければ陽性的中率が低くなってしまう」といった 重要な関係性が明らかとなります．"
+  },
+  {
+    "objectID": "posts/2023/04/why-is-bayes-theorem-important.html#まとめ",
+    "href": "posts/2023/04/why-is-bayes-theorem-important.html#まとめ",
+    "title": "なぜベイズの定理が重要なのか～PCR検査を例に～",
+    "section": "まとめ",
+    "text": "まとめ\nコロナ禍で普及したPCR検査を例に，ベイズの定理の重要性について説明しました．\n現実に即した計算事例に興味がある場合は， 統計局の公開しているコラムもご一読されることをおすすめします．"
   }
 ]

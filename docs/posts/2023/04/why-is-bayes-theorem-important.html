@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>UchidaMizuki - なぜベイズの定理が重要なのか～PCR検査を例に～</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../logo.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "一致なし",
+    "search-matching-documents-text": "一致した文書",
+    "search-copy-link-title": "検索へのリンクをコピー",
+    "search-hide-matches-text": "追加の検索結果を非表示",
+    "search-more-match-text": "追加の検索結果",
+    "search-more-matches-text": "追加の検索結果",
+    "search-clear-button-title": "消去",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "検索"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">UchidaMizuki</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/UchidaMizuki"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://soundcloud.com/uchidamizuki"><i class="bi bi-soundwave" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://open.spotify.com/playlist/5iG2wT4LoDMGlxKdYCRi4B?si=eecf00b8051a47af"><i class="bi bi-spotify" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">なぜベイズの定理が重要なのか～PCR検査を例に～</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Bayes</div>
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">Japanese</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">公開</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">2023年4月30日</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="ベイズの定理とは" class="level2">
+<h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
+<p>この記事では，コロナ禍で普及したPCR検査を例に，統計学において最も有名な定理の一つであるベイズの定理の重要性について説明したいと思います．</p>
+<p>ベイズの定理は， <a href="#eq-bayes">式&nbsp;1</a> のように表すことができます．</p>
+<p><span id="eq-bayes"><span class="math display">\[
+P(A|B) \propto P(B|A) P(A)
+\tag{1}\]</span></span></p>
+<p><a href="#eq-bayes">式&nbsp;1</a> は，以下のことを示しています．</p>
+<ul>
+<li>ある結果<span class="math inline">\(B\)</span>が生じた場合に，それが原因<span class="math inline">\(A\)</span>によるものである確率<span class="math inline">\(P(A|B)\)</span>は</li>
+<li>ある原因<span class="math inline">\(A\)</span>の生じる確率<span class="math inline">\(P(A)\)</span>とある原因<span class="math inline">\(A\)</span>のもとで結果<span class="math inline">\(B\)</span>が生じる確率<span class="math inline">\(P(B|A)\)</span>の掛け算に比例（<span class="math inline">\(\propto\)</span>）する</li>
+</ul>
+<p>もっと身近なもので例えてみましょう． たとえば，</p>
+<ul>
+<li>原因<span class="math inline">\(A\)</span>：新型コロナへの感染の有無</li>
+<li>結果<span class="math inline">\(B\)</span>：PCR検査などでの診断結果</li>
+</ul>
+<p>と考えれば， <a href="#eq-bayes">式&nbsp;1</a> を <a href="#eq-bayes-covid19">式&nbsp;2</a> のように置き換えることができます．</p>
+<p><span id="eq-bayes-covid19"><span class="math display">\[
+P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染の有無)
+\tag{2}\]</span></span></p>
+</section>
+<section id="なぜベイズの定理が重要なのか" class="level2">
+<h2 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h2>
+<p><a href="#eq-bayes-covid19">式&nbsp;2</a> に基づき，ベイズの定理の重要性について考えてみましょう． 実は， <a href="#eq-bayes-covid19">式&nbsp;2</a> に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， <a href="#eq-bayes-covid19">式&nbsp;2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．</p>
+<table class="table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">確率</th>
+<th style="text-align: center;"><strong>医療分野で対応する指標</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
+<td style="text-align: center;"><p><strong>検査後確率</strong>：統計学では<strong>事後確率</strong>と呼ばれる</p>
+<ul>
+<li><strong>陽性的中率</strong>：陽性と診断されたとき実際に感染</li>
+<li><strong>陰性的中率</strong>：陰性と診断されたとき実際に未感染</li>
+</ul></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
+<td style="text-align: center;"><ul>
+<li><strong>感度</strong>：感染者が陽性と診断される確率↔︎<strong>偽陰性</strong>に関連</li>
+<li><strong>特異度</strong>：未感染者が陰性と診断される確率↔︎<strong>偽陽性</strong>に関連</li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(P(感染の有無)\)</span></td>
+<td style="text-align: center;"><p><strong>検査前確率</strong>：統計学では<strong>事前確率</strong>と呼ばれる</p>
+<ul>
+<li>検査対象者のなかでの感染者の割合</li>
+</ul></td>
+</tr>
+</tbody>
+</table>
+<p>たとえば，以下のような状況を考えてみましょう．</p>
+<ul>
+<li>感度・特異度はともに99 %（偽陰性・偽陽性がいずれも1 %の確率で生じる）</li>
+<li>検査前確率は1 %（感染者は100 人中1 人で残りの99 人は未感染者）</li>
+</ul>
+<p>この場合，陽性と診断された場合に感染者である確率<span class="math inline">\(P(感染|陽性)\)</span>と，陽性と診断された場合に未感染者である確率<span class="math inline">\(P(未感染|陽性)\)</span>は， それぞれ <a href="#eq-bayes-covid19-positive">式&nbsp;3</a> となります．</p>
+<p><span id="eq-bayes-covid19-positive"><span class="math display">\[
+\begin{align}
+  P(感染|陽性) \propto P(陽性|感染)P(感染) &amp;= 0.99 \times 0.01 = 0.0099 \\
+  P(未感染|陽性) \propto P(陽性|未感染)P(未感染) &amp;= (1 - 0.99) \times (1 - 0.01) = 0.0099
+\end{align}
+\tag{3}\]</span></span></p>
+<p><a href="#eq-bayes-covid19-positive">式&nbsp;3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %となります． つまり，陽性と診断された検査対象者のなかで，実際に，感染者である人は2人に1人しかいないことがわかります．</p>
+<p>このように，ベイズの定理を用いることで 「検査の精度（感度・特異度）が高くても検査前確率が低ければ陽性的中率が低くなってしまう」といった 重要な関係性が明らかとなります．</p>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>コロナ禍で普及したPCR検査を例に，ベイズの定理の重要性について説明しました．</p>
+<p>現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "コピーしました");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "コピーしました");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/UchidaMizuki.github.io" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
