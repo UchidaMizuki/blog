@@ -1,0 +1,14 @@
+{
+  "hash": "4eae297975bf6b3fd72335f8449a6bf3",
+  "result": {
+    "markdown": "---\ntitle: \"法務省登記所備付地図データのためのRパッケージをつくりました\"\nlang: ja\ndate: \"2023-02-06\"\ndraft: true\n---\n\n\n## 法務省登記所備付地図データ（地図XML）のためのRパッケージについて\n\n\n::: {.cell}\n\n```{.r .cell-code}\ndevtools::install_github(\"UchidaMizuki/mojxmlr\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\n# library(mojxmlr)\n# library(tidyverse)\n# library(fs)\n# \n# exdir <- file_temp()\n# mojxml_find(\"12227\") |> \n#   filter(str_detect(chiban_name, \"浦安市高洲６丁目\")) |> \n#   mojxml_download(exdir = exdir)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\n# dir_ls(exdir)[[1]] |> \n#   read_mojxml() |> \n#   plot()\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

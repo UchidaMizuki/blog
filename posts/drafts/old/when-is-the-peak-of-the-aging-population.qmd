@@ -203,167 +203,167 @@ agingrate |>
 ```
 
 ```{r}
-kable_agingrate <- function(data) {
-  knitr::kable(data, "html",
-               table.attr = 'border="1"') |> 
-    HTML()
-}
-
-label_axis_agingrate <- axis_agingrate |> 
-  select(!c(axis_sd, group)) |> 
-  mutate(across(c(axis_mean, axis_lower, axis_upper),
-                round)) |> 
-  rename(`ピーク年（平均）` = axis_mean,
-         `ピーク年（下限）` = axis_lower,
-         `ピーク年（上限）` = axis_upper) |> 
-  nest(.by = city_code,
-       .key = "label_axis") |> 
-  mutate(label_axis = label_axis |> 
-           map(\(data) {
-             tags$div(
-               tags$h6("高齢化率がピークとなる年（簡易推定）"),
-               kable_agingrate(data)
-             ) |> 
-               as.character() |> 
-               HTML()
-           },
-           .progress = TRUE))
-
-label_vertex_agingrate <- vertex_agingrate |> 
-  select(!vertex_sd) |> 
-  mutate(across(c(vertex_mean, vertex_lower, vertex_upper),
-                \(x) {
-                  x |> 
-                    gtools::inv.logit() |> 
-                    scales::label_percent(accuracy = 0.1)()
-                })) |> 
-  rename(`ピーク値（平均）` = vertex_mean,
-         `ピーク値（下限）` = vertex_lower,
-         `ピーク値（上限）` = vertex_upper) |> 
-  nest(.by = city_code,
-       .key = "label_vertex") |> 
-  mutate(label_vertex = label_vertex |> 
-           map(\(data) {
-             tags$div(
-               tags$h6("高齢化率のピーク値（簡易推定）"),
-               kable_agingrate(data)
-             ) |> 
-               as.character() |> 
-               HTML()
-           },
-           .progress = TRUE))
-
-label_agingrate <- agingrate |> 
-  mutate(year = str_c(year, "年"),
-         agingrate = scales::label_percent(accuracy = 0.1)(agingrate)) |> 
-  pivot_wider(names_from = year,
-              values_from = agingrate) |> 
-  nest(.by = city_code,
-       .key = "label_agingrate") |> 
-  mutate(label_agingrate = label_agingrate |> 
-           map(\(data) {
-             tags$div(
-               tags$h6("高齢化率の推移（社人研2018年推計）"),
-               kable_agingrate(data)
-             ) |> 
-               as.character() |> 
-               HTML()
-           },
-           .progress = TRUE))
-
-admin_boundary_agingrate <- jpadminbdry::admin_boundary(2015) |> 
-  sf::st_transform(4326) |> 
-  mutate(city = city_code |> 
-           parse_city(when = "2015-10-01") |> 
-           city_desig_merge()) |>
-  group_by(city) |> 
-  summarise(do_union = FALSE) |> 
-  mutate(label_city = str_glue("{pref_name(city)} {city_name(city)}") |> 
-           map(\(x) {
-             tags$h5(x) |> 
-               as.character() |> 
-               HTML()
-           },
-           .progress = TRUE),
-         city_code = city_code(city),
-         .keep = "unused") |> 
-  inner_join(axis_agingrate |> 
-               select(city_code, axis_mean),
-             by = join_by(city_code)) |> 
-  inner_join(vertex_agingrate |> 
-               select(city_code, vertex_mean),
-             by = join_by(city_code)) |> 
-  left_join(label_axis_agingrate,
-            by = join_by(city_code)) |> 
-  left_join(label_vertex_agingrate,
-            by = join_by(city_code)) |> 
-  left_join(label_agingrate,
-            by = join_by(city_code)) |> 
-  mutate(vertex_mean = gtools::inv.logit(vertex_mean),
-         label = list(label_city, label_axis, label_vertex, label_agingrate) |> 
-           pmap(\(label_city, label_axis, label_vertex, label_agingrate) {
-             tags$div(
-               label_city,
-               label_axis,
-               label_vertex,
-               label_agingrate
-             ) |> 
-               as.character() |> 
-               HTML()
-           },
-           .progress = TRUE),
-         .keep = "unused")
-
-```
-
-```{r}
-
-set_view_agingrate <- partial(setView,
-                              lng = 139,
-                              lat = 38,
-                              zoom = 5L)
-
-pal <- colorNumeric(RColorBrewer::brewer.pal(11, "Spectral"),
-                    domain = admin_boundary_agingrate$axis_mean,
-                    reverse = TRUE)
-leaflet(admin_boundary_agingrate) |>
-  addTiles() |> 
-  addPolygons(color = "dimgray",
-              weight = 0.5,
-              fillColor = ~pal(axis_mean),
-              fillOpacity = 0.75,
-              label = ~list_c(label)) |> 
-  addLegend(pal = pal,
-            values = ~axis_mean,
-            title = "高齢化率のピーク年（平均）") |> 
-  set_view_agingrate()
+# kable_agingrate <- function(data) {
+#   knitr::kable(data, "html",
+#                table.attr = 'border="1"') |> 
+#     HTML()
+# }
+# 
+# label_axis_agingrate <- axis_agingrate |> 
+#   select(!c(axis_sd, group)) |> 
+#   mutate(across(c(axis_mean, axis_lower, axis_upper),
+#                 round)) |> 
+#   rename(`ピーク年（平均）` = axis_mean,
+#          `ピーク年（下限）` = axis_lower,
+#          `ピーク年（上限）` = axis_upper) |> 
+#   nest(.by = city_code,
+#        .key = "label_axis") |> 
+#   mutate(label_axis = label_axis |> 
+#            map(\(data) {
+#              tags$div(
+#                tags$h6("高齢化率がピークとなる年（簡易推定）"),
+#                kable_agingrate(data)
+#              ) |> 
+#                as.character() |> 
+#                HTML()
+#            },
+#            .progress = TRUE))
+# 
+# label_vertex_agingrate <- vertex_agingrate |> 
+#   select(!vertex_sd) |> 
+#   mutate(across(c(vertex_mean, vertex_lower, vertex_upper),
+#                 \(x) {
+#                   x |> 
+#                     gtools::inv.logit() |> 
+#                     scales::label_percent(accuracy = 0.1)()
+#                 })) |> 
+#   rename(`ピーク値（平均）` = vertex_mean,
+#          `ピーク値（下限）` = vertex_lower,
+#          `ピーク値（上限）` = vertex_upper) |> 
+#   nest(.by = city_code,
+#        .key = "label_vertex") |> 
+#   mutate(label_vertex = label_vertex |> 
+#            map(\(data) {
+#              tags$div(
+#                tags$h6("高齢化率のピーク値（簡易推定）"),
+#                kable_agingrate(data)
+#              ) |> 
+#                as.character() |> 
+#                HTML()
+#            },
+#            .progress = TRUE))
+# 
+# label_agingrate <- agingrate |> 
+#   mutate(year = str_c(year, "年"),
+#          agingrate = scales::label_percent(accuracy = 0.1)(agingrate)) |> 
+#   pivot_wider(names_from = year,
+#               values_from = agingrate) |> 
+#   nest(.by = city_code,
+#        .key = "label_agingrate") |> 
+#   mutate(label_agingrate = label_agingrate |> 
+#            map(\(data) {
+#              tags$div(
+#                tags$h6("高齢化率の推移（社人研2018年推計）"),
+#                kable_agingrate(data)
+#              ) |> 
+#                as.character() |> 
+#                HTML()
+#            },
+#            .progress = TRUE))
+# 
+# admin_boundary_agingrate <- jpadminbdry::admin_boundary(2015) |> 
+#   sf::st_transform(4326) |> 
+#   mutate(city = city_code |> 
+#            parse_city(when = "2015-10-01") |> 
+#            city_desig_merge()) |>
+#   group_by(city) |> 
+#   summarise(do_union = FALSE) |> 
+#   mutate(label_city = str_glue("{pref_name(city)} {city_name(city)}") |> 
+#            map(\(x) {
+#              tags$h5(x) |> 
+#                as.character() |> 
+#                HTML()
+#            },
+#            .progress = TRUE),
+#          city_code = city_code(city),
+#          .keep = "unused") |> 
+#   inner_join(axis_agingrate |> 
+#                select(city_code, axis_mean),
+#              by = join_by(city_code)) |> 
+#   inner_join(vertex_agingrate |> 
+#                select(city_code, vertex_mean),
+#              by = join_by(city_code)) |> 
+#   left_join(label_axis_agingrate,
+#             by = join_by(city_code)) |> 
+#   left_join(label_vertex_agingrate,
+#             by = join_by(city_code)) |> 
+#   left_join(label_agingrate,
+#             by = join_by(city_code)) |> 
+#   mutate(vertex_mean = gtools::inv.logit(vertex_mean),
+#          label = list(label_city, label_axis, label_vertex, label_agingrate) |> 
+#            pmap(\(label_city, label_axis, label_vertex, label_agingrate) {
+#              tags$div(
+#                label_city,
+#                label_axis,
+#                label_vertex,
+#                label_agingrate
+#              ) |> 
+#                as.character() |> 
+#                HTML()
+#            },
+#            .progress = TRUE),
+#          .keep = "unused")
 
 ```
 
 ```{r}
 
-pal <- colorNumeric(RColorBrewer::brewer.pal(11, "Spectral"),
-                    domain = admin_boundary_agingrate$vertex_mean,
-                    reverse = TRUE)
-leaflet(admin_boundary_agingrate) |>
-  addTiles() |> 
-  addPolygons(color = "dimgray",
-              weight = 0.5,
-              fillColor = ~pal(vertex_mean),
-              fillOpacity = 0.75,
-              label = ~list_c(label)) |> 
-  addLegend(pal = pal,
-            values = ~vertex_mean,
-            title = "高齢化率のピーク値（平均）") |> 
-  set_view_agingrate()
+# set_view_agingrate <- partial(setView,
+#                               lng = 139,
+#                               lat = 38,
+#                               zoom = 5L)
+# 
+# pal <- colorNumeric(RColorBrewer::brewer.pal(11, "Spectral"),
+#                     domain = admin_boundary_agingrate$axis_mean,
+#                     reverse = TRUE)
+# leaflet(admin_boundary_agingrate) |>
+#   addTiles() |> 
+#   addPolygons(color = "dimgray",
+#               weight = 0.5,
+#               fillColor = ~pal(axis_mean),
+#               fillOpacity = 0.75,
+#               label = ~list_c(label)) |> 
+#   addLegend(pal = pal,
+#             values = ~axis_mean,
+#             title = "高齢化率のピーク年（平均）") |> 
+#   set_view_agingrate()
 
 ```
 
 ```{r}
 
-axis_agingrate
+# pal <- colorNumeric(RColorBrewer::brewer.pal(11, "Spectral"),
+#                     domain = admin_boundary_agingrate$vertex_mean,
+#                     reverse = TRUE)
+# leaflet(admin_boundary_agingrate) |>
+#   addTiles() |> 
+#   addPolygons(color = "dimgray",
+#               weight = 0.5,
+#               fillColor = ~pal(vertex_mean),
+#               fillOpacity = 0.75,
+#               label = ~list_c(label)) |> 
+#   addLegend(pal = pal,
+#             values = ~vertex_mean,
+#             title = "高齢化率のピーク値（平均）") |> 
+#   set_view_agingrate()
 
-vertex_agingrate |> 
-  arrange(-vertex_sd)
+```
+
+```{r}
+
+# axis_agingrate
+# 
+# vertex_agingrate |> 
+#   arrange(-vertex_sd)
 
 ```

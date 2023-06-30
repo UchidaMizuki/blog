@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>UchidaMizuki - なぜベイズの定理が重要なのか～PCR検査を例に～</title>
+<title>UchidaMizuki - 人は直観的にベイズの定理を使っている？</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -121,13 +121,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">なぜベイズの定理が重要なのか～PCR検査を例に～</h1>
-                                <div class="quarto-categories">
-                <div class="quarto-category">Bayes</div>
-                <div class="quarto-category">R</div>
-                <div class="quarto-category">Japanese</div>
-              </div>
-                  </div>
+      <h1 class="title">人は直観的にベイズの定理を使っている？</h1>
+                      </div>
   </div>
     
   
@@ -137,7 +132,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2023年4月30日</p>
+        <p class="date">2023年3月29日</p>
       </div>
     </div>
     
@@ -157,7 +152,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 <section id="ベイズの定理とは" class="level2">
 <h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
-<p>この記事では，コロナ禍で普及したPCR検査を例に，統計学において最も有名な定理の一つであるベイズの定理の重要性について説明したいと思います．</p>
+<p>ベイズの定理は，統計学において最も有名な定理の一つですが，統計分析などを行ったことのない方々にとっては，あまり馴染みのないものかもしれません．</p>
 <p>ベイズの定理は， <a href="#eq-bayes">式&nbsp;1</a> のように表すことができます．</p>
 <p><span id="eq-bayes"><span class="math display">\[
 P(A|B) \propto P(B|A) P(A)
@@ -176,10 +171,10 @@ P(A|B) \propto P(B|A) P(A)
 <p><span id="eq-bayes-covid19"><span class="math display">\[
 P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染の有無)
 \tag{2}\]</span></span></p>
-</section>
-<section id="なぜベイズの定理が重要なのか" class="level2">
-<h2 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h2>
-<p><a href="#eq-bayes-covid19">式&nbsp;2</a> に基づき，ベイズの定理の重要性について考えてみましょう． 実は， <a href="#eq-bayes-covid19">式&nbsp;2</a> に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， <a href="#eq-bayes-covid19">式&nbsp;2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．</p>
+<p>以下では， <a href="#eq-bayes-covid19">式&nbsp;2</a> に基づき，ベイズの定理の重要性について説明します．</p>
+<section id="なぜベイズの定理が重要なのか" class="level3">
+<h3 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h3>
+<p><a href="#eq-bayes-covid19">式&nbsp;2</a> に示したベイズの定理に出てくる3つの確率は，下の表のように，どれも非常に重要な指標と対応しています． そして， <a href="#eq-bayes-covid19">式&nbsp;2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかるのです．</p>
 <table class="table">
 <colgroup>
 <col style="width: 29%">
@@ -228,15 +223,37 @@ P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染
   P(未感染|陽性) \propto P(陽性|未感染)P(未感染) &amp;= (1 - 0.99) \times (1 - 0.01) = 0.0099
 \end{align}
 \tag{3}\]</span></span></p>
-<p><a href="#eq-bayes-covid19-positive">式&nbsp;3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %となります． つまり，陽性と診断された検査対象者のなかで，実際に，感染者である人は2人に1人しかいないことがわかります．</p>
-<p>このように，ベイズの定理を用いることで 「検査の精度（感度・特異度）が高くても検査前確率が低ければ陽性的中率が低くなってしまう」といった 重要な関係性が明らかとなります．</p>
+<p><a href="#eq-bayes-covid19-positive">式&nbsp;3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %程度となってしまいます．</p>
+<p>さらに現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
 </section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>コロナ禍で普及したPCR検査を例に，ベイズの定理の重要性について説明しました．</p>
-<p>現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
+</section>
+<section id="人は直観的にベイズの定理を使っている" class="level2">
+<h2 class="anchored" data-anchor-id="人は直観的にベイズの定理を使っている">人は直観的にベイズの定理を使っている？</h2>
+<p>ベイズの定理が示す「検査の精度が高くても陽性的中率が低くなる可能性がある」といった事実は，はじめ多くの人にちょっとした驚きを与えるものかもしれません．そして，こうしたことを踏まえれば，多くの人はベイズの定理をほとんど理解していない，と思われるかもしれません．</p>
+<p>しかし，私たちはベイズ更新と呼ばれる手続きを通じて，日頃から無意識に，ベイズの定理を使っている可能性があるのです．以下では，コイントスを題材に，ベイズ更新について説明します．</p>
+<p>コイントスの場合には，</p>
+<ul>
+<li>原因<span class="math inline">\(A\)</span>：コインの歪み</li>
+<li>結果<span class="math inline">\(B\)</span>：コイントスの表・裏</li>
+</ul>
+<p>と考えることができ， <a href="#eq-bayes">式&nbsp;1</a> を <a href="#eq-bayes-coin-toss">式&nbsp;4</a> のように置き換えることができます． ここで重要な仮定は，コインの見た目だけでは，コインが歪んでいるかどうか（原因<span class="math inline">\(A\)</span>）がわからず， 実際にコイントスをして，その結果を見る必要があるということです． （また，どのコインも必ず表と裏が決まっているものとしましょう）</p>
+<p><span id="eq-bayes-coin-toss"><span class="math display">\[
+P(コインの歪み|コイントスの表・裏) \propto P(コイントスの表・裏|コインの歪み) P(コインの歪み)
+\tag{4}\]</span></span></p>
+<section id="ベイズ更新とは" class="level3">
+<h3 class="anchored" data-anchor-id="ベイズ更新とは">ベイズ更新とは？</h3>
+<p>ベイズ更新とは，結果（コイントスの表・裏）から原因（コインの歪み）の従う確率分布を</p>
+</section>
+<section id="コイントスの思考実験" class="level3">
+<h3 class="anchored" data-anchor-id="コイントスの思考実験">コイントスの思考実験</h3>
+<p>あなたは，財布から歪みのないように見えるコインを1枚選んでコイントスをすることにしました．</p>
+<p>まず，あなたが，コインを3回投げると，表が1回・裏が2回出ました．</p>
+<p><span class="math display">\[
+P(B|A) \propto P(A|B) P(B)
+\]</span></p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
