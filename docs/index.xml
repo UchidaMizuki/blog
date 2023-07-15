@@ -2615,7 +2615,7 @@ font-style: inherit;">"女性"</span>))</span></code></pre></div>
 <section id="ステップ2統計データを取得ダウンロードする" class="level3">
 <h3 class="anchored" data-anchor-id="ステップ2統計データを取得ダウンロードする">ステップ2：統計データを取得（ダウンロード）する</h3>
 <p>データの抽出後に<code>collect()</code> を適用することで統計データを取得することができます．また，<code>collect()</code>の<code>n</code>引数で，取得するデータの列を名付けることができます．ここでは，<code>"person"</code>と名付けます．</p>
-<p>取得したデータ<code>data_sleeptime_2015</code>を見ると，（たくさんの列が存在する）分析しづらいデータになっていることがわかります．<strong>ステップα</strong>で，データ取得とデータ整形を同時に行う方法について説明します．</p>
+<p>取得したデータ<code>data_sleeptime_2015</code>を見ると，（たくさんの列が存在する）分析しづらいデータになっていることがわかります．<strong>ステップ2+α</strong>で，データ取得とデータ整形を同時に行う方法について説明します．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">data_sleeptime_2015 <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -2976,8 +2976,8 @@ font-style: inherit;">10</span>))</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="ステップαデータ取得とデータ整形を同時に行う" class="level3">
-<h3 class="anchored" data-anchor-id="ステップαデータ取得とデータ整形を同時に行う">ステップα：データ取得とデータ整形を同時に行う</h3>
+<section id="ステップ2αデータ取得とデータ整形を同時に行う" class="level3">
+<h3 class="anchored" data-anchor-id="ステップ2αデータ取得とデータ整形を同時に行う">ステップ2+α：データ取得とデータ整形を同時に行う</h3>
 <p>jpstatでe-Statのデータを取得すると，パラメータ名（<code>cat01</code>など）と各項目の列名（<code>code</code>， <code>name</code>など）から列（<code>cat01_code</code>，<code>cat01_name</code>など）が作成されます．</p>
 <p>jpstatでは，<code>rekey()</code> 関数によりパラメータ名を変更したり，<code>select()</code> 関数で項目別に列を選択したりすることでデータを整理することができます<sup>5</sup>．以下のように書くことで，すっきりとしたデータを作成することができます．</p>
 <div class="cell">
