@@ -1728,18 +1728,25 @@ background-color: null;
 font-style: inherit;">library</span>(jpstat)</span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">appId <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+font-style: inherit;"># ご自身のappIdに置き換えてください</span></span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">"Your e-Stat appId"</span></span></code></pre></div>
+font-style: inherit;">Sys.setenv</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ESTAT_API_KEY =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Your appId"</span>)</span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">census <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">estat</span>(appId, <span class="st" style="color: #20794D;
+font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"https://www.e-stat.go.jp/dbview?sid=0003410380"</span>)</span>
 <span id="cb3-2"></span>
@@ -2142,22 +2149,24 @@ font-style: inherit;">head</span>(pop))</span></code></pre></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(gganimate)</span>
-<span id="cb6-2"></span>
-<span id="cb6-3"><span class="co" style="color: #5E5E5E;
+font-style: inherit;">library</span>(gganimate)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'gganimate' was built under R version 4.3.1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 年齢層を表示するためのデータ</span></span>
-<span id="cb6-4">agegroup <span class="ot" style="color: #003B4F;
+<span id="cb8-2">agegroup <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_by</span>(sex, agegroup) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb6-6">  <span class="fu" style="color: #4758AB;
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2166,14 +2175,14 @@ background-color: null;
 font-style: inherit;">mean</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">as.integer</span>(ageclass)),</span>
-<span id="cb6-7">            <span class="at" style="color: #657422;
+<span id="cb8-5">            <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-8">  <span class="fu" style="color: #4758AB;
+<span id="cb8-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2188,7 +2197,7 @@ background-color: null;
 font-style: inherit;">~</span> <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1.25</span>,</span>
-<span id="cb6-9">                           sex <span class="sc" style="color: #5E5E5E;
+<span id="cb8-7">                           sex <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
@@ -2199,17 +2208,17 @@ background-color: null;
 font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.25</span>))</span>
-<span id="cb6-10"></span>
-<span id="cb6-11">poppyramid <span class="ot" style="color: #003B4F;
+<span id="cb8-8"></span>
+<span id="cb8-9">poppyramid <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-12">  </span>
-<span id="cb6-13">  <span class="co" style="color: #5E5E5E;
+<span id="cb8-10">  </span>
+<span id="cb8-11">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 人口ピラミッドを作成するため男性人口をマイナスに変換</span></span>
-<span id="cb6-14">  <span class="fu" style="color: #4758AB;
+<span id="cb8-12">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2224,21 +2233,21 @@ background-color: null;
 font-style: inherit;">-</span>pop, pop)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-15">  </span>
-<span id="cb6-16">  <span class="fu" style="color: #4758AB;
+<span id="cb8-13">  </span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(ageclass, pop,</span>
-<span id="cb6-17">             <span class="at" style="color: #657422;
+<span id="cb8-15">             <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">group =</span> sex,</span>
-<span id="cb6-18">             <span class="at" style="color: #657422;
+<span id="cb8-16">             <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fill =</span> agegroup)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-19">  <span class="fu" style="color: #4758AB;
+<span id="cb8-17">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_col</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2247,43 +2256,43 @@ background-color: null;
 font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-20">  <span class="fu" style="color: #4758AB;
+<span id="cb8-18">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_text</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> agegroup,</span>
-<span id="cb6-21">            <span class="fu" style="color: #4758AB;
+<span id="cb8-19">            <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">label =</span> agegroup,</span>
-<span id="cb6-22">                <span class="at" style="color: #657422;
+<span id="cb8-20">                <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">hjust =</span> hjust),</span>
-<span id="cb6-23">            <span class="at" style="color: #657422;
+<span id="cb8-21">            <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-24">  <span class="fu" style="color: #4758AB;
+<span id="cb8-22">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_x_discrete</span>(<span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">NULL</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-25">  <span class="fu" style="color: #4758AB;
+<span id="cb8-23">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_y_continuous</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"人口［千人］"</span>,</span>
-<span id="cb6-26">                     </span>
-<span id="cb6-27">                     <span class="co" style="color: #5E5E5E;
+<span id="cb8-24">                     </span>
+<span id="cb8-25">                     <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># ラベルを絶対値・千人単位に変換</span></span>
-<span id="cb6-28">                     <span class="at" style="color: #657422;
+<span id="cb8-26">                     <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">labels =</span> purrr<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2300,7 +2309,7 @@ background-color: null;
 font-style: inherit;">1e-3</span>), abs)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-29">  <span class="fu" style="color: #4758AB;
+<span id="cb8-27">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">scale_fill_brewer</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2309,24 +2318,24 @@ background-color: null;
 font-style: inherit;">"Set2"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-30">  <span class="fu" style="color: #4758AB;
+<span id="cb8-28">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-31">  <span class="fu" style="color: #4758AB;
+<span id="cb8-29">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> sex,</span>
-<span id="cb6-32">             <span class="at" style="color: #657422;
+<span id="cb8-30">             <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">scales =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"free_x"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-33">  <span class="fu" style="color: #4758AB;
+<span id="cb8-31">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2335,7 +2344,7 @@ background-color: null;
 font-style: inherit;">"{frame_time %/% 5 * 5}年"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-34">  <span class="fu" style="color: #4758AB;
+<span id="cb8-32">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2348,36 +2357,36 @@ background-color: null;
 font-style: inherit;">0.5</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb6-35">  </span>
-<span id="cb6-36">  <span class="co" style="color: #5E5E5E;
+<span id="cb8-33">  </span>
+<span id="cb8-34">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># アニメーションに変換</span></span>
-<span id="cb6-37">  <span class="fu" style="color: #4758AB;
+<span id="cb8-35">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">transition_time</span>(year)</span>
-<span id="cb6-38"></span>
-<span id="cb6-39"><span class="co" style="color: #5E5E5E;
+<span id="cb8-36"></span>
+<span id="cb8-37"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 幅・高さを変更</span></span>
-<span id="cb6-40"><span class="fu" style="color: #4758AB;
+<span id="cb8-38"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">animate</span>(poppyramid, </span>
-<span id="cb6-41">        <span class="at" style="color: #657422;
+<span id="cb8-39">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">800</span>,</span>
-<span id="cb6-42">        <span class="at" style="color: #657422;
+<span id="cb8-40">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">600</span>,</span>
-<span id="cb6-43">        <span class="at" style="color: #657422;
+<span id="cb8-41">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">res =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">150</span>,</span>
-<span id="cb6-44">        <span class="at" style="color: #657422;
+<span id="cb8-42">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">renderer =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2477,18 +2486,22 @@ font-style: inherit;">library</span>(jpstat)</span></code></pre></div>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># ご自身のappIdに置き換えてください</span></span>
-<span id="cb3-2">appId <span class="ot" style="color: #003B4F;
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+font-style: inherit;">Sys.setenv</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">"Your appId"</span></span></code></pre></div>
+font-style: inherit;">ESTAT_API_KEY =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Your appId"</span>)</span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">estat_sleeptime_2015 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">estat</span>(appId, <span class="st" style="color: #20794D;
+font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"https://www.e-stat.go.jp/dbview?sid=0003224282"</span>)</span></code></pre></div>
 </div>
@@ -3373,7 +3386,7 @@ font-style: inherit;">n.dodge =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>))</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="768"></p>
+<p><img src="https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </section>

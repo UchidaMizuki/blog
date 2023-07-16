@@ -68,15 +68,6 @@ library(jpstat)
 
 ```
 
-```{r}
-#| label: setup-hidden
-#| echo: false
-
-appId <- keyring::key_get("estat-api")
-# theme_set(theme_gray(base_family = "HiraKakuProN-W3")) 
-
-```
-
 ### ステップ1：メタ情報（表示項目）を表示・抽出する
 
 e-Stat APIを用いるためには，事前に[**ユーザ登録**](https://www.e-stat.go.jp/mypage/user/preregister)を行い，**`appId` と呼ばれるアプリケーションIDを取得**する必要があります[^2]．
@@ -98,14 +89,14 @@ e-Stat APIを用いるためには，事前に[**ユーザ登録**](https://www.
 #| eval: false
 
 # ご自身のappIdに置き換えてください
-appId <- "Your appId"
+Sys.setenv(ESTAT_API_KEY = "Your appId")
 
 ```
 
 ```{r}
 #| label: get-meta-data
 
-estat_sleeptime_2015 <- estat(appId, "https://www.e-stat.go.jp/dbview?sid=0003224282")
+estat_sleeptime_2015 <- estat(statsDataId = "https://www.e-stat.go.jp/dbview?sid=0003224282")
 
 ```
 
