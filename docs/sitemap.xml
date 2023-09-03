@@ -1,43 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://uchidamizuki.quarto.pub/about.html</loc>
-    <lastmod>2023-07-06T14:56:36.086Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/index.html</loc>
-    <lastmod>2023-07-15T09:44:38.921Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/posts/2022/05/ioanalysis-in-r-ja.html</loc>
-    <lastmod>2023-07-06T14:56:38.522Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</loc>
-    <lastmod>2023-07-06T14:56:39.608Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/posts/2022/06/use-parquet-instead-of-csv-ja.html</loc>
-    <lastmod>2023-07-06T14:56:40.667Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r.html</loc>
-    <lastmod>2023-07-15T09:41:38.502Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</loc>
-    <lastmod>2023-07-15T09:44:38.140Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</loc>
-    <lastmod>2023-07-06T14:56:44.882Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/posts/2023/09/presentation-on-e-stat-api-at-tokyor.html</loc>
+    <lastmod>2023-09-03T14:58:49.248Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations.html</loc>
-    <lastmod>2023-07-06T14:56:46.020Z</lastmod>
+    <lastmod>2023-09-03T14:58:47.529Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</loc>
+    <lastmod>2023-09-03T14:58:44.392Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2022/06/use-parquet-instead-of-csv-ja.html</loc>
+    <lastmod>2023-09-03T14:58:41.979Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2022/05/ioanalysis-in-r-ja.html</loc>
+    <lastmod>2023-09-03T14:58:39.845Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/about.html</loc>
+    <lastmod>2023-09-03T14:58:37.332Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/index.html</loc>
+    <lastmod>2023-09-03T14:58:38.451Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</loc>
+    <lastmod>2023-09-03T14:58:40.818Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r.html</loc>
+    <lastmod>2023-09-03T14:58:43.301Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</loc>
+    <lastmod>2023-09-03T14:58:45.407Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</loc>
-    <lastmod>2023-07-06T14:56:46.838Z</lastmod>
+    <lastmod>2023-09-03T14:58:48.383Z</lastmod>
   </url>
 </urlset>

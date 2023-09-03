@@ -1,0 +1,7 @@
+---
+title: "RでAICの雰囲気をつかむ"
+lang: ja
+categories: [AIC, R, Japanese]
+date: "2023-09-03"
+draft: true
+---

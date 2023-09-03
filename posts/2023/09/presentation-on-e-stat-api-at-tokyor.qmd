@@ -1,0 +1,95 @@
+---
+title: "e-Stat APIについてTokyo.Rで発表しました"
+lang: ja
+categories: [e-Stat, LT, Tokyo.R, R, Japanese]
+date: "2023-09-03"
+image: https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true
+---
+
+## 発表概要
+
+[第108回R勉強会\@東京（#TokyoR）](https://tokyor.connpass.com/event/292545/)のLTにてe-Stat APIを利用するためのRパッケージであるjpstatパッケージについて紹介しました[^1]．
+
+[^1]: 第108回Tokyo.Rのイベント申込者はちょうど108人だったようです．
+
+LTとは，Lightning Talks（ライトニングトーク）の略で，短時間のプレゼンテーションのことです．Tokyo.Rでは，1人あたりの発表時間は5分でした．
+
+当日のプレゼンテーション資料は[こちら](https://uchidamizuki.github.io/slide-estat-with-r/)です．
+
+```{=html}
+<iframe src="https://uchidamizuki.github.io/slide-estat-with-r/" width = "800" height = "500"></iframe>
+```
+## スライド作成について
+
+これまでQuartoをGitHubのREADMEやサイト作成などに活用してきましたが，今回，はじめてスライド作成に挑戦してみました．
+
+以下のページを参考にしながら，自作パッケージのjpstatを紹介するスライドを試しに作ってみたところ，案外，簡単にスライドが作成でき，折角なのでR勉強会で発表してみました．
+
+-   <https://quarto.org/docs/presentations/>
+
+-   <https://quarto.org/docs/presentations/revealjs/>
+
+ソースコードは[こちら](https://github.com/UchidaMizuki/slide-estat-with-r)です．Quartoは，[こちら](https://github.com/UchidaMizuki/slide-estat-with-r/blob/main/slide-estat-with-r.qmd)のqmd（Quarto Markdown）ファイルで記述されてます．
+
+以下では，Quartoとreveal.jsによるスライド作成で今回，特に便利と感じた機能を紹介します．
+
+### 便利機能①：[コードのハイライティング](https://quarto.org/docs/presentations/revealjs/#line-highlighting)機能
+
+以下のように`code-line-numbers` を指定することでコードの一部の行をハイライトすることができます．
+
+ここでは，`code-line-numbers: "2-3"` で2・3行目をハイライトしています．さらに，`code-line-numbers: "1|2-3"` のように，`|` で区切ることでハイライト先を推移させることもできるようです．
+
+ハイライト機能は，一部のコードのみに注目を集めたい場合に，非常に便利です．
+
+```{{r}}
+#| echo: true
+#| code-line-numbers: "2-3"
+
+estat(statsDataId = "0003343671") |> 
+  activate(cat01) |> 
+  filter(str_detect(name, "チョコレート"))
+```
+
+### 便利機能②：[自動アニメーション](https://quarto.org/docs/presentations/revealjs/advanced.html#auto-animate)・フェードイン機能
+
+`##` から始まる各スライドのタイトルの右などに`{auto-animate="true"}` をつけることで次のページの記述と共通する記述を自動で探し出してアニメーション化してくれます．
+
+前後のスライドで記述の繰り返しがある場合には，自動アニメーション機能を使うことで文脈のつながりがわかりやすくなるのではないかと感じました．
+
+また，`::: {.fragment .fade-in}` を使用することで，スライドの途中で記述を表示させることもできます．こちらも特定の記述に注目してほしい場合に有用かと思います．
+
+### 便利機能③：タイトル・フッター設定機能
+
+タイトルスライドや全スライド共通のフッターは，qmdファイルの上部に以下のように記載することで自動でレイアウトされます．
+
+ここでは，タイトル以外にも，サブタイトル・著者・日付も設定していますが，これらのフォントサイズなどを別途指定しなくても大丈夫でした．
+
+また，今回はreveal.jsのデフォルトのテーマを使用しましたが，[こちら](https://quarto.org/docs/presentations/revealjs/themes.html)のようにテーマを変更することもできます．
+
+```         
+---
+title: "e-Stat🤝R"
+subtitle: "Tokyo.R #108"
+author: UchidaMizuki
+date: "2023-09-02"
+footer: <https://github.com/UchidaMizuki/jpstat>
+format: 
+  revealjs
+---
+```
+
+## まとめ
+
+Quartoを使うことでLT発表にちょうどよいプレゼンテーション資料を簡単につくれることが実感できました．
+
+ちなみに，これまでもQuartoで作成したページのGitHub Pagesへの公開を行ってきましたが，今回のreveal.jsのスライドも[Publish Command](https://quarto.org/docs/publishing/github-pages.html#publish-command)を利用することで簡単に公開することができました[^2]．
+
+[^2]: GitHub Actionsによる自動更新はうまくいかなったため，今回は，RStudioのTerminalから手動で`quarto publish gh-pages` を実行しました．
+
+さらに余談ですが，GitHub Pagesなどで挙げた資料は，以下のようにすればQuartoの記事に埋め込むこともできます．
+
+```` html
+```{=html}
+<iframe src="https://uchidamizuki.github.io/slide-estat-with-r/" width = "800" height = "500"></iframe>
+```
+````

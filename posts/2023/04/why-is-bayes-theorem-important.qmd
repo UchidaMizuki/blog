@@ -1,5 +1,5 @@
 ---
-title: "なぜベイズの定理が重要なのか～PCR検査を例に～"
+title: "なぜベイズの定理が重要なのかーPCR検査を例にー"
 lang: ja
 categories: [Bayes, R, Japanese]
 date: "2023-04-30"

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>UchidaMizuki - 地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid）</title>
+<title>UchidaMizuki - e-Stat APIについてTokyo.Rで発表しました</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -154,10 +154,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid）</h1>
+      <h1 class="title">e-Stat APIについてTokyo.Rで発表しました</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">Shiny</div>
-                <div class="quarto-category">jpgrid</div>
+                <div class="quarto-category">e-Stat</div>
+                <div class="quarto-category">LT</div>
+                <div class="quarto-category">Tokyo.R</div>
                 <div class="quarto-category">R</div>
                 <div class="quarto-category">Japanese</div>
               </div>
@@ -171,7 +172,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2023年2月16日</p>
+        <p class="date">2023年9月3日</p>
       </div>
     </div>
     
@@ -189,112 +190,79 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<section id="このアプリについて" class="level2">
-<h2 class="anchored" data-anchor-id="このアプリについて">このアプリについて</h2>
-<p><a href="https://shiny.rstudio.com">R Shiny</a>を使って<a href="https://uchidamizuki.shinyapps.io/jpgrid-app/">地域メッシュデータを使うためのWEBアプリ</a>をつくってみました．</p>
-<p><a href="https://www.stat.go.jp/data/mesh/m_tuite.html">地域メッシュ</a>とは，経度・緯度にもとづいて（日本の）地域をほぼ正方形のメッシュに分割したもので，統計データの集計区分としてよく利用されています．</p>
-<p>今回つくったアプリは，Rパッケージの<a href="https://uchidamizuki.github.io/jpgrid/">jpgrid</a>パッケージの機能の一部を提供しています． このアプリの提供機能は以下の通りです．</p>
-<ol type="1">
-<li>市区町村別の地域メッシュデータ生成</li>
-<li>メッシュ文字列を含む表データから地域メッシュデータ生成</li>
-<li>経度・緯度を含む表データから地域メッシュデータ生成</li>
-</ol>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="../../..\posts/2023/02/images/about.png" class="img-fluid figure-img"></a></p>
-<figcaption class="figure-caption">アプリの外観（クリックするとアプリが開きます）</figcaption>
-</figure>
-</div>
+<section id="発表概要" class="level2">
+<h2 class="anchored" data-anchor-id="発表概要">発表概要</h2>
+<p><a href="https://tokyor.connpass.com/event/292545/">第108回R勉強会@東京（#TokyoR）</a>のLTにてe-Stat APIを利用するためのRパッケージであるjpstatパッケージについて紹介しました<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
+<p>LTとは，Lightning Talks（ライトニングトーク）の略で，短時間のプレゼンテーションのことです．Tokyo.Rでは，1人あたりの発表時間は5分でした．</p>
+<p>当日のプレゼンテーション資料は<a href="https://uchidamizuki.github.io/slide-estat-with-r/">こちら</a>です．</p>
+<iframe src="https://uchidamizuki.github.io/slide-estat-with-r/" width="800" height="500"></iframe>
 </section>
-<section id="アプリの提供機能について" class="level2">
-<h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
-<section id="市区町村別の地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
-<p>総務省統計局の公開する<a href="市区町村別メッシュ・コード一覧" title="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
-<p>以下のような手順で市区町村別のメッシュを生成・保存できます．</p>
-<ol type="1">
-<li>都道府県を選択（複数選択可）</li>
-<li>市区町村を選択（複数選択可）</li>
-<li>メッシュサイズ（1 km／10 km／80 kmのいずれか）を選択し「メッシュ表示」を押す</li>
-<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
-</ol>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/grid_city.png" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">市区町村別メッシュの表示イメージ</figcaption>
-</figure>
-</div>
-<p>jpgridパッケージでは，<code>grid_city</code> データで市区町村別メッシュデータが提供されています．</p>
-<p>以下のように，市区町村別メッシュデータを図示することができます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpgrid)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>JGD2011 <span class="ot">&lt;-</span> <span class="dv">6668</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>grid_city <span class="sc">|&gt;</span> </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(city_name_ja <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"千葉市中央区"</span>, <span class="st">"千葉市花見川区"</span>, <span class="st">"千葉市稲毛区"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_as_sf</span>(<span class="at">crs =</span> <span class="dv">6668</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> city_name_ja)) <span class="sc">+</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
+<section id="スライド作成について" class="level2">
+<h2 class="anchored" data-anchor-id="スライド作成について">スライド作成について</h2>
+<p>これまでQuartoをGitHubのREADMEやサイト作成などに活用してきましたが，今回，はじめてスライド作成に挑戦してみました．</p>
+<p>以下のページを参考にしながら，自作パッケージのjpstatを紹介するスライドを試しに作ってみたところ，案外，簡単にスライドが作成でき，折角なのでR勉強会で発表してみました．</p>
+<ul>
+<li><p><a href="https://quarto.org/docs/presentations/" class="uri">https://quarto.org/docs/presentations/</a></p></li>
+<li><p><a href="https://quarto.org/docs/presentations/revealjs/" class="uri">https://quarto.org/docs/presentations/revealjs/</a></p></li>
+</ul>
+<p>ソースコードは<a href="https://github.com/UchidaMizuki/slide-estat-with-r">こちら</a>です．Quartoは，<a href="https://github.com/UchidaMizuki/slide-estat-with-r/blob/main/slide-estat-with-r.qmd">こちら</a>のqmd（Quarto Markdown）ファイルで記述されてます．</p>
+<p>以下では，Quartoとreveal.jsによるスライド作成で今回，特に便利と感じた機能を紹介します．</p>
+<section id="便利機能①コードのハイライティング機能" class="level3">
+<h3 class="anchored" data-anchor-id="便利機能①コードのハイライティング機能">便利機能①：<a href="https://quarto.org/docs/presentations/revealjs/#line-highlighting">コードのハイライティング</a>機能</h3>
+<p>以下のように<code>code-line-numbers</code> を指定することでコードの一部の行をハイライトすることができます．</p>
+<p>ここでは，<code>code-line-numbers: "2-3"</code> で2・3行目をハイライトしています．さらに，<code>code-line-numbers: "1|2-3"</code> のように，<code>|</code> で区切ることでハイライト先を推移させることもできるようです．</p>
+<p>ハイライト機能は，一部のコードのみに注目を集めたい場合に，非常に便利です．</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-line-numbers: "2-3"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">estat</span>(<span class="at">statsDataId =</span> <span class="st">"0003343671"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(cat01) <span class="sc">|&gt;</span> </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(name, <span class="st">"チョコレート"</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="メッシュ文字列を含む表データから地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="メッシュ文字列を含む表データから地域メッシュデータ生成">メッシュ文字列を含む表データから地域メッシュデータ生成</h3>
-<p>以下のような手順でメッシュ文字列を含む表データから地域メッシュを生成・保存できます．</p>
-<ol type="1">
-<li>データを選択（CSVまたはExcel）</li>
-<li>メッシュ文字列の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す</li>
-<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
-</ol>
-<p>jpgridパッケージでは，<code>parse_grid()</code> で文字列から地域メッシュを生成することができます．</p>
-<p><img src="images/parse_grid.png" class="img-fluid"></p>
+<section id="便利機能②自動アニメーションフェードイン機能" class="level3">
+<h3 class="anchored" data-anchor-id="便利機能②自動アニメーションフェードイン機能">便利機能②：<a href="https://quarto.org/docs/presentations/revealjs/advanced.html#auto-animate">自動アニメーション</a>・フェードイン機能</h3>
+<p><code>##</code> から始まる各スライドのタイトルの右などに<code>{auto-animate="true"}</code> をつけることで次のページの記述と共通する記述を自動で探し出してアニメーション化してくれます．</p>
+<p>前後のスライドで記述の繰り返しがある場合には，自動アニメーション機能を使うことで文脈のつながりがわかりやすくなるのではないかと感じました．</p>
+<p>また，<code>::: {.fragment .fade-in}</code> を使用することで，スライドの途中で記述を表示させることもできます．こちらも特定の記述に注目してほしい場合に有用かと思います．</p>
 </section>
-<section id="経度緯度を含む表データから地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="経度緯度を含む表データから地域メッシュデータ生成">経度・緯度を含む表データから地域メッシュデータ生成</h3>
-<p>同様に，以下の手順で経度・緯度を含む表データから地域メッシュを生成・保存できます．</p>
-<ol type="1">
-<li>データを選択（CSVまたはExcel）</li>
-<li>経度（X）・緯度（Y）の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す</li>
-<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
-</ol>
-<p>jpgridパッケージでは，<code>coords_to_grid()</code> で文字列から地域メッシュを生成することができます．</p>
-<p><img src="images/coords_to_grid.png" class="img-fluid"></p>
+<section id="便利機能③タイトルフッター設定機能" class="level3">
+<h3 class="anchored" data-anchor-id="便利機能③タイトルフッター設定機能">便利機能③：タイトル・フッター設定機能</h3>
+<p>タイトルスライドや全スライド共通のフッターは，qmdファイルの上部に以下のように記載することで自動でレイアウトされます．</p>
+<p>ここでは，タイトル以外にも，サブタイトル・著者・日付も設定していますが，これらのフォントサイズなどを別途指定しなくても大丈夫でした．</p>
+<p>また，今回はreveal.jsのデフォルトのテーマを使用しましたが，<a href="https://quarto.org/docs/presentations/revealjs/themes.html">こちら</a>のようにテーマを変更することもできます．</p>
+<pre><code>---
+title: "e-Stat🤝R"
+subtitle: "Tokyo.R #108"
+author: UchidaMizuki
+date: "2023-09-02"
+footer: &lt;https://github.com/UchidaMizuki/jpstat&gt;
+format: 
+  revealjs
+---</code></pre>
 </section>
 </section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
-<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="こちら" title="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
-<p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
-<p>ぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>japan <span class="ot">&lt;-</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_countries</span>(<span class="at">country =</span> <span class="st">"japan"</span>,</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">scale =</span> <span class="st">"medium"</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">returnclass =</span> <span class="st">"sf"</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>grid_japan <span class="ot">&lt;-</span> japan <span class="sc">|&gt;</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geometry_to_grid</span>(<span class="st">"80km"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">first</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_as_sf</span>(<span class="at">crs =</span> sf<span class="sc">::</span><span class="fu">st_crs</span>(japan))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>japan <span class="sc">|&gt;</span> </span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> grid_japan,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"transparent"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>Quartoを使うことでLT発表にちょうどよいプレゼンテーション資料を簡単につくれることが実感できました．</p>
+<p>ちなみに，これまでもQuartoで作成したページのGitHub Pagesへの公開を行ってきましたが，今回のreveal.jsのスライドも<a href="https://quarto.org/docs/publishing/github-pages.html#publish-command">Publish Command</a>を利用することで簡単に公開することができました<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>．</p>
+<p>さらに余談ですが，GitHub Pagesなどで挙げた資料は，以下のようにすればQuartoの記事に埋め込むこともできます．</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>```{=html}</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;iframe</span> <span class="er">src</span><span class="ot">=</span><span class="st">"https://uchidamizuki.github.io/slide-estat-with-r/"</span> <span class="er">width</span> <span class="ot">=</span> <span class="st">"800"</span> <span class="er">height</span> <span class="ot">=</span> <span class="st">"500"</span><span class="kw">&gt;&lt;/iframe&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>```</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+
+<ol>
+<li id="fn1"><p>第108回Tokyo.Rのイベント申込者はちょうど108人だったようです．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>GitHub Actionsによる自動更新はうまくいかなったため，今回は，RStudioのTerminalから手動で<code>quarto publish gh-pages</code> を実行しました．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

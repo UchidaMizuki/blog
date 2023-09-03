@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>UchidaMizuki - 人は直観的にベイズの定理を使っている？</title>
+<title>UchidaMizuki - 割合データの平滑化ー婦人女性比を例にー</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,23 +23,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
-<link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../logo.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,8 +70,6 @@ gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -82,7 +80,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="../../../index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
     </a>
   </div>
@@ -93,7 +91,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../../about.html" rel="" target="">
+    <a class="nav-link" href="../../about.html" rel="" target="">
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -122,8 +120,13 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">人は直観的にベイズの定理を使っている？</h1>
-                      </div>
+      <h1 class="title">割合データの平滑化ー婦人女性比を例にー</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Bayes</div>
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">Japanese</div>
+              </div>
+                  </div>
   </div>
     
   
@@ -133,7 +136,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2023年3月29日</p>
+        <p class="date">2023年4月30日</p>
       </div>
     </div>
     
@@ -151,110 +154,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<section id="ベイズの定理とは" class="level2">
-<h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
-<p>ベイズの定理は，統計学において最も有名な定理の一つですが，統計分析などを行ったことのない方々にとっては，あまり馴染みのないものかもしれません．</p>
-<p>ベイズの定理は， <a href="#eq-bayes">式&nbsp;1</a> のように表すことができます．</p>
-<p><span id="eq-bayes"><span class="math display">\[
-P(A|B) \propto P(B|A) P(A)
-\tag{1}\]</span></span></p>
-<p><a href="#eq-bayes">式&nbsp;1</a> は，以下のことを示しています．</p>
-<ul>
-<li>ある結果<span class="math inline">\(B\)</span>が生じた場合に，それが原因<span class="math inline">\(A\)</span>によるものである確率<span class="math inline">\(P(A|B)\)</span>は</li>
-<li>ある原因<span class="math inline">\(A\)</span>の生じる確率<span class="math inline">\(P(A)\)</span>とある原因<span class="math inline">\(A\)</span>のもとで結果<span class="math inline">\(B\)</span>が生じる確率<span class="math inline">\(P(B|A)\)</span>の掛け算に比例（<span class="math inline">\(\propto\)</span>）する</li>
-</ul>
-<p>もっと身近なもので例えてみましょう． たとえば，</p>
-<ul>
-<li>原因<span class="math inline">\(A\)</span>：新型コロナへの感染の有無</li>
-<li>結果<span class="math inline">\(B\)</span>：PCR検査などでの診断結果</li>
-</ul>
-<p>と考えれば， <a href="#eq-bayes">式&nbsp;1</a> を <a href="#eq-bayes-covid19">式&nbsp;2</a> のように置き換えることができます．</p>
-<p><span id="eq-bayes-covid19"><span class="math display">\[
-P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染の有無)
-\tag{2}\]</span></span></p>
-<p>以下では， <a href="#eq-bayes-covid19">式&nbsp;2</a> に基づき，ベイズの定理の重要性について説明します．</p>
-<section id="なぜベイズの定理が重要なのか" class="level3">
-<h3 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h3>
-<p><a href="#eq-bayes-covid19">式&nbsp;2</a> に示したベイズの定理に出てくる3つの確率は，下の表のように，どれも非常に重要な指標と対応しています． そして， <a href="#eq-bayes-covid19">式&nbsp;2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかるのです．</p>
-<table class="table">
-<colgroup>
-<col style="width: 29%">
-<col style="width: 70%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: center;">確率</th>
-<th style="text-align: center;"><strong>医療分野で対応する指標</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
-<td style="text-align: center;"><p><strong>検査後確率</strong>：統計学では<strong>事後確率</strong>と呼ばれる</p>
-<ul>
-<li><strong>陽性的中率</strong>：陽性と診断されたとき実際に感染</li>
-<li><strong>陰性的中率</strong>：陰性と診断されたとき実際に未感染</li>
-</ul></td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
-<td style="text-align: center;"><ul>
-<li><strong>感度</strong>：感染者が陽性と診断される確率↔︎<strong>偽陰性</strong>に関連</li>
-<li><strong>特異度</strong>：未感染者が陰性と診断される確率↔︎<strong>偽陽性</strong>に関連</li>
-</ul></td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><span class="math inline">\(P(感染の有無)\)</span></td>
-<td style="text-align: center;"><p><strong>検査前確率</strong>：統計学では<strong>事前確率</strong>と呼ばれる</p>
-<ul>
-<li>検査対象者のなかでの感染者の割合</li>
-</ul></td>
-</tr>
-</tbody>
-</table>
-<p>たとえば，以下のような状況を考えてみましょう．</p>
-<ul>
-<li>感度・特異度はともに99 %（偽陰性・偽陽性がいずれも1 %の確率で生じる）</li>
-<li>検査前確率は1 %（感染者は100 人中1 人で残りの99 人は未感染者）</li>
-</ul>
-<p>この場合，陽性と診断された場合に感染者である確率<span class="math inline">\(P(感染|陽性)\)</span>と，陽性と診断された場合に未感染者である確率<span class="math inline">\(P(未感染|陽性)\)</span>は， それぞれ <a href="#eq-bayes-covid19-positive">式&nbsp;3</a> となります．</p>
-<p><span id="eq-bayes-covid19-positive"><span class="math display">\[
-\begin{align}
-  P(感染|陽性) \propto P(陽性|感染)P(感染) &amp;= 0.99 \times 0.01 = 0.0099 \\
-  P(未感染|陽性) \propto P(陽性|未感染)P(未感染) &amp;= (1 - 0.99) \times (1 - 0.01) = 0.0099
-\end{align}
-\tag{3}\]</span></span></p>
-<p><a href="#eq-bayes-covid19-positive">式&nbsp;3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %程度となってしまいます．</p>
-<p>さらに現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
-</section>
-</section>
-<section id="人は直観的にベイズの定理を使っている" class="level2">
-<h2 class="anchored" data-anchor-id="人は直観的にベイズの定理を使っている">人は直観的にベイズの定理を使っている？</h2>
-<p>ベイズの定理が示す「検査の精度が高くても陽性的中率が低くなる可能性がある」といった事実は，はじめ多くの人にちょっとした驚きを与えるものかもしれません．そして，こうしたことを踏まえれば，多くの人はベイズの定理をほとんど理解していない，と思われるかもしれません．</p>
-<p>しかし，私たちはベイズ更新と呼ばれる手続きを通じて，日頃から無意識に，ベイズの定理を使っている可能性があるのです．以下では，コイントスを題材に，ベイズ更新について説明します．</p>
-<p>コイントスの場合には，</p>
-<ul>
-<li>原因<span class="math inline">\(A\)</span>：コインの歪み</li>
-<li>結果<span class="math inline">\(B\)</span>：コイントスの表・裏</li>
-</ul>
-<p>と考えることができ， <a href="#eq-bayes">式&nbsp;1</a> を <a href="#eq-bayes-coin-toss">式&nbsp;4</a> のように置き換えることができます． ここで重要な仮定は，コインの見た目だけでは，コインが歪んでいるかどうか（原因<span class="math inline">\(A\)</span>）がわからず， 実際にコイントスをして，その結果を見る必要があるということです． （また，どのコインも必ず表と裏が決まっているものとしましょう）</p>
-<p><span id="eq-bayes-coin-toss"><span class="math display">\[
-P(コインの歪み|コイントスの表・裏) \propto P(コイントスの表・裏|コインの歪み) P(コインの歪み)
-\tag{4}\]</span></span></p>
-<section id="ベイズ更新とは" class="level3">
-<h3 class="anchored" data-anchor-id="ベイズ更新とは">ベイズ更新とは？</h3>
-<p>ベイズ更新とは，結果（コイントスの表・裏）から原因（コインの歪み）の従う確率分布を</p>
-</section>
-<section id="コイントスの思考実験" class="level3">
-<h3 class="anchored" data-anchor-id="コイントスの思考実験">コイントスの思考実験</h3>
-<p>あなたは，財布から歪みのないように見えるコインを1枚選んでコイントスをすることにしました．</p>
-<p>まず，あなたが，コインを3回投げると，表が1回・裏が2回出ました．</p>
-<p><span class="math display">\[
-P(B|A) \propto P(A|B) P(B)
-\]</span></p>
+<section id="todo" class="level2">
+<h2 class="anchored" data-anchor-id="todo">TODO</h2>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

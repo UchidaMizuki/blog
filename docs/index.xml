@@ -9,10 +9,148 @@
 <link>https://uchidamizuki.quarto.pub/index.html</link>
 <atom:link href="https://uchidamizuki.quarto.pub/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.3.353</generator>
-<lastBuildDate>Sat, 29 Apr 2023 15:00:00 GMT</lastBuildDate>
+<generator>quarto-1.3.450</generator>
+<lastBuildDate>Sat, 02 Sep 2023 15:00:00 GMT</lastBuildDate>
 <item>
-  <title>なぜベイズの定理が重要なのか～PCR検査を例に～</title>
+  <title>e-Stat APIについてTokyo.Rで発表しました</title>
+  <link>https://uchidamizuki.quarto.pub/posts/2023/09/presentation-on-e-stat-api-at-tokyor.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="発表概要" class="level2">
+<h2 class="anchored" data-anchor-id="発表概要">発表概要</h2>
+<p><a href="https://tokyor.connpass.com/event/292545/">第108回R勉強会@東京（#TokyoR）</a>のLTにてe-Stat APIを利用するためのRパッケージであるjpstatパッケージについて紹介しました<sup>1</sup>．</p>
+<p>LTとは，Lightning Talks（ライトニングトーク）の略で，短時間のプレゼンテーションのことです．Tokyo.Rでは，1人あたりの発表時間は5分でした．</p>
+<p>当日のプレゼンテーション資料は<a href="https://uchidamizuki.github.io/slide-estat-with-r/">こちら</a>です．</p>
+<iframe src="https://uchidamizuki.github.io/slide-estat-with-r/" width="800" height="500"></iframe>
+</section>
+<section id="スライド作成について" class="level2">
+<h2 class="anchored" data-anchor-id="スライド作成について">スライド作成について</h2>
+<p>これまでQuartoをGitHubのREADMEやサイト作成などに活用してきましたが，今回，はじめてスライド作成に挑戦してみました．</p>
+<p>以下のページを参考にしながら，自作パッケージのjpstatを紹介するスライドを試しに作ってみたところ，案外，簡単にスライドが作成でき，折角なのでR勉強会で発表してみました．</p>
+<ul>
+<li><p><a href="https://quarto.org/docs/presentations/" class="uri">https://quarto.org/docs/presentations/</a></p></li>
+<li><p><a href="https://quarto.org/docs/presentations/revealjs/" class="uri">https://quarto.org/docs/presentations/revealjs/</a></p></li>
+</ul>
+<p>ソースコードは<a href="https://github.com/UchidaMizuki/slide-estat-with-r">こちら</a>です．Quartoは，<a href="https://github.com/UchidaMizuki/slide-estat-with-r/blob/main/slide-estat-with-r.qmd">こちら</a>のqmd（Quarto Markdown）ファイルで記述されてます．</p>
+<p>以下では，Quartoとreveal.jsによるスライド作成で今回，特に便利と感じた機能を紹介します．</p>
+<section id="便利機能①コードのハイライティング機能" class="level3">
+<h3 class="anchored" data-anchor-id="便利機能①コードのハイライティング機能">便利機能①：<a href="https://quarto.org/docs/presentations/revealjs/#line-highlighting">コードのハイライティング</a>機能</h3>
+<p>以下のように<code>code-line-numbers</code> を指定することでコードの一部の行をハイライトすることができます．</p>
+<p>ここでは，<code>code-line-numbers: "2-3"</code> で2・3行目をハイライトしています．さらに，<code>code-line-numbers: "1|2-3"</code> のように，<code>|</code> で区切ることでハイライト先を推移させることもできるようです．</p>
+<p>ハイライト機能は，一部のコードのみに注目を集めたい場合に，非常に便利です．</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```{r}</span></span>
+<span id="cb1-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#| echo: true</span></span>
+<span id="cb1-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#| code-line-numbers: "2-3"</span></span>
+<span id="cb1-4"></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0003343671"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">activate</span>(cat01) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_detect</span>(name, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"チョコレート"</span>))</span>
+<span id="cb1-8"><span class="in" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">```</span></span></code></pre></div>
+</section>
+<section id="便利機能②自動アニメーションフェードイン機能" class="level3">
+<h3 class="anchored" data-anchor-id="便利機能②自動アニメーションフェードイン機能">便利機能②：<a href="https://quarto.org/docs/presentations/revealjs/advanced.html#auto-animate">自動アニメーション</a>・フェードイン機能</h3>
+<p><code>##</code> から始まる各スライドのタイトルの右などに<code>{auto-animate="true"}</code> をつけることで次のページの記述と共通する記述を自動で探し出してアニメーション化してくれます．</p>
+<p>前後のスライドで記述の繰り返しがある場合には，自動アニメーション機能を使うことで文脈のつながりがわかりやすくなるのではないかと感じました．</p>
+<p>また，<code>::: {.fragment .fade-in}</code> を使用することで，スライドの途中で記述を表示させることもできます．こちらも特定の記述に注目してほしい場合に有用かと思います．</p>
+</section>
+<section id="便利機能③タイトルフッター設定機能" class="level3">
+<h3 class="anchored" data-anchor-id="便利機能③タイトルフッター設定機能">便利機能③：タイトル・フッター設定機能</h3>
+<p>タイトルスライドや全スライド共通のフッターは，qmdファイルの上部に以下のように記載することで自動でレイアウトされます．</p>
+<p>ここでは，タイトル以外にも，サブタイトル・著者・日付も設定していますが，これらのフォントサイズなどを別途指定しなくても大丈夫でした．</p>
+<p>また，今回はreveal.jsのデフォルトのテーマを使用しましたが，<a href="https://quarto.org/docs/presentations/revealjs/themes.html">こちら</a>のようにテーマを変更することもできます．</p>
+<pre><code>---
+title: "e-Stat🤝R"
+subtitle: "Tokyo.R #108"
+author: UchidaMizuki
+date: "2023-09-02"
+footer: &lt;https://github.com/UchidaMizuki/jpstat&gt;
+format: 
+  revealjs
+---</code></pre>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>Quartoを使うことでLT発表にちょうどよいプレゼンテーション資料を簡単につくれることが実感できました．</p>
+<p>ちなみに，これまでもQuartoで作成したページのGitHub Pagesへの公開を行ってきましたが，今回のreveal.jsのスライドも<a href="https://quarto.org/docs/publishing/github-pages.html#publish-command">Publish Command</a>を利用することで簡単に公開することができました<sup>2</sup>．</p>
+<p>さらに余談ですが，GitHub Pagesなどで挙げた資料は，以下のようにすればQuartoの記事に埋め込むこともできます．</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb3-1">```{=html}</span>
+<span id="cb3-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;iframe</span> <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">src</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://uchidamizuki.github.io/slide-estat-with-r/"</span> <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">width</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"800"</span> <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">height</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"500"</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&gt;&lt;/iframe&gt;</span></span>
+<span id="cb3-3">```</span></code></pre></div>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+
+<ol>
+<li id="fn1"><p>第108回Tokyo.Rのイベント申込者はちょうど108人だったようです．↩︎</p></li>
+<li id="fn2"><p>GitHub Actionsによる自動更新はうまくいかなったため，今回は，RStudioのTerminalから手動で<code>quarto publish gh-pages</code> を実行しました．↩︎</p></li>
+</ol>
+</section></div> ]]></description>
+  <category>e-Stat</category>
+  <category>LT</category>
+  <category>Tokyo.R</category>
+  <category>R</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.quarto.pub/posts/2023/09/presentation-on-e-stat-api-at-tokyor.html</guid>
+  <pubDate>Sat, 02 Sep 2023 15:00:00 GMT</pubDate>
+  <media:content url="https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true" medium="image"/>
+</item>
+<item>
+  <title>なぜベイズの定理が重要なのかーPCR検査を例にー</title>
   <link>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</link>
   <description><![CDATA[ 
 
