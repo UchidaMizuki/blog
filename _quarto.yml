@@ -20,7 +20,6 @@ website:
 format:
   html:
     theme: simplex
-    css: styles.css
 
 editor: visual
 
