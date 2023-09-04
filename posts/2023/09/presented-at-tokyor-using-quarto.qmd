@@ -1,9 +1,8 @@
 ---
-title: "e-Stat APIについてTokyo.Rで発表しました"
+title: "Quartoを活用してTokyo.Rで発表しました"
 lang: ja
 categories: [e-Stat, LT, Tokyo.R, R, Japanese]
 date: "2023-09-03"
-image: https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true
 ---
 
 ## 発表概要
@@ -17,7 +16,7 @@ LTとは，Lightning Talks（ライトニングトーク）の略で，短時間
 当日のプレゼンテーション資料は[こちら](https://uchidamizuki.github.io/slide-estat-with-r/)です．
 
 ```{=html}
-<iframe src="https://uchidamizuki.github.io/slide-estat-with-r/" width = "800" height = "500"></iframe>
+<iframe class="slide-deck" src="https://uchidamizuki.github.io/slide-estat-with-r/"></iframe>
 ```
 ## スライド作成について
 
@@ -85,11 +84,3 @@ Quartoを使うことでLT発表にちょうどよいプレゼンテーション
 ちなみに，これまでもQuartoで作成したページのGitHub Pagesへの公開を行ってきましたが，今回のreveal.jsのスライドも[Publish Command](https://quarto.org/docs/publishing/github-pages.html#publish-command)を利用することで簡単に公開することができました[^2]．
 
 [^2]: GitHub Actionsによる自動更新はうまくいかなったため，今回は，RStudioのTerminalから手動で`quarto publish gh-pages` を実行しました．
-
-さらに余談ですが，GitHub Pagesなどで挙げた資料は，以下のようにすればQuartoの記事に埋め込むこともできます．
-
-```` html
-```{=html}
-<iframe src="https://uchidamizuki.github.io/slide-estat-with-r/" width = "800" height = "500"></iframe>
-```
-````
