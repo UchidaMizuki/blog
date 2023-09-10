@@ -186,7 +186,7 @@
     "href": "index.html",
     "title": "UchidaMizuki",
     "section": "",
-    "text": "Quartoを活用してTokyo.Rで発表しました\n\n\n\n\n\n\n\ne-Stat\n\n\nLT\n\n\nTokyo.R\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nSep 3, 2023\n\n\n\n\n\n\n  \n\n\n\n\nなぜベイズの定理が重要なのかーPCR検査を例にー\n\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n  \n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n  \n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
+    "text": "Rの数値積分で円の面積を求める\n\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nSep 10, 2023\n\n\n\n\n\n\n  \n\n\n\n\nQuartoを活用してTokyo.Rで発表しました\n\n\n\n\n\n\n\ne-Stat\n\n\nLT\n\n\nTokyo.R\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nSep 3, 2023\n\n\n\n\n\n\n  \n\n\n\n\nなぜベイズの定理が重要なのかーPCR検査を例にー\n\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n  \n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n  \n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n  \n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n  \n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/2022/06/draw-a-map-of-japan-in-r-ja.html",
@@ -327,5 +327,47 @@
     "title": "なぜベイズの定理が重要なのかーPCR検査を例にー",
     "section": "まとめ",
     "text": "まとめ\nコロナ禍で普及したPCR検査を例に，ベイズの定理の重要性について説明しました．\n現実に即した計算事例に興味がある場合は， 統計局の公開しているコラムもご一読されることをおすすめします．"
+  },
+  {
+    "objectID": "posts/2023/09/circle-area-by-numerical-integration-in-r.html",
+    "href": "posts/2023/09/circle-area-by-numerical-integration-in-r.html",
+    "title": "Rの数値積分で円の面積を求める",
+    "section": "",
+    "text": "最近，R statsパッケージ1のintegrate() 関数で一次元関数の数値積分ができることを知りました．そこで，この記事では，こちらの記事を参考に積分で円の面積を計算してみました．"
+  },
+  {
+    "objectID": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#はじめに",
+    "href": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#はじめに",
+    "title": "Rの数値積分で円の面積を求める",
+    "section": "",
+    "text": "最近，R statsパッケージ1のintegrate() 関数で一次元関数の数値積分ができることを知りました．そこで，この記事では，こちらの記事を参考に積分で円の面積を計算してみました．"
+  },
+  {
+    "objectID": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#半円を描く関数",
+    "href": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#半円を描く関数",
+    "title": "Rの数値積分で円の面積を求める",
+    "section": "半円を描く関数",
+    "text": "半円を描く関数\n半径\\(r\\)の半円を描く関数は 式 1 と表せます．Rで書くとsemicircle() 関数のようになります．\n\\[\ny = \\sqrt{r^2 - x^2} \\qquad (-r \\le x \\le r)\n\\tag{1}\\]\n\nsemicircle &lt;- function(x, radius) {\n  sqrt(radius^2 - x^2)\n}\n\n実装したsemicircle() 関数で半径\\(r = 5\\)の半円を描いてみましょう．\n\nradius &lt;- 5\ncurve(semicircle(x, radius), -radius, radius,\n      asp = 1) # アスペクト比を1:1にする"
+  },
+  {
+    "objectID": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#数値積分で円の面積を求める",
+    "href": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#数値積分で円の面積を求める",
+    "title": "Rの数値積分で円の面積を求める",
+    "section": "数値積分で円の面積を求める",
+    "text": "数値積分で円の面積を求める\n次に，stats::integrate() 関数を用いて，さきほど書いたsemicircle() を数値積分してみましょう．半径\\(r = 5\\)の場合，積分すると半円の面積\\(\\frac{1}{2}\\pi r^2\\)とほぼ等しくなることが確認できます．\n\n# 半径を5とする\nradius &lt;- 5\nintegrate(semicircle, -radius, radius, # -radiusからradiusまでの範囲で積分する\n          radius = radius)\n\n39.26991 with absolute error &lt; 2.5e-08\n\npi * 5^2 / 2\n\n[1] 39.26991\n\n\nそのため，円の面積を近似的に求めるcircle_area_approx()が以下のように書けます（数値積分の結果は，stats::integrate() 関数の戻り値のvalue に格納されています）．\n\ncircle_area_approx &lt;- function(radius) {\n  out &lt;- integrate(semicircle, -radius, radius,\n                   radius = radius)\n  out$value * 2\n}\n\ncircle_area_approx(5)\n\n[1] 78.53982\n\n\n最後に，半径\\(1 \\le r \\le 10\\)の範囲で近似値circle_area_approx()と理論値circle_area_true()（\\(\\pi r^2\\)）を比較してみましょう．\n計算の結果，近似値と理論値で円の面積がほぼ等しいことが確認できました．\n\ncircle_area_true &lt;- function(radius) {\n  pi * radius ^ 2\n}\n\ndata &lt;- data.frame(radius = 1:10)\ndata$circle_area_approx &lt;- sapply(data$radius, circle_area_approx)\ndata$circle_area_true &lt;- sapply(data$radius, circle_area_true)\nknitr::kable(data)\n\n\n\n\nradius\ncircle_area_approx\ncircle_area_true\n\n\n\n\n1\n3.141593\n3.141593\n\n\n2\n12.566371\n12.566371\n\n\n3\n28.274334\n28.274334\n\n\n4\n50.265482\n50.265482\n\n\n5\n78.539816\n78.539816\n\n\n6\n113.097335\n113.097335\n\n\n7\n153.938040\n153.938040\n\n\n8\n201.061930\n201.061930\n\n\n9\n254.469005\n254.469005\n\n\n10\n314.159265\n314.159265"
+  },
+  {
+    "objectID": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#おわりに",
+    "href": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#おわりに",
+    "title": "Rの数値積分で円の面積を求める",
+    "section": "おわりに",
+    "text": "おわりに\nstats::integrate() 関数を使えば，簡単に一次元関数の数値積分ができることがわかりました．\n\n注意点\nstats::integrate() 関数では，\\(-\\infty \\le x \\le \\infty\\)の範囲での数値積分も可能ですが，\\(10^{-6} \\le x \\le 10^6\\)のような大きな値を代入すると数値積分が適切に行われませんのでご注意ください．\n\n# OK\nintegrate(dnorm, -Inf, Inf)\n\n1 with absolute error &lt; 9.4e-05\n\n# NG\nintegrate(dnorm, -1e6, 1e6)\n\n0 with absolute error &lt; 0"
+  },
+  {
+    "objectID": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#footnotes",
+    "href": "posts/2023/09/circle-area-by-numerical-integration-in-r.html#footnotes",
+    "title": "Rの数値積分で円の面積を求める",
+    "section": "脚注",
+    "text": "脚注\n\n\nstatsパッケージは，Rにデフォルトで入っているパッケージの一つです．↩︎"
   }
 ]

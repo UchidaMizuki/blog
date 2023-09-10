@@ -1,0 +1,90 @@
+---
+title: "Rの数値積分で円の面積を求める"
+lang: ja
+categories: [R, Japanese]
+date: "2023-09-10"
+---
+
+## はじめに
+
+最近，R statsパッケージ[^1]の`integrate()` 関数で一次元関数の数値積分ができることを知りました．そこで，この記事では，[こちらの記事](https://mathwords.net/enmensekibun)を参考に積分で円の面積を計算してみました．
+
+[^1]: statsパッケージは，Rにデフォルトで入っているパッケージの一つです．
+
+## 半円を描く関数
+
+半径$r$の半円を描く関数は @eq-semicircle と表せます．Rで書くと`semicircle()` 関数のようになります．
+
+$$
+y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
+$$ {#eq-semicircle}
+
+```{r}
+semicircle <- function(x, radius) {
+  sqrt(radius^2 - x^2)
+}
+```
+
+実装した`semicircle()` 関数で半径$r = 5$の半円を描いてみましょう．
+
+```{r}
+radius <- 5
+curve(semicircle(x, radius), -radius, radius,
+      asp = 1) # アスペクト比を1:1にする
+```
+
+## 数値積分で円の面積を求める
+
+次に，`stats::integrate()` 関数を用いて，さきほど書いた`semicircle()` を数値積分してみましょう．半径$r = 5$の場合，積分すると半円の面積$\frac{1}{2}\pi r^2$とほぼ等しくなることが確認できます．
+
+```{r}
+# 半径を5とする
+radius <- 5
+integrate(semicircle, -radius, radius, # -radiusからradiusまでの範囲で積分する
+          radius = radius)
+
+pi * 5^2 / 2
+```
+
+そのため，円の面積を近似的に求める`circle_area_approx()`が以下のように書けます（数値積分の結果は，`stats::integrate()` 関数の戻り値の`value` に格納されています）．
+
+```{r}
+circle_area_approx <- function(radius) {
+  out <- integrate(semicircle, -radius, radius,
+                   radius = radius)
+  out$value * 2
+}
+
+circle_area_approx(5)
+```
+
+最後に，半径$1 \le r \le 10$の範囲で近似値`circle_area_approx()`と理論値`circle_area_true()`（$\pi r^2$）を比較してみましょう．
+
+計算の結果，近似値と理論値で円の面積がほぼ等しいことが確認できました．
+
+```{r}
+circle_area_true <- function(radius) {
+  pi * radius ^ 2
+}
+
+data <- data.frame(radius = 1:10)
+data$circle_area_approx <- sapply(data$radius, circle_area_approx)
+data$circle_area_true <- sapply(data$radius, circle_area_true)
+knitr::kable(data)
+```
+
+## おわりに
+
+`stats::integrate()` 関数を使えば，簡単に一次元関数の数値積分ができることがわかりました．
+
+### 注意点
+
+`stats::integrate()` 関数では，$-\infty \le x \le \infty$の範囲での数値積分も可能ですが，$10^{-6} \le x \le 10^6$のような大きな値を代入すると数値積分が適切に行われませんのでご注意ください．
+
+```{r}
+# OK
+integrate(dnorm, -Inf, Inf)
+
+# NG
+integrate(dnorm, -1e6, 1e6)
+```

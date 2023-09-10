@@ -6,3 +6,30 @@ date: "2023-09-03"
 draft: true
 ---
 
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+```
+
+```{r}
+set.seed(1234)
+
+beta <- set_names(rnorm(4), 0:3)
+
+x <- expand_grid(iter = 1:1e2,
+                 id = 1:1e2) |> 
+  mutate(x1 = rnorm(n()),
+         x2 = rnorm(n()),
+         x3 = rnorm(n()))
+
+y <- expand_grid(model = 0:3,
+                 x) |> 
+  mutate(y_true = case_match(model,
+                             0 ~ beta["0"],
+                             1 ~ beta["0"] + beta["1"] * x1,
+                             2 ~ beta["0"] + beta["1"] * x1 + beta["2"] * x2,
+                             3 ~ beta["0"] + beta["1"] * x1 + beta["2"] * x2 + beta["3"] * x3),
+         y_obs = y_true + rnorm(n()))
+```

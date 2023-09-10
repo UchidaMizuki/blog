@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://uchidamizuki.quarto.pub/index.html</loc>
-    <lastmod>2023-09-04T14:07:00.283Z</lastmod>
+    <lastmod>2023-09-10T08:09:56.917Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</loc>
@@ -43,5 +43,9 @@
   <url>
     <loc>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</loc>
     <lastmod>2023-09-04T14:00:59.608Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/posts/2023/09/circle-area-by-numerical-integration-in-r.html</loc>
+    <lastmod>2023-09-10T08:09:59.277Z</lastmod>
   </url>
 </urlset>
