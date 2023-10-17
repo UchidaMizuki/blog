@@ -1,1 +1,1 @@
-Sitemap: https://uchidamizuki.quarto.pub/sitemap.xml
+Sitemap: https://uchidamizuki.quarto.pub/blog/sitemap.xml

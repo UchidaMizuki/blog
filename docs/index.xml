@@ -6,14 +6,14 @@
       version="2.0">
 <channel>
 <title>UchidaMizuki</title>
-<link>https://uchidamizuki.quarto.pub/index.html</link>
-<atom:link href="https://uchidamizuki.quarto.pub/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://uchidamizuki.quarto.pub/blog/index.html</link>
+<atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.3.450</generator>
 <lastBuildDate>Sat, 09 Sep 2023 15:00:00 GMT</lastBuildDate>
 <item>
   <title>Rの数値積分で円の面積を求める</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2023/09/circle-area-by-numerical-integration-in-r.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html</link>
   <description><![CDATA[ 
 
 
@@ -70,7 +70,7 @@ font-style: inherit;">1</span>) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># アスペクト比を1:1にする</span></span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/09/circle-area-by-numerical-integration-in-r_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -321,12 +321,12 @@ font-style: inherit;">1e6</span>)</span></code></pre></div>
 </section></div> ]]></description>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2023/09/circle-area-by-numerical-integration-in-r.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html</guid>
   <pubDate>Sat, 09 Sep 2023 15:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Quartoを活用してTokyo.Rで発表しました</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2023/09/presented-at-tokyor-using-quarto.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2023/09/presented-at-tokyor-using-quarto.html</link>
   <description><![CDATA[ 
 
 
@@ -432,12 +432,12 @@ format:
   <category>Tokyo.R</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2023/09/presented-at-tokyor-using-quarto.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2023/09/presented-at-tokyor-using-quarto.html</guid>
   <pubDate>Sat, 02 Sep 2023 15:00:00 GMT</pubDate>
 </item>
 <item>
   <title>なぜベイズの定理が重要なのかーPCR検査を例にー</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important.html</link>
   <description><![CDATA[ 
 
 
@@ -522,13 +522,13 @@ format:
   <category>Bayes</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important.html</guid>
   <pubDate>Sat, 29 Apr 2023 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/posts/2023/04/why-is-bayes-theorem-important/bayes-theorem.png" medium="image" type="image/png" height="14" width="144"/>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important/bayes-theorem.png" medium="image" type="image/png" height="14" width="144"/>
 </item>
 <item>
   <title>世代間の「1票の格差」を定量化してみる</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations.html</link>
   <description><![CDATA[ 
 
 
@@ -1547,7 +1547,7 @@ background-color: null;
 font-style: inherit;">2</span>))</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations_files/figure-html/plot-pop-pyramid-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations_files/figure-html/plot-pop-pyramid-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>2020年の人口ピラミッドより，70歳前半および40歳後半において人口のピークがあることがわかります．これらは，それぞれ「団塊世代」「団塊ジュニア」と呼ばれる世代にあたります<sup>11</sup>．一方で，若年層の人口は，「団塊世代」「団塊ジュニア」の人口を大きく下回っていることがわかり，近年の少子化の深刻さがみてとれます．</p>
@@ -1857,7 +1857,7 @@ font-style: inherit;">plot =</span> plot_vote_disparity)</span>
 <span id="cb6-45">plot_vote_disparity</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations_files/figure-html/get-vote-disparity-between-generation-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations_files/figure-html/get-vote-disparity-between-generation-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -1890,13 +1890,13 @@ font-style: inherit;">plot =</span> plot_vote_disparity)</span>
   <category>Politics</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations.html</guid>
   <pubDate>Sat, 22 Apr 2023 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/posts/2023/04/quantify-vote-disparity-between-generations/plot_vote_disparity.png" medium="image" type="image/png" height="103" width="144"/>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations/plot_vote_disparity.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
   <title>地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid）</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</link>
   <description><![CDATA[ 
 
 
@@ -1914,7 +1914,7 @@ font-style: inherit;">plot =</span> plot_vote_disparity)</span>
 </ol>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="https://uchidamizuki.quarto.pub/posts/2023/02/images/about.png" class="img-fluid figure-img"></a></p>
+<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/02/images/about.png" class="img-fluid figure-img"></a></p>
 <figcaption class="figure-caption">アプリの外観（クリックするとアプリが開きます）</figcaption>
 </figure>
 </div>
@@ -1933,7 +1933,7 @@ font-style: inherit;">plot =</span> plot_vote_disparity)</span>
 </ol>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/02/images/grid_city.png" class="img-fluid figure-img"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/02/images/grid_city.png" class="img-fluid figure-img"></p>
 <figcaption class="figure-caption">市区町村別メッシュの表示イメージ</figcaption>
 </figure>
 </div>
@@ -2002,7 +2002,7 @@ font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Set2"</span>)</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -2015,7 +2015,7 @@ font-style: inherit;">"Set2"</span>)</span></code></pre></div>
 <li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
 </ol>
 <p>jpgridパッケージでは，<code>parse_grid()</code> で文字列から地域メッシュを生成することができます．</p>
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/02/images/parse_grid.png" class="img-fluid"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/02/images/parse_grid.png" class="img-fluid"></p>
 </section>
 <section id="経度緯度を含む表データから地域メッシュデータ生成" class="level3">
 <h3 class="anchored" data-anchor-id="経度緯度を含む表データから地域メッシュデータ生成">経度・緯度を含む表データから地域メッシュデータ生成</h3>
@@ -2026,7 +2026,7 @@ font-style: inherit;">"Set2"</span>)</span></code></pre></div>
 <li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
 </ol>
 <p>jpgridパッケージでは，<code>coords_to_grid()</code> で文字列から地域メッシュを生成することができます．</p>
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/02/images/coords_to_grid.png" class="img-fluid"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/02/images/coords_to_grid.png" class="img-fluid"></p>
 </section>
 </section>
 <section id="おわりに" class="level2">
@@ -2110,7 +2110,7 @@ font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"transparent"</span>)</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
@@ -2122,13 +2122,13 @@ font-style: inherit;">"transparent"</span>)</span></code></pre></div>
   <category>jpgrid</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</guid>
   <pubDate>Wed, 15 Feb 2023 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/posts/2023/02/images/grid_city.png" medium="image" type="image/png" height="74" width="144"/>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2023/02/images/grid_city.png" medium="image" type="image/png" height="74" width="144"/>
 </item>
 <item>
   <title>Rで人口ピラミッドのアニメーションを作る</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</link>
   <description><![CDATA[ 
 
 
@@ -2137,7 +2137,7 @@ font-style: inherit;">"transparent"</span>)</span></code></pre></div>
 <section id="この記事について" class="level2">
 <h2 class="anchored" data-anchor-id="この記事について">この記事について</h2>
 <p>国立社会保障・人口問題研究所（社人研）の公開している<a href="https://www.ipss.go.jp/site-ad/TopPageData/Pyramid_a.html">人口ピラミッドの推移アニメーション</a>を参考に，以下のようなアニメーションをRのggplot2で作成してみました．</p>
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/01/poppyramid.gif" class="img-fluid"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/01/poppyramid.gif" class="img-fluid"></p>
 </section>
 <section id="国勢調査の時系列データの取得" class="level2">
 <h2 class="anchored" data-anchor-id="国勢調査の時系列データの取得">国勢調査の時系列データの取得</h2>
@@ -2816,7 +2816,7 @@ font-style: inherit;">renderer =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">gifski_renderer</span>())</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r_files/figure-html/create-gif-1.gif" class="img-fluid"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r_files/figure-html/create-gif-1.gif" class="img-fluid"></p>
 </div>
 </div>
 
@@ -2830,13 +2830,13 @@ font-style: inherit;">gifski_renderer</span>())</span></code></pre></div>
   <category>jpstat</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</guid>
   <pubDate>Sat, 31 Dec 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/posts/2023/01/poppyramid.gif" medium="image" type="image/gif"/>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2023/01/poppyramid.gif" medium="image" type="image/gif"/>
 </item>
 <item>
   <title>Rで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r.html</link>
   <description><![CDATA[ 
 
 
@@ -2855,21 +2855,21 @@ font-style: inherit;">gifski_renderer</span>())</span></code></pre></div>
 <p>データベースを開くと以下のように統計表が表示され，右上の「<strong>ダウンロード</strong>」ボタンからデータをダウンロードすることができます．</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/12/images/estat_1.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/12/images/estat_1.png" class="img-fluid figure-img" style="width:75.0%"></p>
 <figcaption class="figure-caption">e-Statデータベース：統計表表示画面</figcaption>
 </figure>
 </div>
 <p>画面左上の「<strong>表示項目選択</strong>」ボタンをクリックすると，表示するデータの項目（年齢階級・性別など）を選択することができます．</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/12/images/estat_2.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/12/images/estat_2.png" class="img-fluid figure-img" style="width:75.0%"></p>
 <figcaption class="figure-caption">e-Statデータベース：表示項目選択画面</figcaption>
 </figure>
 </div>
 <p>たとえば，年齢階級を選択したい場合は，年齢階級の「<strong>項目を選択</strong>」ボタンをクリックすると以下のような画面で年齢階級を選択することができます．</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/12/images/estat_3.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/12/images/estat_3.png" class="img-fluid figure-img" style="width:75.0%"></p>
 <figcaption class="figure-caption">e-Statデータベース：表示項目の設定画面</figcaption>
 </figure>
 </div>
@@ -3810,7 +3810,7 @@ font-style: inherit;">n.dodge =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>))</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="768"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="768"></p>
 </div>
 </div>
 </section>
@@ -3838,13 +3838,13 @@ font-style: inherit;">2</span>))</span></code></pre></div>
   <category>jpstat</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2022/12/call-e-stat-api-in-r.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r.html</guid>
   <pubDate>Sun, 11 Dec 2022 15:00:00 GMT</pubDate>
   <media:content url="https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true" medium="image"/>
 </item>
 <item>
   <title>CSVの代わりにParquetを使ってみよう</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2022/06/use-parquet-instead-of-csv-ja.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv-ja.html</link>
   <description><![CDATA[ 
 
 
@@ -4398,12 +4398,12 @@ font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
   <category>R</category>
   <category>Python</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2022/06/use-parquet-instead-of-csv-ja.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv-ja.html</guid>
   <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Rで日本地図を描いてみよう</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</link>
   <description><![CDATA[ 
 
 
@@ -4792,7 +4792,7 @@ font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"turbo"</span>)</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/geom_map-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/geom_map-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -4905,7 +4905,7 @@ font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"turbo"</span>)</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/sf-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/sf-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -5027,7 +5027,7 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div>
 ℹ Please use `layout_japan()` instead.</code></pre>
 </div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/jpmap-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/jpmap-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -5050,13 +5050,13 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div>
   <category>jpmap</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</guid>
   <pubDate>Fri, 10 Jun 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/posts/2022/06/foreigner_ratio_2015.png" medium="image" type="image/png" height="144" width="144"/>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2022/06/foreigner_ratio_2015.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 <item>
   <title>Rで産業連関分析</title>
-  <link>https://uchidamizuki.quarto.pub/posts/2022/05/ioanalysis-in-r-ja.html</link>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja.html</link>
   <description><![CDATA[ 
 
 
@@ -5946,7 +5946,7 @@ font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Set2"</span>)</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/plot-spillover-1.png" class="img-fluid" style="width:100.0%"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/plot-spillover-1.png" class="img-fluid" style="width:100.0%"></p>
 </div>
 </div>
 </section>
@@ -6128,7 +6128,7 @@ font-style: inherit;">0.5</span>, <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">NA</span>))</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://uchidamizuki.quarto.pub/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/jpio-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/jpio-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 
@@ -6140,9 +6140,9 @@ font-style: inherit;">NA</span>))</span></code></pre></div>
   <category>dibble</category>
   <category>R</category>
   <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/posts/2022/05/ioanalysis-in-r-ja.html</guid>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja.html</guid>
   <pubDate>Mon, 30 May 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/posts/2022/05/skyline_chart.png" medium="image" type="image/png" height="103" width="144"/>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2022/05/skyline_chart.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 </channel>
 </rss>

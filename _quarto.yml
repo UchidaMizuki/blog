@@ -4,7 +4,7 @@ project:
 
 website:
   title: "UchidaMizuki"
-  site-url: "https://uchidamizuki.quarto.pub"
+  site-url: "https://uchidamizuki.quarto.pub/blog"
   favicon: logo.png
   navbar:
     right:

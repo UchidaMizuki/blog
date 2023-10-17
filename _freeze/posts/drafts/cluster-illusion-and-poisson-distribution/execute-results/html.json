@@ -1,0 +1,16 @@
+{
+  "hash": "79e3045c3aa37033ceffcdefe2b7f22d",
+  "result": {
+    "markdown": "---\ntitle: \"クラスター錯覚とポアソン分布\"\nlang: ja\ncategories: [Poisson distribution, R, Japanese]\ndraft: true\n---\n\n\n## クラスター錯覚とは\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tidyverse)\n```\n\n::: {.cell-output .cell-output-stderr}\n```\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.3     ✔ readr     2.1.4\n✔ forcats   1.0.0     ✔ stringr   1.5.0\n✔ ggplot2   3.4.3     ✔ tibble    3.2.1\n✔ lubridate 1.9.2     ✔ tidyr     1.3.0\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors\n```\n:::\n\n```{.r .cell-code}\nlibrary(lhs)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\niter <- 1e3\nn <- 2e1\n\nset.seed(1234)\ndata_runif <- expand_grid(iter = 1:iter,\n                          n = 1:n) |> \n  mutate(x = runif(n()),\n         y = runif(n()))\ndata_lhs_random <- tibble(iter = 1:iter) |> \n  mutate(data = iter |> \n           map(\\(iter) randomLHS(n, 2) |> \n               as_tibble(.name_repair = ~c(\"x\", \"y\")) |> \n               rowid_to_column(\"n\"))) |> \n  unnest(data)\ndata_lhs_maximin <- tibble(iter = 1:iter) |> \n  mutate(data = iter |> \n           map(\\(iter) maximinLHS(n, 2) |> \n               as_tibble(.name_repair = ~c(\"x\", \"y\")) |> \n               rowid_to_column(\"n\"))) |> \n  unnest(data)\n\ndata <- list(runif = data_runif,\n             lhs_random = data_lhs_random,\n             lhs_maximin = data_lhs_maximin) |> \n  bind_rows(.id = \"type\") |> \n  mutate(type = as_factor(type))\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ndata |> \n  filter(iter %in% 1:5) |> \n  ggplot(aes(x, y)) +\n  geom_point() +\n  facet_grid(iter ~ type) +\n  tune::coord_obs_pred()\n```\n\n::: {.cell-output-display}\n![](cluster-illusion-and-poisson-distribution_files/figure-html/unnamed-chunk-3-1.png){width=672}\n:::\n:::\n\n\n## 参考文献\n\n-   \n",
+    "supporting": [
+      "cluster-illusion-and-poisson-distribution_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

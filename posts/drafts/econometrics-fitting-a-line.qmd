@@ -1,0 +1,20 @@
+---
+title: "計量経済学：直線のあてはめ"
+lang: ja
+categories: [Julia, Japanese]
+# date: "2023-09-03"
+draft: true
+---
+
+```{julia}
+#| label: sample
+
+using DataFrames, GLM, Plots
+
+data = DataFrame(
+  X = 10:10:100,
+  Y = [9, 18, 23, 33, 26, 36, 60, 50, 50, 80]
+)
+
+display(plot(data.X, data.Y))
+```

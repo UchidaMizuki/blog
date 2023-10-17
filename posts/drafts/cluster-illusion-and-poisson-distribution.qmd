@@ -1,0 +1,67 @@
+---
+title: "クラスター錯覚とポアソン分布"
+lang: ja
+categories: [Poisson distribution, R, Japanese]
+draft: true
+---
+
+## クラスター錯覚とは
+
+```{r}
+library(tidyverse)
+library(lhs)
+```
+
+```{r}
+iter <- 1e3
+n <- 2e1
+
+set.seed(1234)
+data_runif <- expand_grid(iter = 1:iter,
+                          n = 1:n) |> 
+  mutate(x = runif(n()),
+         y = runif(n()))
+data_lhs_random <- tibble(iter = 1:iter) |> 
+  mutate(data = iter |> 
+           map(\(iter) randomLHS(n, 2) |> 
+               as_tibble(.name_repair = ~c("x", "y")) |> 
+               rowid_to_column("n"))) |> 
+  unnest(data)
+data_lhs_maximin <- tibble(iter = 1:iter) |> 
+  mutate(data = iter |> 
+           map(\(iter) maximinLHS(n, 2) |> 
+               as_tibble(.name_repair = ~c("x", "y")) |> 
+               rowid_to_column("n"))) |> 
+  unnest(data)
+
+data <- list(runif = data_runif,
+             lhs_random = data_lhs_random,
+             lhs_maximin = data_lhs_maximin) |> 
+  bind_rows(.id = "type") |> 
+  mutate(type = as_factor(type))
+```
+
+```{r}
+#| fig-height: 10
+data |> 
+  filter(iter %in% 1:5) |> 
+  ggplot(aes(x, y)) +
+  geom_point() +
+  facet_grid(iter ~ type) +
+  tune::coord_obs_pred()
+```
+
+```{r}
+plot <- data |> 
+  filter(type == "lhs_random",
+         iter == 1) |> 
+  ggplot(aes(x, y)) +
+  geom_point() +
+  tune::coord_obs_pred()
+ggExtra::ggMarginal(plot,
+                    type = "histogram")
+```
+
+## 参考文献
+
+-   
