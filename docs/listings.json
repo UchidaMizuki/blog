@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2024/01/relational-data-models-with-r's-dm.html",
       "/posts/2023/09/circle-area-by-numerical-integration-in-r.html",
       "/posts/2023/09/presented-at-tokyor-using-quarto.html",
       "/posts/2023/04/why-is-bayes-theorem-important.html",

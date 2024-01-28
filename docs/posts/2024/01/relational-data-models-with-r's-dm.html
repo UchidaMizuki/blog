@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.544">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>UchidaMizuki - Rのdmパッケージでデータ前処理の質を高めよう</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../logo.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "一致なし",
+    "search-matching-documents-text": "一致した文書",
+    "search-copy-link-title": "検索へのリンクをコピー",
+    "search-hide-matches-text": "追加の検索結果を非表示",
+    "search-more-match-text": "追加の検索結果",
+    "search-more-matches-text": "追加の検索結果",
+    "search-clear-button-title": "消去",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "検索",
+    "search-label": "サーチ"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
+</script>
+<meta name="mermaid-theme" content="default">
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<script src="../../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="../../../site_libs/viz-1.8.2/viz.js"></script>
+<link href="../../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="../../../site_libs/grViz-binding-1.0.10/grViz.js"></script>
+<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">UchidaMizuki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="サーチ"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="ナビゲーションを切り替える" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/UchidaMizuki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://soundcloud.com/uchidamizuki"> <i class="bi bi-soundwave" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://open.spotify.com/playlist/5iG2wT4LoDMGlxKdYCRi4B?si=eecf00b8051a47af"> <i class="bi bi-spotify" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Rのdmパッケージでデータ前処理の質を高めよう</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">dm</div>
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">Japanese</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">公開</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">2024年1月28日</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="データ前処理はなぜ重要か" class="level2">
+<h2 class="anchored" data-anchor-id="データ前処理はなぜ重要か">データ前処理はなぜ重要か？</h2>
+<p>データ分析に要する時間のうち，8割は前処理に費やされているといわれています．前処理は，その後のデータ分析の質を左右しますから，前処理の質の向上は非常に重要です．一方で，前処理に膨大な時間を要するということは，作業ミスが起こる確率もそれだけ高くなるということを意味しています．</p>
+<p>一般的な（データ構造に対する）前処理には，データフレームの”抽出”・”集約”・”結合”がありますが，なかでも”結合”は，コードが長くなりやすく，作業ミスが起こりやすい作業であると思われます．また，分析で必要となるデータフレームが1つにまとまっていることは稀ですから，データフレームの結合は特に頻出する処理でもあります．</p>
+<p>データフレームの”結合”で起こりがちな典型的なミスとして，以下のようなものがあります<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
+<ul>
+<li>結合するデータフレームがMECE（「漏れなく・ダブりなく」）の状態でない</li>
+<li>結合のためのキーを取り違える，または，データ形式が異なる</li>
+</ul>
+<p>もしも，これまでデータフレームの結合において，何らかの作業ミスや”ヒヤリ・ハット”を経験したことがあるのであれば，それらを放置せず何らかのパッケージに頼るほうが得策かもしれません．また，仮に作業ミスがなかったとしても，私たちは過去の作業が正しかったかについて疑心暗鬼になりがちです<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>．</p>
+<p>この記事では，データフレームの”結合”における作業ミスや疑心暗鬼の解決策として有力なRのdmパッケージを紹介します．</p>
+</section>
+<section id="dmによるリレーショナルデータモデル" class="level2">
+<h2 class="anchored" data-anchor-id="dmによるリレーショナルデータモデル">dmによるリレーショナルデータモデル</h2>
+<p>dmの提供するリレーショナルデータモデルは，複数のデータ間の関係性を私たちの代わりに管理してくれます．</p>
+<p>この記事では，repurrrsiveパッケージで提供されているStarWarsのデータセットを使って，dmの提供するリレーショナルデータモデルを構築します．あらかじめ，tidyverse，dm，repurrrsiveの3つのパッケージを読み込んでおきましょう．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dm)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(repurrrsive)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>repurrrsiveで提供されているStarWarsのデータセットには，以下のようなものが含まれています<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>．</p>
+<div class="cell">
+<details class="code-fold">
+<summary>repurrrsiveで提供されているStarWarsのデータセット</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"repurrrsive"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">chuck</span>(<span class="st">"results"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_starts</span>(Item, <span class="st">"sw_"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Item)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "sw_films"     "sw_people"    "sw_planets"   "sw_species"   "sw_starships"
+[6] "sw_vehicles" </code></pre>
+</div>
+</div>
+<p>ここでは，データ分析の題材として，複数のデータ間の関係を扱う必要のある，以下の2つの分析内容を考えてみましょう．正直に言うと，2つの分析の難易度はほぼ同じですが，基礎編では，主にdmのリレーショナルデータモデルの構築する方法を，応用編では，リレーショナルデータモデルの拡張したりキーを検証したりする方法について説明します．</p>
+<ol type="1">
+<li>基礎編：StarWars作品の登場人物の故郷の惑星の構成比を調べる
+<ul>
+<li><code>sw_films</code>・<code>sw_people</code>・<code>sw_planets</code>の3つのデータが必要</li>
+</ul></li>
+<li>応用編：StarWars作品の登場人物の種族の構成比を調べる
+<ul>
+<li><code>sw_films</code>・<code>sw_people</code>・<code>sw_species</code>の3つのデータが必要</li>
+</ul></li>
+</ol>
+<section id="基礎編starwars作品の登場人物の故郷の惑星の構成比を調べる" class="level3">
+<h3 class="anchored" data-anchor-id="基礎編starwars作品の登場人物の故郷の惑星の構成比を調べる">1. 基礎編：StarWars作品の登場人物の故郷の惑星の構成比を調べる</h3>
+<p>基礎編として，リレーショナルデータモデルを構築して，StarWars作品の登場人物の故郷の惑星の構成比を調べてみましょう．この分析を行うために，以下のように3つのデータフレーム<code>films</code>・<code>people</code>・<code>planets</code>を準備しておきます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．ここでは，分析をシンプルにするため，必要なデータのみを<code>select</code>しました<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>films <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">film =</span> sw_films) <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(film) <span class="sc">|&gt;</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, title, characters)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>people <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">person =</span> sw_people) <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(person) <span class="sc">|&gt;</span> </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name, homeworld, species)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>planets <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">planet =</span> sw_planets) <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(planet) <span class="sc">|&gt;</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>films</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["url"],"name":[1],"type":["chr"],"align":["left"]},{"label":["title"],"name":[2],"type":["chr"],"align":["left"]},{"label":["characters"],"name":[3],"type":["list"],"align":["right"]}],"data":[{"1":"http://swapi.co/api/films/1/","2":"A New Hope","3":"<chr [18]>"},{"1":"http://swapi.co/api/films/5/","2":"Attack of the Clones","3":"<chr [40]>"},{"1":"http://swapi.co/api/films/4/","2":"The Phantom Menace","3":"<chr [34]>"},{"1":"http://swapi.co/api/films/6/","2":"Revenge of the Sith","3":"<chr [34]>"},{"1":"http://swapi.co/api/films/3/","2":"Return of the Jedi","3":"<chr [20]>"},{"1":"http://swapi.co/api/films/2/","2":"The Empire Strikes Back","3":"<chr [16]>"},{"1":"http://swapi.co/api/films/7/","2":"The Force Awakens","3":"<chr [11]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>people</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["url"],"name":[1],"type":["chr"],"align":["left"]},{"label":["name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["homeworld"],"name":[3],"type":["chr"],"align":["left"]},{"label":["species"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"http://swapi.co/api/people/1/","2":"Luke Skywalker","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/2/","2":"C-3PO","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/2/"},{"1":"http://swapi.co/api/people/3/","2":"R2-D2","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/2/"},{"1":"http://swapi.co/api/people/4/","2":"Darth Vader","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/5/","2":"Leia Organa","3":"http://swapi.co/api/planets/2/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/6/","2":"Owen Lars","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/7/","2":"Beru Whitesun lars","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/8/","2":"R5-D4","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/2/"},{"1":"http://swapi.co/api/people/9/","2":"Biggs Darklighter","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/10/","2":"Obi-Wan Kenobi","3":"http://swapi.co/api/planets/20/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/11/","2":"Anakin Skywalker","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/12/","2":"Wilhuff Tarkin","3":"http://swapi.co/api/planets/21/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/13/","2":"Chewbacca","3":"http://swapi.co/api/planets/14/","4":"http://swapi.co/api/species/3/"},{"1":"http://swapi.co/api/people/14/","2":"Han Solo","3":"http://swapi.co/api/planets/22/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/15/","2":"Greedo","3":"http://swapi.co/api/planets/23/","4":"http://swapi.co/api/species/4/"},{"1":"http://swapi.co/api/people/16/","2":"Jabba Desilijic Tiure","3":"http://swapi.co/api/planets/24/","4":"http://swapi.co/api/species/5/"},{"1":"http://swapi.co/api/people/18/","2":"Wedge Antilles","3":"http://swapi.co/api/planets/22/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/19/","2":"Jek Tono Porkins","3":"http://swapi.co/api/planets/26/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/20/","2":"Yoda","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/6/"},{"1":"http://swapi.co/api/people/21/","2":"Palpatine","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/22/","2":"Boba Fett","3":"http://swapi.co/api/planets/10/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/23/","2":"IG-88","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/2/"},{"1":"http://swapi.co/api/people/24/","2":"Bossk","3":"http://swapi.co/api/planets/29/","4":"http://swapi.co/api/species/7/"},{"1":"http://swapi.co/api/people/25/","2":"Lando Calrissian","3":"http://swapi.co/api/planets/30/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/26/","2":"Lobot","3":"http://swapi.co/api/planets/6/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/27/","2":"Ackbar","3":"http://swapi.co/api/planets/31/","4":"http://swapi.co/api/species/8/"},{"1":"http://swapi.co/api/people/28/","2":"Mon Mothma","3":"http://swapi.co/api/planets/32/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/29/","2":"Arvel Crynyd","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/30/","2":"Wicket Systri Warrick","3":"http://swapi.co/api/planets/7/","4":"http://swapi.co/api/species/9/"},{"1":"http://swapi.co/api/people/31/","2":"Nien Nunb","3":"http://swapi.co/api/planets/33/","4":"http://swapi.co/api/species/10/"},{"1":"http://swapi.co/api/people/32/","2":"Qui-Gon Jinn","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/33/","2":"Nute Gunray","3":"http://swapi.co/api/planets/18/","4":"http://swapi.co/api/species/11/"},{"1":"http://swapi.co/api/people/34/","2":"Finis Valorum","3":"http://swapi.co/api/planets/9/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/36/","2":"Jar Jar Binks","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/12/"},{"1":"http://swapi.co/api/people/37/","2":"Roos Tarpals","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/12/"},{"1":"http://swapi.co/api/people/38/","2":"Rugor Nass","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/12/"},{"1":"http://swapi.co/api/people/39/","2":"Ric Olié","3":"http://swapi.co/api/planets/8/","4":"NA"},{"1":"http://swapi.co/api/people/40/","2":"Watto","3":"http://swapi.co/api/planets/34/","4":"http://swapi.co/api/species/13/"},{"1":"http://swapi.co/api/people/41/","2":"Sebulba","3":"http://swapi.co/api/planets/35/","4":"http://swapi.co/api/species/14/"},{"1":"http://swapi.co/api/people/42/","2":"Quarsh Panaka","3":"http://swapi.co/api/planets/8/","4":"NA"},{"1":"http://swapi.co/api/people/43/","2":"Shmi Skywalker","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/44/","2":"Darth Maul","3":"http://swapi.co/api/planets/36/","4":"http://swapi.co/api/species/22/"},{"1":"http://swapi.co/api/people/45/","2":"Bib Fortuna","3":"http://swapi.co/api/planets/37/","4":"http://swapi.co/api/species/15/"},{"1":"http://swapi.co/api/people/46/","2":"Ayla Secura","3":"http://swapi.co/api/planets/37/","4":"http://swapi.co/api/species/15/"},{"1":"http://swapi.co/api/people/48/","2":"Dud Bolt","3":"http://swapi.co/api/planets/39/","4":"http://swapi.co/api/species/17/"},{"1":"http://swapi.co/api/people/49/","2":"Gasgano","3":"http://swapi.co/api/planets/40/","4":"http://swapi.co/api/species/18/"},{"1":"http://swapi.co/api/people/50/","2":"Ben Quadinaros","3":"http://swapi.co/api/planets/41/","4":"http://swapi.co/api/species/19/"},{"1":"http://swapi.co/api/people/51/","2":"Mace Windu","3":"http://swapi.co/api/planets/42/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/52/","2":"Ki-Adi-Mundi","3":"http://swapi.co/api/planets/43/","4":"http://swapi.co/api/species/20/"},{"1":"http://swapi.co/api/people/53/","2":"Kit Fisto","3":"http://swapi.co/api/planets/44/","4":"http://swapi.co/api/species/21/"},{"1":"http://swapi.co/api/people/54/","2":"Eeth Koth","3":"http://swapi.co/api/planets/45/","4":"http://swapi.co/api/species/22/"},{"1":"http://swapi.co/api/people/55/","2":"Adi Gallia","3":"http://swapi.co/api/planets/9/","4":"http://swapi.co/api/species/23/"},{"1":"http://swapi.co/api/people/56/","2":"Saesee Tiin","3":"http://swapi.co/api/planets/47/","4":"http://swapi.co/api/species/24/"},{"1":"http://swapi.co/api/people/57/","2":"Yarael Poof","3":"http://swapi.co/api/planets/48/","4":"http://swapi.co/api/species/25/"},{"1":"http://swapi.co/api/people/58/","2":"Plo Koon","3":"http://swapi.co/api/planets/49/","4":"http://swapi.co/api/species/26/"},{"1":"http://swapi.co/api/people/59/","2":"Mas Amedda","3":"http://swapi.co/api/planets/50/","4":"http://swapi.co/api/species/27/"},{"1":"http://swapi.co/api/people/60/","2":"Gregar Typho","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/61/","2":"Cordé","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/62/","2":"Cliegg Lars","3":"http://swapi.co/api/planets/1/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/63/","2":"Poggle the Lesser","3":"http://swapi.co/api/planets/11/","4":"http://swapi.co/api/species/28/"},{"1":"http://swapi.co/api/people/64/","2":"Luminara Unduli","3":"http://swapi.co/api/planets/51/","4":"http://swapi.co/api/species/29/"},{"1":"http://swapi.co/api/people/65/","2":"Barriss Offee","3":"http://swapi.co/api/planets/51/","4":"http://swapi.co/api/species/29/"},{"1":"http://swapi.co/api/people/66/","2":"Dormé","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/67/","2":"Dooku","3":"http://swapi.co/api/planets/52/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/68/","2":"Bail Prestor Organa","3":"http://swapi.co/api/planets/2/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/69/","2":"Jango Fett","3":"http://swapi.co/api/planets/53/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/70/","2":"Zam Wesell","3":"http://swapi.co/api/planets/54/","4":"http://swapi.co/api/species/30/"},{"1":"http://swapi.co/api/people/71/","2":"Dexter Jettster","3":"http://swapi.co/api/planets/55/","4":"http://swapi.co/api/species/31/"},{"1":"http://swapi.co/api/people/72/","2":"Lama Su","3":"http://swapi.co/api/planets/10/","4":"http://swapi.co/api/species/32/"},{"1":"http://swapi.co/api/people/73/","2":"Taun We","3":"http://swapi.co/api/planets/10/","4":"http://swapi.co/api/species/32/"},{"1":"http://swapi.co/api/people/74/","2":"Jocasta Nu","3":"http://swapi.co/api/planets/9/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/47/","2":"Ratts Tyerell","3":"http://swapi.co/api/planets/38/","4":"http://swapi.co/api/species/16/"},{"1":"http://swapi.co/api/people/75/","2":"R4-P17","3":"http://swapi.co/api/planets/28/","4":"NA"},{"1":"http://swapi.co/api/people/76/","2":"Wat Tambor","3":"http://swapi.co/api/planets/56/","4":"http://swapi.co/api/species/33/"},{"1":"http://swapi.co/api/people/77/","2":"San Hill","3":"http://swapi.co/api/planets/57/","4":"http://swapi.co/api/species/34/"},{"1":"http://swapi.co/api/people/78/","2":"Shaak Ti","3":"http://swapi.co/api/planets/58/","4":"http://swapi.co/api/species/35/"},{"1":"http://swapi.co/api/people/79/","2":"Grievous","3":"http://swapi.co/api/planets/59/","4":"http://swapi.co/api/species/36/"},{"1":"http://swapi.co/api/people/80/","2":"Tarfful","3":"http://swapi.co/api/planets/14/","4":"http://swapi.co/api/species/3/"},{"1":"http://swapi.co/api/people/81/","2":"Raymus Antilles","3":"http://swapi.co/api/planets/2/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/82/","2":"Sly Moore","3":"http://swapi.co/api/planets/60/","4":"NA"},{"1":"http://swapi.co/api/people/83/","2":"Tion Medon","3":"http://swapi.co/api/planets/12/","4":"http://swapi.co/api/species/37/"},{"1":"http://swapi.co/api/people/84/","2":"Finn","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/85/","2":"Rey","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/86/","2":"Poe Dameron","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/1/"},{"1":"http://swapi.co/api/people/87/","2":"BB8","3":"http://swapi.co/api/planets/28/","4":"http://swapi.co/api/species/2/"},{"1":"http://swapi.co/api/people/88/","2":"Captain Phasma","3":"http://swapi.co/api/planets/28/","4":"NA"},{"1":"http://swapi.co/api/people/35/","2":"Padmé Amidala","3":"http://swapi.co/api/planets/8/","4":"http://swapi.co/api/species/1/"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>planets</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["url"],"name":[1],"type":["chr"],"align":["left"]},{"label":["name"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"http://swapi.co/api/planets/2/","2":"Alderaan"},{"1":"http://swapi.co/api/planets/3/","2":"Yavin IV"},{"1":"http://swapi.co/api/planets/4/","2":"Hoth"},{"1":"http://swapi.co/api/planets/5/","2":"Dagobah"},{"1":"http://swapi.co/api/planets/6/","2":"Bespin"},{"1":"http://swapi.co/api/planets/7/","2":"Endor"},{"1":"http://swapi.co/api/planets/8/","2":"Naboo"},{"1":"http://swapi.co/api/planets/9/","2":"Coruscant"},{"1":"http://swapi.co/api/planets/10/","2":"Kamino"},{"1":"http://swapi.co/api/planets/11/","2":"Geonosis"},{"1":"http://swapi.co/api/planets/12/","2":"Utapau"},{"1":"http://swapi.co/api/planets/13/","2":"Mustafar"},{"1":"http://swapi.co/api/planets/14/","2":"Kashyyyk"},{"1":"http://swapi.co/api/planets/15/","2":"Polis Massa"},{"1":"http://swapi.co/api/planets/16/","2":"Mygeeto"},{"1":"http://swapi.co/api/planets/17/","2":"Felucia"},{"1":"http://swapi.co/api/planets/18/","2":"Cato Neimoidia"},{"1":"http://swapi.co/api/planets/19/","2":"Saleucami"},{"1":"http://swapi.co/api/planets/20/","2":"Stewjon"},{"1":"http://swapi.co/api/planets/21/","2":"Eriadu"},{"1":"http://swapi.co/api/planets/22/","2":"Corellia"},{"1":"http://swapi.co/api/planets/23/","2":"Rodia"},{"1":"http://swapi.co/api/planets/24/","2":"Nal Hutta"},{"1":"http://swapi.co/api/planets/25/","2":"Dantooine"},{"1":"http://swapi.co/api/planets/26/","2":"Bestine IV"},{"1":"http://swapi.co/api/planets/27/","2":"Ord Mantell"},{"1":"http://swapi.co/api/planets/28/","2":"unknown"},{"1":"http://swapi.co/api/planets/29/","2":"Trandosha"},{"1":"http://swapi.co/api/planets/30/","2":"Socorro"},{"1":"http://swapi.co/api/planets/31/","2":"Mon Cala"},{"1":"http://swapi.co/api/planets/32/","2":"Chandrila"},{"1":"http://swapi.co/api/planets/33/","2":"Sullust"},{"1":"http://swapi.co/api/planets/34/","2":"Toydaria"},{"1":"http://swapi.co/api/planets/35/","2":"Malastare"},{"1":"http://swapi.co/api/planets/36/","2":"Dathomir"},{"1":"http://swapi.co/api/planets/37/","2":"Ryloth"},{"1":"http://swapi.co/api/planets/38/","2":"Aleen Minor"},{"1":"http://swapi.co/api/planets/39/","2":"Vulpter"},{"1":"http://swapi.co/api/planets/40/","2":"Troiken"},{"1":"http://swapi.co/api/planets/41/","2":"Tund"},{"1":"http://swapi.co/api/planets/42/","2":"Haruun Kal"},{"1":"http://swapi.co/api/planets/43/","2":"Cerea"},{"1":"http://swapi.co/api/planets/44/","2":"Glee Anselm"},{"1":"http://swapi.co/api/planets/45/","2":"Iridonia"},{"1":"http://swapi.co/api/planets/46/","2":"Tholoth"},{"1":"http://swapi.co/api/planets/47/","2":"Iktotch"},{"1":"http://swapi.co/api/planets/48/","2":"Quermia"},{"1":"http://swapi.co/api/planets/49/","2":"Dorin"},{"1":"http://swapi.co/api/planets/50/","2":"Champala"},{"1":"http://swapi.co/api/planets/51/","2":"Mirial"},{"1":"http://swapi.co/api/planets/52/","2":"Serenno"},{"1":"http://swapi.co/api/planets/53/","2":"Concord Dawn"},{"1":"http://swapi.co/api/planets/54/","2":"Zolan"},{"1":"http://swapi.co/api/planets/55/","2":"Ojom"},{"1":"http://swapi.co/api/planets/56/","2":"Skako"},{"1":"http://swapi.co/api/planets/57/","2":"Muunilinst"},{"1":"http://swapi.co/api/planets/58/","2":"Shili"},{"1":"http://swapi.co/api/planets/59/","2":"Kalee"},{"1":"http://swapi.co/api/planets/60/","2":"Umbara"},{"1":"http://swapi.co/api/planets/1/","2":"Tatooine"},{"1":"http://swapi.co/api/planets/61/","2":"Jakku"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>準備したデータフレームを確認すると，各データフレームの<code>url</code>列がキーとして用いられていることがわかりますので，データフレーム間の関係は以下のようにまとめることができます<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>．特に，1つの映画作品には複数の登場人物が登場することが一般的ですので，<code>films</code>の<code>characters</code>列が登場人物のリストになっていることに注意が必要です．そのため，このままでは，<code>films</code>の<code>characters</code>列を<code>people</code>の<code>url</code>列と対応付けることができません．</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+  films.characters --&gt; people.url
+  people.homeworld --&gt; planets.url
+  subgraph films
+    films.url[url]
+    films.title[title]
+    films.characters[List of characters] 
+  end
+  subgraph people
+    people.url[url]
+    people.name[name]
+    people.homeworld[homeworld]
+  end
+  subgraph planets
+    planets.url[url]
+    planets.name[name]
+  end
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>そこで，<code>films</code>と<code>people</code>の関係，すなわち，どの作品にどの登場人物が登場するかを表すデータ<code>films_x_characters</code>を新たに作成することを考えます<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>．<code>films_x_characters</code>を介すことで，データ間の関係を以下のようにまとめることができます．</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+  films_x_characters.url --&gt; films.url
+  films_x_characters.characters ---&gt; people.url
+  people.homeworld --&gt; planets.url
+  subgraph films_x_characters
+    films_x_characters.url[url]
+    films_x_characters.characters[characters]
+  end
+  subgraph films
+    films.url[url]
+    films.title[title]
+  end
+  subgraph people
+    people.url[url]
+    people.name[name]
+    people.homeworld[homeworld]
+  end
+  subgraph planets
+    planets.url[url]
+    planets.name[name]
+  end
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>それでは，上のイメージに従って，実際にリレーショナルデータモデルを構築してみましょう．まず，<code>films</code>の<code>url</code>・<code>characters</code>列を使って<code>films_x_characters</code>を作成します．ついでに<code>films</code>から不要となった<code>characters</code>列を削除しておきます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create films_x_characters and remove characters column from films</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>films_x_characters <span class="ot">&lt;-</span> films <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, characters) <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_longer</span>(characters)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>films <span class="ot">&lt;-</span> films <span class="sc">|&gt;</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>characters)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>films_x_characters</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["url"],"name":[1],"type":["chr"],"align":["left"]},{"label":["characters"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/1/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/2/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/4/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/5/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/6/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/7/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/8/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/9/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/10/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/12/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/13/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/14/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/15/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/16/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/18/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/19/"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/81/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/2/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/6/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/7/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/10/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/11/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/20/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/21/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/22/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/33/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/36/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/40/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/43/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/46/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/51/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/52/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/53/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/58/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/59/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/60/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/61/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/62/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/63/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/64/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/65/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/66/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/67/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/68/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/69/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/70/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/71/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/72/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/73/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/74/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/75/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/76/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/77/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/78/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/82/"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/35/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/2/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/10/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/11/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/16/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/20/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/21/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/32/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/33/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/34/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/36/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/37/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/38/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/39/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/40/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/41/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/42/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/43/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/44/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/46/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/48/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/49/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/50/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/51/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/52/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/53/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/54/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/55/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/56/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/57/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/58/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/59/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/47/"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/35/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/1/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/2/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/4/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/5/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/6/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/7/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/10/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/11/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/12/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/13/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/20/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/21/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/33/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/46/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/51/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/52/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/53/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/54/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/55/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/56/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/58/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/63/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/64/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/67/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/68/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/75/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/78/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/79/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/80/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/81/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/82/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/83/"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/35/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/1/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/2/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/4/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/5/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/10/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/13/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/14/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/16/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/18/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/20/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/21/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/22/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/25/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/27/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/28/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/29/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/30/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/31/"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/45/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/1/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/2/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/4/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/5/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/10/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/13/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/14/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/18/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/20/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/21/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/22/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/23/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/24/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/25/"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/26/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/1/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/3/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/5/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/13/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/14/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/27/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/84/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/85/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/86/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/87/"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/88/"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>最後に，<code>dm()</code>に準備した<code>films</code>・<code>people</code>・<code>planets</code>・<code>films_x_characters</code>を渡した後，主キー（primary keys）と外部キー（foreign keys）を追加することで，リレーショナルデータモデルを構築することができます．</p>
+<p>dmでは，主キーを<code>dm_add_pk()</code>で<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>，外部キーを<code>dm_add_fk()</code>で設定します<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_1 <span class="ot">&lt;-</span> <span class="fu">dm</span>(films, people, planets, films_x_characters) <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Add primary keys</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(films, url) <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(people, url) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(planets, url) <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(films_x_characters, <span class="fu">c</span>(url, characters)) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Add foreign keys</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(films_x_characters, url, films) <span class="sc">|&gt;</span> </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(films_x_characters, characters, people) <span class="sc">|&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, homeworld, planets) </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>dm_starwars_1</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>── Metadata ────────────────────────────────────────────────────────────────────
+Tables: `films`, `people`, `planets`, `films_x_characters`
+Columns: 10
+Primary keys: 4
+Foreign keys: 3</code></pre>
+</div>
+</div>
+<p><code>dm_draw()</code>を用いて，リレーショナルデータモデルを描画することもできます．描画してみると，上のイメージと同様の関係が構築されていることがわかります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_1)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="grViz html-widget html-fill-item" id="htmlwidget-7d213081b18ae09160c2" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-7d213081b18ae09160c2">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>以下のように<code>dm_flatten_to_tbl()</code>を用いることで，<code>films_x_characters</code>データに<code>films</code>・<code>people</code>・<code>planets</code>データを結合したデータフレームを作成することができます<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>．この際，異なるデータ間で同名の列名が存在する場合には，データ名に応じて自動的に列名が変更されます．このように，リレーショナルデータモデルが私たちの代わりにデータ間の関係を管理してくれるおかげで，他のデータ間との関係に基づいて自動的にデータフレームを結合することができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1 <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_flatten_to_tbl</span>(films_x_characters,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.recursive =</span> <span class="cn">TRUE</span>) </span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Renaming ambiguous columns: %&gt;%
+  dm_rename(people, name.people = name) %&gt;%
+  dm_rename(planets, name.planets = name)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["url"],"name":[1],"type":["chr"],"align":["left"]},{"label":["characters"],"name":[2],"type":["chr"],"align":["left"]},{"label":["title"],"name":[3],"type":["chr"],"align":["left"]},{"label":["name.people"],"name":[4],"type":["chr"],"align":["left"]},{"label":["homeworld"],"name":[5],"type":["chr"],"align":["left"]},{"label":["species"],"name":[6],"type":["chr"],"align":["left"]},{"label":["name.planets"],"name":[7],"type":["chr"],"align":["left"]}],"data":[{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/1/","3":"A New Hope","4":"Luke Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/2/","3":"A New Hope","4":"C-3PO","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/3/","3":"A New Hope","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/4/","3":"A New Hope","4":"Darth Vader","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/5/","3":"A New Hope","4":"Leia Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/6/","3":"A New Hope","4":"Owen Lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/7/","3":"A New Hope","4":"Beru Whitesun lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/8/","3":"A New Hope","4":"R5-D4","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/9/","3":"A New Hope","4":"Biggs Darklighter","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/10/","3":"A New Hope","4":"Obi-Wan Kenobi","5":"http://swapi.co/api/planets/20/","6":"http://swapi.co/api/species/1/","7":"Stewjon"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/12/","3":"A New Hope","4":"Wilhuff Tarkin","5":"http://swapi.co/api/planets/21/","6":"http://swapi.co/api/species/1/","7":"Eriadu"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/13/","3":"A New Hope","4":"Chewbacca","5":"http://swapi.co/api/planets/14/","6":"http://swapi.co/api/species/3/","7":"Kashyyyk"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/14/","3":"A New Hope","4":"Han Solo","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/15/","3":"A New Hope","4":"Greedo","5":"http://swapi.co/api/planets/23/","6":"http://swapi.co/api/species/4/","7":"Rodia"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/16/","3":"A New Hope","4":"Jabba Desilijic Tiure","5":"http://swapi.co/api/planets/24/","6":"http://swapi.co/api/species/5/","7":"Nal Hutta"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/18/","3":"A New Hope","4":"Wedge Antilles","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/19/","3":"A New Hope","4":"Jek Tono Porkins","5":"http://swapi.co/api/planets/26/","6":"http://swapi.co/api/species/1/","7":"Bestine IV"},{"1":"http://swapi.co/api/films/1/","2":"http://swapi.co/api/people/81/","3":"A New Hope","4":"Raymus Antilles","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/2/","3":"Attack of the Clones","4":"C-3PO","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/3/","3":"Attack of the Clones","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/6/","3":"Attack of the Clones","4":"Owen Lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/7/","3":"Attack of the Clones","4":"Beru Whitesun lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/10/","3":"Attack of the Clones","4":"Obi-Wan Kenobi","5":"http://swapi.co/api/planets/20/","6":"http://swapi.co/api/species/1/","7":"Stewjon"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/11/","3":"Attack of the Clones","4":"Anakin Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/20/","3":"Attack of the Clones","4":"Yoda","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/6/","7":"unknown"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/21/","3":"Attack of the Clones","4":"Palpatine","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/22/","3":"Attack of the Clones","4":"Boba Fett","5":"http://swapi.co/api/planets/10/","6":"http://swapi.co/api/species/1/","7":"Kamino"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/33/","3":"Attack of the Clones","4":"Nute Gunray","5":"http://swapi.co/api/planets/18/","6":"http://swapi.co/api/species/11/","7":"Cato Neimoidia"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/36/","3":"Attack of the Clones","4":"Jar Jar Binks","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/12/","7":"Naboo"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/40/","3":"Attack of the Clones","4":"Watto","5":"http://swapi.co/api/planets/34/","6":"http://swapi.co/api/species/13/","7":"Toydaria"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/43/","3":"Attack of the Clones","4":"Shmi Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/46/","3":"Attack of the Clones","4":"Ayla Secura","5":"http://swapi.co/api/planets/37/","6":"http://swapi.co/api/species/15/","7":"Ryloth"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/51/","3":"Attack of the Clones","4":"Mace Windu","5":"http://swapi.co/api/planets/42/","6":"http://swapi.co/api/species/1/","7":"Haruun Kal"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/52/","3":"Attack of the Clones","4":"Ki-Adi-Mundi","5":"http://swapi.co/api/planets/43/","6":"http://swapi.co/api/species/20/","7":"Cerea"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/53/","3":"Attack of the Clones","4":"Kit Fisto","5":"http://swapi.co/api/planets/44/","6":"http://swapi.co/api/species/21/","7":"Glee Anselm"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/58/","3":"Attack of the Clones","4":"Plo Koon","5":"http://swapi.co/api/planets/49/","6":"http://swapi.co/api/species/26/","7":"Dorin"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/59/","3":"Attack of the Clones","4":"Mas Amedda","5":"http://swapi.co/api/planets/50/","6":"http://swapi.co/api/species/27/","7":"Champala"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/60/","3":"Attack of the Clones","4":"Gregar Typho","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/61/","3":"Attack of the Clones","4":"Cordé","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/62/","3":"Attack of the Clones","4":"Cliegg Lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/63/","3":"Attack of the Clones","4":"Poggle the Lesser","5":"http://swapi.co/api/planets/11/","6":"http://swapi.co/api/species/28/","7":"Geonosis"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/64/","3":"Attack of the Clones","4":"Luminara Unduli","5":"http://swapi.co/api/planets/51/","6":"http://swapi.co/api/species/29/","7":"Mirial"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/65/","3":"Attack of the Clones","4":"Barriss Offee","5":"http://swapi.co/api/planets/51/","6":"http://swapi.co/api/species/29/","7":"Mirial"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/66/","3":"Attack of the Clones","4":"Dormé","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/67/","3":"Attack of the Clones","4":"Dooku","5":"http://swapi.co/api/planets/52/","6":"http://swapi.co/api/species/1/","7":"Serenno"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/68/","3":"Attack of the Clones","4":"Bail Prestor Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/69/","3":"Attack of the Clones","4":"Jango Fett","5":"http://swapi.co/api/planets/53/","6":"http://swapi.co/api/species/1/","7":"Concord Dawn"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/70/","3":"Attack of the Clones","4":"Zam Wesell","5":"http://swapi.co/api/planets/54/","6":"http://swapi.co/api/species/30/","7":"Zolan"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/71/","3":"Attack of the Clones","4":"Dexter Jettster","5":"http://swapi.co/api/planets/55/","6":"http://swapi.co/api/species/31/","7":"Ojom"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/72/","3":"Attack of the Clones","4":"Lama Su","5":"http://swapi.co/api/planets/10/","6":"http://swapi.co/api/species/32/","7":"Kamino"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/73/","3":"Attack of the Clones","4":"Taun We","5":"http://swapi.co/api/planets/10/","6":"http://swapi.co/api/species/32/","7":"Kamino"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/74/","3":"Attack of the Clones","4":"Jocasta Nu","5":"http://swapi.co/api/planets/9/","6":"http://swapi.co/api/species/1/","7":"Coruscant"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/75/","3":"Attack of the Clones","4":"R4-P17","5":"http://swapi.co/api/planets/28/","6":"NA","7":"unknown"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/76/","3":"Attack of the Clones","4":"Wat Tambor","5":"http://swapi.co/api/planets/56/","6":"http://swapi.co/api/species/33/","7":"Skako"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/77/","3":"Attack of the Clones","4":"San Hill","5":"http://swapi.co/api/planets/57/","6":"http://swapi.co/api/species/34/","7":"Muunilinst"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/78/","3":"Attack of the Clones","4":"Shaak Ti","5":"http://swapi.co/api/planets/58/","6":"http://swapi.co/api/species/35/","7":"Shili"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/82/","3":"Attack of the Clones","4":"Sly Moore","5":"http://swapi.co/api/planets/60/","6":"NA","7":"Umbara"},{"1":"http://swapi.co/api/films/5/","2":"http://swapi.co/api/people/35/","3":"Attack of the Clones","4":"Padmé Amidala","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/2/","3":"The Phantom Menace","4":"C-3PO","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/3/","3":"The Phantom Menace","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/10/","3":"The Phantom Menace","4":"Obi-Wan Kenobi","5":"http://swapi.co/api/planets/20/","6":"http://swapi.co/api/species/1/","7":"Stewjon"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/11/","3":"The Phantom Menace","4":"Anakin Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/16/","3":"The Phantom Menace","4":"Jabba Desilijic Tiure","5":"http://swapi.co/api/planets/24/","6":"http://swapi.co/api/species/5/","7":"Nal Hutta"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/20/","3":"The Phantom Menace","4":"Yoda","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/6/","7":"unknown"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/21/","3":"The Phantom Menace","4":"Palpatine","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/32/","3":"The Phantom Menace","4":"Qui-Gon Jinn","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/1/","7":"unknown"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/33/","3":"The Phantom Menace","4":"Nute Gunray","5":"http://swapi.co/api/planets/18/","6":"http://swapi.co/api/species/11/","7":"Cato Neimoidia"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/34/","3":"The Phantom Menace","4":"Finis Valorum","5":"http://swapi.co/api/planets/9/","6":"http://swapi.co/api/species/1/","7":"Coruscant"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/36/","3":"The Phantom Menace","4":"Jar Jar Binks","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/12/","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/37/","3":"The Phantom Menace","4":"Roos Tarpals","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/12/","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/38/","3":"The Phantom Menace","4":"Rugor Nass","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/12/","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/39/","3":"The Phantom Menace","4":"Ric Olié","5":"http://swapi.co/api/planets/8/","6":"NA","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/40/","3":"The Phantom Menace","4":"Watto","5":"http://swapi.co/api/planets/34/","6":"http://swapi.co/api/species/13/","7":"Toydaria"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/41/","3":"The Phantom Menace","4":"Sebulba","5":"http://swapi.co/api/planets/35/","6":"http://swapi.co/api/species/14/","7":"Malastare"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/42/","3":"The Phantom Menace","4":"Quarsh Panaka","5":"http://swapi.co/api/planets/8/","6":"NA","7":"Naboo"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/43/","3":"The Phantom Menace","4":"Shmi Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/44/","3":"The Phantom Menace","4":"Darth Maul","5":"http://swapi.co/api/planets/36/","6":"http://swapi.co/api/species/22/","7":"Dathomir"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/46/","3":"The Phantom Menace","4":"Ayla Secura","5":"http://swapi.co/api/planets/37/","6":"http://swapi.co/api/species/15/","7":"Ryloth"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/48/","3":"The Phantom Menace","4":"Dud Bolt","5":"http://swapi.co/api/planets/39/","6":"http://swapi.co/api/species/17/","7":"Vulpter"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/49/","3":"The Phantom Menace","4":"Gasgano","5":"http://swapi.co/api/planets/40/","6":"http://swapi.co/api/species/18/","7":"Troiken"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/50/","3":"The Phantom Menace","4":"Ben Quadinaros","5":"http://swapi.co/api/planets/41/","6":"http://swapi.co/api/species/19/","7":"Tund"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/51/","3":"The Phantom Menace","4":"Mace Windu","5":"http://swapi.co/api/planets/42/","6":"http://swapi.co/api/species/1/","7":"Haruun Kal"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/52/","3":"The Phantom Menace","4":"Ki-Adi-Mundi","5":"http://swapi.co/api/planets/43/","6":"http://swapi.co/api/species/20/","7":"Cerea"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/53/","3":"The Phantom Menace","4":"Kit Fisto","5":"http://swapi.co/api/planets/44/","6":"http://swapi.co/api/species/21/","7":"Glee Anselm"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/54/","3":"The Phantom Menace","4":"Eeth Koth","5":"http://swapi.co/api/planets/45/","6":"http://swapi.co/api/species/22/","7":"Iridonia"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/55/","3":"The Phantom Menace","4":"Adi Gallia","5":"http://swapi.co/api/planets/9/","6":"http://swapi.co/api/species/23/","7":"Coruscant"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/56/","3":"The Phantom Menace","4":"Saesee Tiin","5":"http://swapi.co/api/planets/47/","6":"http://swapi.co/api/species/24/","7":"Iktotch"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/57/","3":"The Phantom Menace","4":"Yarael Poof","5":"http://swapi.co/api/planets/48/","6":"http://swapi.co/api/species/25/","7":"Quermia"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/58/","3":"The Phantom Menace","4":"Plo Koon","5":"http://swapi.co/api/planets/49/","6":"http://swapi.co/api/species/26/","7":"Dorin"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/59/","3":"The Phantom Menace","4":"Mas Amedda","5":"http://swapi.co/api/planets/50/","6":"http://swapi.co/api/species/27/","7":"Champala"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/47/","3":"The Phantom Menace","4":"Ratts Tyerell","5":"http://swapi.co/api/planets/38/","6":"http://swapi.co/api/species/16/","7":"Aleen Minor"},{"1":"http://swapi.co/api/films/4/","2":"http://swapi.co/api/people/35/","3":"The Phantom Menace","4":"Padmé Amidala","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/1/","3":"Revenge of the Sith","4":"Luke Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/2/","3":"Revenge of the Sith","4":"C-3PO","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/3/","3":"Revenge of the Sith","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/4/","3":"Revenge of the Sith","4":"Darth Vader","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/5/","3":"Revenge of the Sith","4":"Leia Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/6/","3":"Revenge of the Sith","4":"Owen Lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/7/","3":"Revenge of the Sith","4":"Beru Whitesun lars","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/10/","3":"Revenge of the Sith","4":"Obi-Wan Kenobi","5":"http://swapi.co/api/planets/20/","6":"http://swapi.co/api/species/1/","7":"Stewjon"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/11/","3":"Revenge of the Sith","4":"Anakin Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/12/","3":"Revenge of the Sith","4":"Wilhuff Tarkin","5":"http://swapi.co/api/planets/21/","6":"http://swapi.co/api/species/1/","7":"Eriadu"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/13/","3":"Revenge of the Sith","4":"Chewbacca","5":"http://swapi.co/api/planets/14/","6":"http://swapi.co/api/species/3/","7":"Kashyyyk"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/20/","3":"Revenge of the Sith","4":"Yoda","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/6/","7":"unknown"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/21/","3":"Revenge of the Sith","4":"Palpatine","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/33/","3":"Revenge of the Sith","4":"Nute Gunray","5":"http://swapi.co/api/planets/18/","6":"http://swapi.co/api/species/11/","7":"Cato Neimoidia"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/46/","3":"Revenge of the Sith","4":"Ayla Secura","5":"http://swapi.co/api/planets/37/","6":"http://swapi.co/api/species/15/","7":"Ryloth"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/51/","3":"Revenge of the Sith","4":"Mace Windu","5":"http://swapi.co/api/planets/42/","6":"http://swapi.co/api/species/1/","7":"Haruun Kal"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/52/","3":"Revenge of the Sith","4":"Ki-Adi-Mundi","5":"http://swapi.co/api/planets/43/","6":"http://swapi.co/api/species/20/","7":"Cerea"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/53/","3":"Revenge of the Sith","4":"Kit Fisto","5":"http://swapi.co/api/planets/44/","6":"http://swapi.co/api/species/21/","7":"Glee Anselm"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/54/","3":"Revenge of the Sith","4":"Eeth Koth","5":"http://swapi.co/api/planets/45/","6":"http://swapi.co/api/species/22/","7":"Iridonia"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/55/","3":"Revenge of the Sith","4":"Adi Gallia","5":"http://swapi.co/api/planets/9/","6":"http://swapi.co/api/species/23/","7":"Coruscant"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/56/","3":"Revenge of the Sith","4":"Saesee Tiin","5":"http://swapi.co/api/planets/47/","6":"http://swapi.co/api/species/24/","7":"Iktotch"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/58/","3":"Revenge of the Sith","4":"Plo Koon","5":"http://swapi.co/api/planets/49/","6":"http://swapi.co/api/species/26/","7":"Dorin"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/63/","3":"Revenge of the Sith","4":"Poggle the Lesser","5":"http://swapi.co/api/planets/11/","6":"http://swapi.co/api/species/28/","7":"Geonosis"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/64/","3":"Revenge of the Sith","4":"Luminara Unduli","5":"http://swapi.co/api/planets/51/","6":"http://swapi.co/api/species/29/","7":"Mirial"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/67/","3":"Revenge of the Sith","4":"Dooku","5":"http://swapi.co/api/planets/52/","6":"http://swapi.co/api/species/1/","7":"Serenno"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/68/","3":"Revenge of the Sith","4":"Bail Prestor Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/75/","3":"Revenge of the Sith","4":"R4-P17","5":"http://swapi.co/api/planets/28/","6":"NA","7":"unknown"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/78/","3":"Revenge of the Sith","4":"Shaak Ti","5":"http://swapi.co/api/planets/58/","6":"http://swapi.co/api/species/35/","7":"Shili"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/79/","3":"Revenge of the Sith","4":"Grievous","5":"http://swapi.co/api/planets/59/","6":"http://swapi.co/api/species/36/","7":"Kalee"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/80/","3":"Revenge of the Sith","4":"Tarfful","5":"http://swapi.co/api/planets/14/","6":"http://swapi.co/api/species/3/","7":"Kashyyyk"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/81/","3":"Revenge of the Sith","4":"Raymus Antilles","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/82/","3":"Revenge of the Sith","4":"Sly Moore","5":"http://swapi.co/api/planets/60/","6":"NA","7":"Umbara"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/83/","3":"Revenge of the Sith","4":"Tion Medon","5":"http://swapi.co/api/planets/12/","6":"http://swapi.co/api/species/37/","7":"Utapau"},{"1":"http://swapi.co/api/films/6/","2":"http://swapi.co/api/people/35/","3":"Revenge of the Sith","4":"Padmé Amidala","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/1/","3":"Return of the Jedi","4":"Luke Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/2/","3":"Return of the Jedi","4":"C-3PO","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/3/","3":"Return of the Jedi","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/4/","3":"Return of the Jedi","4":"Darth Vader","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/5/","3":"Return of the Jedi","4":"Leia Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/10/","3":"Return of the Jedi","4":"Obi-Wan Kenobi","5":"http://swapi.co/api/planets/20/","6":"http://swapi.co/api/species/1/","7":"Stewjon"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/13/","3":"Return of the Jedi","4":"Chewbacca","5":"http://swapi.co/api/planets/14/","6":"http://swapi.co/api/species/3/","7":"Kashyyyk"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/14/","3":"Return of the Jedi","4":"Han Solo","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/16/","3":"Return of the Jedi","4":"Jabba Desilijic Tiure","5":"http://swapi.co/api/planets/24/","6":"http://swapi.co/api/species/5/","7":"Nal Hutta"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/18/","3":"Return of the Jedi","4":"Wedge Antilles","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/20/","3":"Return of the Jedi","4":"Yoda","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/6/","7":"unknown"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/21/","3":"Return of the Jedi","4":"Palpatine","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/22/","3":"Return of the Jedi","4":"Boba Fett","5":"http://swapi.co/api/planets/10/","6":"http://swapi.co/api/species/1/","7":"Kamino"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/25/","3":"Return of the Jedi","4":"Lando Calrissian","5":"http://swapi.co/api/planets/30/","6":"http://swapi.co/api/species/1/","7":"Socorro"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/27/","3":"Return of the Jedi","4":"Ackbar","5":"http://swapi.co/api/planets/31/","6":"http://swapi.co/api/species/8/","7":"Mon Cala"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/28/","3":"Return of the Jedi","4":"Mon Mothma","5":"http://swapi.co/api/planets/32/","6":"http://swapi.co/api/species/1/","7":"Chandrila"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/29/","3":"Return of the Jedi","4":"Arvel Crynyd","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/1/","7":"unknown"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/30/","3":"Return of the Jedi","4":"Wicket Systri Warrick","5":"http://swapi.co/api/planets/7/","6":"http://swapi.co/api/species/9/","7":"Endor"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/31/","3":"Return of the Jedi","4":"Nien Nunb","5":"http://swapi.co/api/planets/33/","6":"http://swapi.co/api/species/10/","7":"Sullust"},{"1":"http://swapi.co/api/films/3/","2":"http://swapi.co/api/people/45/","3":"Return of the Jedi","4":"Bib Fortuna","5":"http://swapi.co/api/planets/37/","6":"http://swapi.co/api/species/15/","7":"Ryloth"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/1/","3":"The Empire Strikes Back","4":"Luke Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/2/","3":"The Empire Strikes Back","4":"C-3PO","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/2/","7":"Tatooine"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/3/","3":"The Empire Strikes Back","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/4/","3":"The Empire Strikes Back","4":"Darth Vader","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/5/","3":"The Empire Strikes Back","4":"Leia Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/10/","3":"The Empire Strikes Back","4":"Obi-Wan Kenobi","5":"http://swapi.co/api/planets/20/","6":"http://swapi.co/api/species/1/","7":"Stewjon"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/13/","3":"The Empire Strikes Back","4":"Chewbacca","5":"http://swapi.co/api/planets/14/","6":"http://swapi.co/api/species/3/","7":"Kashyyyk"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/14/","3":"The Empire Strikes Back","4":"Han Solo","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/18/","3":"The Empire Strikes Back","4":"Wedge Antilles","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/20/","3":"The Empire Strikes Back","4":"Yoda","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/6/","7":"unknown"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/21/","3":"The Empire Strikes Back","4":"Palpatine","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/1/","7":"Naboo"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/22/","3":"The Empire Strikes Back","4":"Boba Fett","5":"http://swapi.co/api/planets/10/","6":"http://swapi.co/api/species/1/","7":"Kamino"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/23/","3":"The Empire Strikes Back","4":"IG-88","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/2/","7":"unknown"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/24/","3":"The Empire Strikes Back","4":"Bossk","5":"http://swapi.co/api/planets/29/","6":"http://swapi.co/api/species/7/","7":"Trandosha"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/25/","3":"The Empire Strikes Back","4":"Lando Calrissian","5":"http://swapi.co/api/planets/30/","6":"http://swapi.co/api/species/1/","7":"Socorro"},{"1":"http://swapi.co/api/films/2/","2":"http://swapi.co/api/people/26/","3":"The Empire Strikes Back","4":"Lobot","5":"http://swapi.co/api/planets/6/","6":"http://swapi.co/api/species/1/","7":"Bespin"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/1/","3":"The Force Awakens","4":"Luke Skywalker","5":"http://swapi.co/api/planets/1/","6":"http://swapi.co/api/species/1/","7":"Tatooine"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/3/","3":"The Force Awakens","4":"R2-D2","5":"http://swapi.co/api/planets/8/","6":"http://swapi.co/api/species/2/","7":"Naboo"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/5/","3":"The Force Awakens","4":"Leia Organa","5":"http://swapi.co/api/planets/2/","6":"http://swapi.co/api/species/1/","7":"Alderaan"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/13/","3":"The Force Awakens","4":"Chewbacca","5":"http://swapi.co/api/planets/14/","6":"http://swapi.co/api/species/3/","7":"Kashyyyk"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/14/","3":"The Force Awakens","4":"Han Solo","5":"http://swapi.co/api/planets/22/","6":"http://swapi.co/api/species/1/","7":"Corellia"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/27/","3":"The Force Awakens","4":"Ackbar","5":"http://swapi.co/api/planets/31/","6":"http://swapi.co/api/species/8/","7":"Mon Cala"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/84/","3":"The Force Awakens","4":"Finn","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/1/","7":"unknown"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/85/","3":"The Force Awakens","4":"Rey","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/1/","7":"unknown"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/86/","3":"The Force Awakens","4":"Poe Dameron","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/1/","7":"unknown"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/87/","3":"The Force Awakens","4":"BB8","5":"http://swapi.co/api/planets/28/","6":"http://swapi.co/api/species/2/","7":"unknown"},{"1":"http://swapi.co/api/films/7/","2":"http://swapi.co/api/people/88/","3":"The Force Awakens","4":"Captain Phasma","5":"http://swapi.co/api/planets/28/","6":"NA","7":"unknown"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>作成した<code>data_films_x_characters_1</code>を使うことで，以下のように，登場人物の故郷の惑星の構成比をグラフにすることができます． このグラフへの考察はひとまず措くとして，リレーショナルデータモデルを用いることでデータフレームの結合を自動化できることが確認できました．</p>
+<p>しかし，上のような分析であれば，<code>left_join()</code>を用いてデータフレームを結合することも簡単で， あまりリレーショナルデータモデルを用いるメリットが感じられないかもしれません． そこで応用編では，リレーショナルデータモデルが本領を発揮する，より込み入った状況を考えてみます．</p>
+<div class="cell">
+<details class="code-fold">
+<summary>登場人物の故郷の惑星の構成比のグラフ</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1 <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name.planets =</span> <span class="fu">fct_lump_n</span>(name.planets, <span class="dv">7</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">ties.method =</span> <span class="st">"first"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_relevel</span>(<span class="st">"Other"</span>, </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">after =</span> <span class="cn">Inf</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(title, name.planets) <span class="sc">|&gt;</span> </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n),</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">.by =</span> title,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">.keep =</span> <span class="st">"unused"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">fct_rev</span>(title), prop,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> name.planets)) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">reverse =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">if_else</span>(prop <span class="sc">&lt;</span> <span class="fl">5e-2</span>, </span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>                                <span class="st">""</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                                scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)(prop))),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">reverse =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="st">"作品タイトル"</span>) <span class="sc">+</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="st">"登場人物の故郷の惑星の構成比"</span>,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="st">"惑星名"</span>,</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                    <span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="sc">+</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="応用編starwars作品の登場人物の種族の構成比を調べる" class="level3">
+<h3 class="anchored" data-anchor-id="応用編starwars作品の登場人物の種族の構成比を調べる">2. 応用編：StarWars作品の登場人物の種族の構成比を調べる</h3>
+<p>応用編では，StarWars作品の登場人物の種族の構成比を調べてみます． この分析の難易度は基礎編とさほど変わりませんが，通常，扱うデータが増えるとコードが煩雑化しやすいため，リレーショナルデータモデルのメリットが大きくなります． さらに，リレーショナルデータモデルのメリットには，以下のようなものもあります．</p>
+<ul>
+<li>既存のリレーショナルデータモデルに新たなデータを追加することが可能</li>
+<li>結合のためのキーの整合性を確認することが可能</li>
+</ul>
+<p>あらかじめ，この分析で必要となる<code>species</code>データを準備しておきます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">species =</span> sw_species) <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(species) <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>species</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["url"],"name":[1],"type":["chr"],"align":["left"]},{"label":["name"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"http://swapi.co/api/species/5/","2":"Hutt"},{"1":"http://swapi.co/api/species/6/","2":"Yoda's species"},{"1":"http://swapi.co/api/species/7/","2":"Trandoshan"},{"1":"http://swapi.co/api/species/8/","2":"Mon Calamari"},{"1":"http://swapi.co/api/species/9/","2":"Ewok"},{"1":"http://swapi.co/api/species/10/","2":"Sullustan"},{"1":"http://swapi.co/api/species/11/","2":"Neimodian"},{"1":"http://swapi.co/api/species/12/","2":"Gungan"},{"1":"http://swapi.co/api/species/13/","2":"Toydarian"},{"1":"http://swapi.co/api/species/14/","2":"Dug"},{"1":"http://swapi.co/api/species/15/","2":"Twi'lek"},{"1":"http://swapi.co/api/species/16/","2":"Aleena"},{"1":"http://swapi.co/api/species/17/","2":"Vulptereen"},{"1":"http://swapi.co/api/species/18/","2":"Xexto"},{"1":"http://swapi.co/api/species/19/","2":"Toong"},{"1":"http://swapi.co/api/species/20/","2":"Cerean"},{"1":"http://swapi.co/api/species/21/","2":"Nautolan"},{"1":"http://swapi.co/api/species/22/","2":"Zabrak"},{"1":"http://swapi.co/api/species/23/","2":"Tholothian"},{"1":"http://swapi.co/api/species/24/","2":"Iktotchi"},{"1":"http://swapi.co/api/species/25/","2":"Quermian"},{"1":"http://swapi.co/api/species/26/","2":"Kel Dor"},{"1":"http://swapi.co/api/species/27/","2":"Chagrian"},{"1":"http://swapi.co/api/species/28/","2":"Geonosian"},{"1":"http://swapi.co/api/species/29/","2":"Mirialan"},{"1":"http://swapi.co/api/species/30/","2":"Clawdite"},{"1":"http://swapi.co/api/species/31/","2":"Besalisk"},{"1":"http://swapi.co/api/species/32/","2":"Kaminoan"},{"1":"http://swapi.co/api/species/33/","2":"Skakoan"},{"1":"http://swapi.co/api/species/34/","2":"Muun"},{"1":"http://swapi.co/api/species/35/","2":"Togruta"},{"1":"http://swapi.co/api/species/36/","2":"Kaleesh"},{"1":"http://swapi.co/api/species/37/","2":"Pau'an"},{"1":"http://swapi.co/api/species/3/","2":"Wookiee"},{"1":"http://swapi.co/api/species/2/","2":"Droid"},{"1":"http://swapi.co/api/species/1/","2":"Human"},{"1":"http://swapi.co/api/species/4/","2":"Rodian"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>dmでは，<code>dm()</code>を用いて，リレーショナルデータモデルに新たにデータを追加することができます． ここでは，<code>dm_starwars_1</code>に<code>species</code>データを追加して，<code>dm_starwars_2</code>を作成してみましょう． <code>dm_draw()</code>を用いることで，モデルが更新されたことがわかります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2 <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm</span>(species) <span class="sc">|&gt;</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(species, url) <span class="sc">|&gt;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, species, species)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_2)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="grViz html-widget html-fill-item" id="htmlwidget-61b268b63f626acddaab" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-61b268b63f626acddaab">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"species\">species<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species\" [id = \"species\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">species<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n\"people\":\"species\"->\"species\":\"url\" [id=\"people_2\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>次に，結合のためのキーの整合性を確認してみましょう．こうした検証は，<code>dm_examine_constraints()</code>を用いることで可能です． ここでは，上でありがちなミスとして挙げた，2種類のミスを起こしたモデルを作成して，<code>dm_examine_constraints()</code>の挙動を確認してみましょう． ここで，<code>dm_starwars_2_wrong_data</code>は，<code>species</code>データの1行目が削除されたデータで，データがMECE（「漏れなく・ダブりなく」）でないものです． また，<code>dm_starwars_2_wrong_pk</code>は，<code>species</code>データの主キーを取り違えたものです．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2_wrong_data <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm</span>(<span class="at">species =</span> species <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">slice</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(species, url) <span class="sc">|&gt;</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, species, species)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>dm_starwars_2_wrong_pk <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm</span>(species) <span class="sc">|&gt;</span> </span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(species, name) <span class="sc">|&gt;</span> </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, species, species)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>dm_examine_constraints()</code>の結果を見てみましょう． 正しいモデルである<code>dm_starwars_2</code>では，<code>ℹ All constraints satisfied.</code>というメッセージが表示され，モデルのキーが整合していることがわかります． 一方で，<code>dm_starwars_2_wrong_data</code>と<code>dm_starwars_2_wrong_pk</code>では，<code>! Unsatisfied constraints:</code>というメッセージが表示されています． これは，<code>species</code>データの主キーに含まれるはずのデータが含まれていないことに起因します． このように，<code>dm_examine_constraints()</code>を用いることで，簡単にモデルのキーの整合性を確認することができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ All constraints satisfied.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2_wrong_data))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>! Unsatisfied constraints:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>• Table `people`: foreign key `species` into table `species`: values of `people$species` not in `species$url`: http://swapi.co/api/species/5/ (1)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2_wrong_pk))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>! Unsatisfied constraints:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>• Table `people`: foreign key `species` into table `species`: values of `people$species` not in `species$name`: http://swapi.co/api/species/1/ (35), http://swapi.co/api/species/2/ (5), http://swapi.co/api/species/12/ (3), http://swapi.co/api/species/15/ (2), http://swapi.co/api/species/22/ (2), …</code></pre>
+</div>
+</div>
+<p>以上のように，dmでは，<code>dm()</code>でリレーショナルデータモデルに新たなデータを追加したり，<code>dm_examine_constraints()</code>で結合のためのキーの整合性を確認したりすることができることがわかりました． 最後に，作成したリレーショナルデータモデル<code>dm_starwars_2</code>を用いて，StarWars作品の登場人物の種族の構成比をグラフ化したものが以下の図です．ここでも，考察は割愛します．</p>
+<div class="cell">
+<details class="code-fold">
+<summary>登場人物の故郷の種族の構成比のグラフ</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2 <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_flatten_to_tbl</span>(films_x_characters,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.recursive =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name.species =</span> name.species <span class="sc">|&gt;</span> </span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_na_value_to_level</span>(<span class="st">"Other"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_lump_n</span>(<span class="dv">7</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">ties.method =</span> <span class="st">"first"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_relevel</span>(<span class="st">"Other"</span>, </span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">after =</span> <span class="cn">Inf</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(title, name.species) <span class="sc">|&gt;</span> </span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n),</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">.by =</span> title,</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">.keep =</span> <span class="st">"unused"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">fct_rev</span>(title), prop,</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> name.species)) <span class="sc">+</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">reverse =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">if_else</span>(prop <span class="sc">&lt;</span> <span class="fl">5e-2</span>, </span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>                                <span class="st">""</span>,</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>                                scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)(prop))),</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">reverse =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="st">"作品タイトル"</span>) <span class="sc">+</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="st">"登場人物の故郷の種族の構成比"</span>,</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="st">"種族名"</span>,</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>                    <span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="sc">+</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>この記事では，dmを使ってリレーショナルデータモデルを構築する方法を紹介しました． dmを使って，ひとたびリレーショナルデータモデルを構築してしまえば， データ間の関係を自ら管理する必要がなくなり，<code>dm_flatten_to_tbl()</code>でデータの結合を自動的に行うことができます． それ以外にも，dmでは，<code>dm()</code>によるモデル拡張や<code>dm_examine_constraints()</code>結合のためのキーの整合性の確認など， データ前処理の質を高めるための便利な機能が提供されています．</p>
+</section>
+<section id="参考文献" class="level2">
+<h2 class="anchored" data-anchor-id="参考文献">参考文献</h2>
+<ul>
+<li><a href="https://dm.cynkra.com/index.html">dmパッケージのサイト</a></li>
+<li><a href="https://gihyo.jp/book/2018/978-4-7741-9647-3">前処理大全［データ分析のためのSQL/R/Python実践テクニック］</a></li>
+</ul>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+
+<ol>
+<li id="fn1"><p>幸いなことに，最近のdplyrでは，結合先のデータの”ダブり”に対して警告が出るようになりました．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>その作業を行ったのが過去の自分であっても他の誰かであっても，完全に作業が正しかったという自信は持てないものです．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>repurrrsiveのエクスポートするデータのうち，名前が<code>sw_</code>で始まるデータがStarWarsに関するもので，<code>sw_</code>以降の部分がデータの内容を表しています．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>repurrrsiveのデータはリスト形式で提供されているため，<a href="https://tidyr.tidyverse.org/articles/rectangle.html">こちらの記事</a>を参考にデータフレームに変換しました．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>ここでは，sw_peopleのspecies列は不要ですが，次の分析で使用するため選択しておきます．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>ここでは，データフレーム間の関係を図示するために，mermaidを使用しました．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>作品と登場人物には，明確な上下関係はありませんので，<code>characters_x_films</code>という名称でも構いません．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p><code>films</code>・<code>people</code>・<code>planets</code>については，<code>url</code>列が主キーとなり，<code>films_x_characters</code>については，<code>url</code>・<code>characters</code>列の2列の組合せが主キーとなります．<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p>上のイメージの矢印に従って，<code>films_x_characters</code>の<code>url</code>・<code>characters</code>列を，それぞれ<code>films</code>・<code>people</code>の<code>url</code>列に対応付けます．さらに，<code>people</code>の<code>homeworld</code>列を<code>planets</code>の<code>url</code>列に対応付けます．<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p>dmでは，各データを”テーブル”と呼びます．<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "コピーしました");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "コピーしました");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/UchidaMizuki.github.io" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+</div> <!-- /content -->
+
+
+
+
+</body></html>
