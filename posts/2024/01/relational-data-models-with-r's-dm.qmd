@@ -294,7 +294,7 @@ dm_draw(dm_starwars_2)
 
 ```
 
-次に，結合のためのキーの整合性を確認してみましょう．こうした検証は，`dm_examine_constraints()`を用いることで可能です． ここでは，上でありがちなミスとして挙げた，2種類のミスを起こしたモデルを作成して，`dm_examine_constraints()`の挙動を確認してみましょう． ここで，`dm_starwars_2_wrong_data`は，`species`データの1行目が削除されたデータで，データがMECE（「漏れなく・ダブりなく」）でないものです． また，`dm_starwars_2_wrong_pk`は，`species`データの主キーを取り違えたものです．
+次に，結合のためのキーの整合性を確認してみましょう．こうした検証は，`dm_examine_constraints()`を用いることで可能です． ここでは，上でありがちなミスとして挙げた，2種類のミスを含んだモデルを作成して，`dm_examine_constraints()`の挙動を確認してみましょう． ここで，`dm_starwars_2_wrong_data`は，`species`データの1行目が削除されたデータで，データがMECE（「漏れなく・ダブりなく」）でないものです． また，`dm_starwars_2_wrong_pk`は，`species`データの主キーを取り違えたものです．
 
 ```{r}
 #| label: dm-starwars-2-wrong
