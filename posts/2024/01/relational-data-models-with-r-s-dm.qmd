@@ -8,7 +8,7 @@ format:
     mermaid:
       theme: default
     df-print: paged
-image: relational-data-models-with-rs-dm/mermaid-figure-2.png
+image: relational-data-models-with-r-s-dm/mermaid-figure-2.png
 ---
 
 ## データ前処理の作業ミスをなくすために
