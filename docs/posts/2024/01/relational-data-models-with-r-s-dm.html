@@ -110,6 +110,10 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </script>
+<meta name="mermaid-theme" content="default">
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 <script src="../../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
 <script src="../../../site_libs/viz-1.8.2/viz.js"></script>
 <link href="../../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
@@ -203,9 +207,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<section id="データ前処理はなぜ重要か" class="level2">
-<h2 class="anchored" data-anchor-id="データ前処理はなぜ重要か">データ前処理はなぜ重要か？</h2>
-<p>データ分析に要する時間のうち，8割は前処理に費やされているといわれています．前処理は，その後のデータ分析の質を左右しますから，前処理の質の向上は非常に重要です．一方で，前処理に膨大な時間を要するということは，作業ミスが起こる確率もそれだけ高くなるということを意味しています．</p>
+<section id="データ前処理の作業ミスをなくすために" class="level2">
+<h2 class="anchored" data-anchor-id="データ前処理の作業ミスをなくすために">データ前処理の作業ミスをなくすために</h2>
+<p>データ分析に要する時間のうち，8割は前処理に費やされているといわれています．前処理は，その後のデータ分析の質を左右しますから，前処理は非常に重要です．一方で，前処理に膨大な時間を要するということは，作業ミスが起こる確率もそれだけ高くなるということを意味しています．</p>
 <p>一般的な（データ構造に対する）前処理には，データフレームの”抽出”・”集約”・”結合”がありますが，なかでも”結合”は，コードが長くなりやすく，作業ミスが起こりやすい作業であると思われます．また，分析で必要となるデータフレームが1つにまとまっていることは稀ですから，データフレームの結合は特に頻出する処理でもあります．</p>
 <p>データフレームの”結合”で起こりがちな典型的なミスとして，以下のようなものがあります<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
 <ul>
@@ -218,7 +222,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <section id="dmによるリレーショナルデータモデル" class="level2">
 <h2 class="anchored" data-anchor-id="dmによるリレーショナルデータモデル">dmによるリレーショナルデータモデル</h2>
 <p>dmの提供するリレーショナルデータモデルは，複数のデータ間の関係性を私たちの代わりに管理してくれます．</p>
-<p>この記事では，repurrrsiveパッケージで提供されているStarWarsのデータセットを使って，dmの提供するリレーショナルデータモデルを構築します．あらかじめ，tidyverse，dm，repurrrsiveの3つのパッケージを読み込んでおきましょう．</p>
+<p>そこで，repurrrsiveパッケージで提供されているStarWarsのデータセットを使って，dmの提供するリレーショナルデータモデルを構築してみましょう．あらかじめ，tidyverse，dm，repurrrsiveの3つのパッケージを読み込んでおきます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dm)</span>
@@ -239,20 +243,14 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 [6] "sw_vehicles" </code></pre>
 </div>
 </div>
-<p>ここでは，データ分析の題材として，複数のデータ間の関係を扱う必要のある，以下の2つの分析内容を考えてみましょう．正直に言うと，2つの分析の難易度はほぼ同じですが，基礎編では，主にdmのリレーショナルデータモデルの構築する方法を，応用編では，リレーショナルデータモデルの拡張したりキーを検証したりする方法について説明します．</p>
+<p>この記事では，複数のデータ間の関係を扱う必要のある以下の2つの分析事例を通じて，リレーショナルデータモデルを活用する方法について説明します．</p>
 <ol type="1">
-<li>基礎編：StarWars作品の登場人物の故郷の惑星の構成比を調べる
-<ul>
-<li><code>sw_films</code>・<code>sw_people</code>・<code>sw_planets</code>の3つのデータが必要</li>
-</ul></li>
-<li>応用編：StarWars作品の登場人物の種族の構成比を調べる
-<ul>
-<li><code>sw_films</code>・<code>sw_people</code>・<code>sw_species</code>の3つのデータが必要</li>
-</ul></li>
+<li>基礎編：dmでリレーショナルデータモデルを構築する</li>
+<li>応用編：dmでモデルを拡張したりキーを検証したりする</li>
 </ol>
-<section id="基礎編starwars作品の登場人物の故郷の惑星の構成比を調べる" class="level3">
-<h3 class="anchored" data-anchor-id="基礎編starwars作品の登場人物の故郷の惑星の構成比を調べる">1. 基礎編：StarWars作品の登場人物の故郷の惑星の構成比を調べる</h3>
-<p>基礎編として，リレーショナルデータモデルを構築して，StarWars作品の登場人物の故郷の惑星の構成比を調べてみましょう．この分析を行うために，以下のように3つのデータフレーム<code>films</code>・<code>people</code>・<code>planets</code>を準備しておきます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．ここでは，分析をシンプルにするため，必要なデータのみを<code>select</code>しました<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．</p>
+<section id="基礎編dmでリレーショナルデータモデルを構築する" class="level3">
+<h3 class="anchored" data-anchor-id="基礎編dmでリレーショナルデータモデルを構築する">1. 基礎編：dmでリレーショナルデータモデルを構築する</h3>
+<p>基礎編として，StarWars作品の登場人物の故郷の惑星の構成比を調べるためのリレーショナルデータモデルを構築してみしょう．この分析を行うために，以下のように3つのデータフレーム<code>films</code>・<code>people</code>・<code>planets</code>を準備しておきます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．ここでは，分析をシンプルにするため，必要なデータのみを<code>select</code>しました<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>films <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">film =</span> sw_films) <span class="sc">|&gt;</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(film) <span class="sc">|&gt;</span> </span>
@@ -296,7 +294,24 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
-<p><img src="relational-data-models-with-r's-dm_files\figure-html\mermaid-figure-1.png" style="width:7.05in;height:3.83in" class="figure-img"></p>
+<pre class="mermaid mermaid-js">flowchart TB
+  films.characters --&gt; people.url
+  people.homeworld --&gt; planets.url
+  subgraph films
+    films.url[url]
+    films.title[title]
+    films.characters[List of characters] 
+  end
+  subgraph people
+    people.url[url]
+    people.name[name]
+    people.homeworld[homeworld]
+  end
+  subgraph planets
+    planets.url[url]
+    planets.name[name]
+  end
+</pre>
 </div>
 <p></p></figure><p></p>
 </div>
@@ -308,7 +323,28 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
-<p><img src="relational-data-models-with-r's-dm_files\figure-html\mermaid-figure-2.png" style="width:6.37in;height:5.23in" class="figure-img"></p>
+<pre class="mermaid mermaid-js">flowchart TB
+  films_x_characters.url --&gt; films.url
+  films_x_characters.characters ---&gt; people.url
+  people.homeworld --&gt; planets.url
+  subgraph films_x_characters
+    films_x_characters.url[url]
+    films_x_characters.characters[characters]
+  end
+  subgraph films
+    films.url[url]
+    films.title[title]
+  end
+  subgraph people
+    people.url[url]
+    people.name[name]
+    people.homeworld[homeworld]
+  end
+  subgraph planets
+    planets.url[url]
+    planets.name[name]
+  end
+</pre>
 </div>
 <p></p></figure><p></p>
 </div>
@@ -361,8 +397,8 @@ Foreign keys: 3</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_1)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-1f6df4fc192cf6b68ff2" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-1f6df4fc192cf6b68ff2">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-3cd3d50d897694d62d2d" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-3cd3d50d897694d62d2d">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>以下のように<code>dm_flatten_to_tbl()</code>を用いることで，<code>films_x_characters</code>データに<code>films</code>・<code>people</code>・<code>planets</code>データを結合したデータフレームを作成することができます<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>．この際，異なるデータ間で同名の列名が存在する場合には，データ名に応じて自動的に列名が変更されます．このように，リレーショナルデータモデルが私たちの代わりにデータ間の関係を管理してくれるおかげで，他のデータ間との関係に基づいて自動的にデータフレームを結合することができます．</p>
@@ -425,9 +461,9 @@ Foreign keys: 3</code></pre>
 </div>
 </div>
 </section>
-<section id="応用編starwars作品の登場人物の種族の構成比を調べる" class="level3">
-<h3 class="anchored" data-anchor-id="応用編starwars作品の登場人物の種族の構成比を調べる">2. 応用編：StarWars作品の登場人物の種族の構成比を調べる</h3>
-<p>応用編では，StarWars作品の登場人物の種族の構成比を調べてみます． この分析の難易度は基礎編とさほど変わりませんが，通常，扱うデータが増えるとコードが煩雑化しやすいため，リレーショナルデータモデルのメリットが大きくなります． さらに，リレーショナルデータモデルのメリットには，以下のようなものもあります．</p>
+<section id="応用編dmでモデルを拡張したりキーを検証したりする" class="level3">
+<h3 class="anchored" data-anchor-id="応用編dmでモデルを拡張したりキーを検証したりする">2. 応用編：dmでモデルを拡張したりキーを検証したりする</h3>
+<p>応用編では，StarWars作品の登場人物の種族の構成比を調べてみます． この分析の難易度は基礎編とさほど変わりませんが，通常，扱うデータが増えるとコードが煩雑化しやすいため，リレーショナルデータモデルを使うメリットが大きくなります． さらに，リレーショナルデータモデルのメリットには，以下のようなものもあります．</p>
 <ul>
 <li>既存のリレーショナルデータモデルに新たなデータを追加することが可能</li>
 <li>結合のためのキーの整合性を確認することが可能</li>
@@ -456,8 +492,8 @@ Foreign keys: 3</code></pre>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_2)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-9ab173741c10d0f3ed20" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-9ab173741c10d0f3ed20">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"species\">species<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species\" [id = \"species\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">species<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n\"people\":\"species\"->\"species\":\"url\" [id=\"people_2\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-c5e38773f02f1b016720" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-c5e38773f02f1b016720">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"species\">species<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species\" [id = \"species\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">species<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n\"people\":\"species\"->\"species\":\"url\" [id=\"people_2\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>次に，結合のためのキーの整合性を確認してみましょう．こうした検証は，<code>dm_examine_constraints()</code>を用いることで可能です． ここでは，上でありがちなミスとして挙げた，2種類のミスを含んだモデルを作成して，<code>dm_examine_constraints()</code>の挙動を確認してみましょう． ここで，<code>dm_starwars_2_wrong_data</code>は，<code>species</code>データの1行目が削除されたデータで，データがMECE（「漏れなく・ダブりなく」）でないものです． また，<code>dm_starwars_2_wrong_pk</code>は，<code>species</code>データの主キーを取り違えたものです．</p>

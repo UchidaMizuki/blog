@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r's-dm.html</loc>
-    <lastmod>2024-01-28T12:48:58.379Z</lastmod>
+    <lastmod>2024-01-29T15:04:47.901Z</lastmod>
   </url>
   <url>
     <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html</loc>
@@ -51,5 +51,13 @@
   <url>
     <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/09/presented-at-tokyor-using-quarto.html</loc>
     <lastmod>2023-09-04T14:04:46.529Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-rs-dm.html</loc>
+    <lastmod>2024-01-29T15:10:13.367Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r-s-dm.html</loc>
+    <lastmod>2024-01-29T15:10:13.367Z</lastmod>
   </url>
 </urlset>
