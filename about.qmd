@@ -4,15 +4,14 @@ image: profile.jpg
 about:
   template: jolla
   links:
+    - icon: mastodon
+      href: https://social.vivaldi.net/@UchidaMizuki
     - icon: github
-      text: Github
       href: https://github.com/UchidaMizuki
-    - icon: soundwave
-      text: SoundCloud
+    - text: SoundCloud
       href: https://soundcloud.com/UchidaMizuki
-    - icon: spotify
-      text: Awesome Classical
-      href: https://open.spotify.com/playlist/5iG2wT4LoDMGlxKdYCRi4B?si=eecf00b8051a47af
+    - text: Flickr
+      href: https://www.flickr.com/uchidamizuki
 comments: false
 ---
 
@@ -22,8 +21,10 @@ I am a classical music lover.
 
 ## Apps
 
-[jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/)
+-   [jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/)
+
+-   [urayasu-accessibility-app](https://uchidamizuki.shinyapps.io/urayasu-accessibility-app/)
 
 ## Games
 
-[multpl](https://uchidamizuki.github.io/multpl-ui/)
+-   [multpl](https://uchidamizuki.github.io/multpl-ui/)

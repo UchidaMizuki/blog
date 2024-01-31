@@ -8,13 +8,15 @@ website:
   favicon: logo.png
   navbar:
     right:
-      - about.qmd
+      - icon: mastodon
+        href: https://social.vivaldi.net/@UchidaMizuki
       - icon: github
         href: https://github.com/UchidaMizuki
-      - icon: soundwave
-        href: https://soundcloud.com/uchidamizuki
-      - icon: spotify
-        href: https://open.spotify.com/playlist/5iG2wT4LoDMGlxKdYCRi4B?si=eecf00b8051a47af
+      - text: SoundCloud
+        href: https://soundcloud.com/UchidaMizuki
+      - text: Flickr
+        href: https://www.flickr.com/uchidamizuki
+      - about.qmd
   google-analytics: "G-3NGKDDYEYX"
 
 format:

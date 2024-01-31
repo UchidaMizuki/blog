@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.4.544">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2024-01-28">
 
-<title>UchidaMizuki - Rのdmパッケージでデータ前処理の質を高めよう</title>
+<title>UchidaMizuki - Improve the quality of data preprocessing with R’s dm package</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -88,17 +89,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   ],
   "show-item-context": false,
   "language": {
-    "search-no-results-text": "一致なし",
-    "search-matching-documents-text": "一致した文書",
-    "search-copy-link-title": "検索へのリンクをコピー",
-    "search-hide-matches-text": "追加の検索結果を非表示",
-    "search-more-match-text": "追加の検索結果",
-    "search-more-matches-text": "追加の検索結果",
-    "search-clear-button-title": "消去",
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
     "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "取消",
-    "search-submit-button-title": "検索",
-    "search-label": "サーチ"
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
@@ -136,8 +137,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
     <span class="navbar-title">UchidaMizuki</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="サーチ"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="ナビゲーションを切り替える" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -175,11 +176,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Rのdmパッケージでデータ前処理の質を高めよう</h1>
+      <h1 class="title">Improve the quality of data preprocessing with R’s dm package</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">dm</div>
                 <div class="quarto-category">R</div>
-                <div class="quarto-category">Japanese</div>
+                <div class="quarto-category">English</div>
               </div>
                   </div>
   </div>
@@ -189,9 +190,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
       
       <div>
-      <div class="quarto-title-meta-heading">公開</div>
+      <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2024年1月28日</p>
+        <p class="date">January 28, 2024</p>
       </div>
     </div>
     
@@ -210,50 +211,51 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<section id="データ前処理の作業ミスをなくすために" class="level2">
-<h2 class="anchored" data-anchor-id="データ前処理の作業ミスをなくすために">データ前処理の作業ミスをなくすために</h2>
-<p>データ分析に要する時間のうち，8割は前処理に費やされているといわれています．前処理は，その後のデータ分析の質を左右しますから非常に重要な一方で，前処理に膨大な時間を要するということは，作業ミスが起こる確率もそれだけ高くなるということを意味しています．</p>
-<p>一般的な（データ構造に対する）前処理には，データフレームの”抽出”・”集約”・”結合”がありますが，なかでも”結合”は，コードが長くなりやすく，作業ミスが起こりやすい作業であると思われます．また，分析で必要となるデータフレームが1つにまとまっていることは稀ですから，データフレームの結合は特に頻出する処理でもあります．</p>
-<p>データフレームの”結合”で起こりがちな典型的なミスとして，以下のようなものがあります<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
+<p>Note: This article is a machine-translated translation of <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r-s-dm.html">my Japanese article</a> with simple modifications.</p>
+<section id="how-do-we-reduce-errors-in-data-preprocessing" class="level2">
+<h2 class="anchored" data-anchor-id="how-do-we-reduce-errors-in-data-preprocessing">How do we reduce errors in data preprocessing?</h2>
+<p>It is said that 80% of the time required for data analysis is spent on preprocessing. Even though preprocessing determines the quality of subsequent data analysis, the more time spent on pre-processing means the probability of making mistakes is also high.</p>
+<p>Preprocessing tasks include “extraction,” “aggregation,” and “joining (merging)” of data frames. Among these, data joining is a task that tends to make the code longer and more prone to errors. And since the data frames needed for analysis are rarely combined into one, joining data frames is a widespread process.</p>
+<p>Typical mistakes that tend to occur when joining data frames are as follows<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>,</p>
 <ul>
-<li>結合対象となるデータフレームのキーが”MECE”（「漏れなく・ダブりなく」）でない</li>
-<li>結合のためのキーを取り違える，または，データ形式が異なる</li>
+<li>The keys of the data frame to be joined are not “<a href="https://en.wikipedia.org/wiki/MECE_principle">MECE</a>”</li>
+<li>Mistaken keys to join data frames</li>
 </ul>
-<p>もしも，これまでデータフレームの結合において，何らかの作業ミスや”ヒヤリ・ハット”を経験したことがあるのであれば，それらを放置せず何らかのパッケージに頼るほうが得策かもしれません．また，仮に作業ミスがなかったとしても，私たちは過去の作業が正しかったかについて疑心暗鬼になりがちです<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>．</p>
-<p>この記事では，データフレームの”結合”における作業ミスや疑心暗鬼の解決策として有力なRのdmパッケージを紹介します．</p>
+<p>If you have experienced any mistakes or near-misses in joining data frames, you may be better off relying on some sort of package instead of letting them go unattended. Besides, even if there were no mistakes, we tend to be skeptical about whether we did the right thing in the past.</p>
+<p>This article introduces the R dm package, a powerful solution to the problems of errors and skepticism in joining data frames.</p>
 </section>
-<section id="dmによるリレーショナルデータモデル" class="level2">
-<h2 class="anchored" data-anchor-id="dmによるリレーショナルデータモデル">dmによるリレーショナルデータモデル</h2>
-<p>dmの提供するリレーショナルデータモデルは，複数のデータ間の関係性を私たちの代わりに管理してくれます．</p>
-<p>この記事では，repurrrsiveパッケージで提供されているStar Warsのデータセットを通じて，dmの提供するリレーショナルデータモデルの使い方や利点について説明します．あらかじめ，tidyverse，dm，repurrrsiveの3つのパッケージを読み込んでおきます．</p>
+<section id="relational-data-model-with-dm" class="level2">
+<h2 class="anchored" data-anchor-id="relational-data-model-with-dm">Relational data model with dm</h2>
+<p>The relational data model provided by dm manages the relationships among multiple data on our behalf.</p>
+<p>This article describes the use and advantages of the relational data model provided by dm. the Star Wars data set provided by the repurrrsive package. For this purpose, let’s use the Star Wars dataset provided by the repurrrsive package. tidyverse, dm, and repurrrsive packages must be pre-loaded.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dm)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(repurrrsive)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(repurrrsive)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>repurrrsiveで提供されているStar Warsのデータセットには，以下のようなものが含まれています<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>．</p>
+<p>The Star Wars dataset provided by repurrrsive includes the followings<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>repurrrsiveで提供されているStar Warsのデータセット</summary>
+<summary>StarWars dataset provided by repurrrsive</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"repurrrsive"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">chuck</span>(<span class="st">"results"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_starts</span>(Item, <span class="st">"sw_"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Item)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Item)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "sw_films"     "sw_people"    "sw_planets"   "sw_species"   "sw_starships"
 [6] "sw_vehicles" </code></pre>
 </div>
 </div>
-<p>複数のデータ間の関係を扱う必要のある，以下の2つの分析事例を通じて，リレーショナルデータモデルを活用する方法を見ていきましょう．</p>
+<p>This article will illustrate the use of the relational data model through the following two analytical examples. These examples require dealing with relationships among multiple data sets.</p>
 <ol type="1">
-<li>基礎編：dmでリレーショナルデータモデルを構築する</li>
-<li>応用編：dmでモデルを拡張したりキーを検証したりする</li>
+<li>Basic: Building a relational data model with dm</li>
+<li>Application: Extending the model and validating keys with dm</li>
 </ol>
-<section id="基礎編dmでリレーショナルデータモデルを構築する" class="level3">
-<h3 class="anchored" data-anchor-id="基礎編dmでリレーショナルデータモデルを構築する">1. 基礎編：dmでリレーショナルデータモデルを構築する</h3>
-<p>基礎編として，Star Wars作品の登場人物の故郷の惑星の構成比を調べるためのリレーショナルデータモデルを構築してみしょう．この分析を行うために，以下のように3つのデータフレーム<code>films</code>・<code>people</code>・<code>planets</code>を準備しておきます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．ここでは，分析をシンプルにするため，必要なデータのみを<code>select</code>しました<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．</p>
+<section id="basic-building-a-relational-data-model-with-dm" class="level3">
+<h3 class="anchored" data-anchor-id="basic-building-a-relational-data-model-with-dm">1. Basic: Building a relational data model with dm</h3>
+<p>As a basic example, let us build a relational data model to determine the composition ratio of the home planets of the characters in Star Wars movies. To perform this analysis, three data frames, <code>films</code>, <code>people</code>, and <code>planets</code>, are prepared as shown below. Here, only the necessary data are selected to simplify the analysis<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>films <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">film =</span> sw_films) <span class="sc">|&gt;</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(film) <span class="sc">|&gt;</span> </span>
@@ -263,10 +265,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name, homeworld, species)</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>planets <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">planet =</span> sw_planets) <span class="sc">|&gt;</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(planet) <span class="sc">|&gt;</span> </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>films</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>films</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -274,7 +276,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>people</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>people</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -282,7 +284,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>planets</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>planets</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -291,7 +293,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-<p>準備したデータフレームを確認すると，各データフレームの<code>url</code>列がキーとして用いられていることがわかりますので，データフレーム間の関係は以下の図のようにまとめることができます<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>．特に，1つの映画作品には複数の登場人物が登場することが一般的ですので，<code>films</code>の<code>characters</code>列が登場人物のリストになっていることに注意が必要です．そのため，このままでは，<code>films</code>の<code>characters</code>列を<code>people</code>の<code>url</code>列と対応付けることができません．</p>
+<p>Checking the prepared data frames, we can see that <code>url</code> column of each data frame is used as a key, so the relationship between the data frames can be summarized as shown in the following figure<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
+<p>Since it is common for a film to have multiple characters, it is important to note that <code>characters</code> column of <code>films</code> is a list of characters, so it isn’t possible to join <code>characters</code> column of <code>films</code> to <code>url</code> column of <code>people</code>.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -320,7 +323,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-<p>そこで，<code>films</code>と<code>people</code>の関係，すなわち，どの作品にどの登場人物が登場するかを表すデータ<code>films_x_characters</code>を新たに作成することを考えます<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>．<code>films_x_characters</code>を介すことで，データ間の関係を以下の図のようにまとめることができます．</p>
+<p>Therefore, we consider creating a new data file, <code>films_x_characters</code>, that represents the relationship between <code>films</code> and <code>people</code>, i.e., which characters appear in which films<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．Through <code>films_x_characters</code>, the relationship between data can be summarized as shown in the following figure.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -353,7 +356,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-<p>それでは，上のイメージに従って，実際にリレーショナルデータモデルを構築してみましょう．まず，<code>films</code>の<code>url</code>・<code>characters</code>列を使って<code>films_x_characters</code>を作成します．ついでに<code>films</code>から不要となった<code>characters</code>列を削除しておきます．</p>
+<p>Now, let’s build a relational data model according to the above image. First, create <code>films_x_characters</code> using <code>url</code> and <code>characters</code> columns of <code>films</code>. In addition, I delete the unnecessary <code>characters</code> column from <code>films</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create films_x_characters and remove characters column from films</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>films_x_characters <span class="ot">&lt;-</span> films <span class="sc">|&gt;</span> </span>
@@ -362,7 +365,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>films <span class="ot">&lt;-</span> films <span class="sc">|&gt;</span> </span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>characters)</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>films_x_characters</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>films_x_characters</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -371,8 +374,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-<p>最後に，<code>dm()</code>に準備した<code>films</code>・<code>people</code>・<code>planets</code>・<code>films_x_characters</code>を渡した後，主キー（primary keys）と外部キー（foreign keys）を追加することで，リレーショナルデータモデルを構築することができます．</p>
-<p>dmでは，主キーを<code>dm_add_pk()</code>で<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>，外部キーを<code>dm_add_fk()</code>で設定します<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>．</p>
+<p>Finally, after passing the prepared <code>films</code>, <code>people</code>, <code>planets</code>, and <code>films_x_characters</code> to <code>dm()</code>, a relational data model can be built by adding primary keys and foreign keys.</p>
+<p>In dm, primary keys are set with <code>dm_add_pk()</code><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> and foreign keys with <code>dm_add_fk()</code><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_1 <span class="ot">&lt;-</span> <span class="fu">dm</span>(films, people, planets, films_x_characters) <span class="sc">|&gt;</span> </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -387,7 +390,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(films_x_characters, characters, people) <span class="sc">|&gt;</span></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, homeworld, planets) </span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>dm_starwars_1</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>dm_starwars_1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>── Metadata ────────────────────────────────────────────────────────────────────
 Tables: `films`, `people`, `planets`, `films_x_characters`
@@ -396,25 +399,25 @@ Primary keys: 4
 Foreign keys: 3</code></pre>
 </div>
 </div>
-<p><code>dm_draw()</code>を用いて，リレーショナルデータモデルを描画することもできます．描画してみると，上のイメージと同様の関係が構築されていることがわかります．</p>
+<p>The relational data model can be drawn using <code>dm_draw()</code>. The drawing reveals that the same relationships are built as in the image above.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_1)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-ecf8b3e34d5553d05736" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-ecf8b3e34d5553d05736">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-8d508afbb5911858ec56" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-8d508afbb5911858ec56">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
-<p>以下のように<code>dm_flatten_to_tbl()</code>を用いることで，<code>films_x_characters</code>データに<code>films</code>・<code>people</code>・<code>planets</code>データを結合したデータフレームを作成することができます<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>．この際，異なるデータ間で同名の列名が存在する場合には，データ名に応じて自動的に列名が変更されます．このように，リレーショナルデータモデルが私たちの代わりにデータ間の関係を管理してくれるおかげで，他のデータ間との関係に基づいて自動的にデータフレームを結合することができます．</p>
+<p>By using <code>dm_flatten_to_tbl()</code> as shown below, a data frame can be created by joining <code>films_x_characters</code> data with <code>films</code>/<code>people</code>/<code>planets</code> data. In this case, if the same column names exist between different data, the column names are automatically renamed according to the data names. In this way, the relational data model manages the relationships between data on our behalf, allowing us to automatically join data frames based on the relationships among other data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1 <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_flatten_to_tbl</span>(films_x_characters,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.recursive =</span> <span class="cn">TRUE</span>) </span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.recursive =</span> <span class="cn">TRUE</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Renaming ambiguous columns: %&gt;%
   dm_rename(people, name.people = name) %&gt;%
   dm_rename(planets, name.planets = name)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -423,11 +426,11 @@ Foreign keys: 3</code></pre>
 </div>
 </div>
 </div>
-<p>作成した<code>data_films_x_characters_1</code>を使うことで，以下のように，登場人物の故郷の惑星の構成比をグラフにすることができます． このグラフへの考察はひとまず措くとして，リレーショナルデータモデルを用いることでデータフレームの結合を自動化できることが確認できました．</p>
-<p>しかし，上のような分析であれば，<code>left_join()</code>を用いてデータフレームを結合することも簡単で， あまりリレーショナルデータモデルを用いるメリットが感じられないかもしれません． そこで応用編では，リレーショナルデータモデルが本領を発揮する，より込み入った状況を考えてみます．</p>
+<p>The <code>data_films_x_characters_1</code> can be used to plot the composition ratio of the characters’ home planets, as shown below. We will not discuss this plot further. However, we have confirmed that the relational data model can be used to automate the joining of data frames.</p>
+<p>In the above analysis, it is easy to join data frames using <code>left_join()</code>, and you may not see the advantage of using a relational data model. In the application section, we will consider a more complex situation where a relational data model prevails.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>登場人物の故郷の惑星の構成比のグラフ</summary>
+<summary>Plot of the composition of the characters’ home planets</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1 <span class="sc">|&gt;</span> </span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name.planets =</span> <span class="fu">fct_lump_n</span>(name.planets, <span class="dv">7</span>,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">ties.method =</span> <span class="st">"first"</span>) <span class="sc">|&gt;</span> </span>
@@ -445,39 +448,39 @@ Foreign keys: 3</code></pre>
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                                scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)(prop))),</span>
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">reverse =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="st">"作品タイトル"</span>) <span class="sc">+</span></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="st">"登場人物の故郷の惑星の構成比"</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="st">"Title"</span>) <span class="sc">+</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="st">"Composition of the characters' home planets"</span>,</span>
 <span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="st">"惑星名"</span>,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="st">"Planet Name"</span>,</span>
 <span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                    <span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="sc">+</span></span>
 <span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
 <span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
 <span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>,</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-1-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="relational-data-models-with-r-s-dm-en_files/figure-html/plot-starwars-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="応用編dmでモデルを拡張したりキーを検証したりする" class="level3">
-<h3 class="anchored" data-anchor-id="応用編dmでモデルを拡張したりキーを検証したりする">2. 応用編：dmでモデルを拡張したりキーを検証したりする</h3>
-<p>応用編では，Star Wars作品の登場人物の種族の構成比を調べてみます． この分析の難易度は基礎編とさほど変わりませんが，通常，扱うデータが増えるとコードが煩雑化しやすいため，リレーショナルデータモデルを使うメリットが大きくなります． さらに，リレーショナルデータモデルのメリットには，以下のようなものもあります．</p>
+<section id="application-extending-the-model-and-validating-keys-with-dm" class="level3">
+<h3 class="anchored" data-anchor-id="application-extending-the-model-and-validating-keys-with-dm">2. Application: Extending the model and validating keys with dm</h3>
+<p>In the application, we will examine the composition ratio of the species of the characters in Star Wars movies. The difficulty level of this analysis is not much different from that of the basic analysis. However, as the amount of data to be handled increases, the code tends to become more complicated, and the advantages of using a relational data model are significant. In addition, the advantages of the relational data model include the following,</p>
 <ul>
-<li>既存のリレーショナルデータモデルに新たなデータを追加することが可能</li>
-<li>結合のためのキーの整合性を確認することが可能</li>
+<li>New data can be added to the existing relational data model</li>
+<li>Possible to check key constraints defined to join data frames</li>
 </ul>
-<p>あらかじめ，この分析で必要となる<code>species</code>データを準備しておきます．</p>
+<p>We prepare in advance the <code>species</code> data needed for this analysis.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">species =</span> sw_species) <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(species) <span class="sc">|&gt;</span> </span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(url, name)</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>species</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>species</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -486,20 +489,20 @@ Foreign keys: 3</code></pre>
 </div>
 </div>
 </div>
-<p>dmでは，<code>dm()</code>を用いて，リレーショナルデータモデルに新たにデータを追加することができます． ここでは，<code>dm_starwars_1</code>に<code>species</code>データを追加して，<code>dm_starwars_2</code>を作成してみましょう． <code>dm_draw()</code>を用いることで，モデルが更新されたことがわかります．</p>
+<p>In dm, we can add new data to the relational data model using <code>dm()</code>. In this example, let’s build <code>dm_starwars_2</code> by adding the <code>species</code> data to <code>dm_starwars_1</code>. By using <code>dm_draw()</code>, we can see that the model has been updated.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2 <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm</span>(species) <span class="sc">|&gt;</span> </span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(species, url) <span class="sc">|&gt;</span> </span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, species, species)</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_2)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dm_draw</span>(dm_starwars_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-aa7f90c9438cbfb0b290" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-aa7f90c9438cbfb0b290">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"species\">species<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species\" [id = \"species\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">species<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n\"people\":\"species\"->\"species\":\"url\" [id=\"people_2\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-d5c6320d67aa1865f6ac" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-d5c6320d67aa1865f6ac">{"x":{"diagram":"#data_model\ndigraph {\ngraph [rankdir=LR tooltip=\"Data Model\" ]\n\nnode [margin=0 fontcolor = \"#444444\" ]\n\nedge [color = \"#555555\", arrowsize = 1, ]\n\npack=true\npackmode= \"node\"\n\n  \"films\" [id = \"films\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"films_x_characters\" [id = \"films_x_characters\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">films_x_characters<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\">url<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"characters\">characters<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url, characters\"><U>url, characters<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"people\" [id = \"people\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">people<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"homeworld\">homeworld<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"species\">species<\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"planets\" [id = \"planets\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">planets<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n  \"species\" [id = \"species\", label = <<TABLE ALIGN=\"LEFT\" BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" COLOR=\"#555555\">\n    <TR>\n      <TD COLSPAN=\"1\" BGCOLOR=\"#EFEBDD\" BORDER=\"0\"><FONT COLOR=\"#000000\">species<\/FONT>\n<\/TD>\n    <\/TR>\n    <TR>\n      <TD ALIGN=\"LEFT\" BGCOLOR=\"#FFFFFF\" PORT=\"url\"><U>url<\/U><\/TD>\n    <\/TR>\n  <\/TABLE>>, shape = \"plaintext\"] \n\n\"films_x_characters\":\"url\"->\"films\":\"url\" [id=\"films_x_characters_1\"]\n\"films_x_characters\":\"characters\"->\"people\":\"url\" [id=\"films_x_characters_2\"]\n\"people\":\"homeworld\"->\"planets\":\"url\" [id=\"people_1\"]\n\"people\":\"species\"->\"species\":\"url\" [id=\"people_2\"]\n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
-<p>次に，結合のためのキーの整合性を確認してみましょう．こうした検証は，<code>dm_examine_constraints()</code>を用いることで可能です． ここでは，上でありがちなミスとして挙げた，2種類のミスを含んだモデルを作成して，<code>dm_examine_constraints()</code>の挙動を確認してみましょう． ここで，<code>dm_starwars_2_wrong_data</code>は，<code>species</code>データの1行目が削除されたデータで，データがMECE（「漏れなく・ダブりなく」）でないものです． また，<code>dm_starwars_2_wrong_pk</code>は，<code>species</code>データの主キーを取り違えたものです．</p>
+<p>Next, let us check key constraints to join data frames. This can be done using <code>dm_examine_constraints()</code>. Let’s check the behavior of <code>dm_examine_constraints()</code> by building a model that contains the two types of mistakes mentioned above as common mistakes. Here, <code>dm_starwars_2_strong_data</code> is data in which the first row of the <code>species</code> data has been deleted and the data is not “MECE”. <code>dm_starwars_2_wrong_pk</code> is the data with the wrong primary key in the <code>species</code> data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2_wrong_data <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm</span>(<span class="at">species =</span> species <span class="sc">|&gt;</span> </span>
@@ -510,22 +513,22 @@ Foreign keys: 3</code></pre>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>dm_starwars_2_wrong_pk <span class="ot">&lt;-</span> dm_starwars_1 <span class="sc">|&gt;</span> </span>
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm</span>(species) <span class="sc">|&gt;</span> </span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_pk</span>(species, name) <span class="sc">|&gt;</span> </span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, species, species)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_add_fk</span>(people, species, species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><code>dm_examine_constraints()</code>の結果を見てみましょう． 正しいモデルである<code>dm_starwars_2</code>では，<code>ℹ All constraints satisfied.</code>というメッセージが表示され，モデルのキーが整合していることがわかります． 一方で，<code>dm_starwars_2_wrong_data</code>と<code>dm_starwars_2_wrong_pk</code>では，<code>! Unsatisfied constraints:</code>というメッセージが表示されています． これは，<code>species</code>データの主キーに含まれるはずのデータが含まれていないことに起因します． このように，<code>dm_examine_constraints()</code>を用いることで，簡単にモデルのキーの整合性を確認することができます．</p>
+<p>Let’s look at the result of <code>dm_examine_constraints()</code>. For the correct model, <code>dm_starwars_2</code>, the message <code>ℹ All constraints satisfied.</code> is displayed. On the other hand, <code>dm_starwars_2_strong_data</code> and <code>dm_starwars_2_strong_pk</code> show the message <code>! Unsatisfied constraints:</code> is displayed. This is because the primary key of the <code>species</code> data does not contain data that should be included. Thus, we see that <code>dm_examine_constraints()</code> can be used to easily check the key constraints.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ All constraints satisfied.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2_wrong_data))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2_wrong_data))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>! Unsatisfied constraints:</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>• Table `people`: foreign key `species` into table `species`: values of `people$species` not in `species$url`: http://swapi.co/api/species/5/ (1)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2_wrong_pk))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">dm_examine_constraints</span>(dm_starwars_2_wrong_pk))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>! Unsatisfied constraints:</code></pre>
 </div>
@@ -533,10 +536,10 @@ Foreign keys: 3</code></pre>
 <pre><code>• Table `people`: foreign key `species` into table `species`: values of `people$species` not in `species$name`: http://swapi.co/api/species/1/ (35), http://swapi.co/api/species/2/ (5), http://swapi.co/api/species/12/ (3), http://swapi.co/api/species/15/ (2), http://swapi.co/api/species/22/ (2), …</code></pre>
 </div>
 </div>
-<p>以上のように，<code>dm()</code>でリレーショナルデータモデルに新たなデータを追加したり，<code>dm_examine_constraints()</code>で結合のためのキーの整合性を確認したりすることができることがわかりました． 最後に，作成したリレーショナルデータモデル<code>dm_starwars_2</code>を用いて，Star Wars作品の登場人物の種族の構成比をグラフ化したものが以下の図です．ここでも，考察は割愛します．</p>
+<p>As described above, we have seen that we can add new data to the relational data model with <code>dm()</code> and check key constraints with <code>dm_examine_constraints()</code>. Finally, the following figure shows a composition of the species of the characters in the Star Wars films using <code>dm_starwars_2</code>. Again, we omit the discussion of the plots.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>登場人物の種族の構成比のグラフ</summary>
+<summary>Plot of the composition of the characters’ races</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2 <span class="sc">|&gt;</span> </span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_flatten_to_tbl</span>(films_x_characters,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.recursive =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
@@ -558,38 +561,38 @@ Foreign keys: 3</code></pre>
 <span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>                                scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)(prop))),</span>
 <span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
 <span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">reverse =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="st">"作品タイトル"</span>) <span class="sc">+</span></span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="st">"登場人物の種族の構成比"</span>,</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="st">"Title"</span>) <span class="sc">+</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="st">"Composition of the characters' races"</span>,</span>
 <span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="st">"種族名"</span>,</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="st">"Species name"</span>,</span>
 <span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>                    <span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="sc">+</span></span>
 <span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
 <span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
 <span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>,</span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="relational-data-models-with-r-s-dm-en_files/figure-html/plot-starwars-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
 </section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>この記事では，dmを使ってリレーショナルデータモデルを構築する方法を紹介しました． dmを使って，ひとたびリレーショナルデータモデルを構築してしまえば， データ間の関係を自ら管理する必要がなくなり，<code>dm_flatten_to_tbl()</code>でデータの結合を自動的に行うことができます． それ以外にも，dmでは，<code>dm()</code>によるモデル拡張や<code>dm_examine_constraints()</code>結合のためのキーの整合性の確認など， データ前処理の質を高めるための便利な機能が提供されています．</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this article, we have shown how to build a relational data model using dm. Once a relational data model is built using dm, it is no longer necessary to manage relationships among data by oneself, and data can be automatically joined using <code>dm_flatten_to_tbl()</code>. In addition, dm provides other useful functions to enhance the quality of data preprocessing, such as adding data to the model with <code>dm()</code> and checking key constraints with <code>dm_examine_constraints()</code>.</p>
 </section>
-<section id="参考文献" class="level2">
-<h2 class="anchored" data-anchor-id="参考文献">参考文献</h2>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
 <ul>
-<li><a href="https://dm.cynkra.com/index.html">dmパッケージのサイト</a></li>
-<li><a href="https://gihyo.jp/book/2018/978-4-7741-9647-3">前処理大全［データ分析のためのSQL/R/Python実践テクニック］</a></li>
+<li><a href="https://dm.cynkra.com/index.html">dm package site</a></li>
+<li><a href="https://gihyo.jp/book/2018/978-4-7741-9647-3">Preprocessing Compendium [Practical SQL/R/Python techniques for data analysis] (in Japanese)</a></li>
 <li><a href="https://pkg.garrickadenbuie.com/starwarsdb/">starwarsdb</a>
 <ul>
-<li>Star WarsのリレーショナルデータモデルがCRANからダウンロードできます</li>
+<li>Star Wars relational data model available for download from CRAN</li>
 </ul></li>
 </ul>
 
@@ -597,19 +600,16 @@ Foreign keys: 3</code></pre>
 </section>
 
 
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>幸いなことに，最近のdplyrでは，結合先のデータの”ダブり”に対して警告が出るようになりました．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>その作業を行ったのが過去の自分であっても他の誰かであっても，完全に作業が正しかったという自信は持てないものです．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>repurrrsiveのエクスポートするデータのうち，名前が<code>sw_</code>で始まるデータがStar Warsに関するもので，<code>sw_</code>以降の部分がデータの内容を表しています．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>repurrrsiveのデータはリスト形式で提供されているため，<a href="https://tidyr.tidyverse.org/articles/rectangle.html">こちらの記事</a>を参考にデータフレームに変換しました．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>ここでは，<code>sw_people</code>の<code>species</code>列は不要ですが，次の分析で使用するため選択しておきます．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6"><p>ここでは，データフレーム間の関係を図示するために，mermaidを使用しました．<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7"><p>作品と登場人物には，明確な上下関係はありませんので，<code>characters_x_films</code>という名称でも構いません．<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn8"><p><code>films</code>・<code>people</code>・<code>planets</code>については，<code>url</code>列が主キーとなり，<code>films_x_characters</code>については，<code>url</code>・<code>characters</code>列の2列の組合せが主キーとなります．<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn9"><p>上のイメージの矢印に従って，<code>films_x_characters</code>の<code>url</code>・<code>characters</code>列を，それぞれ<code>films</code>・<code>people</code>の<code>url</code>列に対応付けます．さらに，<code>people</code>の<code>homeworld</code>列を<code>planets</code>の<code>url</code>列に対応付けます．<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn10"><p>dmでは，各データを”テーブル”と呼びます．<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>Fortunately, recent versions of dplyr warn against duplicate keys when joining data frames.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Among the data exported by repurrrsive, the data whose name begins with <code>sw_</code> are related to StarWars, and the part after <code>sw_</code> represents the content of the data.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>The <code>species</code> column of <code>sw_people</code> is not needed here, but is selected for use in the next analysis.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>Here, I used mermaid to illustrate the relationship between data frames.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>There is no clear hierarchical relationship between works and characters, so the name <code>characters_x_films</code> is acceptable.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>For <code>films</code>, <code>people</code>, and <code>planets</code>, the <code>url</code> column is the primary key, and for <code>films_x_characters</code>, <code>url</code> and <code>characters</code> are the primary keys.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>Following the arrows in the image above, I set foreign keys.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -666,12 +666,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "コピーしました");
+    button.setAttribute("title", "Copied!");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "コピーしました");
+      button.setAttribute("data-bs-title", "Copied!");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",
