@@ -2,36 +2,30 @@
 title: "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）"
 lang: ja
 categories: [rvest, R, Japanese]
-date: "2024-02-14"
+date: "2024-02-15"
 format:
   html:
     df-print: paged
 image: scraping-dynamic-sites-with-rvest/html-view.png
 ---
 
-## RにおけるWebスクレイピングの課題
+## RにおけるWebスクレイピング
 
-Webサイトには，コンテンツが変化しない静的サイトとユーザの行動によってコンテンツが変化する動的サイトがありますが，これまでRでは静的サイトと動的サイトのそれぞれのスクレイピングでパッケージを使い分けることが一般的でした．
+Webサイトには，コンテンツが変化しない静的サイトとブラウザ上の操作によってコンテンツが変化する動的サイトの2種類がありますが，Rでは，これまで静的サイトと動的サイトのスクレイピングでパッケージを使い分けることが一般的でした．
 
-静的サイトのスクレイピングではrvestパッケージを用いるのが定番となっていますが，これまでrvestでは検索やログインなどが必要な動的サイトを扱うことができませんでした．
+rvestパッケージは，静的サイトのスクレイピングのための定番パッケージですが，これまで動的サイトを扱うことができませんでした．そのため，Rで動的サイトのスクレイピングを行うためには，RSeleniumなどの他のパッケージを用いる必要がありました．しかし，Seleniumは事前にドライバをインストールする必要があるなど環境構築がやや面倒であるという課題がありました．
 
-動的サイトのスクレイピングでは，rvestに加えてRSeleniumやchromoteなどの他のパッケージを組み合わせる必要がありました．特に，これまでRSeleniumが用いられることが多かったと思われますが，Seleniumは事前にドライバをインストールする必要があるなど環境構築が面倒であるという課題がありました．
+## rvest 1.0.4の新機能`read_html_live()`
 
-## rvest 1.0.4で追加された`read_html_live()`
+[rvest 1.0.4](https://cran.r-project.org/web/packages/rvest/news/news.html)で新たに追加された`read_html_live()`は，chromoteパッケージを介して動的サイトのスクレイピングを行うための関数です．
 
-rvest 1.0.4では動的サイトのスクレイピングを可能とする`read_html_live()`が追加されました． `read_html_live()`は，chromoteパッケージを用いることで，rvestで動的サイトのスクレイピングを可能とするものです[^1]．
+`read_html_live()`を用いることで，`$click()`や`$type()`などのメソッドを用いてブラウザ上の操作を自動化することが可能となります．さらに，`html_elements()`や`html_attr()`などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．
 
-[^1]: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html
-
-`read_html_live()`を用いることで，`$click()`や`$type()`などのメソッドを用いた動的サイトの操作が可能となるだけでなく，`html_elements()`や`html_attr()`などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．
-
-## `read_html_live()`の使い方
+### `read_html_live()`の使い方
 
 ここでは，[こちらのRSeleniumのチュートリアル](https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html)で紹介されているものと同じ処理を`read_html_live()`で行ってみましょう．
 
-こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．
-
-RSeleniumでのサイトのアクセスは，`read_html_live()`を使って以下のように書き換えられます．
+こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．`read_html_live()`を使って，RSeleniumでのサイトのアクセスを以下のように書き換えられます．
 
 ``` r
 # RSelenium
@@ -56,8 +50,7 @@ library(tidyverse)
 html <- read_html_live("https://www.fcc.gov/media/engineering/dtvmaps")
 ```
 
-読み込まれたオブジェクトは，`$view()`でブラウザで確認することができます．
-Ctrl+Shift+Cでサイト上のエレメントを選択したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，`$type()`や`$click()`の引数として使うことができます．
+読み込まれたオブジェクトは，`$view()`でブラウザで確認することができます．サイト上のエレメントを選択（`Ctrl+Shift+C`）したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，`$type()`や`$click()`の引数として使うことができます．
 
 ``` r
 # rvest
@@ -85,12 +78,12 @@ html$type("#startpoint", zip)
 html$click("#btnSub")
 ```
 
-最後に，[こちらのRSeleniumのチュートリアル](https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html)と同じデータが取得できたことを確認しましょう．
+最後に，上記のRSeleniumのチュートリアルと同じデータが取得できたことを確認しましょう．
 
 ```{r}
 html |> 
   html_elements("table.tbl_mapReception") |> 
-  chuck(3) |> 
+  insistently(chuck)(3) |> 
   html_table() |> 
   select(!c(1, IA)) |> 
   rename_with(str_to_lower) |> 
@@ -101,4 +94,6 @@ html |>
 
 ## まとめ
 
-以上のようにrvest 1.0.4で追加された`read_html_live()`を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べて簡単なコードでブラウザ上の操作を再現することができることがわかりました．
+以上のようにrvest 1.0.4で追加された`read_html_live()`を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べてシンプルなコードでブラウザ上の操作を再現することができることがわかりました．
+
+Rには，rvestの他にも[selenider](https://ashbythorpe.github.io/selenider/)というWebスクレイピング用のパッケージも開発されているようです．こういったパッケージの開発が進むことで，RでのWebスクレイピングがさらに便利になることが期待されます．

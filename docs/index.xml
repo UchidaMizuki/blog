@@ -10,7 +10,7 @@
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.4.549</generator>
-<lastBuildDate>Tue, 13 Feb 2024 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 14 Feb 2024 15:00:00 GMT</lastBuildDate>
 <item>
   <title>rvestで動的サイトをスクレイピングする（Seleniumを使わずに）</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html</link>
@@ -20,22 +20,19 @@
 
 
 
-<section id="rにおけるwebスクレイピングの課題" class="level2">
-<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピングの課題">RにおけるWebスクレイピングの課題</h2>
-<p>Webサイトには，コンテンツが変化しない静的サイトとユーザの行動によってコンテンツが変化する動的サイトがありますが，これまでRでは静的サイトと動的サイトのそれぞれのスクレイピングでパッケージを使い分けることが一般的でした．</p>
-<p>静的サイトのスクレイピングではrvestパッケージを用いるのが定番となっていますが，これまでrvestでは検索やログインなどが必要な動的サイトを扱うことができませんでした．</p>
-<p>動的サイトのスクレイピングでは，rvestに加えてRSeleniumやchromoteなどの他のパッケージを組み合わせる必要がありました．特に，これまでRSeleniumが用いられることが多かったと思われますが，Seleniumは事前にドライバをインストールする必要があるなど環境構築が面倒であるという課題がありました．</p>
+<section id="rにおけるwebスクレイピング" class="level2">
+<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピング">RにおけるWebスクレイピング</h2>
+<p>Webサイトには，コンテンツが変化しない静的サイトとブラウザ上の操作によってコンテンツが変化する動的サイトの2種類がありますが，Rでは，これまで静的サイトと動的サイトのスクレイピングでパッケージを使い分けることが一般的でした．</p>
+<p>rvestパッケージは，静的サイトのスクレイピングのための定番パッケージですが，これまで動的サイトを扱うことができませんでした．そのため，Rで動的サイトのスクレイピングを行うためには，RSeleniumなどの他のパッケージを用いる必要がありました．しかし，Seleniumは事前にドライバをインストールする必要があるなど環境構築がやや面倒であるという課題がありました．</p>
 </section>
-<section id="rvest-1.0.4で追加されたread_html_live" class="level2">
-<h2 class="anchored" data-anchor-id="rvest-1.0.4で追加されたread_html_live">rvest 1.0.4で追加された<code>read_html_live()</code></h2>
-<p>rvest 1.0.4では動的サイトのスクレイピングを可能とする<code>read_html_live()</code>が追加されました． <code>read_html_live()</code>は，chromoteパッケージを用いることで，rvestで動的サイトのスクレイピングを可能とするものです<sup>1</sup>．</p>
-<p><code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いた動的サイトの操作が可能となるだけでなく，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
-</section>
-<section id="read_html_liveの使い方" class="level2">
-<h2 class="anchored" data-anchor-id="read_html_liveの使い方"><code>read_html_live()</code>の使い方</h2>
+<section id="rvest-1.0.4の新機能read_html_live" class="level2">
+<h2 class="anchored" data-anchor-id="rvest-1.0.4の新機能read_html_live">rvest 1.0.4の新機能<code>read_html_live()</code></h2>
+<p><a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>で新たに追加された<code>read_html_live()</code>は，chromoteパッケージを介して動的サイトのスクレイピングを行うための関数です．</p>
+<p><code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いてブラウザ上の操作を自動化することが可能となります．さらに，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
+<section id="read_html_liveの使い方" class="level3">
+<h3 class="anchored" data-anchor-id="read_html_liveの使い方"><code>read_html_live()</code>の使い方</h3>
 <p>ここでは，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>で紹介されているものと同じ処理を<code>read_html_live()</code>で行ってみましょう．</p>
-<p>こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．</p>
-<p>RSeleniumでのサイトのアクセスは，<code>read_html_live()</code>を使って以下のように書き換えられます．</p>
+<p>こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．<code>read_html_live()</code>を使って，RSeleniumでのサイトのアクセスを以下のように書き換えられます．</p>
 <div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># RSelenium</span></span>
@@ -93,7 +90,7 @@ font-style: inherit;">read_html_live</span>(<span class="st" style="color: #2079
 background-color: null;
 font-style: inherit;">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code></pre></div>
 </div>
-<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます． Ctrl+Shift+Cでサイト上のエレメントを選択したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
+<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます．サイト上のエレメントを選択（<code>Ctrl+Shift+C</code>）したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
 <div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># rvest</span></span>
@@ -174,7 +171,7 @@ font-style: inherit;">click</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#btnSub"</span>)</span></code></pre></div>
 </div>
-<p>最後に，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>と同じデータが取得できたことを確認しましょう．</p>
+<p>最後に，上記のRSeleniumのチュートリアルと同じデータが取得できたことを確認しましょう．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">html <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -188,7 +185,7 @@ background-color: null;
 font-style: inherit;">|&gt;</span> </span>
 <span id="cb6-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">chuck</span>(<span class="dv" style="color: #AD0000;
+font-style: inherit;">insistently</span>(chuck)(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -254,25 +251,21 @@ font-style: inherit;">""</span>)</span></code></pre></div>
 </div>
 </div>
 </section>
+</section>
 <section id="まとめ" class="level2">
 <h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>以上のようにrvest 1.0.4で追加された<code>read_html_live()</code>を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べて簡単なコードでブラウザ上の操作を再現することができることがわかりました．</p>
+<p>以上のようにrvest 1.0.4で追加された<code>read_html_live()</code>を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べてシンプルなコードでブラウザ上の操作を再現することができることがわかりました．</p>
+<p>Rには，rvestの他にも<a href="https://ashbythorpe.github.io/selenider/">selenider</a>というWebスクレイピング用のパッケージも開発されているようです．こういったパッケージの開発が進むことで，RでのWebスクレイピングがさらに便利になることが期待されます．</p>
 
 
 </section>
 
-
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">脚注</h2>
-
-<ol>
-<li id="fn1"><p>https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html↩︎</p></li>
-</ol>
-</section></div> ]]></description>
+ ]]></description>
   <category>rvest</category>
   <category>R</category>
   <category>Japanese</category>
   <guid>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html</guid>
-  <pubDate>Tue, 13 Feb 2024 15:00:00 GMT</pubDate>
+  <pubDate>Wed, 14 Feb 2024 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest/html-view.png" medium="image" type="image/png" height="94" width="144"/>
 </item>
 <item>

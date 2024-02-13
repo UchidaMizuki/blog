@@ -183,7 +183,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2024年2月14日</p>
+        <p class="date">2024年2月15日</p>
       </div>
     </div>
     
@@ -202,22 +202,19 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<section id="rにおけるwebスクレイピングの課題" class="level2">
-<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピングの課題">RにおけるWebスクレイピングの課題</h2>
-<p>Webサイトには，コンテンツが変化しない静的サイトとユーザの行動によってコンテンツが変化する動的サイトがありますが，これまでRでは静的サイトと動的サイトのそれぞれのスクレイピングでパッケージを使い分けることが一般的でした．</p>
-<p>静的サイトのスクレイピングではrvestパッケージを用いるのが定番となっていますが，これまでrvestでは検索やログインなどが必要な動的サイトを扱うことができませんでした．</p>
-<p>動的サイトのスクレイピングでは，rvestに加えてRSeleniumやchromoteなどの他のパッケージを組み合わせる必要がありました．特に，これまでRSeleniumが用いられることが多かったと思われますが，Seleniumは事前にドライバをインストールする必要があるなど環境構築が面倒であるという課題がありました．</p>
+<section id="rにおけるwebスクレイピング" class="level2">
+<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピング">RにおけるWebスクレイピング</h2>
+<p>Webサイトには，コンテンツが変化しない静的サイトとブラウザ上の操作によってコンテンツが変化する動的サイトの2種類がありますが，Rでは，これまで静的サイトと動的サイトのスクレイピングでパッケージを使い分けることが一般的でした．</p>
+<p>rvestパッケージは，静的サイトのスクレイピングのための定番パッケージですが，これまで動的サイトを扱うことができませんでした．そのため，Rで動的サイトのスクレイピングを行うためには，RSeleniumなどの他のパッケージを用いる必要がありました．しかし，Seleniumは事前にドライバをインストールする必要があるなど環境構築がやや面倒であるという課題がありました．</p>
 </section>
-<section id="rvest-1.0.4で追加されたread_html_live" class="level2">
-<h2 class="anchored" data-anchor-id="rvest-1.0.4で追加されたread_html_live">rvest 1.0.4で追加された<code>read_html_live()</code></h2>
-<p>rvest 1.0.4では動的サイトのスクレイピングを可能とする<code>read_html_live()</code>が追加されました． <code>read_html_live()</code>は，chromoteパッケージを用いることで，rvestで動的サイトのスクレイピングを可能とするものです<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
-<p><code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いた動的サイトの操作が可能となるだけでなく，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
-</section>
-<section id="read_html_liveの使い方" class="level2">
-<h2 class="anchored" data-anchor-id="read_html_liveの使い方"><code>read_html_live()</code>の使い方</h2>
+<section id="rvest-1.0.4の新機能read_html_live" class="level2">
+<h2 class="anchored" data-anchor-id="rvest-1.0.4の新機能read_html_live">rvest 1.0.4の新機能<code>read_html_live()</code></h2>
+<p><a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>で新たに追加された<code>read_html_live()</code>は，chromoteパッケージを介して動的サイトのスクレイピングを行うための関数です．</p>
+<p><code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いてブラウザ上の操作を自動化することが可能となります．さらに，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
+<section id="read_html_liveの使い方" class="level3">
+<h3 class="anchored" data-anchor-id="read_html_liveの使い方"><code>read_html_live()</code>の使い方</h3>
 <p>ここでは，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>で紹介されているものと同じ処理を<code>read_html_live()</code>で行ってみましょう．</p>
-<p>こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．</p>
-<p>RSeleniumでのサイトのアクセスは，<code>read_html_live()</code>を使って以下のように書き換えられます．</p>
+<p>こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．<code>read_html_live()</code>を使って，RSeleniumでのサイトのアクセスを以下のように書き換えられます．</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RSelenium</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSelenium)</span>
@@ -233,7 +230,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">read_html_live</span>(<span class="st">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます． Ctrl+Shift+Cでサイト上のエレメントを選択したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
+<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます．サイト上のエレメントを選択（<code>Ctrl+Shift+C</code>）したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rvest</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">view</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><img src="scraping-dynamic-sites-with-rvest/html-view.png" class="img-fluid"></p>
@@ -250,11 +247,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">type</span>(<span class="st">"#startpoint"</span>, zip)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">click</span>(<span class="st">"#btnSub"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>最後に，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>と同じデータが取得できたことを確認しましょう．</p>
+<p>最後に，上記のRSeleniumのチュートリアルと同じデータが取得できたことを確認しましょう．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_elements</span>(<span class="st">"table.tbl_mapReception"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">chuck</span>(<span class="dv">3</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">insistently</span>(chuck)(<span class="dv">3</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">c</span>(<span class="dv">1</span>, IA)) <span class="sc">|&gt;</span> </span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(str_to_lower) <span class="sc">|&gt;</span> </span>
@@ -270,20 +267,16 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </section>
+</section>
 <section id="まとめ" class="level2">
 <h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>以上のようにrvest 1.0.4で追加された<code>read_html_live()</code>を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べて簡単なコードでブラウザ上の操作を再現することができることがわかりました．</p>
+<p>以上のようにrvest 1.0.4で追加された<code>read_html_live()</code>を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べてシンプルなコードでブラウザ上の操作を再現することができることがわかりました．</p>
+<p>Rには，rvestの他にも<a href="https://ashbythorpe.github.io/selenider/">selenider</a>というWebスクレイピング用のパッケージも開発されているようです．こういったパッケージの開発が進むことで，RでのWebスクレイピングがさらに便利になることが期待されます．</p>
 
 
 </section>
 
-
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
-
-<ol>
-<li id="fn1"><p>https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
