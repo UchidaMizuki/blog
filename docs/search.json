@@ -221,7 +221,7 @@
     "href": "index.html",
     "title": "UchidaMizuki",
     "section": "",
-    "text": "Improve the quality of data preprocessing with R’s dm package\n\n\n\n\n\n\ndm\n\n\nR\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRのdmパッケージでデータ前処理の質を高めよう\n\n\n\n\n\n\ndm\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRの数値積分で円の面積を求める\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 10, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nQuartoを活用してTokyo.Rで発表しました\n\n\n\n\n\n\ne-Stat\n\n\nLT\n\n\nTokyo.R\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 3, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nなぜベイズの定理が重要なのかーPCR検査を例にー\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
+    "text": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）\n\n\n\n\n\n\nrvest\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 14, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nImprove the quality of data preprocessing with R’s dm package\n\n\n\n\n\n\ndm\n\n\nR\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRのdmパッケージでデータ前処理の質を高めよう\n\n\n\n\n\n\ndm\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRの数値積分で円の面積を求める\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 10, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nQuartoを活用してTokyo.Rで発表しました\n\n\n\n\n\n\ne-Stat\n\n\nLT\n\n\nTokyo.R\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 3, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nなぜベイズの定理が重要なのかーPCR検査を例にー\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -453,5 +453,47 @@
     "title": "Improve the quality of data preprocessing with R’s dm package",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nFortunately, recent versions of dplyr warn against duplicate keys when joining data frames.↩︎\nAmong the data exported by repurrrsive, the data whose name begins with sw_ are related to StarWars, and the part after sw_ represents the content of the data.↩︎\nThe species column of sw_people is not needed here, but is selected for use in the next analysis.↩︎\nHere, I used mermaid to illustrate the relationship between data frames.↩︎\nThere is no clear hierarchical relationship between works and characters, so the name characters_x_films is acceptable.↩︎\nFor films, people, and planets, the url column is the primary key, and for films_x_characters, url and characters are the primary keys.↩︎\nFollowing the arrows in the image above, I set foreign keys.↩︎"
+  },
+  {
+    "objectID": "posts/2024/02/scraping-dynamic-sites-with-rvest.html",
+    "href": "posts/2024/02/scraping-dynamic-sites-with-rvest.html",
+    "title": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）",
+    "section": "",
+    "text": "Webサイトには，コンテンツが変化しない静的サイトとユーザの行動によってコンテンツが変化する動的サイトがありますが，これまでRでは静的サイトと動的サイトのそれぞれのスクレイピングでパッケージを使い分けることが一般的でした．\n静的サイトのスクレイピングではrvestパッケージを用いるのが定番となっていますが，これまでrvestでは検索やログインなどが必要な動的サイトを扱うことができませんでした．\n動的サイトのスクレイピングでは，rvestに加えてRSeleniumやchromoteなどの他のパッケージを組み合わせる必要がありました．特に，これまでRSeleniumが用いられることが多かったと思われますが，Seleniumは事前にドライバをインストールする必要があるなど環境構築が面倒であるという課題がありました．"
+  },
+  {
+    "objectID": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#rにおけるwebスクレイピングの課題",
+    "href": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#rにおけるwebスクレイピングの課題",
+    "title": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）",
+    "section": "",
+    "text": "Webサイトには，コンテンツが変化しない静的サイトとユーザの行動によってコンテンツが変化する動的サイトがありますが，これまでRでは静的サイトと動的サイトのそれぞれのスクレイピングでパッケージを使い分けることが一般的でした．\n静的サイトのスクレイピングではrvestパッケージを用いるのが定番となっていますが，これまでrvestでは検索やログインなどが必要な動的サイトを扱うことができませんでした．\n動的サイトのスクレイピングでは，rvestに加えてRSeleniumやchromoteなどの他のパッケージを組み合わせる必要がありました．特に，これまでRSeleniumが用いられることが多かったと思われますが，Seleniumは事前にドライバをインストールする必要があるなど環境構築が面倒であるという課題がありました．"
+  },
+  {
+    "objectID": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#rvest-1.0.4で追加されたread_html_live",
+    "href": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#rvest-1.0.4で追加されたread_html_live",
+    "title": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）",
+    "section": "rvest 1.0.4で追加されたread_html_live()",
+    "text": "rvest 1.0.4で追加されたread_html_live()\nrvest 1.0.4では動的サイトのスクレイピングを可能とするread_html_live()が追加されました． read_html_live()は，chromoteパッケージを用いることで，rvestで動的サイトのスクレイピングを可能とするものです1．\nread_html_live()を用いることで，$click()や$type()などのメソッドを用いた動的サイトの操作が可能となるだけでなく，html_elements()やhtml_attr()などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．"
+  },
+  {
+    "objectID": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#read_html_liveの使い方",
+    "href": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#read_html_liveの使い方",
+    "title": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）",
+    "section": "read_html_live()の使い方",
+    "text": "read_html_live()の使い方\nここでは，こちらのRSeleniumのチュートリアルで紹介されているものと同じ処理をread_html_live()で行ってみましょう．\nこちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．\nRSeleniumでのサイトのアクセスは，read_html_live()を使って以下のように書き換えられます．\n# RSelenium\n# Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html\nlibrary(RSelenium)\n\nrD &lt;- rsDriver(browser=\"firefox\", port=4545L, verbose=F)\nremDr &lt;- rD[[\"client\"]]\nremDr$navigate(\"https://www.fcc.gov/media/engineering/dtvmaps\")\n⏬\n\n# rvest\nlibrary(rvest)\nlibrary(tidyverse)\n\nhtml &lt;- read_html_live(\"https://www.fcc.gov/media/engineering/dtvmaps\")\n\n読み込まれたオブジェクトは，$view()でブラウザで確認することができます． Ctrl+Shift+Cでサイト上のエレメントを選択したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，$type()や$click()の引数として使うことができます．\n# rvest\nhtml$view()\n\n次に，中央のフォームに郵便番号（ZIP code）を入力しGo!ボタンをクリックするコードは以下のように書き換えられます．\n# RSelenium\n# Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html\nzip &lt;- \"30308\"\nremDr$findElement(using = \"id\", value = \"startpoint\")$sendKeysToElement(list(zip))\nremDr$findElements(\"id\", \"btnSub\")[[1]]$clickElement()\n⏬\n\n# rvest\nzip &lt;- \"30308\"\nhtml$type(\"#startpoint\", zip)\nhtml$click(\"#btnSub\")\n\n最後に，こちらのRSeleniumのチュートリアルと同じデータが取得できたことを確認しましょう．\n\nhtml |&gt; \n  html_elements(\"table.tbl_mapReception\") |&gt; \n  chuck(3) |&gt; \n  html_table() |&gt; \n  select(!c(1, IA)) |&gt; \n  rename_with(str_to_lower) |&gt; \n  rename(ch_num = `ch#`) |&gt; \n  slice_tail(n = -1) |&gt; \n  filter(callsign != \"\")"
+  },
+  {
+    "objectID": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#まとめ",
+    "href": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#まとめ",
+    "title": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）",
+    "section": "まとめ",
+    "text": "まとめ\n以上のようにrvest 1.0.4で追加されたread_html_live()を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べて簡単なコードでブラウザ上の操作を再現することができることがわかりました．"
+  },
+  {
+    "objectID": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#footnotes",
+    "href": "posts/2024/02/scraping-dynamic-sites-with-rvest.html#footnotes",
+    "title": "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）",
+    "section": "脚注",
+    "text": "脚注\n\n\nhttps://joshuamccrain.com/tutorials/web_scraping_R_selenium.html↩︎"
   }
 ]
