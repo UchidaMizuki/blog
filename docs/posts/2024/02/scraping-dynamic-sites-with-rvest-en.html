@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2024-02-15">
 
-<title>UchidaMizuki - rvestで動的サイトをスクレイピングする（Seleniumを使わずに）</title>
+<title>UchidaMizuki - Scraping dynamic sites with rvest (without Selenium)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -88,17 +89,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   ],
   "show-item-context": false,
   "language": {
-    "search-no-results-text": "一致なし",
-    "search-matching-documents-text": "一致した文書",
-    "search-copy-link-title": "検索へのリンクをコピー",
-    "search-hide-matches-text": "追加の検索結果を非表示",
-    "search-more-match-text": "追加の検索結果",
-    "search-more-matches-text": "追加の検索結果",
-    "search-clear-button-title": "消去",
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
     "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "取消",
-    "search-submit-button-title": "検索",
-    "search-label": "サーチ"
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
@@ -128,8 +129,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
     <span class="navbar-title">UchidaMizuki</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="サーチ"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="ナビゲーションを切り替える" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -167,7 +168,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">rvestで動的サイトをスクレイピングする（Seleniumを使わずに）</h1>
+      <h1 class="title">Scraping dynamic sites with rvest (without Selenium)</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">rvest</div>
                 <div class="quarto-category">R</div>
@@ -181,9 +182,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
       
       <div>
-      <div class="quarto-title-meta-heading">公開</div>
+      <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2024年2月15日</p>
+        <p class="date">February 15, 2024</p>
       </div>
     </div>
     
@@ -202,53 +203,56 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<section id="rにおけるwebスクレイピングのこれまで" class="level2">
-<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピングのこれまで">RにおけるWebスクレイピングのこれまで</h2>
-<p>RにおけるWebスクレイピングの定番パッケージにrvestがありますが，これまでブラウザ上の操作によってコンテンツが変化する動的サイトのスクレイピングにはrvestを用いることができませんでした．そのため，Rで動的サイトのスクレイピングには，RSeleniumなどの他のパッケージと組み合わせて利用する必要があり，以下のような課題が生じていました．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html">my Japanese article</a>.</p>
+<section id="web-scraping-for-dynamic-sites-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="web-scraping-for-dynamic-sites-in-r">Web scraping for dynamic sites in R</h2>
+<p>rvest is a popular package for web scraping in R, bur it could not be used for dynamic sites where the contents changes with the operations on the browser.</p>
+<p>Therefore, for scraping dynamic sites in R, you needed to use other packages such as RSelenium with rvest and had the following issues.</p>
 <ul>
-<li>Seleniumを用いる場合には，事前にドライバをダウンロードする必要があるなど環境構築が面倒</li>
-<li>他のパッケージで取得したHTMLに対してrvestの関数をシームレスに適用できない</li>
+<li><p>When using Selenium, it is troublesome to set up the environment (e.g., you need to download the driver in advance, etc.).</p></li>
+<li><p>We couldn’t seamlessly apply rvest functions to HTML from other packages.</p></li>
 </ul>
-<p>しかし，<a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>では，<a href="https://rvest.tidyverse.org/reference/read_html_live.html"><code>read_html_live()</code></a>という新たな関数が追加され，動的サイトのスクレイピングが可能となりました．<code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いたブラウザ上の操作の自動化が可能となるだけでなく，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
-<p><code>read_html_live()</code>は，Google Chromeの自動化を行う<a href="https://rstudio.github.io/chromote/">chromote</a>というパッケージを利用しています．そのため，<code>read_html_live()</code>を使うには，事前にGoogle Chrome（ブラウザ）とchromote（Rパッケージ）をインストールしておく必要があります．</p>
+<p>In <a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>, however, a new <a href="https://rvest.tidyverse.org/reference/read_html_live.html"><code>read_html_live()</code></a> function has been added to allow dynamic site scraping with rvest alone. By using <code>read_html_live()</code>, you can automate browser operations with methods such as <code>$click()</code> and <code>$type()</code>. Not only that, but you can seamlessly call rvest functions such as <code>html_elements()</code> and <code>html_attr()</code> with <code>read_html_live()</code>.</p>
+<p><code>read_html_live()</code> uses <a href="https://rstudio.github.io/chromote/">chromote</a> package for Google Chrome automation internally. Therefore to use the function, you need to install Google Chrome (browser) and chromote (R package) beforehand.</p>
 </section>
-<section id="read_html_liveを使ってみよう" class="level2">
-<h2 class="anchored" data-anchor-id="read_html_liveを使ってみよう"><code>read_html_live()</code>を使ってみよう</h2>
-<p>ここからは，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>で紹介されているものと同じ処理を<code>read_html_live()</code>で行ってみましょう．</p>
-<p>こちらのチュートリアルでは，<a href="https://www.fcc.gov/media/engineering/dtvmaps">こちらのサイト</a>にアメリカの郵便番号（ZIP code）を入力して地元テレビ局の情報を取得するという一連の処理を自動化しています． <code>read_html_live()</code>を使えば，RSeleniumでのサイトのアクセスを以下のように書き換えられます．</p>
+<section id="lets-use-read_html_live" class="level2">
+<h2 class="anchored" data-anchor-id="lets-use-read_html_live">Let’s use <code>read_html_live()</code></h2>
+<p>From here, let’s use <code>read_html_live()</code> to perform the same process in <a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">this RSelenium tutorial</a>.</p>
+<p>This tutorial automates the process of collecting information from local TV stations in <a href="https://www.fcc.gov/media/engineering/dtvmaps">this site</a>. This process requires a search for U.S. zip codes.</p>
+<p>By using <code>read_html_live()</code>, the code to access the site in RSelenium can be rewritten in rvest as follows.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RSelenium</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSelenium)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>rD <span class="ot">&lt;-</span> <span class="fu">rsDriver</span>(<span class="at">browser=</span><span class="st">"firefox"</span>, <span class="at">port=</span><span class="dv">4545</span>L, <span class="at">verbose=</span>F)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>remDr <span class="ot">&lt;-</span> rD[[<span class="st">"client"</span>]]</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>remDr<span class="sc">$</span><span class="fu">navigate</span>(<span class="st">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>remDr<span class="sc">$</span><span class="fu">navigate</span>(<span class="st">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>⏬</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rvest</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">read_html_live</span>(<span class="st">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>html <span class="ot">&lt;-</span> <span class="fu">read_html_live</span>(<span class="st">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます．サイト上のエレメントを選択（<code>Ctrl+Shift+C</code>）したのち，該当箇所を右クリック⏩<code>Copy</code>⏩<code>Copy selector</code>でCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
+<p>You can use the <code>$view()</code> method to see the LiveHTML object. You can also select elements on the site by <code>Ctrl+Shift+C</code> and then right-click⏩<code>Copy</code>⏩<code>Copy selector</code> to copy the CSS selector, and use it as an argument to <code>$type()</code> or <code>$click()</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rvest</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">view</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">view</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><img src="scraping-dynamic-sites-with-rvest/html-view.png" class="img-fluid"></p>
-<p>次に，中央のフォームに郵便番号（ZIP code）を入力⏩<code>Go!</code>ボタンをクリックし地元テレビ局の情報を表示させるコードは以下のように書き換えられます．</p>
+<p>Next, enter the zip code in the center form and click the <code>Go!</code> button. Here, the code in RSelenium can be rewritten in rvest as follows.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RSelenium</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>zip <span class="ot">&lt;-</span> <span class="st">"30308"</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>remDr<span class="sc">$</span><span class="fu">findElement</span>(<span class="at">using =</span> <span class="st">"id"</span>, <span class="at">value =</span> <span class="st">"startpoint"</span>)<span class="sc">$</span><span class="fu">sendKeysToElement</span>(<span class="fu">list</span>(zip))</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>remDr<span class="sc">$</span><span class="fu">findElements</span>(<span class="st">"id"</span>, <span class="st">"btnSub"</span>)[[<span class="dv">1</span>]]<span class="sc">$</span><span class="fu">clickElement</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>remDr<span class="sc">$</span><span class="fu">findElements</span>(<span class="st">"id"</span>, <span class="st">"btnSub"</span>)[[<span class="dv">1</span>]]<span class="sc">$</span><span class="fu">clickElement</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>⏬</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rvest</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>zip <span class="ot">&lt;-</span> <span class="st">"30308"</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">type</span>(<span class="st">"#startpoint"</span>, zip)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">click</span>(<span class="st">"#btnSub"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>html<span class="sc">$</span><span class="fu">click</span>(<span class="st">"#btnSub"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>最後に，上記のRSeleniumのチュートリアルと同じデータが取得できたことを確認しましょう．</p>
+<p>Finally, let’s check we got the same data as in the RSelenium tutorial above.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rvest</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>html <span class="sc">|&gt;</span> </span>
@@ -259,7 +263,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(str_to_lower) <span class="sc">|&gt;</span> </span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ch_num =</span> <span class="st">`</span><span class="at">ch#</span><span class="st">`</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_tail</span>(<span class="at">n =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(callsign <span class="sc">!=</span> <span class="st">""</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(callsign <span class="sc">!=</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
@@ -269,10 +273,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>以上のようにrvest 1.0.4で追加された<code>read_html_live()</code>を使うことで，rvestだけでシームレスに静的サイトと動的サイトのスクレイピングが可能となるだけでなく，RSeleniumと比べてシンプルなコードでブラウザ上の操作を再現することができることがわかりました．</p>
-<p>Rには，rvestの他にも<a href="https://ashbythorpe.github.io/selenider/">selenider</a>というWebスクレイピング用のパッケージも開発されているようです．こういったパッケージの開発が進むことで，RでのWebスクレイピングがさらに便利になることが期待されます．</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>As above, by using <code>read_html_live()</code> that was added in rvest 1.0.4, we found that seamless scraping of static and dynamic sites is possible with rvest alone. In addition, it should be noted that rvest’s code was simpler than RSelenium’s.</p>
+<p>In addition to rvest, a web scraping package called <a href="https://ashbythorpe.github.io/selenider/">selenider</a> is also being developed for R. It is expected that the development of such packages will make web scraping in R even more convenient!</p>
 
 
 </section>
@@ -332,12 +336,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "コピーしました");
+    button.setAttribute("title", "Copied!");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "コピーしました");
+      button.setAttribute("data-bs-title", "Copied!");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",

@@ -1,0 +1,106 @@
+---
+title: "Scraping dynamic sites with rvest (without Selenium)"
+lang: en
+categories: [rvest, R, Japanese]
+date: "2024-02-15"
+format:
+  html:
+    df-print: paged
+image: scraping-dynamic-sites-with-rvest/html-view.png
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html).
+
+## Web scraping for dynamic sites in R
+
+rvest is a popular package for web scraping in R, bur it could not be used for dynamic sites where the contents changes with the operations on the browser.
+
+Therefore, for scraping dynamic sites in R, you needed to use other packages such as RSelenium with rvest and had the following issues.
+
+-   When using Selenium, it is troublesome to set up the environment (e.g., you need to download the driver in advance, etc.).
+
+-   We couldn't seamlessly apply rvest functions to HTML from other packages.
+
+In [rvest 1.0.4](https://cran.r-project.org/web/packages/rvest/news/news.html), however, a new [`read_html_live()`](https://rvest.tidyverse.org/reference/read_html_live.html) function has been added to allow dynamic site scraping with rvest alone. By using `read_html_live()`, you can automate browser operations with methods such as `$click()` and `$type()`. Not only that, but you can seamlessly call rvest functions such as `html_elements()` and `html_attr()` with `read_html_live()`.
+
+`read_html_live()` uses [chromote](https://rstudio.github.io/chromote/) package for Google Chrome automation internally. Therefore to use the function, you need to install Google Chrome (browser) and chromote (R package) beforehand.
+
+## Let's use `read_html_live()`
+
+From here, let's use `read_html_live()` to perform the same process in [this RSelenium tutorial](https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html).
+
+This tutorial automates the process of collecting information from local TV stations in [this site](https://www.fcc.gov/media/engineering/dtvmaps). This process requires a search for U.S. zip codes.
+
+By using `read_html_live()`, the code to access the site in RSelenium can be rewritten in rvest as follows.
+
+``` r
+# RSelenium
+# Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html
+library(RSelenium)
+
+rD <- rsDriver(browser="firefox", port=4545L, verbose=F)
+remDr <- rD[["client"]]
+remDr$navigate("https://www.fcc.gov/media/engineering/dtvmaps")
+```
+
+⏬
+
+```{r}
+#| message: false
+#| warning: false
+
+# rvest
+library(rvest)
+library(tidyverse)
+
+html <- read_html_live("https://www.fcc.gov/media/engineering/dtvmaps")
+```
+
+You can use the `$view()` method to see the LiveHTML object. You can also select elements on the site by `Ctrl+Shift+C` and then right-click⏩`Copy`⏩`Copy selector` to copy the CSS selector, and use it as an argument to `$type()` or `$click()`.
+
+``` r
+# rvest
+html$view()
+```
+
+![](scraping-dynamic-sites-with-rvest/html-view.png)
+
+Next, enter the zip code in the center form and click the `Go!` button. Here, the code in RSelenium can be rewritten in rvest as follows.
+
+``` r
+# RSelenium
+# Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html
+zip <- "30308"
+remDr$findElement(using = "id", value = "startpoint")$sendKeysToElement(list(zip))
+remDr$findElements("id", "btnSub")[[1]]$clickElement()
+```
+
+⏬
+
+```{r}
+# rvest
+zip <- "30308"
+html$type("#startpoint", zip)
+html$click("#btnSub")
+```
+
+Finally, let's check we got the same data as in the RSelenium tutorial above.
+
+```{r}
+# rvest
+html |> 
+  html_elements("table.tbl_mapReception") |> 
+  insistently(chuck)(3) |> 
+  html_table() |> 
+  select(!c(1, IA)) |> 
+  rename_with(str_to_lower) |> 
+  rename(ch_num = `ch#`) |> 
+  slice_tail(n = -1) |> 
+  filter(callsign != "")
+```
+
+## Summary
+
+As above, by using `read_html_live()` that was added in rvest 1.0.4, we found that seamless scraping of static and dynamic sites is possible with rvest alone. In addition, it should be noted that rvest's code was simpler than RSelenium's.
+
+In addition to rvest, a web scraping package called [selenider](https://ashbythorpe.github.io/selenider/) is also being developed for R. It is expected that the development of such packages will make web scraping in R even more convenient!

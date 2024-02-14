@@ -12,27 +12,31 @@
 <generator>quarto-1.4.549</generator>
 <lastBuildDate>Wed, 14 Feb 2024 15:00:00 GMT</lastBuildDate>
 <item>
-  <title>rvestで動的サイトをスクレイピングする（Seleniumを使わずに）</title>
-  <link>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html</link>
+  <title>Scraping dynamic sites with rvest (without Selenium)</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest-en.html</link>
   <description><![CDATA[ 
 
 
 
 
 
-<section id="rにおけるwebスクレイピング" class="level2">
-<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピング">RにおけるWebスクレイピング</h2>
-<p>Webサイトには，コンテンツが変化しない静的サイトとブラウザ上の操作によってコンテンツが変化する動的サイトの2種類がありますが，Rでは，これまで静的サイトと動的サイトのスクレイピングでパッケージを使い分けることが一般的でした．</p>
-<p>rvestパッケージは，静的サイトのスクレイピングのための定番パッケージですが，これまで動的サイトを扱うことができませんでした．そのため，Rで動的サイトのスクレイピングを行うためには，RSeleniumなどの他のパッケージを用いる必要がありました．しかし，Seleniumは事前にドライバをインストールする必要があるなど環境構築がやや面倒であるという課題がありました．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html">my Japanese article</a>.</p>
+<section id="web-scraping-for-dynamic-sites-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="web-scraping-for-dynamic-sites-in-r">Web scraping for dynamic sites in R</h2>
+<p>rvest is a popular package for web scraping in R, bur it could not be used for dynamic sites where the contents changes with the operations on the browser.</p>
+<p>Therefore, for scraping dynamic sites in R, you needed to use other packages such as RSelenium with rvest and had the following issues.</p>
+<ul>
+<li><p>When using Selenium, it is troublesome to set up the environment (e.g., you need to download the driver in advance, etc.).</p></li>
+<li><p>We couldn’t seamlessly apply rvest functions to HTML from other packages.</p></li>
+</ul>
+<p>In <a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>, however, a new <a href="https://rvest.tidyverse.org/reference/read_html_live.html"><code>read_html_live()</code></a> function has been added to allow dynamic site scraping with rvest alone. By using <code>read_html_live()</code>, you can automate browser operations with methods such as <code>$click()</code> and <code>$type()</code>. Not only that, but you can seamlessly call rvest functions such as <code>html_elements()</code> and <code>html_attr()</code> with <code>read_html_live()</code>.</p>
+<p><code>read_html_live()</code> uses <a href="https://rstudio.github.io/chromote/">chromote</a> package for Google Chrome automation internally. Therefore to use the function, you need to install Google Chrome (browser) and chromote (R package) beforehand.</p>
 </section>
-<section id="rvest-1.0.4の新機能read_html_live" class="level2">
-<h2 class="anchored" data-anchor-id="rvest-1.0.4の新機能read_html_live">rvest 1.0.4の新機能<code>read_html_live()</code></h2>
-<p><a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>で新たに追加された<code>read_html_live()</code>は，chromoteパッケージを介して動的サイトのスクレイピングを行うための関数です．</p>
-<p><code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いてブラウザ上の操作を自動化することが可能となります．さらに，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
-<section id="read_html_liveの使い方" class="level3">
-<h3 class="anchored" data-anchor-id="read_html_liveの使い方"><code>read_html_live()</code>の使い方</h3>
-<p>ここでは，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>で紹介されているものと同じ処理を<code>read_html_live()</code>で行ってみましょう．</p>
-<p>こちらのチュートリアルでは，アメリカの郵便番号（ZIP code）から地元テレビ局の情報をスクレイピングしています．<code>read_html_live()</code>を使って，RSeleniumでのサイトのアクセスを以下のように書き換えられます．</p>
+<section id="lets-use-read_html_live" class="level2">
+<h2 class="anchored" data-anchor-id="lets-use-read_html_live">Let’s use <code>read_html_live()</code></h2>
+<p>From here, let’s use <code>read_html_live()</code> to perform the same process in <a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">this RSelenium tutorial</a>.</p>
+<p>This tutorial automates the process of collecting information from local TV stations in <a href="https://www.fcc.gov/media/engineering/dtvmaps">this site</a>. This process requires a search for U.S. zip codes.</p>
+<p>By using <code>read_html_live()</code>, the code to access the site in RSelenium can be rewritten in rvest as follows.</p>
 <div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># RSelenium</span></span>
@@ -90,7 +94,7 @@ font-style: inherit;">read_html_live</span>(<span class="st" style="color: #2079
 background-color: null;
 font-style: inherit;">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code></pre></div>
 </div>
-<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます．サイト上のエレメントを選択（<code>Ctrl+Shift+C</code>）したのち，該当箇所を右クリック⏩Copy⏩Copy selectorでCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
+<p>You can use the <code>$view()</code> method to see the LiveHTML object. You can also select elements on the site by <code>Ctrl+Shift+C</code> and then right-click⏩<code>Copy</code>⏩<code>Copy selector</code> to copy the CSS selector, and use it as an argument to <code>$type()</code> or <code>$click()</code>.</p>
 <div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># rvest</span></span>
@@ -100,7 +104,267 @@ font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">view</span>()</span></code></pre></div>
 <p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest/html-view.png" class="img-fluid"></p>
-<p>次に，中央のフォームに郵便番号（ZIP code）を入力しGo!ボタンをクリックするコードは以下のように書き換えられます．</p>
+<p>Next, enter the zip code in the center form and click the <code>Go!</code> button. Here, the code in RSelenium can be rewritten in rvest as follows.</p>
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># RSelenium</span></span>
+<span id="cb4-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html</span></span>
+<span id="cb4-3">zip <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"30308"</span></span>
+<span id="cb4-4">remDr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">findElement</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">using =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"startpoint"</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sendKeysToElement</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(zip))</span>
+<span id="cb4-5">remDr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">findElements</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"btnSub"</span>)[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">clickElement</span>()</span></code></pre></div>
+<p>⏬</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rvest</span></span>
+<span id="cb5-2">zip <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"30308"</span></span>
+<span id="cb5-3">html<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">type</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#startpoint"</span>, zip)</span>
+<span id="cb5-4">html<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">click</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#btnSub"</span>)</span></code></pre></div>
+</div>
+<p>Finally, let’s check we got the same data as in the RSelenium tutorial above.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rvest</span></span>
+<span id="cb6-2">html <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">html_elements</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"table.tbl_mapReception"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">insistently</span>(chuck)(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">html_table</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, IA)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rename_with</span>(str_to_lower) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ch_num =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ch#</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice_tail</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(callsign <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["callsign"],"name":[1],"type":["chr"],"align":["left"]},{"label":["network"],"name":[2],"type":["chr"],"align":["left"]},{"label":["ch_num"],"name":[3],"type":["chr"],"align":["left"]},{"label":["band"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"WXIA-TV","2":"NBC","3":"11","4":"Hi-V"},{"1":"WSB-TV","2":"ABC","3":"2","4":"UHF"},{"1":"WUVG-DT","2":"UNIV","3":"34","4":"UHF"},{"1":"WHSG-TV","2":"TRIN","3":"63","4":"UHF"},{"1":"WAGA-TV","2":"FOX","3":"5","4":"UHF"},{"1":"WANF","2":"CBS","3":"46","4":"UHF"},{"1":"WUPA","2":"THE","3":"69","4":"UHF"},{"1":"WPCH-TV","2":"IND","3":"17","4":"UHF"},{"1":"WATL","2":"MY N","3":"36","4":"UHF"},{"1":"WIRE-CD","2":"","3":"","4":"UHF"},{"1":"WABE-TV","2":"PBS","3":"30","4":"UHF"},{"1":"WATC-DT","2":"ETV","3":"57","4":"UHF"},{"1":"WYGA-CD","2":"","3":"","4":"UHF"},{"1":"WGTV","2":"PBS","3":"8","4":"Hi-V"},{"1":"WANN-CD","2":"","3":"","4":"UHF"},{"1":"WPXA-TV","2":"ION","3":"14","4":"UHF"},{"1":"WKTB-CD","2":"","3":"","4":"UHF"},{"1":"WSKC-CD","2":"","3":"","4":"UHF"},{"1":"WNGH-TV","2":"PBS","3":"18","4":"Lo-V"},{"1":"WJSP-TV","2":"PBS","3":"28","4":"Lo-V"},{"1":"WCIQ","2":"PBS","3":"7","4":"Hi-V"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>As above, by using <code>read_html_live()</code> that was added in rvest 1.0.4, we found that seamless scraping of static and dynamic sites is possible with rvest alone. In addition, it should be noted that rvest’s code was simpler than RSelenium’s.</p>
+<p>In addition to rvest, a web scraping package called <a href="https://ashbythorpe.github.io/selenider/">selenider</a> is also being developed for R. It is expected that the development of such packages will make web scraping in R even more convenient!</p>
+
+
+</section>
+
+ ]]></description>
+  <category>rvest</category>
+  <category>R</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest-en.html</guid>
+  <pubDate>Wed, 14 Feb 2024 15:00:00 GMT</pubDate>
+  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest/html-view.png" medium="image" type="image/png" height="94" width="144"/>
+</item>
+<item>
+  <title>rvestで動的サイトをスクレイピングする（Seleniumを使わずに）</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="rにおけるwebスクレイピングのこれまで" class="level2">
+<h2 class="anchored" data-anchor-id="rにおけるwebスクレイピングのこれまで">RにおけるWebスクレイピングのこれまで</h2>
+<p>RにおけるWebスクレイピングの定番パッケージにrvestがありますが，これまでブラウザ上の操作によってコンテンツが変化する動的サイトのスクレイピングにはrvestを用いることができませんでした．そのため，Rで動的サイトのスクレイピングには，RSeleniumなどの他のパッケージと組み合わせて利用する必要があり，以下のような課題が生じていました．</p>
+<ul>
+<li>Seleniumを用いる場合には，事前にドライバをダウンロードする必要があるなど環境構築が面倒</li>
+<li>他のパッケージで取得したHTMLに対してrvestの関数をシームレスに適用できない</li>
+</ul>
+<p>しかし，<a href="https://cran.r-project.org/web/packages/rvest/news/news.html">rvest 1.0.4</a>では，<a href="https://rvest.tidyverse.org/reference/read_html_live.html"><code>read_html_live()</code></a>という新たな関数が追加され，動的サイトのスクレイピングが可能となりました．<code>read_html_live()</code>を用いることで，<code>$click()</code>や<code>$type()</code>などのメソッドを用いたブラウザ上の操作の自動化が可能となるだけでなく，<code>html_elements()</code>や<code>html_attr()</code>などの一般的なrvestの関数をシームレスに呼ぶことができるようになります．</p>
+<p><code>read_html_live()</code>は，Google Chromeの自動化を行う<a href="https://rstudio.github.io/chromote/">chromote</a>というパッケージを利用しています．そのため，<code>read_html_live()</code>を使うには，事前にGoogle Chrome（ブラウザ）とchromote（Rパッケージ）をインストールしておく必要があります．</p>
+</section>
+<section id="read_html_liveを使ってみよう" class="level2">
+<h2 class="anchored" data-anchor-id="read_html_liveを使ってみよう"><code>read_html_live()</code>を使ってみよう</h2>
+<p>ここからは，<a href="https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html">こちらのRSeleniumのチュートリアル</a>で紹介されているものと同じ処理を<code>read_html_live()</code>で行ってみましょう．</p>
+<p>こちらのチュートリアルでは，<a href="https://www.fcc.gov/media/engineering/dtvmaps">こちらのサイト</a>にアメリカの郵便番号（ZIP code）を入力して地元テレビ局の情報を取得するという一連の処理を自動化しています． <code>read_html_live()</code>を使えば，RSeleniumでのサイトのアクセスを以下のように書き換えられます．</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># RSelenium</span></span>
+<span id="cb1-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Source: https://joshuamccrain.com/tutorials/web_scraping_R_selenium.html</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(RSelenium)</span>
+<span id="cb1-4"></span>
+<span id="cb1-5">rD <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rsDriver</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">browser=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"firefox"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">port=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4545</span>L, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose=</span>F)</span>
+<span id="cb1-6">remDr <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rD[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"client"</span>]]</span>
+<span id="cb1-7">remDr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">navigate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code></pre></div>
+<p>⏬</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rvest</span></span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(rvest)</span>
+<span id="cb2-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb2-4"></span>
+<span id="cb2-5">html <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_html_live</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.fcc.gov/media/engineering/dtvmaps"</span>)</span></code></pre></div>
+</div>
+<p>読み込まれたオブジェクトは，<code>$view()</code>でブラウザで確認することができます．サイト上のエレメントを選択（<code>Ctrl+Shift+C</code>）したのち，該当箇所を右クリック⏩<code>Copy</code>⏩<code>Copy selector</code>でCSSセレクタをコピーすれば，<code>$type()</code>や<code>$click()</code>の引数として使うことができます．</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rvest</span></span>
+<span id="cb3-2">html<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">view</span>()</span></code></pre></div>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest/html-view.png" class="img-fluid"></p>
+<p>次に，中央のフォームに郵便番号（ZIP code）を入力⏩<code>Go!</code>ボタンをクリックし地元テレビ局の情報を表示させるコードは以下のように書き換えられます．</p>
 <div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># RSelenium</span></span>
@@ -173,29 +437,32 @@ font-style: inherit;">"#btnSub"</span>)</span></code></pre></div>
 </div>
 <p>最後に，上記のRSeleniumのチュートリアルと同じデータが取得できたことを確認しましょう．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">html <span class="sc" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rvest</span></span>
+<span id="cb6-2">html <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">html_elements</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"table.tbl_mapReception"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">insistently</span>(chuck)(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">html_table</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+<span id="cb6-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -206,12 +473,12 @@ background-color: null;
 font-style: inherit;">1</span>, IA)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-6">  <span class="fu" style="color: #4758AB;
+<span id="cb6-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename_with</span>(str_to_lower) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-7">  <span class="fu" style="color: #4758AB;
+<span id="cb6-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -224,7 +491,7 @@ background-color: null;
 font-style: inherit;">`</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-8">  <span class="fu" style="color: #4758AB;
+<span id="cb6-9">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">slice_tail</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -235,7 +502,7 @@ background-color: null;
 font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-9">  <span class="fu" style="color: #4758AB;
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(callsign <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -250,7 +517,6 @@ font-style: inherit;">""</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
-</section>
 </section>
 <section id="まとめ" class="level2">
 <h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
