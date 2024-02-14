@@ -1,7 +1,7 @@
 ---
 title: "Scraping dynamic sites with rvest (without Selenium)"
 lang: en
-categories: [rvest, R, Japanese]
+categories: [rvest, R, English]
 date: "2024-02-15"
 format:
   html:
