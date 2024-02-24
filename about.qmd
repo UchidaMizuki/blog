@@ -21,18 +21,10 @@ I am a classical music lover.
 
 ## Games
 
--   [make-multiples](https://github.com/UchidaMizuki/make-multiples)
-
-```{=html}
-<!-- -->
-```
+-   [make-multiples](https://uchidamizuki.github.io/make-multiples/)
 -   [avoid-crowds](https://uchidamizuki.github.io/avoid-crowds/)
 
 ## Apps
 
 -   [urayasu-accessibility-app](https://uchidamizuki.shinyapps.io/urayasu-accessibility-app/) (in Japanese)
-
-```{=html}
-<!-- -->
-```
 -   [jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/) (in Japanese)
