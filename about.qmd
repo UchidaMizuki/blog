@@ -19,12 +19,20 @@ My name is Uchida Mizuki.
 
 I am a classical music lover.
 
-## Apps
-
--   [jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/)
-
--   [urayasu-accessibility-app](https://uchidamizuki.shinyapps.io/urayasu-accessibility-app/)
-
 ## Games
 
--   [multpl](https://uchidamizuki.github.io/multpl-ui/)
+-   [make-multiples](https://github.com/UchidaMizuki/make-multiples)
+
+```{=html}
+<!-- -->
+```
+-   [avoid-crowds](https://uchidamizuki.github.io/avoid-crowds/)
+
+## Apps
+
+-   [urayasu-accessibility-app](https://uchidamizuki.shinyapps.io/urayasu-accessibility-app/) (in Japanese)
+
+```{=html}
+<!-- -->
+```
+-   [jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/) (in Japanese)
