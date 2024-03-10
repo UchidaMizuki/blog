@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>UchidaMizuki - Rの数値積分で円の面積を求める</title>
+<title>UchidaMizuki - 人は直観的にベイズの定理を使っている？</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,40 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -194,12 +160,8 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Rの数値積分で円の面積を求める</h1>
-                                <div class="quarto-categories">
-                <div class="quarto-category">R</div>
-                <div class="quarto-category">Japanese</div>
-              </div>
-                  </div>
+      <h1 class="title">人は直観的にベイズの定理を使っている？</h1>
+                      </div>
   </div>
     
   
@@ -209,7 +171,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2023年9月10日</p>
+        <p class="date">2023年3月29日</p>
       </div>
     </div>
     
@@ -228,170 +190,113 @@ window.Quarto = {
 
 
 
-<section id="はじめに" class="level2">
-<h2 class="anchored" data-anchor-id="はじめに">はじめに</h2>
-<p>最近，R statsパッケージ<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>の<code>integrate()</code> 関数で一次元関数の数値積分ができることを知りました．そこで，この記事では，<a href="https://mathwords.net/enmensekibun">こちらの記事</a>を参考に積分で円の面積を計算してみました．</p>
-</section>
-<section id="半円を描く関数" class="level2">
-<h2 class="anchored" data-anchor-id="半円を描く関数">半円を描く関数</h2>
-<p>半径<span class="math inline">\(r\)</span>の半円を描く関数は <a href="#eq-semicircle" class="quarto-xref">式&nbsp;1</a> と表せます．Rで書くと<code>semicircle()</code> 関数のようになります．</p>
-<p><span id="eq-semicircle"><span class="math display">\[
-y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
+<section id="ベイズの定理とは" class="level2">
+<h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
+<p>ベイズの定理は，統計学において最も有名な定理の一つですが，統計分析などを行ったことのない方々にとっては，あまり馴染みのないものかもしれません．</p>
+<p>ベイズの定理は， <a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> のように表すことができます．</p>
+<p><span id="eq-bayes"><span class="math display">\[
+P(A|B) \propto P(B|A) P(A)
 \tag{1}\]</span></span></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>semicircle <span class="ot">&lt;-</span> <span class="cf">function</span>(x, radius) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>(radius<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>実装した<code>semicircle()</code> 関数で半径<span class="math inline">\(r = 5\)</span>の半円を描いてみましょう．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>radius <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">semicircle</span>(x, radius), <span class="sc">-</span>radius, radius,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">asp =</span> <span class="dv">1</span>) <span class="co"># アスペクト比を1:1にする</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="circle-area-by-numerical-integration-in-r_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="数値積分で円の面積を求める" class="level2">
-<h2 class="anchored" data-anchor-id="数値積分で円の面積を求める">数値積分で円の面積を求める</h2>
-<p>次に，<code>stats::integrate()</code> 関数を用いて，さきほど書いた<code>semicircle()</code> を数値積分してみましょう．半径<span class="math inline">\(r = 5\)</span>の場合，積分すると半円の面積<span class="math inline">\(\frac{1}{2}\pi r^2\)</span>とほぼ等しくなることが確認できます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 半径を5とする</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>radius <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(semicircle, <span class="sc">-</span>radius, radius, <span class="co"># -radiusからradiusまでの範囲で積分する</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">radius =</span> radius)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>39.26991 with absolute error &lt; 2.5e-08</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pi <span class="sc">*</span> <span class="dv">5</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 39.26991</code></pre>
-</div>
-</div>
-<p>そのため，円の面積を近似的に求める<code>circle_area_approx()</code>が以下のように書けます（数値積分の結果は，<code>stats::integrate()</code> 関数の戻り値の<code>value</code> に格納されています）．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>circle_area_approx <span class="ot">&lt;-</span> <span class="cf">function</span>(radius) {</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">integrate</span>(semicircle, <span class="sc">-</span>radius, radius,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">radius =</span> radius)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  out<span class="sc">$</span>value <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">circle_area_approx</span>(<span class="dv">5</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 78.53982</code></pre>
-</div>
-</div>
-<p>最後に，半径<span class="math inline">\(1 \le r \le 10\)</span>の範囲で近似値<code>circle_area_approx()</code>と理論値<code>circle_area_true()</code>（<span class="math inline">\(\pi r^2\)</span>）を比較してみましょう．</p>
-<p>計算の結果，近似値と理論値で円の面積がほぼ等しいことが確認できました．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>circle_area_true <span class="ot">&lt;-</span> <span class="cf">function</span>(radius) {</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  pi <span class="sc">*</span> radius <span class="sc">^</span> <span class="dv">2</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">radius =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>circle_area_approx <span class="ot">&lt;-</span> <span class="fu">sapply</span>(data<span class="sc">$</span>radius, circle_area_approx)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>circle_area_true <span class="ot">&lt;-</span> <span class="fu">sapply</span>(data<span class="sc">$</span>radius, circle_area_true)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(data)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<p><a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> は，以下のことを示しています．</p>
+<ul>
+<li>ある結果<span class="math inline">\(B\)</span>が生じた場合に，それが原因<span class="math inline">\(A\)</span>によるものである確率<span class="math inline">\(P(A|B)\)</span>は</li>
+<li>ある原因<span class="math inline">\(A\)</span>の生じる確率<span class="math inline">\(P(A)\)</span>とある原因<span class="math inline">\(A\)</span>のもとで結果<span class="math inline">\(B\)</span>が生じる確率<span class="math inline">\(P(B|A)\)</span>の掛け算に比例（<span class="math inline">\(\propto\)</span>）する</li>
+</ul>
+<p>もっと身近なもので例えてみましょう． たとえば，</p>
+<ul>
+<li>原因<span class="math inline">\(A\)</span>：新型コロナへの感染の有無</li>
+<li>結果<span class="math inline">\(B\)</span>：PCR検査などでの診断結果</li>
+</ul>
+<p>と考えれば， <a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> を <a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> のように置き換えることができます．</p>
+<p><span id="eq-bayes-covid19"><span class="math display">\[
+P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染の有無)
+\tag{2}\]</span></span></p>
+<p>以下では， <a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> に基づき，ベイズの定理の重要性について説明します．</p>
+<section id="なぜベイズの定理が重要なのか" class="level3">
+<h3 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h3>
+<p><a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> に示したベイズの定理に出てくる3つの確率は，下の表のように，どれも非常に重要な指標と対応しています． そして， <a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかるのです．</p>
+<table class="table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 70%">
+</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">radius</th>
-<th style="text-align: right;">circle_area_approx</th>
-<th style="text-align: right;">circle_area_true</th>
+<th style="text-align: center;">確率</th>
+<th style="text-align: center;"><strong>医療分野で対応する指標</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">3.141593</td>
-<td style="text-align: right;">3.141593</td>
+<td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
+<td style="text-align: center;"><p><strong>検査後確率</strong>：統計学では<strong>事後確率</strong>と呼ばれる</p>
+<ul>
+<li><strong>陽性的中率</strong>：陽性と診断されたとき実際に感染</li>
+<li><strong>陰性的中率</strong>：陰性と診断されたとき実際に未感染</li>
+</ul></td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">12.566371</td>
-<td style="text-align: right;">12.566371</td>
+<td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
+<td style="text-align: center;"><ul>
+<li><strong>感度</strong>：感染者が陽性と診断される確率↔︎<strong>偽陰性</strong>に関連</li>
+<li><strong>特異度</strong>：未感染者が陰性と診断される確率↔︎<strong>偽陽性</strong>に関連</li>
+</ul></td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">28.274334</td>
-<td style="text-align: right;">28.274334</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">50.265482</td>
-<td style="text-align: right;">50.265482</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">78.539816</td>
-<td style="text-align: right;">78.539816</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: right;">113.097335</td>
-<td style="text-align: right;">113.097335</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">153.938040</td>
-<td style="text-align: right;">153.938040</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">201.061930</td>
-<td style="text-align: right;">201.061930</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">254.469005</td>
-<td style="text-align: right;">254.469005</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">314.159265</td>
-<td style="text-align: right;">314.159265</td>
+<td style="text-align: center;"><span class="math inline">\(P(感染の有無)\)</span></td>
+<td style="text-align: center;"><p><strong>検査前確率</strong>：統計学では<strong>事前確率</strong>と呼ばれる</p>
+<ul>
+<li>検査対象者のなかでの感染者の割合</li>
+</ul></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p><code>stats::integrate()</code> 関数を使えば，簡単に一次元関数の数値積分ができることがわかりました．</p>
-<section id="注意点" class="level3">
-<h3 class="anchored" data-anchor-id="注意点">注意点</h3>
-<p><code>stats::integrate()</code> 関数では，<span class="math inline">\(-\infty \le x \le \infty\)</span>の範囲での数値積分も可能ですが，<span class="math inline">\(10^{-6} \le x \le 10^6\)</span>のような大きな値を代入すると数値積分が適切に行われませんのでご注意ください．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OK</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(dnorm, <span class="sc">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>1 with absolute error &lt; 9.4e-05</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># NG</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(dnorm, <span class="sc">-</span><span class="fl">1e6</span>, <span class="fl">1e6</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0 with absolute error &lt; 0</code></pre>
-</div>
-</div>
-
-
+<p>たとえば，以下のような状況を考えてみましょう．</p>
+<ul>
+<li>感度・特異度はともに99 %（偽陰性・偽陽性がいずれも1 %の確率で生じる）</li>
+<li>検査前確率は1 %（感染者は100 人中1 人で残りの99 人は未感染者）</li>
+</ul>
+<p>この場合，陽性と診断された場合に感染者である確率<span class="math inline">\(P(感染|陽性)\)</span>と，陽性と診断された場合に未感染者である確率<span class="math inline">\(P(未感染|陽性)\)</span>は， それぞれ <a href="#eq-bayes-covid19-positive" class="quarto-xref">式&nbsp;3</a> となります．</p>
+<p><span id="eq-bayes-covid19-positive"><span class="math display">\[
+\begin{align}
+  P(感染|陽性) \propto P(陽性|感染)P(感染) &amp;= 0.99 \times 0.01 = 0.0099 \\
+  P(未感染|陽性) \propto P(陽性|未感染)P(未感染) &amp;= (1 - 0.99) \times (1 - 0.01) = 0.0099
+\end{align}
+\tag{3}\]</span></span></p>
+<p><a href="#eq-bayes-covid19-positive" class="quarto-xref">式&nbsp;3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %程度となってしまいます．</p>
+<p>さらに現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
 </section>
 </section>
+<section id="人は直観的にベイズの定理を使っている" class="level2">
+<h2 class="anchored" data-anchor-id="人は直観的にベイズの定理を使っている">人は直観的にベイズの定理を使っている？</h2>
+<p>ベイズの定理が示す「検査の精度が高くても陽性的中率が低くなる可能性がある」といった事実は，はじめ多くの人にちょっとした驚きを与えるものかもしれません．そして，こうしたことを踏まえれば，多くの人はベイズの定理をほとんど理解していない，と思われるかもしれません．</p>
+<p>しかし，私たちはベイズ更新と呼ばれる手続きを通じて，日頃から無意識に，ベイズの定理を使っている可能性があるのです．以下では，コイントスを題材に，ベイズ更新について説明します．</p>
+<p>コイントスの場合には，</p>
+<ul>
+<li>原因<span class="math inline">\(A\)</span>：コインの歪み</li>
+<li>結果<span class="math inline">\(B\)</span>：コイントスの表・裏</li>
+</ul>
+<p>と考えることができ， <a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> を <a href="#eq-bayes-coin-toss" class="quarto-xref">式&nbsp;4</a> のように置き換えることができます． ここで重要な仮定は，コインの見た目だけでは，コインが歪んでいるかどうか（原因<span class="math inline">\(A\)</span>）がわからず， 実際にコイントスをして，その結果を見る必要があるということです． （また，どのコインも必ず表と裏が決まっているものとしましょう）</p>
+<p><span id="eq-bayes-coin-toss"><span class="math display">\[
+P(コインの歪み|コイントスの表・裏) \propto P(コイントスの表・裏|コインの歪み) P(コインの歪み)
+\tag{4}\]</span></span></p>
+<section id="ベイズ更新とは" class="level3">
+<h3 class="anchored" data-anchor-id="ベイズ更新とは">ベイズ更新とは？</h3>
+<p>ベイズ更新とは，結果（コイントスの表・裏）から原因（コインの歪み）の従う確率分布を</p>
+</section>
+<section id="コイントスの思考実験" class="level3">
+<h3 class="anchored" data-anchor-id="コイントスの思考実験">コイントスの思考実験</h3>
+<p>あなたは，財布から歪みのないように見えるコインを1枚選んでコイントスをすることにしました．</p>
+<p>まず，あなたが，コインを3回投げると，表が1回・裏が2回出ました．</p>
+<p><span class="math display">\[
+P(B|A) \propto P(A|B) P(B)
+\]</span></p>
 
 
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+</section>
+</section>
 
-<ol>
-<li id="fn1"><p>statsパッケージは，Rにデフォルトで入っているパッケージの一つです．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
