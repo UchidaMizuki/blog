@@ -237,7 +237,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <section id="関数形がlingamの推定に与える影響について" class="level2">
 <h2 class="anchored" data-anchor-id="関数形がlingamの推定に与える影響について">関数形がLiNGAMの推定に与える影響について</h2>
 <p>LiNGAMは，関数形が線形かつ誤差項がガウス分布以外に従うという前提のもとで因果関係を推定する手法です．そのため，関数形が線形でない（線形近似が難しい）場合には，誤った因果関係が推定される可能性があります．パッケージや市販のソフトウェアを使えばLiNGAMを簡単に実行することができてしまいますが，利用者はこうした前提があることを理解してLiNGAMを使う必要があると思われます．</p>
-<p>ここでは，上に挙げた因果グラフよりも簡単な以下のような因果関係をもつデータに対してLiNGAMを適用してみましょう． 以下のフローチャートの<code>fun</code>に，非線形な関数が入ったときにLiNGAMの結果がどのように変わるかを見てみましょう． ただし，この記事では最も一般的なLiNGAMであるDirect LiNGAM，誤差項として非ガウス分布の一様分布を用いています． また，係数が0.001未満の因果関係は無視するものとします．</p>
+<p>ここでは，上に挙げた因果グラフよりも簡単な以下のような因果関係をもつデータに対してLiNGAMを適用してみましょう．具体的には， 以下のフローチャートの<code>fun</code>に，非線形な関数が入ったときにLiNGAMの結果がどのように変わるかを確認します．</p>
+<p>ただし，この記事では最も一般的なLiNGAMであるDirect LiNGAM，誤差項として非ガウス分布の一様分布を用いています． また，係数の絶対値が0.001未満の因果関係は無視するものとしました．</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -258,7 +259,7 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 <p>因果グラフの推定に先立って<code>x11</code>・<code>x12</code>・<code>x22</code>列をもつ1,000行のデータフレームおよび因果探索用の関数を用意しておきましょう．</p>
-<div id="7de48aaf" class="cell" data-execution_count="1">
+<div id="bbad07ff" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>コード</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -309,7 +310,7 @@ style fun2 stroke:red,color:red
 <section id="因果グラフに掛け算が含まれるケースfunが" class="level3">
 <h3 class="anchored" data-anchor-id="因果グラフに掛け算が含まれるケースfunが">因果グラフに掛け算が含まれるケース（<code>fun</code>が<code>*</code>）</h3>
 <p><code>fun</code>が掛け算（<code>*</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと同等の構造をもっており，今回のケースでは，因果グラフが正しく推定されていることがわかります． このように，足し算（線形）でなく掛け算のケースでも因果関係の推定がうまくいくケースがあるようです． ただし，観測変数の数やデータ数によっては状況が大きく異なるかもしれません．</p>
-<div id="62aba15d" class="cell" data-execution_count="2">
+<div id="d8e74b08" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data_nonlinear_prod <span class="op">=</span> data<span class="op">\</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a> .assign(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    x21<span class="op">=</span><span class="kw">lambda</span> df: df.x11 <span class="op">+</span> df.x12 <span class="op">+</span> rng.random(n),</span>
@@ -326,7 +327,7 @@ style fun2 stroke:red,color:red
 19       x21     x31  3.477884</code></pre>
 </div>
 </div>
-<div id="5d6455ce" class="cell" data-execution_count="3">
+<div id="27f1f988" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>コード</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_prod, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_prod.mmd'</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -352,7 +353,7 @@ style fun2 stroke:red,color:red
 <section id="因果グラフにべき乗が含まれるケースfunが" class="level3">
 <h3 class="anchored" data-anchor-id="因果グラフにべき乗が含まれるケースfunが">因果グラフにべき乗が含まれるケース（<code>fun</code>が<code>**</code>）</h3>
 <p>次に，<code>fun</code>がべき乗（<code>**</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと異なる構造をもっており，もともと因果関係が存在しない上流の観測変数間にも誤った因果関係が推定されていることがわかります．このように，Direct LiNGAMに非線形な関数が含まれる場合には，その関数と直接関係しない観測変数間においても，誤った因果関係が推定されてしまうリスクがあることがわかります．</p>
-<div id="4fb1c389" class="cell" data-execution_count="4">
+<div id="62827ab5" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_nonlinear_power <span class="op">=</span> data<span class="op">\</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a> .assign(</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    x21<span class="op">=</span><span class="kw">lambda</span> df: df.x11 <span class="op">+</span> df.x12 <span class="op">+</span> rng.random(n),</span>
@@ -370,7 +371,7 @@ style fun2 stroke:red,color:red
 22       x31     x22  0.002306</code></pre>
 </div>
 </div>
-<div id="6fc2b286" class="cell" data-execution_count="5">
+<div id="3fa4e5b0" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>コード</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_power, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_power.mmd'</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
