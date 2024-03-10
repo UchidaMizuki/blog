@@ -10,7 +10,430 @@
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.4.549</generator>
-<lastBuildDate>Wed, 14 Feb 2024 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 09 Mar 2024 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>LiNGAMによる因果探索では関数形に注意しよう</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2024/03/be-careful-with-function-forms-in-lingam.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="lingamによる因果探索" class="level2">
+<h2 class="anchored" data-anchor-id="lingamによる因果探索">LiNGAMによる因果探索</h2>
+<p>LiNGAM（Linear Non-Gaussian Acyclic Model）は代表的な因果探索手法の一つで，近年は市販のソフトウェア等にも実装されるなど実務での活用が進んでいるようです．LiNGAMは，その名の通り，関数形が線形かつ誤差項がガウス分布（正規分布）以外に従う場合に，データから因果関係を明らかにすることができる手法です．</p>
+<p>LiNGAMは，PythonのlingamパッケージやRのpcalgパッケージで利用することができ，これらのパッケージで提供される関数にデータフレームを入力すれば，簡単に因果グラフを推定することができます．因果グラフとは，観測変数をノード，因果関係を矢印に見立てて構築されるネットワーク構造のことです．特に，因果探索では，因果グラフとしてDAG（Directed Acyclic Graph）と呼ばれる有向非巡回グラフを推定することが一般的です．</p>
+<p>因果グラフの例として，以下にレストラン経営に関する因果グラフを作成してみました．実務においては，曜日・天気・出店地域などの様々な要因によって利益が 変動すると考えられ，さらに複雑な因果関係が分析対象となることが想定されます．</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  食材の質 --&gt; 料理の美味しさ
+  食材の質 --&gt; 原価
+  料理人の腕 --&gt; 料理の美味しさ
+  料理人の腕 --&gt; 給与
+  料理の美味しさ --&gt; 来客数
+  料理の美味しさ --&gt; 客単価
+  来客数 --&gt; 売上
+  客単価 --&gt; 売上
+  売上 --&gt; 利益
+  原価 --&gt; 費用
+  給与 --&gt; 費用
+  固定費用 --&gt; 費用
+  費用 --&gt; 利益
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="関数形がlingamの推定に与える影響について" class="level2">
+<h2 class="anchored" data-anchor-id="関数形がlingamの推定に与える影響について">関数形がLiNGAMの推定に与える影響について</h2>
+<p>LiNGAMは，関数形が線形かつ誤差項がガウス分布以外に従うという前提のもとで因果関係を推定する手法です．そのため，関数形が線形でない（線形近似が難しい）場合には，誤った因果関係が推定される可能性があります．パッケージや市販のソフトウェアを使えばLiNGAMを簡単に実行することができてしまいますが，利用者はこうした前提があることを理解してLiNGAMを使う必要があると思われます．</p>
+<p>ここでは，上に挙げた因果グラフよりも簡単な以下のような因果関係をもつデータに対してLiNGAMを適用してみましょう． 以下のフローチャートの<code>fun</code>に，非線形な関数が入ったときにLiNGAMの結果がどのように変わるかを見てみましょう． ただし，この記事では最も一般的なLiNGAMであるDirect LiNGAM，誤差項として非ガウス分布の一様分布を用いています． また，係数が0.001未満の因果関係は無視するものとします．</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  x11 --&gt; add1(+)
+  x12 --&gt; add1
+  add1 --&gt; x21
+  x21 --&gt; fun2(fun)
+  x22 --&gt; fun2
+  fun2 --&gt; x31
+style fun2 stroke:red,color:red
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>因果グラフの推定に先立って<code>x11</code>・<code>x12</code>・<code>x22</code>列をもつ1,000行のデータフレームおよび因果探索用の関数を用意しておきましょう．</p>
+<div id="7de48aaf" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> os</span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> lingam</span>
+<span id="cb1-5"></span>
+<span id="cb1-6">rng <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.default_rng(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb1-7"></span>
+<span id="cb1-8">n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span></span>
+<span id="cb1-9">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame({</span>
+<span id="cb1-10">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'x11'</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n),</span>
+<span id="cb1-11">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'x12'</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n),</span>
+<span id="cb1-12">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'x22'</span>: <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n)</span>
+<span id="cb1-13">})</span>
+<span id="cb1-14"></span>
+<span id="cb1-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># DirectLiNGAMの結果をデータフレームとして返す関数</span></span>
+<span id="cb1-16"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">def</span> discover_causality(data):</span>
+<span id="cb1-17">  model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> lingam.DirectLiNGAM()</span>
+<span id="cb1-18">  model.fit(data)</span>
+<span id="cb1-19"></span>
+<span id="cb1-20">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">return</span> pd.DataFrame(</span>
+<span id="cb1-21">    model.adjacency_matrix_,</span>
+<span id="cb1-22">    columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data.columns,</span>
+<span id="cb1-23">    index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>data.columns</span>
+<span id="cb1-24">  )<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-25">  .reset_index(names <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'node_to'</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-26">  .melt(</span>
+<span id="cb1-27">    id_vars<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'node_to'</span>,</span>
+<span id="cb1-28">    var_name<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'node_from'</span></span>
+<span id="cb1-29">  )<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-30">  .pipe(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lambda</span> df: df[np.logical_not(np.isclose(df.value, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, rtol<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, atol<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e-3</span>))])<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-31">  .reindex(columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'node_from'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'node_to'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'value'</span>])</span>
+<span id="cb1-32"></span>
+<span id="cb1-33"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># mermaidファイルを出力する関数</span></span>
+<span id="cb1-34"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">def</span> write_mermaid(df, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>):</span>
+<span id="cb1-35">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> f:</span>
+<span id="cb1-36">    f.write(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'flowchart LR</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb1-37">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> df.itertuples():</span>
+<span id="cb1-38">      f.write(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'  </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">--&gt;|</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{:.3f}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">|</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{}</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">format</span>(row.node_from, row.value, row.node_to))</span>
+<span id="cb1-39"></span>
+<span id="cb1-40"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 出力先のフォルダ</span></span>
+<span id="cb1-41"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dir</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'be-careful-with-function-forms-in-lingam'</span></span>
+<span id="cb1-42"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">not</span> os.path.exists(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dir</span>):</span>
+<span id="cb1-43">  os.makedirs(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dir</span>)</span></code></pre></div>
+</details>
+</div>
+<section id="因果グラフに掛け算が含まれるケースfunが" class="level3">
+<h3 class="anchored" data-anchor-id="因果グラフに掛け算が含まれるケースfunが">因果グラフに掛け算が含まれるケース（<code>fun</code>が<code>*</code>）</h3>
+<p><code>fun</code>が掛け算（<code>*</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと同等の構造をもっており，今回のケースでは，因果グラフが正しく推定されていることがわかります． このように，足し算（線形）でなく掛け算のケースでも因果関係の推定がうまくいくケースがあるようです． ただし，観測変数の数やデータ数によっては状況が大きく異なるかもしれません．</p>
+<div id="62aba15d" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">data_nonlinear_prod <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb2-2"> .assign(</span>
+<span id="cb2-3">    x21<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lambda</span> df: df.x11 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> df.x12 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n),</span>
+<span id="cb2-4">    x31<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lambda</span> df: df.x21 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> df.x22 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n),</span>
+<span id="cb2-5">  )</span>
+<span id="cb2-6"></span>
+<span id="cb2-7">causality_nonlinear_prod <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> discover_causality(data_nonlinear_prod)</span>
+<span id="cb2-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(causality_nonlinear_prod)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   node_from node_to     value
+3        x11     x21  0.975641
+8        x12     x21  0.999905
+14       x22     x31  4.524066
+19       x21     x31  3.477884</code></pre>
+</div>
+</div>
+<div id="5d6455ce" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">write_mermaid(causality_nonlinear_prod, os.path.join(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dir</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'dag_lingam_nonlinear_prod.mmd'</span>))</span></code></pre></div>
+</details>
+</div>
+<div class="cell" data-file="be-careful-with-function-forms-in-lingam/dag_lingam_nonlinear_prod.mmd" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  x11--&gt;|0.976|x21
+  x12--&gt;|1.000|x21
+  x22--&gt;|4.524|x31
+  x21--&gt;|3.478|x31
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="因果グラフにべき乗が含まれるケースfunが" class="level3">
+<h3 class="anchored" data-anchor-id="因果グラフにべき乗が含まれるケースfunが">因果グラフにべき乗が含まれるケース（<code>fun</code>が<code>**</code>）</h3>
+<p>次に，<code>fun</code>がべき乗（<code>**</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと異なる構造をもっており，もともと因果関係が存在しない上流の観測変数間にも誤った因果関係が推定されていることがわかります．このように，Direct LiNGAMに非線形な関数が含まれる場合には，その関数と直接関係しない観測変数間においても，誤った因果関係が推定されてしまうリスクがあることがわかります．</p>
+<div id="4fb1c389" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">data_nonlinear_power <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb5-2"> .assign(</span>
+<span id="cb5-3">    x21<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lambda</span> df: df.x11 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> df.x12 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n),</span>
+<span id="cb5-4">    x31<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">lambda</span> df: df.x21 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> df.x22 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rng.random(n),</span>
+<span id="cb5-5">  )</span>
+<span id="cb5-6"></span>
+<span id="cb5-7">causality_nonlinear_power <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> discover_causality(data_nonlinear_power)</span>
+<span id="cb5-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(causality_nonlinear_power)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   node_from node_to     value
+1        x11     x12 -0.147973
+3        x11     x21  0.832946
+8        x12     x21  0.798157
+17       x21     x22 -0.400541
+22       x31     x22  0.002306</code></pre>
+</div>
+</div>
+<div id="6fc2b286" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">write_mermaid(causality_nonlinear_power, os.path.join(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dir</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'dag_lingam_nonlinear_power.mmd'</span>))</span></code></pre></div>
+</details>
+</div>
+<div class="cell" data-file="be-careful-with-function-forms-in-lingam/dag_lingam_nonlinear_power.mmd" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  x11--&gt;|-0.148|x12
+  x11--&gt;|0.833|x21
+  x12--&gt;|0.798|x21
+  x21--&gt;|-0.401|x22
+  x31--&gt;|0.002|x22
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>この記事では，非線形な関数をもつデータに対してLiNGAMを適用すると，誤った因果関係が推定される可能性があることを示しました． そのため，LiNGAMの適用にあたっては，因果関係が線形で表せることを確認することが重要です．</p>
+<p>一方で，因果関係がわからない状況なのに，因果関係が線形で表せることがわかるという状況はまれであると思われます． そのため，事後的な線形性の確認や実験などを通じて，慎重に因果関係を特定することが求められます．</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2024/03/be-careful-with-function-forms-in-lingam.html</guid>
+  <pubDate>Sat, 09 Mar 2024 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Scraping dynamic sites with rvest (without Selenium)</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest-en.html</link>
