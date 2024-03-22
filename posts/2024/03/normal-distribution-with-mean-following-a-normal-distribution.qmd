@@ -1,0 +1,130 @@
+---
+title: "平均が正規分布に従う正規分布の周辺分布を求める"
+lang: ja
+categories: [Japanese, Distribution]
+date: 2024-03-23
+format:
+  html:
+    df-print: paged
+---
+
+平均$\theta$・分散$\tau^2$の正規分布に従う確率変数$Y$があり，かつ$\theta$が平均$\mu$・分散$\sigma^2$の正規分布に従うとします．
+
+$$
+\begin{align}
+Y \mid \theta \sim \mathcal{N} ( \theta, \tau^2 ) &\iff 
+p( y \mid \theta ) = \frac{1}{\sqrt{2 \pi} \tau} 
+\exp \left[ 
+{-\frac{1}{2}} \left( 
+\frac{y - \theta}{\tau}
+\right) ^2 
+\right] \\
+\theta \sim \mathcal{N} (\mu, \sigma^2) &\iff
+p( \theta ) = \frac{1}{\sqrt{2 \pi} \sigma}
+\exp \left[ 
+{-\frac{1}{2}} \left(
+\frac{\theta - \mu}{\sigma}
+\right) ^2
+\right]
+\end{align}
+$$
+
+このとき，$Y$の周辺分布は，平均$\mu$・分散$\sigma^2 + \tau^2$の正規分布に従うことが知られています． この記事では，この性質を導出する過程を備忘録として記載します（実際にはもっとスマートな導出方法があるかもしれません）．
+
+$$
+Y \sim \mathcal{N} \left( \mu, \sigma^2 + \tau^2 \right)
+$$
+
+$Y$の周辺確率密度関数$p(y)$は以下のような積分で求められます．平方完成を用いることで，積分の対象となる$p( y \mid \theta ) p ( \theta )$を以下のように変形できます．
+
+$$
+\begin{align}
+p(y) 
+&= \int_{-\infty}^{\infty} 
+p( y, \theta )
+d\theta \\
+&= \int_{-\infty}^{\infty} 
+p( y \mid \theta ) p ( \theta )
+d\theta \\
+\end{align}
+$$
+
+$$
+\begin{align}
+p( y \mid \theta ) p ( \theta ) 
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2}
+\frac{
+\sigma^2 \left( y - \theta \right)^2 +
+\tau^2 \left( \theta - \mu \right)^2
+}{\tau^2 \sigma^2}
+\right] \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2}
+\frac{
+\left( \sigma^2 + \tau^2 \right) \theta^2 -
+2 \left( \sigma^2 y + \tau^2 \mu \right) \theta +
+\left( \sigma^2 y^2 + \tau^2 \mu^2 \right)
+}{\tau^2 \sigma^2}
+\right] \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{\sqrt{\sigma^2 + \tau^2}}{\tau \sigma} \theta -
+\frac{\sigma^2 y + \tau^2 \mu}{\tau \sigma \sqrt{\sigma^2 + \tau^2}}
+\right)^2 -
+\frac{1}{2} \frac{\left( y - \mu \right)^2}{\sigma^2 + \tau^2}
+\right] \quad \left( \because \thetaに対する平方完成 \right) \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right] 
+\exp \left[
+-\frac{1}{2} \left(
+\frac{\theta - \frac{\sigma^2 y + \tau^2 \mu}{\sigma^2 + \tau^2}}{\frac{\tau \sigma}{\sqrt{\sigma^2 + \tau^2}}}
+\right)^2
+\right] \\
+\end{align}
+$$
+
+$p( y \mid \theta ) p ( \theta )$を積分すると，$\theta$に関する正規分布のカーネルの積分が現れます．そのため，積分を正規化係数の逆数で置き換えることができます．最終的に，$Y$の周辺確率密度関数$p(y)$が，平均$\mu$・分散$\sigma^2 + \tau^2$の正規分布に従っていることがわかります．
+
+$$
+\begin{align}
+p(y) 
+&= \int_{-\infty}^{\infty} 
+p( y \mid \theta ) p ( \theta )
+d\theta \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right] 
+\int_{-\infty}^{\infty} 
+\exp \left[
+-\frac{1}{2} \left(
+\frac{\theta - \frac{\sigma^2 y + \tau^2 \mu}{\sigma^2 + \tau^2}}{\frac{\tau \sigma}{\sqrt{\sigma^2 + \tau^2}}}
+\right)^2
+\right] 
+d\theta \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right] 
+\sqrt{2 \pi} \frac{\tau \sigma}{\sqrt{\sigma^2 + \tau^2}}
+\quad \left( \because 分散 \frac{\tau^2 \sigma^2}{\sigma^2 + \tau^2} の正規分布のカーネルの積分 \right) \\
+&= \frac{1}{\sqrt{2 \pi} \sqrt{\sigma^2 + \tau^2}}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right] \iff Y \sim \mathcal{N} \left( \mu, \sigma^2 + \tau^2 \right)\\
+\end{align}
+$$
