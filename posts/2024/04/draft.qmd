@@ -1,0 +1,63 @@
+---
+title: "TODO"
+lang: ja
+categories: [Japanese]
+draft: true
+format:
+  html:
+    df-print: paged
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+
+set.seed(1234)
+n <- 1e3
+
+alpha <- 8
+
+data <- tibble(x = rnorm(n),
+               mu = exp(-4 + 2 * x),
+               lambda = rgamma(n, alpha, alpha / mu),
+               y = rpois(n, lambda))
+
+```
+
+```{r}
+
+model <- MASS::glm.nb(y ~ x,
+                      data = data)
+summary(model)
+
+data_smoothed <- data |> 
+  mutate(mu_pred = predict(model, type = "response"),
+         lambda_smoothed = mu_pred / (mu_pred + model$theta) * (y + model$theta))
+
+```
+
+```{r}
+
+data_smoothed |> 
+  select(lambda, y, lambda_smoothed) |> 
+  pivot_longer(c(y, lambda_smoothed),
+               names_to = "pred_type",
+               names_transform = list(pred_type = as_factor),
+               values_to = "lambda_pred") |> 
+  ggplot(aes(lambda, lambda_pred)) +
+  geom_point() +
+  geom_abline(color = "red") +
+  scale_x_continuous(trans = "log1p") +
+  scale_y_continuous(trans = "log1p") +
+  facet_wrap(~ pred_type)
+
+# data |> 
+#   ggplot(aes(y, lambda)) + 
+#   geom_point()
+# 
+# data |> 
+#   ggplot(aes(lambda_pred, lambda)) +
+#   geom_point()
+```

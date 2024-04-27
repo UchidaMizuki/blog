@@ -2,15 +2,17 @@
 title: "Rで日本地図を描いてみよう"
 lang: ja
 date: "2022-06-11"
+date-modified: "2024-04-27"
 categories: [ggplot2, sf, jpmap, R, Japanese]
 fig-align: center
 out-width: 100%
 image: foreigner_ratio_2015.png
+format:
+  html:
+    df-print: paged
 ---
 
-Rでは，ggplot2などのパッケージを利用するだけで，きれいな日本地図（都道府県別）を描くことができます．
-
-ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．
+Rでは，ggplot2などのパッケージを利用するだけで，都道府県別の日本地図を描くことができます．ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．
 
 ## 地図描画用のサンプルデータ
 
@@ -35,8 +37,7 @@ library(tidyverse)
 library(jpstat)
 library(arrow)
 
-appId <- keyring::key_get("estat-api")
-foreigner_ratio_2015 <- estat(appId, "https://www.e-stat.go.jp/en/dbview?sid=0000010201",
+foreigner_ratio_2015 <- estat(statsDataId = "https://www.e-stat.go.jp/en/dbview?sid=0000010201",
                               lang = "E")
 foreigner_ratio_2015 <- foreigner_ratio_2015 |> 
   activate(tab) |> 
@@ -89,29 +90,31 @@ foreigner_ratio_2015 <- read_parquet("foreigner_ratio_2015.parquet") |>
 ```{r}
 #| label: data
 
-foreigner_ratio_2015
+# 地図描画用のサンプルデータ
+head(foreigner_ratio_2015)
 
 ```
 
-## `geom_map()` を使って日本地図を描く
+## `geom_map()` で日本地図を描く
 
-ggplot2では，`map_data()` や`geom_map()` を使うことで，世界の国々を描画することができます．これには，mapsパッケージを予めダウンロードする必要があります．また，日本地図を利用するには，mapsパッケージに加えて，mapdataパッケージが必要になります．
+ggplot2で`map_data()` や`geom_map()` を使って世界の国々の地図を描画することができます．これには，あらかじめmapsパッケージとmapdataパッケージをダウンロードしておく必要があります（mapdataパッケージに日本地図が格納されています）．
 
 `map_data("japan")` とすることで，mapsパッケージの地図データがデータフレームに変換されます．このデータフレームの`region` 列が都道府県のIDとなるため，`aes(map_id = region)`を設定した上で，`geom_map()` することで，描画したいデータの`region` 列と都道府県ジオメトリがリンクします．
 
 ただし，`map_data("japan")` は，以下の点に注意が必要です．
 
+-   あらかじめ`library(mapdata)` を実行してください（実行しないとデータが読み込めないようです）
+
 -   `region` 列はすべてアルファベット表記である
 
--   他の都道府県と違い，奈良県だけがが`NARA` と大文字表記になっているなど，元データに問題あり
-
-    -   ここでは，`str_to_title()`で修正
+-   他の都道府県と異なり奈良県だけが`NARA` と大文字表記になっているなど元データにやや問題があるようです（今回は`str_to_title()`で修正しました）
 
 また，日本地図全体を表示するためには，`expand_limits()` などで軸を設定すること必要になります．
 
 ```{r}
 #| label: geom_map
 #| message: false
+#| warning: false
 
 # pak::pak("maps")
 # pak::pak("mapdata")
@@ -121,7 +124,7 @@ library(mapdata)
 map_data_japan <- map_data("japan") |> 
   as_tibble() |> 
   mutate(region = str_to_title(region))
-map_data_japan
+head(map_data_japan)
 
 ggplot(foreigner_ratio_2015 |> 
          rename(region = pref_name),
@@ -136,13 +139,11 @@ ggplot(foreigner_ratio_2015 |>
                        option = "turbo")
 ```
 
-## sfパッケージを使って日本地図を描く
+## sfパッケージで日本地図を描く
 
-最近では，sfパッケージのジオメトリがggplot2で簡単に描画できるようになっています．
+ggplot2の`geom_sf()`を使えばsfパッケージのジオメトリを簡単に描画できます．
 
-また，maps・mapdataパッケージの提供する地図データは，sfパッケージの`st_as_sf()` でsfのジオメトリデータに変換することができます．
-
-日本地図データをsfに変換することで，先ほどよりも直感的に地図を描くことができます．
+sfパッケージの`st_as_sf()` を使えば，maps・mapdataパッケージの提供する地図データをsfオブジェクトに変換することができます．日本地図データをsfに変換することで，先ほどのコードよりも直感的に地図を描くことができます．
 
 ```{r}
 #| label: sf
@@ -160,7 +161,7 @@ map_japan <- maps::map("japan",
 
 map_japan |> 
   left_join(foreigner_ratio_2015,
-            by = "pref_name") |> 
+            by = join_by(pref_name)) |> 
   ggplot(aes(fill = foreigner_ratio)) +
   geom_sf(color = "transparent") +
   scale_fill_viridis_c("外国人人口比率",
@@ -170,27 +171,55 @@ map_japan |>
 
 ```
 
-## もっと簡単に日本地図を描く
+### さらに詳細な地図情報を入手可能なrnaturalearthについて
 
-[jpmap](https://github.com/UchidaMizuki/jpmap)は，ggplot2による日本地図の描画をより簡単にするためのパッケージです．
+世界地図のデータを取得可能なパッケージにはrnaturalearthパッケージもあります．
 
-jpmapは，以下の2つの機能を持ちます．
+都道府県別地図を取得するにはrnaturalearthの`ne_states("japan")` を実行します．`ne_states("japan")` の出力には英語の都道府県名に加えて日本語の都道府県名も含まれており便利です．
 
--   日本語の都道府県名や都道府県コードが含む都道府県データを提供（`jpmap::prefecture`）
+```{r}
+#| label: rnaturalearth
+#| message: false
+#| warning: false
 
--   琉球諸島・小笠原諸島を再配置したレイアウトを可能に（`jpmap::layout_islands()`）
+map_japan <- rnaturalearth::ne_states("japan") |> 
+  as_tibble() |> 
+  st_as_sf() |> 
+  select(iso_3166_2, name_ja, name_en) |> 
+  arrange(iso_3166_2)
+head(map_japan)
 
-`jpmap::layout_islands()` で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．
+```
+
+## 日本地図をレイアウトするためのjpmapパッケージ
+
+日本地図の描画では，日本列島を大きく描画するために琉球諸島や小笠原諸島を地図上の左上や右下に配置したいケースがあります．ggplot2で作成した日本地図のレイアウトを簡単に行えるように[jpmap](https://github.com/UchidaMizuki/jpmap)を作成しました．
+
+jpmapは，以下の機能を持っています．
+
+-   琉球諸島・小笠原諸島を再配置したレイアウトを可能にする`jpmap::layout_japan()`
+
+    -   ただし再配置される琉球諸島・小笠原諸島の縮尺は厳密ではありませんのでご注意ください
+
+    -   `ryukyu = FALSE`や`ogasawara = FALSE` を指定することで琉球諸島・小笠原諸島を非表示にすることが可能です
+
+-   日本語の都道府県名や都道府県コードが含む都道府県データを提供する`jpmap::prefecture`（rnaturalearthのデータがベースです）
+
+    -   ただし，英語の都道府県名（`pref_name`）がHokkaidoではなくHokkaidōといった表記なっているためご注意ください．
+
+`jpmap::layout_japan()` で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．
 
 ```{r}
 #| label: jpmap
+#| message: false
 
 # pak::pak("UchidaMizuki/jpmap")
 jpmap::prefecture
 
 plot <- jpmap::prefecture |> 
-  left_join(foreigner_ratio_2015,
-            by = c("pref_code", "pref_name")) |> 
+  left_join(foreigner_ratio_2015 |> 
+              select(!pref_name),
+            by = join_by(pref_code)) |> 
   ggplot(aes(fill = foreigner_ratio)) +
   geom_sf(color = "transparent") +
   scale_fill_viridis_c("外国人人口比率",
@@ -198,16 +227,14 @@ plot <- jpmap::prefecture |>
                        labels = scales::label_percent(),
                        option = "turbo")
 
-jpmap::layout_islands(plot,
-                      ogasawara = FALSE)
+jpmap::layout_japan(plot)
 ```
 
 ```{r}
 #| label: save-plot
 #| include: false
 
-jpmap::layout_japan(plot,
-                    ogasawara = FALSE) +
+jpmap::layout_japan(plot) +
   theme(legend.position = "bottom")
 
 ggsave("foreigner_ratio_2015.png",
@@ -216,7 +243,7 @@ ggsave("foreigner_ratio_2015.png",
 
 ```
 
-## まとめ（地図からわかったこと）
+## まとめ
 
 2015年の都道府県別外国人人口比率に関する日本地図から以下のことがわかりました．
 

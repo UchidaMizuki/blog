@@ -110,6 +110,8 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </script>
+<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 
 <link rel="stylesheet" href="../../../styles.css">
@@ -187,6 +189,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       </div>
     </div>
     
+      <div>
+      <div class="quarto-title-meta-heading">更新日</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">2024年4月27日</p>
+      </div>
+    </div>
       
     </div>
     
@@ -202,8 +210,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
 
 
-<p>Rでは，ggplot2などのパッケージを利用するだけで，きれいな日本地図（都道府県別）を描くことができます．</p>
-<p>ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．</p>
+<p>Rでは，ggplot2などのパッケージを利用するだけで，都道府県別の日本地図を描くことができます．ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．</p>
 <section id="地図描画用のサンプルデータ" class="level2">
 <h2 class="anchored" data-anchor-id="地図描画用のサンプルデータ">地図描画用のサンプルデータ</h2>
 <p>ここでは，<a href="https://www.e-stat.go.jp/dbview?sid=0000010201">こちら</a>からダウンロードできる社会・人口統計体系の2015年の都道府県別外国人人口比率データ（10万人あたり外国人人口）を地図描画用のサンプルデータとしました．</p>
@@ -219,30 +226,29 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpstat)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>appId <span class="ot">&lt;-</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">"estat-api"</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> <span class="fu">estat</span>(appId, <span class="st">"https://www.e-stat.go.jp/en/dbview?sid=0000010201"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">lang =</span> <span class="st">"E"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(tab) <span class="sc">|&gt;</span> </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(cat01) <span class="sc">|&gt;</span> </span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ratio of population of foreigners (per 100,000 persons)</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(code <span class="sc">==</span> <span class="st">"#A01601"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(area) <span class="sc">|&gt;</span> </span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">"All Japan"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(code, name) <span class="sc">|&gt;</span> </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rekey</span>(<span class="st">"pref"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(time) <span class="sc">|&gt;</span> </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">"2015"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>()</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>(<span class="st">"foreigners_per_100K"</span>)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write_parquet</span>(foreigner_ratio_2015, <span class="st">"foreigner_ratio_2015.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> <span class="fu">estat</span>(<span class="at">statsDataId =</span> <span class="st">"https://www.e-stat.go.jp/en/dbview?sid=0000010201"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">lang =</span> <span class="st">"E"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(tab) <span class="sc">|&gt;</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(cat01) <span class="sc">|&gt;</span> </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ratio of population of foreigners (per 100,000 persons)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(code <span class="sc">==</span> <span class="st">"#A01601"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(area) <span class="sc">|&gt;</span> </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">"All Japan"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(code, name) <span class="sc">|&gt;</span> </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rekey</span>(<span class="st">"pref"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(time) <span class="sc">|&gt;</span> </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">"2015"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>()</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>(<span class="st">"foreigners_per_100K"</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">write_parquet</span>(foreigner_ratio_2015, <span class="st">"foreigner_ratio_2015.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -265,75 +271,56 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 47 × 3
-   pref_code pref_name foreigner_ratio
-       &lt;int&gt; &lt;chr&gt;               &lt;dbl&gt;
- 1         1 Hokkaido          0.00403
- 2         2 Aomori            0.00264
- 3         3 Iwate             0.00392
- 4         4 Miyagi            0.00599
- 5         5 Akita             0.00285
- 6         6 Yamagata          0.00490
- 7         7 Fukushima         0.00456
- 8         8 Ibaraki           0.0142 
- 9         9 Tochigi           0.0134 
-10        10 Gunma             0.0188 
-# ℹ 37 more rows</code></pre>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 地図描画用のサンプルデータ</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(foreigner_ratio_2015)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["pref_code"],"name":[1],"type":["int"],"align":["right"]},{"label":["pref_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["foreigner_ratio"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"Hokkaido","3":"0.004028"},{"1":"2","2":"Aomori","3":"0.002635"},{"1":"3","2":"Iwate","3":"0.003921"},{"1":"4","2":"Miyagi","3":"0.005994"},{"1":"5","2":"Akita","3":"0.002848"},{"1":"6","2":"Yamagata","3":"0.004896"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 </div>
 </section>
-<section id="geom_map-を使って日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="geom_map-を使って日本地図を描く"><code>geom_map()</code> を使って日本地図を描く</h2>
-<p>ggplot2では，<code>map_data()</code> や<code>geom_map()</code> を使うことで，世界の国々を描画することができます．これには，mapsパッケージを予めダウンロードする必要があります．また，日本地図を利用するには，mapsパッケージに加えて，mapdataパッケージが必要になります．</p>
+<section id="geom_map-で日本地図を描く" class="level2">
+<h2 class="anchored" data-anchor-id="geom_map-で日本地図を描く"><code>geom_map()</code> で日本地図を描く</h2>
+<p>ggplot2で<code>map_data()</code> や<code>geom_map()</code> を使って世界の国々の地図を描画することができます．これには，あらかじめmapsパッケージとmapdataパッケージをダウンロードしておく必要があります（mapdataパッケージに日本地図が格納されています）．</p>
 <p><code>map_data("japan")</code> とすることで，mapsパッケージの地図データがデータフレームに変換されます．このデータフレームの<code>region</code> 列が都道府県のIDとなるため，<code>aes(map_id = region)</code>を設定した上で，<code>geom_map()</code> することで，描画したいデータの<code>region</code> 列と都道府県ジオメトリがリンクします．</p>
 <p>ただし，<code>map_data("japan")</code> は，以下の点に注意が必要です．</p>
 <ul>
+<li><p>あらかじめ<code>library(mapdata)</code> を実行してください（実行しないとデータが読み込めないようです）</p></li>
 <li><p><code>region</code> 列はすべてアルファベット表記である</p></li>
-<li><p>他の都道府県と違い，奈良県だけがが<code>NARA</code> と大文字表記になっているなど，元データに問題あり</p>
-<ul>
-<li>ここでは，<code>str_to_title()</code>で修正</li>
-</ul></li>
+<li><p>他の都道府県と異なり奈良県だけが<code>NARA</code> と大文字表記になっているなど元データにやや問題があるようです（今回は<code>str_to_title()</code>で修正しました）</p></li>
 </ul>
 <p>また，日本地図全体を表示するためには，<code>expand_limits()</code> などで軸を設定すること必要になります．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("maps")</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("mapdata")</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapdata)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>map_data_japan <span class="ot">&lt;-</span> <span class="fu">map_data</span>(<span class="st">"japan"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">region =</span> <span class="fu">str_to_title</span>(region))</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>map_data_japan</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 46,975 × 6
-    long   lat group order region   subregion
-   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    
- 1  140.  42.3     1     1 Hokkaido &lt;NA&gt;     
- 2  140.  42.3     1     2 Hokkaido &lt;NA&gt;     
- 3  140.  42.3     1     3 Hokkaido &lt;NA&gt;     
- 4  140.  42.3     1     4 Hokkaido &lt;NA&gt;     
- 5  140.  42.3     1     5 Hokkaido &lt;NA&gt;     
- 6  140.  42.3     1     6 Hokkaido &lt;NA&gt;     
- 7  140.  42.3     1     7 Hokkaido &lt;NA&gt;     
- 8  140.  42.3     1     8 Hokkaido &lt;NA&gt;     
- 9  140.  42.3     1     9 Hokkaido &lt;NA&gt;     
-10  140.  42.3     1    10 Hokkaido &lt;NA&gt;     
-# ℹ 46,965 more rows</code></pre>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("maps")</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("mapdata")</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mapdata)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>map_data_japan <span class="ot">&lt;-</span> <span class="fu">map_data</span>(<span class="st">"japan"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">region =</span> <span class="fu">str_to_title</span>(region))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(map_data_japan)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["long"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["lat"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["group"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["order"],"name":[4],"type":["int"],"align":["right"]},{"label":["region"],"name":[5],"type":["chr"],"align":["left"]},{"label":["subregion"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"139.7707","2":"42.3018","3":"1","4":"1","5":"Hokkaido","6":"NA"},{"1":"139.7706","2":"42.3001","3":"1","4":"2","5":"Hokkaido","6":"NA"},{"1":"139.7773","2":"42.2956","3":"1","4":"3","5":"Hokkaido","6":"NA"},{"1":"139.7783","2":"42.2916","3":"1","4":"4","5":"Hokkaido","6":"NA"},{"1":"139.7829","2":"42.2838","3":"1","4":"5","5":"Hokkaido","6":"NA"},{"1":"139.7819","2":"42.2833","3":"1","4":"6","5":"Hokkaido","6":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">rename</span>(<span class="at">region =</span> pref_name),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">map_id =</span> region)) <span class="sc">+</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_map</span>(<span class="fu">aes</span>(<span class="at">fill =</span> foreigner_ratio),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">map =</span> map_data_japan) <span class="sc">+</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> map_data_japan<span class="sc">$</span>long,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> map_data_japan<span class="sc">$</span>lat) <span class="sc">+</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="st">"外国人人口比率"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.03</span>),</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(),</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">rename</span>(<span class="at">region =</span> pref_name),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">map_id =</span> region)) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_map</span>(<span class="fu">aes</span>(<span class="at">fill =</span> foreigner_ratio),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">map =</span> map_data_japan) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> map_data_japan<span class="sc">$</span>long,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> map_data_japan<span class="sc">$</span>lat) <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="st">"外国人人口比率"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.03</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -343,30 +330,29 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </section>
-<section id="sfパッケージを使って日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="sfパッケージを使って日本地図を描く">sfパッケージを使って日本地図を描く</h2>
-<p>最近では，sfパッケージのジオメトリがggplot2で簡単に描画できるようになっています．</p>
-<p>また，maps・mapdataパッケージの提供する地図データは，sfパッケージの<code>st_as_sf()</code> でsfのジオメトリデータに変換することができます．</p>
-<p>日本地図データをsfに変換することで，先ほどよりも直感的に地図を描くことができます．</p>
+<section id="sfパッケージで日本地図を描く" class="level2">
+<h2 class="anchored" data-anchor-id="sfパッケージで日本地図を描く">sfパッケージで日本地図を描く</h2>
+<p>ggplot2の<code>geom_sf()</code>を使えばsfパッケージのジオメトリを簡単に描画できます．</p>
+<p>sfパッケージの<code>st_as_sf()</code> を使えば，maps・mapdataパッケージの提供する地図データをsfオブジェクトに変換することができます．日本地図データをsfに変換することで，先ほどのコードよりも直感的に地図を描くことができます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>map_japan <span class="ot">&lt;-</span> maps<span class="sc">::</span><span class="fu">map</span>(<span class="st">"japan"</span>, </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">plot =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">fill =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">pref_name =</span> ID) <span class="sc">|&gt;</span> </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pref_name =</span> <span class="fu">str_to_title</span>(pref_name))</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>map_japan <span class="sc">|&gt;</span> </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(foreigner_ratio_2015,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">"pref_name"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> foreigner_ratio)) <span class="sc">+</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">color =</span> <span class="st">"transparent"</span>) <span class="sc">+</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="st">"外国人人口比率"</span>,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.03</span>),</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(),</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>map_japan <span class="ot">&lt;-</span> maps<span class="sc">::</span><span class="fu">map</span>(<span class="st">"japan"</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">plot =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">fill =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">pref_name =</span> ID) <span class="sc">|&gt;</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pref_name =</span> <span class="fu">str_to_title</span>(pref_name))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>map_japan <span class="sc">|&gt;</span> </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(foreigner_ratio_2015,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">join_by</span>(pref_name)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> foreigner_ratio)) <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">color =</span> <span class="st">"transparent"</span>) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="st">"外国人人口比率"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.03</span>),</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -375,56 +361,65 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section>
-<section id="もっと簡単に日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="もっと簡単に日本地図を描く">もっと簡単に日本地図を描く</h2>
-<p><a href="https://github.com/UchidaMizuki/jpmap">jpmap</a>は，ggplot2による日本地図の描画をより簡単にするためのパッケージです．</p>
-<p>jpmapは，以下の2つの機能を持ちます．</p>
-<ul>
-<li><p>日本語の都道府県名や都道府県コードが含む都道府県データを提供（<code>jpmap::prefecture</code>）</p></li>
-<li><p>琉球諸島・小笠原諸島を再配置したレイアウトを可能に（<code>jpmap::layout_islands()</code>）</p></li>
-</ul>
-<p><code>jpmap::layout_islands()</code> で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．</p>
+<section id="さらに詳細な地図情報を入手可能なrnaturalearthについて" class="level3">
+<h3 class="anchored" data-anchor-id="さらに詳細な地図情報を入手可能なrnaturalearthについて">さらに詳細な地図情報を入手可能なrnaturalearthについて</h3>
+<p>世界地図のデータを取得可能なパッケージにはrnaturalearthパッケージもあります．</p>
+<p>都道府県別地図を取得するにはrnaturalearthの<code>ne_states("japan")</code> を実行します．<code>ne_states("japan")</code> の出力には英語の都道府県名に加えて日本語の都道府県名も含まれており便利です．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/jpmap")</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>jpmap<span class="sc">::</span>prefecture</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 47 features and 3 fields
-Geometry type: MULTIPOLYGON
-Dimension:     XY
-Bounding box:  xmin: 122.9382 ymin: 24.2121 xmax: 153.9856 ymax: 45.52041
-Geodetic CRS:  JGD2011
-# A tibble: 47 × 4
-   pref_code pref_name pref_name_ja                                     geometry
-       &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;                                  &lt;MULTIPOLYGON [°]&gt;
- 1         1 Hokkaido  北海道       (((143.8965 44.15815, 143.9118 44.15229, 14…
- 2         2 Aomori    青森県       (((139.9438 40.42928, 139.9426 40.43439, 13…
- 3         3 Iwate     岩手県       (((141.681 40.45101, 141.6909 40.44229, 141…
- 4         4 Miyagi    宮城県       (((141.6403 38.9675, 141.6406 38.9652, 141.…
- 5         5 Akita     秋田県       (((139.8809 39.11511, 139.8919 39.13321, 13…
- 6         6 Yamagata  山形県       (((139.5487 38.545, 139.5801 38.60688, 139.…
- 7         7 Fukushima 福島県       (((140.9332 37.8898, 140.9334 37.88923, 140…
- 8         8 Ibaraki   茨城県       (((140.7973 36.84649, 140.7931 36.83755, 14…
- 9         9 Tochigi   栃木県       (((139.6537 36.20314, 139.6385 36.22575, 13…
-10        10 Gunma     群馬県       (((138.6795 36.73065, 138.7227 36.74918, 13…
-# ℹ 37 more rows</code></pre>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>map_japan <span class="ot">&lt;-</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_states</span>(<span class="st">"japan"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(iso_3166_2, name_ja, name_en) <span class="sc">|&gt;</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(iso_3166_2)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(map_japan)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["iso_3166_2"],"name":[1],"type":["chr"],"align":["left"]},{"label":["name_ja"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name_en"],"name":[3],"type":["chr"],"align":["left"]},{"label":["geometry"],"name":[4],"type":["s_MULTIP"],"align":["right"]}],"data":[{"1":"JP-01","2":"北海道","3":"Hokkaidō","4":"<s_MULTIP>"},{"1":"JP-02","2":"青森県","3":"Aomori Prefecture","4":"<s_MULTIP>"},{"1":"JP-03","2":"岩手県","3":"Iwate Prefecture","4":"<s_MULTIP>"},{"1":"JP-04","2":"宮城県","3":"Miyagi Prefecture","4":"<s_MULTIP>"},{"1":"JP-05","2":"秋田県","3":"Akita Prefecture","4":"<s_MULTIP>"},{"1":"JP-06","2":"山形県","3":"Yamagata Prefecture","4":"<s_MULTIP>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plot <span class="ot">&lt;-</span> jpmap<span class="sc">::</span>prefecture <span class="sc">|&gt;</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(foreigner_ratio_2015,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"pref_code"</span>, <span class="st">"pref_name"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> foreigner_ratio)) <span class="sc">+</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">color =</span> <span class="st">"transparent"</span>) <span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="st">"外国人人口比率"</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.03</span>),</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(),</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>jpmap<span class="sc">::</span><span class="fu">layout_islands</span>(plot,</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">ogasawara =</span> <span class="cn">FALSE</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: `layout_islands()` was deprecated in jpmap 0.2.0.
-ℹ Please use `layout_japan()` instead.</code></pre>
 </div>
+</div>
+</section>
+</section>
+<section id="日本地図をレイアウトするためのjpmapパッケージ" class="level2">
+<h2 class="anchored" data-anchor-id="日本地図をレイアウトするためのjpmapパッケージ">日本地図をレイアウトするためのjpmapパッケージ</h2>
+<p>日本地図の描画では，日本列島を大きく描画するために琉球諸島や小笠原諸島を地図上の左上や右下に配置したいケースがあります．ggplot2で作成した日本地図のレイアウトを簡単に行えるように<a href="https://github.com/UchidaMizuki/jpmap">jpmap</a>を作成しました．</p>
+<p>jpmapは，以下の機能を持っています．</p>
+<ul>
+<li><p>琉球諸島・小笠原諸島を再配置したレイアウトを可能にする<code>jpmap::layout_japan()</code></p>
+<ul>
+<li><p>ただし再配置される琉球諸島・小笠原諸島の縮尺は厳密ではありませんのでご注意ください</p></li>
+<li><p><code>ryukyu = FALSE</code>や<code>ogasawara = FALSE</code> を指定することで琉球諸島・小笠原諸島を非表示にすることが可能です</p></li>
+</ul></li>
+<li><p>日本語の都道府県名や都道府県コードが含む都道府県データを提供する<code>jpmap::prefecture</code>（rnaturalearthのデータがベースです）</p>
+<ul>
+<li>ただし，英語の都道府県名（<code>pref_name</code>）がHokkaidoではなくHokkaidōといった表記なっているためご注意ください．</li>
+</ul></li>
+</ul>
+<p><code>jpmap::layout_japan()</code> で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/jpmap")</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>jpmap<span class="sc">::</span>prefecture</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["pref_code"],"name":[1],"type":["int"],"align":["right"]},{"label":["pref_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["pref_name_ja"],"name":[3],"type":["chr"],"align":["left"]},{"label":["geometry"],"name":[4],"type":["s_MULTIP"],"align":["right"]}],"data":[{"1":"1","2":"Hokkaidō","3":"北海道","4":"<s_MULTIP>"},{"1":"2","2":"Aomori","3":"青森県","4":"<s_MULTIP>"},{"1":"3","2":"Iwate","3":"岩手県","4":"<s_MULTIP>"},{"1":"4","2":"Miyagi","3":"宮城県","4":"<s_MULTIP>"},{"1":"5","2":"Akita","3":"秋田県","4":"<s_MULTIP>"},{"1":"6","2":"Yamagata","3":"山形県","4":"<s_MULTIP>"},{"1":"7","2":"Fukushima","3":"福島県","4":"<s_MULTIP>"},{"1":"8","2":"Ibaraki","3":"茨城県","4":"<s_MULTIP>"},{"1":"9","2":"Tochigi","3":"栃木県","4":"<s_MULTIP>"},{"1":"10","2":"Gunma","3":"群馬県","4":"<s_MULTIP>"},{"1":"11","2":"Saitama","3":"埼玉県","4":"<s_MULTIP>"},{"1":"12","2":"Chiba","3":"千葉県","4":"<s_MULTIP>"},{"1":"13","2":"Tokyo","3":"東京都","4":"<s_MULTIP>"},{"1":"14","2":"Kanagawa","3":"神奈川県","4":"<s_MULTIP>"},{"1":"15","2":"Niigata","3":"新潟県","4":"<s_MULTIP>"},{"1":"16","2":"Toyama","3":"富山県","4":"<s_MULTIP>"},{"1":"17","2":"Ishikawa","3":"石川県","4":"<s_MULTIP>"},{"1":"18","2":"Fukui","3":"福井県","4":"<s_MULTIP>"},{"1":"19","2":"Yamanashi","3":"山梨県","4":"<s_MULTIP>"},{"1":"20","2":"Nagano","3":"長野県","4":"<s_MULTIP>"},{"1":"21","2":"Gifu","3":"岐阜県","4":"<s_MULTIP>"},{"1":"22","2":"Shizuoka","3":"静岡県","4":"<s_MULTIP>"},{"1":"23","2":"Aichi","3":"愛知県","4":"<s_MULTIP>"},{"1":"24","2":"Mie","3":"三重県","4":"<s_MULTIP>"},{"1":"25","2":"Shiga","3":"滋賀県","4":"<s_MULTIP>"},{"1":"26","2":"Kyōto","3":"京都府","4":"<s_MULTIP>"},{"1":"27","2":"Ōsaka","3":"大阪府","4":"<s_MULTIP>"},{"1":"28","2":"Hyōgo","3":"兵庫県","4":"<s_MULTIP>"},{"1":"29","2":"Nara","3":"奈良県","4":"<s_MULTIP>"},{"1":"30","2":"Wakayama","3":"和歌山県","4":"<s_MULTIP>"},{"1":"31","2":"Tottori","3":"鳥取県","4":"<s_MULTIP>"},{"1":"32","2":"Shimane","3":"島根県","4":"<s_MULTIP>"},{"1":"33","2":"Okayama","3":"岡山県","4":"<s_MULTIP>"},{"1":"34","2":"Hiroshima","3":"広島県","4":"<s_MULTIP>"},{"1":"35","2":"Yamaguchi","3":"山口県","4":"<s_MULTIP>"},{"1":"36","2":"Tokushima","3":"徳島県","4":"<s_MULTIP>"},{"1":"37","2":"Kagawa","3":"香川県","4":"<s_MULTIP>"},{"1":"38","2":"Ehime","3":"愛媛県","4":"<s_MULTIP>"},{"1":"39","2":"Kōchi","3":"高知県","4":"<s_MULTIP>"},{"1":"40","2":"Fukuoka","3":"福岡県","4":"<s_MULTIP>"},{"1":"41","2":"Saga","3":"佐賀県","4":"<s_MULTIP>"},{"1":"42","2":"Nagasaki","3":"長崎県","4":"<s_MULTIP>"},{"1":"43","2":"Kumamoto","3":"熊本県","4":"<s_MULTIP>"},{"1":"44","2":"Ōita","3":"大分県","4":"<s_MULTIP>"},{"1":"45","2":"Miyazaki","3":"宮崎県","4":"<s_MULTIP>"},{"1":"46","2":"Kagoshima","3":"鹿児島県","4":"<s_MULTIP>"},{"1":"47","2":"Okinawa","3":"沖縄県","4":"<s_MULTIP>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plot <span class="ot">&lt;-</span> jpmap<span class="sc">::</span>prefecture <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(foreigner_ratio_2015 <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">select</span>(<span class="sc">!</span>pref_name),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">join_by</span>(pref_code)) <span class="sc">|&gt;</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> foreigner_ratio)) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">color =</span> <span class="st">"transparent"</span>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="st">"外国人人口比率"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.03</span>),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>jpmap<span class="sc">::</span><span class="fu">layout_japan</span>(plot)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -434,8 +429,8 @@ Geodetic CRS:  JGD2011
 </div>
 </div>
 </section>
-<section id="まとめ地図からわかったこと" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ地図からわかったこと">まとめ（地図からわかったこと）</h2>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>2015年の都道府県別外国人人口比率に関する日本地図から以下のことがわかりました．</p>
 <ul>
 <li><p>2015年では<strong>どの都道府県でも外国人人口比率が3％以下</strong>である</p></li>
