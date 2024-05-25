@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>UchidaMizuki - カウントデータの割算値から観測ノイズを除去する</title>
+<title>UchidaMizuki - Rで市区町村データをスマートに前処理しよう（市町村合併や政令指定都市の集計処理など）</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,40 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -110,38 +76,7 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </script>
-<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../../styles.css">
 </head>
@@ -196,7 +131,7 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">カウントデータの割算値から観測ノイズを除去する</h1>
+      <h1 class="title">Rで市区町村データをスマートに前処理しよう<br>（市町村合併や政令指定都市の集計処理など）</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Japanese</div>
               </div>
@@ -223,104 +158,11 @@ window.Quarto = {
 
 
 
-<p>1時間あたりの来店客数・1日あたりの感染者数・1年あたりの出生数など世の中には様々なカウントデータが存在していますが， こうしたカウントデータを分析する際の典型的なニーズは，次の1時間・1日・1年での来店客数・感染者数・出生数を推定することでしょう．</p>
-<p>代表的なアプローチとして，状態空間モデルなどの時系列データ・パネルデータを用いた手法が考えられます． 一方で，必ずしも十分な時点数のデータが得られるとは限らないため，そうした場合にはクロスセクションデータのみを用いて推定を行う必要があります．</p>
-<p>カウントデータのクロスセクション分析では，異なる店舗・地域などの観測個体を比較するために以下のような割合データが用いられることが多いと思われます．</p>
-<ul>
-<li><span class="math inline">\(来店率 = 来店客数 \div 店舗前通行量\)</span></li>
-<li><span class="math inline">\(罹患率 = 患者数 \div 人口\)</span></li>
-<li><span class="math inline">\(出生率 = 出生数 \div 人口\)</span></li>
-</ul>
-<p>こうした割合データを用いることで，分母の大きさの違いを気にせずに観測個体間比較を行えるというメリットがある一方で， カウントデータには観測ノイズが含まれており，期待値が小さい場合に観測ノイズが大きな影響を及ぼすという問題があります．</p>
-<p>たとえば，罹患率3%・人口100人の地域における患者数の期待値は3人ですが， 実際の患者数が1人以下となる可能性もそれなりにあるでしょう． 一方で，人口が1000人の地域の患者数の期待値は30人となりますが， 実際の患者数が10人以下となる可能性は低いと考えられます．</p>
-<p>患者数が二項分布に従うと仮定すると，</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">1</span>, <span class="dv">100</span>, <span class="fl">0.03</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.1946221</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">10</span>, <span class="dv">1000</span>, <span class="fl">0.03</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.812991e-05</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e3</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">rnorm</span>(n),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">mu =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> x),</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">lambda =</span> <span class="fu">rgamma</span>(n, alpha, alpha <span class="sc">/</span> mu),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">y =</span> <span class="fu">rpois</span>(n, lambda))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(y <span class="sc">~</span> x,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> data)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-MASS::glm.nb(formula = y ~ x, data = data, init.theta = 8.76520407, 
-    link = log)
-
-Coefficients:
-            Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  -3.9569     0.2226  -17.78   &lt;2e-16 ***
-x             1.9066     0.1175   16.22   &lt;2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-(Dispersion parameter for Negative Binomial(8.7652) family taken to be 1)
-
-    Null deviance: 617.72  on 999  degrees of freedom
-Residual deviance: 253.48  on 998  degrees of freedom
-AIC: 428.12
-
-Number of Fisher Scoring iterations: 1
-
-              Theta:  8.8 
-          Std. Err.:  12.1 
-
- 2 x log-likelihood:  -422.116 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data_smoothed <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mu_pred =</span> <span class="fu">predict</span>(model, <span class="at">type =</span> <span class="st">"response"</span>),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">lambda_smoothed =</span> mu_pred <span class="sc">/</span> (mu_pred <span class="sc">+</span> model<span class="sc">$</span>theta) <span class="sc">*</span> (y <span class="sc">+</span> model<span class="sc">$</span>theta))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>data_smoothed <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lambda, y, lambda_smoothed) <span class="sc">|&gt;</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">c</span>(y, lambda_smoothed),</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"pred_type"</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">pred_type =</span> as_factor),</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"lambda_pred"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(lambda, lambda_pred)) <span class="sc">+</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">trans =</span> <span class="st">"log1p"</span>) <span class="sc">+</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">trans =</span> <span class="st">"log1p"</span>) <span class="sc">+</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> pred_type)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="draft_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data |&gt; </span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(y, lambda)) + </span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point()</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># data |&gt; </span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot(aes(lambda_pred, lambda)) +</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   geom_point()</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<section id="市区町村データの前処理の面倒くささ" class="level2">
+<h2 class="anchored" data-anchor-id="市区町村データの前処理の面倒くささ">市区町村データの前処理の面倒くささ</h2>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -1,0 +1,196 @@
+---
+title: "Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）"
+lang: ja
+categories: [Japanese, jpcity]
+date: 2024-05-25
+format: html
+image: https://raw.githubusercontent.com/UchidaMizuki/jpcity/main/man/figures/logo.png?raw=true
+---
+
+この記事は，はじめに市区町村データの分析で注意すべき点について説明し，
+次に，Rのjpcityパッケージを用いて市区町村データをスマートに整形する方法について紹介します．
+
+## 市区町村データの分析で注意すべきことは？
+
+市区町村別の統計データを分析する際には，どのようなことに気をつけるべきでしょうか．
+以下では，主な注意点を3つに絞って紹介します．
+
+### ①市区町村名の重複に注意する
+
+まず気をつけるべきことは，同じ名称をもつ市区町村名が複数存在する場合があることです． 実際に，2020年1月1日時点で漢字表記が重複する市町村は，以下のように60市町村弱存在します[^1]．
+
+[^1]: ここでは，ひらがな表記（読み方）が異なっていても漢字表記が同じであれば「重複」としてカウントしています．また，政令指定都市の区名は重複が多いので対象外としています．
+
+ここで，表の一番左列`city_code`に記載されている5桁の数字は， 市区町村コード（全国地方公共団体コード）と呼ばれるもので市区町村を一意に識別するための番号です． そのため，市区町村データを分析する際には，市区町村名ではなく市区町村コードを用いて市区町村を識別することが望ましいと言えるでしょう．
+
+ちなみに，市区町村コードの上2桁の数字は都道府県の識別番号であり，都道府県コードと呼ばれます．
+
+```{r}
+#| label: 市区町村名の重複箇所の抽出
+#| message: false
+#| warning: false
+#| code-fold: true
+#| code-summary: 市区町村名の重複箇所の抽出
+
+library(tidyverse)
+library(jpcity)
+
+get_city("2020-01-01") |> 
+  jpcity:::city_data() |> 
+  mutate(n = n(),
+         .by = c(city_desig_name, city_name)) |> 
+  filter(n > 1) |> 
+  arrange(desc(n), city_desig_name, city_name) |> 
+  select(!c(starts_with("city_desig_name"), n)) |> 
+  rmarkdown::paged_table()
+
+```
+
+### ②市町村合併（廃置分合）による市区町村コードの変更に注意する
+
+市区町村コードを使ってさえいれば問題ないのでしょうか？ 残念ながら，市区町村コードによる分析にはもう一つの落とし穴があります． それは，市町村合併（廃置分合）によって市区町村コードが変更されることがあるという点です．
+
+市区町村コードは1970年4月1日に利用が開始されましたが，その後の平成の大合併（1999年～2010年）などによって市区町村数は大きく減少しました． そのため，特に1999年～2010年ごろの市区町村データを分析する際には，別途，面倒な集計・按分処理（いわゆる廃置分合処理）が必要となることがあります．
+
+例として，1970年4月1日から2020年1月1日にかけて最も多くの市区町村が合併してできた市区町村を抽出してみましょう． 抽出の結果（下表），これまでに最も多くの市町村合併を経た市区町村は15市町村が合併してできた新潟県上越市であることがわかりました．
+
+また，市町村合併だけでなく町制変更や市制施行などによって市区町村コードが変更されることもあります． そのため，市区町村データを分析する際には，こうした市区町村コードの変更事由や変更時期を考慮したデータ整形が必要となることがあります．
+
+```{r, rows.print=20}
+#| label: 最も多くの市区町村が合併してできた市区町村の抽出
+#| code-fold: true
+#| code-summary: 最も多くの市区町村が合併してできた市区町村の抽出
+
+tibble(city_after = get_city("2020-01-01"),
+       city_before = city_after |> 
+         city_convert("2020-01-01", "1970-04-01")) |> 
+  mutate(size_city_before = vctrs::list_sizes(city_before)) |> 
+  slice_max(size_city_before, 
+            n = 1) |> 
+  select(!size_city_before) |> 
+  unnest(city_before) |> 
+  mutate(city_code_before = city_code(city_before),
+         city_name_before = city_name(city_before),
+         city_code_after = city_code(city_after),
+         city_name_after = city_name(city_after),
+         .keep = "unused") |> 
+  rmarkdown::paged_table()
+
+```
+
+### ③政令指定都市の市区の扱いに注意する
+
+上記の注意点を押さえれば，市区町村データの整形の山場を乗り越えたと言えるでしょう． 最後に，細かい点ではありますが，政令指定都市の市区の扱いについて取り上げておきます．
+
+統計データによっては，政令指定都市の区レベルのデータが入手可能な市区町村データではなく， 市レベルで集計した市町村データしか入手できないことがあります．
+
+政令指定都市の市と区には，それぞれに異なる市区町村コードが割り振られているため， こうした地域区分の異なるデータを統合する際には，市区町村コードの対応付けが必要となります．
+
+例として，横浜市における市と区の対応付けを下表に示します．
+
+```{r, rows.print=20}
+#| label: 政令指定都市の市と区の対応付け
+#| code-fold: true
+#| code-summary: 政令指定都市の市と区の対応付け
+
+tibble(city = find_city("横浜市", "2020-01-01") |> 
+         city_desig_merge() |> 
+         vctrs::vec_unique(),
+       city_desig = city |> 
+         city_desig_split()) |> 
+  unnest(city_desig) |> 
+  mutate(city_code = city_code(city),
+         city_name = city_name(city),
+         city_desig_code = city_code(city_desig),
+         city_desig_name = city_name(city_desig),
+         .keep = "unused") |> 
+  rmarkdown::paged_table()
+
+```
+
+## Rで市区町村データをスマートに整形する
+
+ここまでの注意点を踏まえて，Rを用いて市区町村データをスマートに整形する方法を紹介します． 実は，上に示した事例は，いずれもe-Statの 「[市区町村を探す](https://www.e-stat.go.jp/municipalities/cities/areacode)」と 「[廃置分合等情報を探す](https://www.e-stat.go.jp/municipalities/cities/absorption-separation-of-municipalities)」で 公開されている情報に基づいています．
+
+しかし，「廃置分合等情報を探す」では，市町村合併等による市区町村コードの変更内容がテキスト形式で記載されているため， そのままではデータ整形に利用しにくいという問題があります．
+
+そこで，こうした複雑なデータ整形を行うことなく，簡単に廃置分合処理や政令指定都市の市区の対応付けを行うために， 新たに，[jpcity](https://uchidamizuki.github.io/jpcity/)パッケージを作成しました[^2]． ちなみに，上に示した表はすべてjpcityパッケージを用いて作成したものです． jpcityは，CRANに登録済みであるため，以下のコードを実行することでインストールすることができます． ここからは，jpcityの使い方について簡単に説明していきます．
+
+[^2]: jpcityは，e-Statの公開に公開されている「市区町村を探す」と「廃置分合等情報を探す」のデータに基づいて構築されています．
+
+```{r}
+#| label: jpcityパッケージのインストール
+#| eval: false
+
+install.packages("jpcity")
+
+```
+
+### ①市区町村コードや市区町村名の読込み
+
+jpcityでは，`parse_city()`関数を用いて市区町村コードから市区町村オブジェクトを構築することができます[^3]． また，`find_city()`関数を用いて市区町村名から市区町村オブジェクトを構築することができます． ただし，`find_city()`は市区町村名が重複する場合にすべての市区町村が返されてしまうため，基本的には`parse_city()`を用いることが推奨されます． さらに，`parse_city()`・`find_city()`は，ともに第2引数`when`に日付を指定することで， その時点での市区町村を取得することができます[^4]．
+
+[^3]: `parse_city()`は，チェックデジット付きの6桁の市区町村コードにも対応しています．
+
+[^4]: `when` 引数を指定しない場合には，いつの期間の市区町村かを推測して読込みを行います．また，期間が整合しない市区町村が含まれる場合には，読込みエラーとなります．
+
+また，市区町村オブジェクトの市区町村コードや市区町村名への（文字列）変換には，`city_code()`関数や`city_name()`関数を用いることができます．
+
+```{r}
+#| label: 市区町村コードや市区町村名の読込み
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(jpcity)
+
+city <- tibble(city_parsed = parse_city("15222", "2020-01-01"),
+               city_found = find_city("上越市", "2020-01-01"))
+
+city
+```
+
+### ②市町村合併（廃置分合）処理
+
+`city_convert()`関数を用いて市区町村合併（廃置分合）処理を行うことができます． ここでは，さきほど読み込んだ上越市を例に，2000年1月1日時点での市区町村に変換してみましょう[^5]． `city_convert()`の第2引数`from`は変換前の日付`"2020-01-01"`，第3引数`to`は変換後の日付`"2000-01-01"`を指定します．
+
+[^5]: 上越市は，1971年4月29日に高田市と直江津市が合併して新設され，その後，2005年1月1日に13町村が上越市に合併されました．
+
+```{r}
+#| label: 市町村合併（廃置分合）処理
+
+city |> 
+  select(city_parsed) |> 
+  mutate(city_converted = city_parsed |> 
+           city_convert("2020-01-01", "2000-01-01")) |> 
+  unnest(city_converted)
+
+```
+
+### ③政令指定都市の市区の対応付け
+
+`city_desig_split()`関数や`city_desig_merge()`関数を用いて政令指定都市の市区の対応付けを行うことができます． ここでは，さきほど事例として挙げた横浜市を対象に，市区の対応付けを行ってみましょう．
+
+`city_desig_split()`関数は，政令指定都市の市を区に分割する関数です．`city_desig_split()`により，横浜市に14の区が存在することがわかります．
+`city_desig_merge()`関数は，政令指定都市の区を市に統合する関数です．`city_desig_merge()`により，さきほど分割した横浜市の区を市に戻すことができます．
+
+```{r}
+#| label: 政令指定都市の市区の対応付け
+
+# 政令指定都市の市を区に分割
+city_desig <- tibble(city = parse_city("14100", "2020-01-01"),
+                     city_desig = city_desig_split(city)) |> 
+  unnest(city_desig)
+city_desig
+
+# 政令指定都市の区を市に統合 (最初の5行だけ表示)
+city_desig |>
+  select(city_desig) |> 
+  mutate(city = city_desig_merge(city_desig)) |> 
+  head()
+```
+
+## まとめ
+
+この記事では，市区町村データの分析で注意すべき点と，Rのjpcityパッケージを用いて市区町村データをスマートに整形する方法について紹介しました．
+jpcityパッケージに対する要望・バグ報告や質問などがあれば，[GitHub](https://github.com/uchidaMizuki/jpcity)か以下のコメント欄からお気軽にご意見をお寄せください．

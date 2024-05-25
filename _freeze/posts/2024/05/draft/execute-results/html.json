@@ -1,0 +1,21 @@
+{
+  "hash": "141259ed4d4c62912207980c19e82d13",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"カウントデータの割算値から観測ノイズを除去する\"\nlang: ja\ncategories: [Japanese]\ndraft: true\nformat:\n  html:\n    df-print: paged\n---\n\n\n1時間あたりの来店客数・1日あたりの感染者数・1年あたりの出生数など世の中には様々なカウントデータが存在していますが， こうしたカウントデータを分析する際の典型的なニーズは，次の1時間・1日・1年での来店客数・感染者数・出生数を推定することでしょう．\n\n代表的なアプローチとして，状態空間モデルなどの時系列データ・パネルデータを用いた手法が考えられます． 一方で，必ずしも十分な時点数のデータが得られるとは限らないため，そうした場合にはクロスセクションデータのみを用いて推定を行う必要があります．\n\nカウントデータのクロスセクション分析では，異なる店舗・地域などの観測個体を比較するために以下のような割合データが用いられることが多いと思われます．\n\n-   $来店率 = 来店客数 \\div 店舗前通行量$\n-   $罹患率 = 患者数 \\div 人口$\n-   $出生率 = 出生数 \\div 人口$\n\nこうした割合データを用いることで，分母の大きさの違いを気にせずに観測個体間比較を行えるというメリットがある一方で， カウントデータには観測ノイズが含まれており，期待値が小さい場合に観測ノイズが大きな影響を及ぼすという問題があります．\n\nたとえば，罹患率3%・人口100人の地域における患者数の期待値は3人ですが， 実際の患者数が1人以下となる可能性もそれなりにあるでしょう． 一方で，人口が1000人の地域の患者数の期待値は30人となりますが， 実際の患者数が10人以下となる可能性は低いと考えられます．\n\n患者数が二項分布に従う場合，これらの確率は以下のように確かめることができます．\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# 100人の地域における患者数が1人以下となる確率\npbinom(1, 100, 0.03)\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n[1] 0.1946221\n```\n\n\n:::\n\n```{.r .cell-code}\n# 1000人の地域における患者数が10人以下となる確率\npbinom(10, 1000, 0.03)\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n[1] 1.812991e-05\n```\n\n\n:::\n:::\n\n\n期待値が小さいほど割合データのばらつきが大きくなることは数学的にも確認することができます． 二項分布は，試行回数を$n$・確率を$p$とした場合，分散は$np(1-p)$であることが知られています． さらに，割合データは二項分布の観測値を試行回数で割ったものであるためその分散は以下のようになります． この式より，試行回数\n\n$$\n\\frac{np(1-p)}{n^2} = \\frac{p(1-p)}{n}\n$$\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tidyverse)\n\nset.seed(1234)\nn <- 1e3\n\nalpha <- 8\n\ndata <- tibble(x = rnorm(n),\n               mu = exp(-4 + 2 * x),\n               lambda = rgamma(n, alpha, alpha / mu),\n               y = rpois(n, lambda))\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nmodel <- MASS::glm.nb(y ~ x,\n                      data = data)\nsummary(model)\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n\nCall:\nMASS::glm.nb(formula = y ~ x, data = data, init.theta = 8.76520407, \n    link = log)\n\nCoefficients:\n            Estimate Std. Error z value Pr(>|z|)    \n(Intercept)  -3.9569     0.2226  -17.78   <2e-16 ***\nx             1.9066     0.1175   16.22   <2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n(Dispersion parameter for Negative Binomial(8.7652) family taken to be 1)\n\n    Null deviance: 617.72  on 999  degrees of freedom\nResidual deviance: 253.48  on 998  degrees of freedom\nAIC: 428.12\n\nNumber of Fisher Scoring iterations: 1\n\n              Theta:  8.8 \n          Std. Err.:  12.1 \n\n 2 x log-likelihood:  -422.116 \n```\n\n\n:::\n\n```{.r .cell-code}\ndata_smoothed <- data |> \n  mutate(mu_pred = predict(model, type = \"response\"),\n         lambda_smoothed = mu_pred / (mu_pred + model$theta) * (y + model$theta))\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ndata_smoothed |> \n  select(lambda, y, lambda_smoothed) |> \n  pivot_longer(c(y, lambda_smoothed),\n               names_to = \"pred_type\",\n               names_transform = list(pred_type = as_factor),\n               values_to = \"lambda_pred\") |> \n  ggplot(aes(lambda, lambda_pred)) +\n  geom_point() +\n  geom_abline(color = \"red\") +\n  scale_x_continuous(trans = \"log1p\") +\n  scale_y_continuous(trans = \"log1p\") +\n  facet_wrap(~ pred_type)\n```\n\n::: {.cell-output-display}\n![](draft_files/figure-html/unnamed-chunk-4-1.png){width=672}\n:::\n\n```{.r .cell-code}\n# data |> \n#   ggplot(aes(y, lambda)) + \n#   geom_point()\n# \n# data |> \n#   ggplot(aes(lambda_pred, lambda)) +\n#   geom_point()\n```\n:::\n",
+    "supporting": [
+      "draft_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {
+      "include-in-header": [
+        "<link href=\"../../../site_libs/pagedtable-1.1/css/pagedtable.css\" rel=\"stylesheet\" />\n<script src=\"../../../site_libs/pagedtable-1.1/js/pagedtable.js\"></script>\n"
+      ]
+    },
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

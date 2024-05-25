@@ -233,17 +233,23 @@ window.Quarto = {
 </ul>
 <p>こうした割合データを用いることで，分母の大きさの違いを気にせずに観測個体間比較を行えるというメリットがある一方で， カウントデータには観測ノイズが含まれており，期待値が小さい場合に観測ノイズが大きな影響を及ぼすという問題があります．</p>
 <p>たとえば，罹患率3%・人口100人の地域における患者数の期待値は3人ですが， 実際の患者数が1人以下となる可能性もそれなりにあるでしょう． 一方で，人口が1000人の地域の患者数の期待値は30人となりますが， 実際の患者数が10人以下となる可能性は低いと考えられます．</p>
-<p>患者数が二項分布に従うと仮定すると，</p>
+<p>患者数が二項分布に従う場合，これらの確率は以下のように確かめることができます．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">1</span>, <span class="dv">100</span>, <span class="fl">0.03</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 100人の地域における患者数が1人以下となる確率</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">1</span>, <span class="dv">100</span>, <span class="fl">0.03</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.1946221</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">10</span>, <span class="dv">1000</span>, <span class="fl">0.03</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1000人の地域における患者数が10人以下となる確率</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">10</span>, <span class="dv">1000</span>, <span class="fl">0.03</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1.812991e-05</code></pre>
 </div>
 </div>
+<p>期待値が小さいほど割合データのばらつきが大きくなることは数学的にも確認することができます． 二項分布は，試行回数を<span class="math inline">\(n\)</span>・確率を<span class="math inline">\(p\)</span>とした場合，分散は<span class="math inline">\(np(1-p)\)</span>であることが知られています． さらに，割合データは二項分布の観測値を試行回数で割ったものであるためその分散は以下のようになります． この式より，試行回数</p>
+<p><span class="math display">\[
+\frac{np(1-p)}{n^2} = \frac{p(1-p)}{n}
+\]</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
