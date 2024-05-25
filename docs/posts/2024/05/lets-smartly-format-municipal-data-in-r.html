@@ -386,7 +386,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 13 14100 [神奈川県横浜市] 14113 [神奈川県横浜市緑区]      
 14 14100 [神奈川県横浜市] 14114 [神奈川県横浜市瀬谷区]    </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 政令指定都市の区を市に統合 (最初の5行だけ表示)</span></span>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 政令指定都市の区を市に統合 (最初の数行だけ表示)</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>city_desig <span class="sc">|&gt;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(city_desig) <span class="sc">|&gt;</span> </span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city =</span> <span class="fu">city_desig_merge</span>(city_desig)) <span class="sc">|&gt;</span> </span>

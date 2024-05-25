@@ -183,7 +183,7 @@ city_desig <- tibble(city = parse_city("14100", "2020-01-01"),
   unnest(city_desig)
 city_desig
 
-# 政令指定都市の区を市に統合 (最初の5行だけ表示)
+# 政令指定都市の区を市に統合 (最初の数行だけ表示)
 city_desig |>
   select(city_desig) |> 
   mutate(city = city_desig_merge(city_desig)) |> 
