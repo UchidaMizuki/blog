@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html",
       "/posts/2024/05/lets-smartly-format-municipal-data-in-r.html",
       "/posts/2024/03/normal-distribution-with-mean-following-a-normal-distribution.html",
       "/posts/2024/03/be-careful-with-function-forms-in-lingam.html",

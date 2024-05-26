@@ -1,0 +1,86 @@
+---
+title: "R ggraphで全国の市町村合併を可視化する"
+lang: ja
+categories: [Japanese, jpcity]
+date: 2024-05-26
+format: html
+---
+
+昨日，[こちらの記事](https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html)でjpcityパッケージを紹介しました． jpcityパッケージでは，内部的に過去の全国の市町村合併（廃置分合）をネットワーク化することで，異なる時点間での市区町村コードの対応付けを行っています．
+
+この記事では，jpcityパッケージが内部で使用する市町村合併ネットワークを以下の方針で可視化してみます．
+
+-   1970年4月1日～2024年4月1日にかけての都道府県ごとに市町村合併を可視化
+-   市区町村の分離・分割は対象外とする
+-   並び替えにおいて時系列は考慮していない（位置を時点に合わせることも可能だが見えづらいため）
+
+### 参考記事
+
+-   [Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）](https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html)
+
+### 都道府県別の市町村合併の可視化結果
+
+以下に，市町村合併の可視化結果を示します．データ上の不備等に気づかれた方はコメント等でお知らせいただければ幸いです．
+ラベルが重なって見づらい箇所があることをご了承ください．
+
+```{r}
+#| label: 市町村合併の可視化
+#| code-fold: true
+#| message: false
+#| warning: false
+#| fig-height: 12
+
+library(tidyverse)
+library(tidygraph)
+library(ggraph)
+
+date_end <- ymd("2024-04-01")
+
+graph_city <- jpcity:::graph_city$graph_city |> 
+  
+  activate(nodes) |> 
+  filter(!node_is_isolated(),
+         is.infinite(interval) | int_end(interval) <= date_end) |> 
+  arrange(desc(interval)) |>
+  
+  replace_na(list(city_desig_name = "",
+                  city_name = "")) |>
+  mutate(city_name = str_c(city_desig_name, city_name)) |>
+  select(!city_desig_name) |> 
+  
+  mutate(group = group_components()) |> 
+  
+  activate(edges) |>
+  filter(!type %in% c("分離", "分割"))
+
+jpcity::parse_pref(1:47) |> 
+  walk(\(pref) {
+    pref_name <- jpcity::pref_name(pref)
+    
+    plot <- graph_city |> 
+      activate(nodes) |> 
+      filter(pref_name == .env$pref_name) |> 
+      
+      create_layout("fabric") |>
+      
+      # ラベル位置を時系列に合わせることも可能だが見えづらいため省略
+      # mutate(y = int_start(interval)) |>
+      
+      ggraph() +
+      geom_edge_diagonal(color = "gray",
+                         arrow = arrow(length = unit(2, 'mm')), 
+                         end_cap = circle(8, 'mm')) +
+      geom_node_label(aes(label = city_name,
+                          fill = as_factor(group)),
+                      size = 3,
+                      show.legend = FALSE) +
+      scale_fill_hue(l = 100) +
+      coord_flip() +
+      
+      labs(title = pref_name) +
+      theme_void()
+    
+    print(plot)
+  })
+
+```
