@@ -1,9 +1,0 @@
----
-title: "割合データの平滑化ー婦人女性比を例にー"
-lang: ja
-categories: [Bayes, R, Japanese]
-date: "2023-04-30"
-draft: true
----
-
-## TODO

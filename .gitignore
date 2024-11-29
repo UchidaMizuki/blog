@@ -4,3 +4,5 @@
 .Rhistory
 .Renviron
 docs/posts/drafts
+posts/drafts/*
+!posts/drafts/*.qmd

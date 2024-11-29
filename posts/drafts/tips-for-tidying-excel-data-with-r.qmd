@@ -1,0 +1,131 @@
+---
+title: "RでExcelデータを整形するためのTips"
+lang: ja
+categories: [Japanese]
+draft: true
+format:
+  html:
+    df-print: paged
+---
+
+## Excelデータの整形の難しさ
+
+データがRやPythonなどのプログラミング言語で扱いやすい形式かどうかは，
+データ分析の効率性や再現性を高めるうえで重要です．
+
+Rでは，分析に適したデータの作成指針として，[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)（整然データ）という考え方がよく用いられています．
+また，行政においても，[機械判読可能なデータ作成指針]
+
+
+-   <https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001011777&cycle=0&tclass1=000001011778&tclass2val=0>
+-   FIXME: 元データに列の重複の問題あり
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(fs)
+library(readxl)
+```
+
+```{r}
+#| label: TODO
+#| eval: false
+#| echo: false
+
+exdir <- "tips-tidying-excel-data-with-r"
+dir_create(exdir)
+
+destfile <- path(exdir, "population_by_year_sex_age_class",
+                 ext = "xlsx")
+if (!file_exists(destfile)) {
+  curl::curl_download("https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001085927&fileKind=0",
+                      destfile = destfile)
+}
+
+```
+
+```{r}
+#| label: read-col-names
+
+file <- "lets-tidying-excel-data-with-r/population_by_year_sex_age_class.xlsx"
+sheet <- "da03"
+
+data_col_names <- read_excel(file,
+                             sheet = sheet,
+                             skip = 10,
+                             n_max = 5,
+                             col_names = FALSE,
+                             col_types = "text",
+                             .name_repair = "minimal") |> 
+  t() |> 
+  as_tibble(.name_repair = ~c("year", "value_type", "sex", "", "value_unit")) |> 
+  select(year, value_type, sex, value_unit)
+head(data_col_names)
+
+```
+
+```{r}
+#| label: make-col-names
+
+col_names <- data_col_names |> 
+  mutate(year = year |> 
+           
+           # 西暦の年数のみを抽出
+           str_extract("^\\d+(?=年$)") |> 
+           as.integer(),
+         value_unit = if_else(value_unit == "-",
+                              "",
+                              value_unit)) |> 
+  
+  # 西暦年とvalue_typeのNAを埋める
+  fill(year, value_type) |> 
+  
+  drop_na(year) |> 
+  unite("value_type", value_type, value_unit,
+        sep = "") |> 
+  unite("col_name", year, sex, value_type,
+        sep = "/") |> 
+  pull(col_name)
+col_names <- c("region", "age_class", col_names)
+
+head(col_names, 
+     n = 9)
+```
+```{r}
+#| label: read-data
+
+data <- read_excel(file,
+                   sheet = sheet,
+                   skip = 16,
+                   col_names = col_names,
+                   col_types = "text",
+                   .name_repair = "minimal") |>
+  
+  select(all_of(vctrs::vec_unique_loc(col_names))) |>
+  
+  pivot_longer(!c(region, age_class),
+               names_to = c("year", "sex", ".value"),
+               names_sep = "/",
+               names_transform = list(sex = \(x) x |> 
+                                        na_if("NA"))) |>   
+  mutate(across(c(`人口（人）`, `年齢，男女別割合（％）`, 人口性比),
+                \(x) {
+                  parse_number(x, 
+                               na = "-")
+                }))
+head(data)
+
+data_population <- data |> 
+  drop_na(sex) |> 
+  select(!人口性比)
+head(data_population)
+
+data_sex_ratio <- data |> 
+  filter(is.na(sex)) |> 
+  select(!c(sex, `人口（人）`, `年齢，男女別割合（％）`))
+head(data_sex_ratio)
+```
+
