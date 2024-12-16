@@ -10,7 +10,849 @@
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.4.549</generator>
-<lastBuildDate>Sat, 25 May 2024 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 22 Dec 2024 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>RでExcelファイルを整形する際のTips</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>この記事は<a href="https://qiita.com/advent-calendar/2024/rlang">R言語 Advent Calendar 2024</a>の23日目の記事です．</p>
+<p>データ分析において，面倒だけれどもやらなくては始まらないのがデータの前処理です．最近では，機械判読しやすいデータ作成を心掛けることが重視されるようになってきていますが， 人と機械の両方にとって読みやすいデータ形式を作成することはそもそも容易ではありません．</p>
+<p>そこで，この記事では，人が見ることを前提に作成されることの多いExcelファイルを Rで整形する際のTipsを紹介します．この記事では，主にExcelファイル向けのTipsを紹介しますが，CSVファイル等のデータ形式にも応用できると思います．</p>
+<section id="excelファイルを整形する前に" class="level2">
+<h2 class="anchored" data-anchor-id="excelファイルを整形する前に">Excelファイルを整形する前に</h2>
+<p>本題に入る前に，一点注意しておきたいことがあります． それは，分析に使用したいデータがさらに機械判読に適したデータ形式で提供されていないかを確認することです．</p>
+<p>Excelファイルはデータ閲覧には便利ですが，機械判読しにくいデータ形式であることが多いです． そのため，他の形式でもっと機械判読しやすいデータが提供されていないかを確認しておいたほうが良いでしょう． たとえば，政府統計の総合窓口のe-Statでは，API機能を通じて，一般的なExcelファイルより機械判読しやすいデータを入手できることがあります．</p>
+</section>
+<section id="データ形式を巡る人と機械の溝" class="level2">
+<h2 class="anchored" data-anchor-id="データ形式を巡る人と機械の溝">データ形式を巡る「人と機械の溝」</h2>
+<p>私たちにとって読みやすいデータが機械にとっても読みやすいとは限りません． そういったデータの典型的な例として，週間天気予報のデータが挙げられます<sup>1</sup>．</p>
+<p>たとえば，以下のようなダミーの週間天気予報があるとしましょう． このようなデータを見たとき，すぐに「地域・日付別の天気」であることがわかると思います． しかし，機械的に以下のようなことを理解することは意外に難しいと思われます．</p>
+<ul>
+<li>2列目以降の列名が日付を表していること</li>
+<li>2列目以降の列の値が天気を表していること</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3">region <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"札幌"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"東京"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"名古屋"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"大阪"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"福岡"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"那覇"</span>)</span>
+<span id="cb1-4">date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-12-20"</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-12-26"</span>),</span>
+<span id="cb1-5">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"day"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">format</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"%m/%d"</span>)</span>
+<span id="cb1-7">weather <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"🌞"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"⛅"</span>,  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"☔"</span>)</span>
+<span id="cb1-8"></span>
+<span id="cb1-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb1-10">weather_forecast <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">expand_grid</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">region =</span> region,</span>
+<span id="cb1-11">                                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> date) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">weather =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(weather, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">n</span>(),</span>
+<span id="cb1-13">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">replace =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>))</span>
+<span id="cb1-14"></span>
+<span id="cb1-15">weather_forecast_wider <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> weather_forecast <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_wider</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_from =</span> date,</span>
+<span id="cb1-17">              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_from =</span> weather)</span>
+<span id="cb1-18">weather_forecast_wider</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["12/20"],"name":[2],"type":["chr"],"align":["left"]},{"label":["12/21"],"name":[3],"type":["chr"],"align":["left"]},{"label":["12/22"],"name":[4],"type":["chr"],"align":["left"]},{"label":["12/23"],"name":[5],"type":["chr"],"align":["left"]},{"label":["12/24"],"name":[6],"type":["chr"],"align":["left"]},{"label":["12/25"],"name":[7],"type":["chr"],"align":["left"]},{"label":["12/26"],"name":[8],"type":["chr"],"align":["left"]}],"data":[{"1":"札幌","2":"⛅","3":"⛅","4":"🌞","5":"☔","6":"🌞","7":"🌞","8":"⛅"},{"1":"東京","2":"⛅","3":"☔","4":"⛅","5":"⛅","6":"⛅","7":"☔","8":"⛅"},{"1":"名古屋","2":"⛅","3":"⛅","4":"⛅","5":"🌞","6":"☔","7":"☔","8":"☔"},{"1":"大阪","2":"🌞","3":"⛅","4":"🌞","5":"⛅","6":"⛅","7":"☔","8":"☔"},{"1":"福岡","2":"☔","3":"☔","4":"🌞","5":"☔","6":"⛅","7":"⛅","8":"☔"},{"1":"那覇","2":"⛅","3":"🌞","4":"☔","5":"⛅","6":"🌞","7":"⛅","8":"☔"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>上のデータが「地域・日付別の天気」であることを明確にするためには，以下のようなデータのほうが適しています． 以下のデータでは，軸（次元）である地域・日付に，観測値である天気が列名と対応しており，こうした縦長のデータはtidy data（整然データ）と呼ばれています． しかし，このような縦長のデータがニュースで流れたら，多くの人は読みづらいと感じるでしょう（週間天気予報を確認するのに縦長のテレビが必要になってしまいますね）．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">weather_forecast</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["date"],"name":[2],"type":["chr"],"align":["left"]},{"label":["weather"],"name":[3],"type":["chr"],"align":["left"]}],"data":[{"1":"札幌","2":"12/20","3":"⛅"},{"1":"札幌","2":"12/21","3":"⛅"},{"1":"札幌","2":"12/22","3":"🌞"},{"1":"札幌","2":"12/23","3":"☔"},{"1":"札幌","2":"12/24","3":"🌞"},{"1":"札幌","2":"12/25","3":"🌞"},{"1":"札幌","2":"12/26","3":"⛅"},{"1":"東京","2":"12/20","3":"⛅"},{"1":"東京","2":"12/21","3":"☔"},{"1":"東京","2":"12/22","3":"⛅"},{"1":"東京","2":"12/23","3":"⛅"},{"1":"東京","2":"12/24","3":"⛅"},{"1":"東京","2":"12/25","3":"☔"},{"1":"東京","2":"12/26","3":"⛅"},{"1":"名古屋","2":"12/20","3":"⛅"},{"1":"名古屋","2":"12/21","3":"⛅"},{"1":"名古屋","2":"12/22","3":"⛅"},{"1":"名古屋","2":"12/23","3":"🌞"},{"1":"名古屋","2":"12/24","3":"☔"},{"1":"名古屋","2":"12/25","3":"☔"},{"1":"名古屋","2":"12/26","3":"☔"},{"1":"大阪","2":"12/20","3":"🌞"},{"1":"大阪","2":"12/21","3":"⛅"},{"1":"大阪","2":"12/22","3":"🌞"},{"1":"大阪","2":"12/23","3":"⛅"},{"1":"大阪","2":"12/24","3":"⛅"},{"1":"大阪","2":"12/25","3":"☔"},{"1":"大阪","2":"12/26","3":"☔"},{"1":"福岡","2":"12/20","3":"☔"},{"1":"福岡","2":"12/21","3":"☔"},{"1":"福岡","2":"12/22","3":"🌞"},{"1":"福岡","2":"12/23","3":"☔"},{"1":"福岡","2":"12/24","3":"⛅"},{"1":"福岡","2":"12/25","3":"⛅"},{"1":"福岡","2":"12/26","3":"☔"},{"1":"那覇","2":"12/20","3":"⛅"},{"1":"那覇","2":"12/21","3":"🌞"},{"1":"那覇","2":"12/22","3":"☔"},{"1":"那覇","2":"12/23","3":"⛅"},{"1":"那覇","2":"12/24","3":"🌞"},{"1":"那覇","2":"12/25","3":"⛅"},{"1":"那覇","2":"12/26","3":"☔"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>なぜ，このような「人と機械の溝」が生じるのでしょうか？それは，多くの人が2次元でデータを捉えることに慣れていることが一因かもしれません．</p>
+<p>以下の図は，上の縦長データをggplot2で散布図として表したものです．この散布図をはじめに示した表と見比べると同じような見た目になっていることがわかります．私たちにとっては，以下の散布図のように縦方向だけでなく横方向にも軸を持つ表のほうが見やすいのかもしれません．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">weather_forecast <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb3-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(date, region, </span>
+<span id="cb3-3">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> weather)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_text</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_x_discrete</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_discrete</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> rev) </span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r_files/figure-html/weather-forecast-plot-1.png" class="img-fluid figure-img" width="4800"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="excelファイルのデータ構造を読み解く" class="level2">
+<h2 class="anchored" data-anchor-id="excelファイルのデータ構造を読み解く">Excelファイルのデータ構造を読み解く</h2>
+<p>このような「人と機械の溝」を踏まえて，実際のExcelファイルのデータ構造を読み解いてみましょう．</p>
+<p>「地域・日付別の天気」のようなシンプルな事例であれば，データ構造はそこまで難しくなりませんが，たとえば，「地域・西暦・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に，e-Statに公開されている<a href="https://www.e-stat.go.jp/stat-search/files?page=1&amp;layout=datalist&amp;toukei=00200521&amp;tstat=000001011777&amp;cycle=0&amp;tclass1=000001011778&amp;stat_infid=000001085927&amp;tclass2val=0">こちらのExcelファイル</a>を見てみましょう． 以下の画像はExcelファイルの上部を一部抜粋したものです．</p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-tidying-excel-file-with-r/population_by_year_sex_age_class.png" class="img-fluid"></p>
+<p>データ上部の説明を無視すると，以下のようなデータ形式であることがわかります．そのため，データの軸（次元）にあたる地域・西暦・性別・年齢を水色（<span style="color:#a6cee3;">■</span>），観測値の種別・単位にあたる人口・人口割合・人口性比を青色（<span style="color:#1f78b4;">■</span>）で塗りつぶすと以下の図のようになります．データ形式の詳細をまとめると以下のようになります．</p>
+<ul>
+<li>1・2列目に，それぞれ地域・年齢階級の軸（次元）の情報が格納されている</li>
+<li>3列目以降の列名にあたる部分には，軸（次元）と観測値の情報が混在している
+<ul>
+<li>1・3行目に，それぞれ西暦・性別の軸（次元）の情報が格納されている</li>
+<li>2・4行目は，それぞれ人口・人口割合・人口性比の観測値の種別と単位が記載されている</li>
+</ul></li>
+</ul>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-tidying-excel-file-with-r/population_by_year_sex_age_class_colored.png" class="img-fluid"></p>
+<p>Excelファイルを整形する際には，以下の点を意識しなければならないことがわかります．</p>
+<ul>
+<li>列名が複数行にまたがって記載されている際には，各行が軸（次元）・観測値のどちらに対応するかを事前に整理しておく必要がある</li>
+<li>列名の反復を避けるために一部の列名が省略 or セルが結合されていることが多い</li>
+</ul>
+</section>
+<section id="excelファイルを整形してみよう" class="level2">
+<h2 class="anchored" data-anchor-id="excelファイルを整形してみよう">Excelファイルを整形してみよう</h2>
+<p>それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「地域・西暦・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．</p>
+<p>Excelファイルを読み込むのに役立つパッケージとして，<a href="https://readxl.tidyverse.org">readxl</a>パッケージがあります<sup>2</sup>． そのため，事前にtidyverseパッケージとreadxlパッケージをロードしておきます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 必要に応じてパッケージのインストールしてください</span></span>
+<span id="cb4-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># install.packages("pak")</span></span>
+<span id="cb4-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># pak::pak("tidyverse")</span></span>
+<span id="cb4-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># pak::pak("readxl")</span></span>
+<span id="cb4-5"></span>
+<span id="cb4-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb4-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(readxl)</span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>データダウンロード時の使用コードはこちら</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(fs) </span>
+<span id="cb5-2"></span>
+<span id="cb5-3">exdir <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"tips-tidying-excel-data-with-r"</span></span>
+<span id="cb5-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dir_create</span>(exdir)</span>
+<span id="cb5-5"></span>
+<span id="cb5-6">destfile <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">path</span>(exdir, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"population_by_year_sex_age_class"</span>,</span>
+<span id="cb5-7">                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ext =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"xlsx"</span>)</span>
+<span id="cb5-8"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file_exists</span>(destfile)) {</span>
+<span id="cb5-9">  curl<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">curl_download</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001085927&amp;fileKind=0"</span>,</span>
+<span id="cb5-10">                      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">destfile =</span> destfile)</span>
+<span id="cb5-11">}</span></code></pre></div>
+</details>
+</div>
+<section id="列名の読み込み結合セル等の処理" class="level3">
+<h3 class="anchored" data-anchor-id="列名の読み込み結合セル等の処理">①列名の読み込み・結合セル等の処理</h3>
+<p>Excelファイルの読み込みの最初のステップとして，列名を読み込みます． CSVファイル等のテーブルデータでは，1行目に列名が記載されていることが多く， Rのデータフレームでも列名は文字列ベクトルで表されます．</p>
+<p>しかし，上で示したExcelファイルでは，3列目以降に複数行にまたがって列名が記載されているため， これらをデータフレームの列名として使えるようにするには工夫が必要です．</p>
+<p>そこで，まずreadxlの<code>read_excel()</code>関数を使って列名を読み込みます． <code>read_excel()</code>関数では，<code>col_types</code>引数の指定方法等に違いはあるものの，おおよそreadrの<code>read_csv()</code>関数と同様の書き方でExcelファイルを読み込むことができます<sup>3</sup>．</p>
+<p>3列目以降の列名では，横方向に軸（次元）や観測値の情報が格納されているため， <code>t()</code>関数で転置してからデータフレームに変換します． さらに，最初の2行（地域・年齢階級）を除外すると以下のようなデータを取得できます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 事前にダウンロードしたExcelファイルの保存場所</span></span>
+<span id="cb6-2">file <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"tips-tidying-excel-file-with-r/population_by_year_sex_age_class.xlsx"</span></span>
+<span id="cb6-3">sheet <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"da03"</span></span>
+<span id="cb6-4"></span>
+<span id="cb6-5">data_col_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_excel</span>(file,</span>
+<span id="cb6-6">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sheet =</span> sheet, <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># シート名</span></span>
+<span id="cb6-7">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">skip =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 説明部分をスキップ</span></span>
+<span id="cb6-8">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n_max =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 列名部分のみを読み込む</span></span>
+<span id="cb6-9">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col_names =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb6-10">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col_types =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,</span>
+<span id="cb6-11">                             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.name_repair =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"minimal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-12">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 転置してからデータフレームに変換</span></span>
+<span id="cb6-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">t</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.name_repair =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"year"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_type"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sex"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_unit"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(year, value_type, sex, value_unit) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-16">  </span>
+<span id="cb6-17">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 最初の2行（地域・年齢階級）を除外</span></span>
+<span id="cb6-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice_tail</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) </span>
+<span id="cb6-19"></span>
+<span id="cb6-20"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data_col_names,</span>
+<span id="cb6-21">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["value_type"],"name":[2],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["value_unit"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"1920年","2":"人口","3":"総数","4":"（人）"},{"1":"大正9年","2":"NA","3":"男","4":"（人）"},{"1":"NA","2":"NA","3":"女","4":"（人）"},{"1":"NA","2":"年齢，男女別割合","3":"総数","4":"（％）"},{"1":"NA","2":"NA","3":"男","4":"（％）"},{"1":"NA","2":"NA","3":"女","4":"（％）"},{"1":"NA","2":"人口性比","3":"NA","4":"-"},{"1":"1925年","2":"人口","3":"総数","4":"（人）"},{"1":"大正14年","2":"NA","3":"男","4":"（人）"},{"1":"NA","2":"NA","3":"女","4":"（人）"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><code>data_col_names</code>を見ると，以下のことがわかります．</p>
+<ul>
+<li><code>year</code>列には，西暦と和暦が混在している</li>
+<li><code>year</code>・<code>value_type</code>列では，列名の重複を避けるため一部の列名が省略され<code>NA</code>となっている</li>
+</ul>
+<p>そこで，以下のコードでは主に以下のような処理を行っています．</p>
+<ul>
+<li><code>year</code>列から西暦の年数のみを抽出</li>
+<li>tidyrの<code>fill()</code>関数を用いて<code>year</code>・<code>value_type</code>列の<code>NA</code>を埋める</li>
+</ul>
+<p>以上の作業により列名を作成するための準備が整いました．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">data_col_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data_col_names <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb7-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 西暦の年数のみを抽出</span></span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">year =</span> year <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-4">           <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_extract</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"^</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+(?=年$)"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-5">           <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.integer</span>(),</span>
+<span id="cb7-6">         </span>
+<span id="cb7-7">         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># value_unitが"-"の場合は空文字に置換</span></span>
+<span id="cb7-8">         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value_unit =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">if_else</span>(value_unit <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-"</span>,</span>
+<span id="cb7-9">                              <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb7-10">                              value_unit)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-11">  </span>
+<span id="cb7-12">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 西暦年とvalue_typeのNAを埋める</span></span>
+<span id="cb7-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fill</span>(year, value_type)</span>
+<span id="cb7-14"></span>
+<span id="cb7-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data_col_names,</span>
+<span id="cb7-16">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["value_type"],"name":[2],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["value_unit"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"1920","2":"人口","3":"総数","4":"（人）"},{"1":"1920","2":"人口","3":"男","4":"（人）"},{"1":"1920","2":"人口","3":"女","4":"（人）"},{"1":"1920","2":"年齢，男女別割合","3":"総数","4":"（％）"},{"1":"1920","2":"年齢，男女別割合","3":"男","4":"（％）"},{"1":"1920","2":"年齢，男女別割合","3":"女","4":"（％）"},{"1":"1920","2":"人口性比","3":"NA","4":""},{"1":"1925","2":"人口","3":"総数","4":"（人）"},{"1":"1925","2":"人口","3":"男","4":"（人）"},{"1":"1925","2":"人口","3":"女","4":"（人）"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="列名の作成データの読み込み" class="level3">
+<h3 class="anchored" data-anchor-id="列名の作成データの読み込み">②列名の作成・データの読み込み</h3>
+<p>それでは，<code>data_col_names</code>を使って列名を作成しましょう． ここでは，以下のような手順で列名を作成しました．</p>
+<ul>
+<li>まず，<code>value_type</code>・<code>value_unit</code>列を結合し，<code>value_type</code>列を作成</li>
+<li>次に，<code>year</code>・<code>sex</code>・<code>value_type</code>列の順に<code>"/"</code>区切りで結合し，<code>col_name</code>列を作成</li>
+<li>最後に，<code>"region"</code>・<code>"age_class"</code>・<code>col_name</code>列のデータを結合し，列名を作成</li>
+</ul>
+<p>以下のコードでは，データフレームの列名の結合にtidyrの<code>unite()</code>関数を使っています． 以上の作業により，データの読み込みに必要となる列名が作成されました．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">col_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data_col_names <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unite</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_type"</span>, value_type, value_unit,</span>
+<span id="cb8-3">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unite</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"col_name"</span>, year, sex, value_type,</span>
+<span id="cb8-5">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(col_name)</span>
+<span id="cb8-7">col_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"region"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"age_class"</span>, col_names)</span>
+<span id="cb8-8"></span>
+<span id="cb8-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(col_names,</span>
+<span id="cb8-10">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "region"                           "age_class"                       
+ [3] "1920/総数/人口（人）"             "1920/男/人口（人）"              
+ [5] "1920/女/人口（人）"               "1920/総数/年齢，男女別割合（％）"
+ [7] "1920/男/年齢，男女別割合（％）"   "1920/女/年齢，男女別割合（％）"  
+ [9] "1920/NA/人口性比"                 "1925/総数/人口（人）"            </code></pre>
+</div>
+</div>
+<p><code>col_names</code>を使ってデータを読み込んでみましょう． <code>read_excel()</code>関数に<code>col_names = col_names</code>として列名を指定することで，先ほど作成した列名を使ってデータを読み込むことができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_excel</span>(file,</span>
+<span id="cb10-2">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sheet =</span> sheet,</span>
+<span id="cb10-3">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">skip =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb10-4">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col_names =</span> col_names,</span>
+<span id="cb10-5">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col_types =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,</span>
+<span id="cb10-6">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.name_repair =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"minimal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb10-7">  </span>
+<span id="cb10-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 末尾の列に重複がみられるため重複箇所を削除 (元データ作成時のミスと思われる)</span></span>
+<span id="cb10-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all_of</span>(vctrs<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">vec_unique_loc</span>(col_names)))</span>
+<span id="cb10-10"></span>
+<span id="cb10-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data,</span>
+<span id="cb10-12">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["1920/総数/人口（人）"],"name":[3],"type":["chr"],"align":["left"]},{"label":["1920/男/人口（人）"],"name":[4],"type":["chr"],"align":["left"]},{"label":["1920/女/人口（人）"],"name":[5],"type":["chr"],"align":["left"]},{"label":["1920/総数/年齢，男女別割合（％）"],"name":[6],"type":["chr"],"align":["left"]},{"label":["1920/男/年齢，男女別割合（％）"],"name":[7],"type":["chr"],"align":["left"]},{"label":["1920/女/年齢，男女別割合（％）"],"name":[8],"type":["chr"],"align":["left"]},{"label":["1920/NA/人口性比"],"name":[9],"type":["chr"],"align":["left"]},{"label":["1925/総数/人口（人）"],"name":[10],"type":["chr"],"align":["left"]},{"label":["1925/男/人口（人）"],"name":[11],"type":["chr"],"align":["left"]},{"label":["1925/女/人口（人）"],"name":[12],"type":["chr"],"align":["left"]},{"label":["1925/総数/年齢，男女別割合（％）"],"name":[13],"type":["chr"],"align":["left"]},{"label":["1925/男/年齢，男女別割合（％）"],"name":[14],"type":["chr"],"align":["left"]},{"label":["1925/女/年齢，男女別割合（％）"],"name":[15],"type":["chr"],"align":["left"]},{"label":["1925/NA/人口性比"],"name":[16],"type":["chr"],"align":["left"]},{"label":["1930/総数/人口（人）"],"name":[17],"type":["chr"],"align":["left"]},{"label":["1930/男/人口（人）"],"name":[18],"type":["chr"],"align":["left"]},{"label":["1930/女/人口（人）"],"name":[19],"type":["chr"],"align":["left"]},{"label":["1930/総数/年齢，男女別割合（％）"],"name":[20],"type":["chr"],"align":["left"]},{"label":["1930/男/年齢，男女別割合（％）"],"name":[21],"type":["chr"],"align":["left"]},{"label":["1930/女/年齢，男女別割合（％）"],"name":[22],"type":["chr"],"align":["left"]},{"label":["1930/NA/人口性比"],"name":[23],"type":["chr"],"align":["left"]},{"label":["1935/総数/人口（人）"],"name":[24],"type":["chr"],"align":["left"]},{"label":["1935/男/人口（人）"],"name":[25],"type":["chr"],"align":["left"]},{"label":["1935/女/人口（人）"],"name":[26],"type":["chr"],"align":["left"]},{"label":["1935/総数/年齢，男女別割合（％）"],"name":[27],"type":["chr"],"align":["left"]},{"label":["1935/男/年齢，男女別割合（％）"],"name":[28],"type":["chr"],"align":["left"]},{"label":["1935/女/年齢，男女別割合（％）"],"name":[29],"type":["chr"],"align":["left"]},{"label":["1935/NA/人口性比"],"name":[30],"type":["chr"],"align":["left"]},{"label":["1940/総数/人口（人）"],"name":[31],"type":["chr"],"align":["left"]},{"label":["1940/男/人口（人）"],"name":[32],"type":["chr"],"align":["left"]},{"label":["1940/女/人口（人）"],"name":[33],"type":["chr"],"align":["left"]},{"label":["1940/総数/年齢，男女別割合（％）"],"name":[34],"type":["chr"],"align":["left"]},{"label":["1940/男/年齢，男女別割合（％）"],"name":[35],"type":["chr"],"align":["left"]},{"label":["1940/女/年齢，男女別割合（％）"],"name":[36],"type":["chr"],"align":["left"]},{"label":["1940/NA/人口性比"],"name":[37],"type":["chr"],"align":["left"]},{"label":["1945/総数/人口（人）"],"name":[38],"type":["chr"],"align":["left"]},{"label":["1945/男/人口（人）"],"name":[39],"type":["chr"],"align":["left"]},{"label":["1945/女/人口（人）"],"name":[40],"type":["chr"],"align":["left"]},{"label":["1945/総数/年齢，男女別割合（％）"],"name":[41],"type":["chr"],"align":["left"]},{"label":["1945/男/年齢，男女別割合（％）"],"name":[42],"type":["chr"],"align":["left"]},{"label":["1945/女/年齢，男女別割合（％）"],"name":[43],"type":["chr"],"align":["left"]},{"label":["1945/NA/人口性比"],"name":[44],"type":["chr"],"align":["left"]},{"label":["1950/総数/人口（人）"],"name":[45],"type":["chr"],"align":["left"]},{"label":["1950/男/人口（人）"],"name":[46],"type":["chr"],"align":["left"]},{"label":["1950/女/人口（人）"],"name":[47],"type":["chr"],"align":["left"]},{"label":["1950/総数/年齢，男女別割合（％）"],"name":[48],"type":["chr"],"align":["left"]},{"label":["1950/男/年齢，男女別割合（％）"],"name":[49],"type":["chr"],"align":["left"]},{"label":["1950/女/年齢，男女別割合（％）"],"name":[50],"type":["chr"],"align":["left"]},{"label":["1950/NA/人口性比"],"name":[51],"type":["chr"],"align":["left"]},{"label":["1955/総数/人口（人）"],"name":[52],"type":["chr"],"align":["left"]},{"label":["1955/男/人口（人）"],"name":[53],"type":["chr"],"align":["left"]},{"label":["1955/女/人口（人）"],"name":[54],"type":["chr"],"align":["left"]},{"label":["1955/総数/年齢，男女別割合（％）"],"name":[55],"type":["chr"],"align":["left"]},{"label":["1955/男/年齢，男女別割合（％）"],"name":[56],"type":["chr"],"align":["left"]},{"label":["1955/女/年齢，男女別割合（％）"],"name":[57],"type":["chr"],"align":["left"]},{"label":["1955/NA/人口性比"],"name":[58],"type":["chr"],"align":["left"]},{"label":["1960/総数/人口（人）"],"name":[59],"type":["chr"],"align":["left"]},{"label":["1960/男/人口（人）"],"name":[60],"type":["chr"],"align":["left"]},{"label":["1960/女/人口（人）"],"name":[61],"type":["chr"],"align":["left"]},{"label":["1960/総数/年齢，男女別割合（％）"],"name":[62],"type":["chr"],"align":["left"]},{"label":["1960/男/年齢，男女別割合（％）"],"name":[63],"type":["chr"],"align":["left"]},{"label":["1960/女/年齢，男女別割合（％）"],"name":[64],"type":["chr"],"align":["left"]},{"label":["1960/NA/人口性比"],"name":[65],"type":["chr"],"align":["left"]},{"label":["1965/総数/人口（人）"],"name":[66],"type":["chr"],"align":["left"]},{"label":["1965/男/人口（人）"],"name":[67],"type":["chr"],"align":["left"]},{"label":["1965/女/人口（人）"],"name":[68],"type":["chr"],"align":["left"]},{"label":["1965/総数/年齢，男女別割合（％）"],"name":[69],"type":["chr"],"align":["left"]},{"label":["1965/男/年齢，男女別割合（％）"],"name":[70],"type":["chr"],"align":["left"]},{"label":["1965/女/年齢，男女別割合（％）"],"name":[71],"type":["chr"],"align":["left"]},{"label":["1965/NA/人口性比"],"name":[72],"type":["chr"],"align":["left"]},{"label":["1970/総数/人口（人）"],"name":[73],"type":["chr"],"align":["left"]},{"label":["1970/男/人口（人）"],"name":[74],"type":["chr"],"align":["left"]},{"label":["1970/女/人口（人）"],"name":[75],"type":["chr"],"align":["left"]},{"label":["1970/総数/年齢，男女別割合（％）"],"name":[76],"type":["chr"],"align":["left"]},{"label":["1970/男/年齢，男女別割合（％）"],"name":[77],"type":["chr"],"align":["left"]},{"label":["1970/女/年齢，男女別割合（％）"],"name":[78],"type":["chr"],"align":["left"]},{"label":["1970/NA/人口性比"],"name":[79],"type":["chr"],"align":["left"]},{"label":["1975/総数/人口（人）"],"name":[80],"type":["chr"],"align":["left"]},{"label":["1975/男/人口（人）"],"name":[81],"type":["chr"],"align":["left"]},{"label":["1975/女/人口（人）"],"name":[82],"type":["chr"],"align":["left"]},{"label":["1975/総数/年齢，男女別割合（％）"],"name":[83],"type":["chr"],"align":["left"]},{"label":["1975/男/年齢，男女別割合（％）"],"name":[84],"type":["chr"],"align":["left"]},{"label":["1975/女/年齢，男女別割合（％）"],"name":[85],"type":["chr"],"align":["left"]},{"label":["1975/NA/人口性比"],"name":[86],"type":["chr"],"align":["left"]},{"label":["1980/総数/人口（人）"],"name":[87],"type":["chr"],"align":["left"]},{"label":["1980/男/人口（人）"],"name":[88],"type":["chr"],"align":["left"]},{"label":["1980/女/人口（人）"],"name":[89],"type":["chr"],"align":["left"]},{"label":["1980/総数/年齢，男女別割合（％）"],"name":[90],"type":["chr"],"align":["left"]},{"label":["1980/男/年齢，男女別割合（％）"],"name":[91],"type":["chr"],"align":["left"]},{"label":["1980/女/年齢，男女別割合（％）"],"name":[92],"type":["chr"],"align":["left"]},{"label":["1980/NA/人口性比"],"name":[93],"type":["chr"],"align":["left"]},{"label":["1985/総数/人口（人）"],"name":[94],"type":["chr"],"align":["left"]},{"label":["1985/男/人口（人）"],"name":[95],"type":["chr"],"align":["left"]},{"label":["1985/女/人口（人）"],"name":[96],"type":["chr"],"align":["left"]},{"label":["1985/総数/年齢，男女別割合（％）"],"name":[97],"type":["chr"],"align":["left"]},{"label":["1985/男/年齢，男女別割合（％）"],"name":[98],"type":["chr"],"align":["left"]},{"label":["1985/女/年齢，男女別割合（％）"],"name":[99],"type":["chr"],"align":["left"]},{"label":["1985/NA/人口性比"],"name":[100],"type":["chr"],"align":["left"]},{"label":["1990/総数/人口（人）"],"name":[101],"type":["chr"],"align":["left"]},{"label":["1990/男/人口（人）"],"name":[102],"type":["chr"],"align":["left"]},{"label":["1990/女/人口（人）"],"name":[103],"type":["chr"],"align":["left"]},{"label":["1990/総数/年齢，男女別割合（％）"],"name":[104],"type":["chr"],"align":["left"]},{"label":["1990/男/年齢，男女別割合（％）"],"name":[105],"type":["chr"],"align":["left"]},{"label":["1990/女/年齢，男女別割合（％）"],"name":[106],"type":["chr"],"align":["left"]},{"label":["1990/NA/人口性比"],"name":[107],"type":["chr"],"align":["left"]},{"label":["1995/総数/人口（人）"],"name":[108],"type":["chr"],"align":["left"]},{"label":["1995/男/人口（人）"],"name":[109],"type":["chr"],"align":["left"]},{"label":["1995/女/人口（人）"],"name":[110],"type":["chr"],"align":["left"]},{"label":["1995/総数/年齢，男女別割合（％）"],"name":[111],"type":["chr"],"align":["left"]},{"label":["1995/男/年齢，男女別割合（％）"],"name":[112],"type":["chr"],"align":["left"]},{"label":["1995/女/年齢，男女別割合（％）"],"name":[113],"type":["chr"],"align":["left"]},{"label":["1995/NA/人口性比"],"name":[114],"type":["chr"],"align":["left"]},{"label":["2000/総数/人口（人）"],"name":[115],"type":["chr"],"align":["left"]},{"label":["2000/男/人口（人）"],"name":[116],"type":["chr"],"align":["left"]},{"label":["2000/女/人口（人）"],"name":[117],"type":["chr"],"align":["left"]},{"label":["2000/総数/年齢，男女別割合（％）"],"name":[118],"type":["chr"],"align":["left"]},{"label":["2000/男/年齢，男女別割合（％）"],"name":[119],"type":["chr"],"align":["left"]},{"label":["2000/女/年齢，男女別割合（％）"],"name":[120],"type":["chr"],"align":["left"]},{"label":["2000/NA/人口性比"],"name":[121],"type":["chr"],"align":["left"]},{"label":["2005/総数/人口（人）"],"name":[122],"type":["chr"],"align":["left"]},{"label":["2005/男/人口（人）"],"name":[123],"type":["chr"],"align":["left"]},{"label":["2005/女/人口（人）"],"name":[124],"type":["chr"],"align":["left"]},{"label":["2005/総数/年齢，男女別割合（％）"],"name":[125],"type":["chr"],"align":["left"]},{"label":["2005/男/年齢，男女別割合（％）"],"name":[126],"type":["chr"],"align":["left"]},{"label":["2005/女/年齢，男女別割合（％）"],"name":[127],"type":["chr"],"align":["left"]},{"label":["2005/NA/人口性比"],"name":[128],"type":["chr"],"align":["left"]},{"label":["2010/総数/人口（人）"],"name":[129],"type":["chr"],"align":["left"]},{"label":["2010/男/人口（人）"],"name":[130],"type":["chr"],"align":["left"]},{"label":["2010/女/人口（人）"],"name":[131],"type":["chr"],"align":["left"]},{"label":["2010/総数/年齢，男女別割合（％）"],"name":[132],"type":["chr"],"align":["left"]},{"label":["2010/男/年齢，男女別割合（％）"],"name":[133],"type":["chr"],"align":["left"]},{"label":["2010/女/年齢，男女別割合（％）"],"name":[134],"type":["chr"],"align":["left"]},{"label":["2010/NA/人口性比"],"name":[135],"type":["chr"],"align":["left"]},{"label":["2015/総数/人口（人）"],"name":[136],"type":["chr"],"align":["left"]},{"label":["2015/男/人口（人）"],"name":[137],"type":["chr"],"align":["left"]},{"label":["2015/女/人口（人）"],"name":[138],"type":["chr"],"align":["left"]},{"label":["2015/総数/年齢，男女別割合（％）"],"name":[139],"type":["chr"],"align":["left"]},{"label":["2015/男/年齢，男女別割合（％）"],"name":[140],"type":["chr"],"align":["left"]},{"label":["2015/女/年齢，男女別割合（％）"],"name":[141],"type":["chr"],"align":["left"]},{"label":["2015/NA/人口性比"],"name":[142],"type":["chr"],"align":["left"]},{"label":["2020/総数/人口（人）"],"name":[143],"type":["chr"],"align":["left"]},{"label":["2020/男/人口（人）"],"name":[144],"type":["chr"],"align":["left"]},{"label":["2020/女/人口（人）"],"name":[145],"type":["chr"],"align":["left"]},{"label":["2020/総数/年齢，男女別割合（％）"],"name":[146],"type":["chr"],"align":["left"]},{"label":["2020/男/年齢，男女別割合（％）"],"name":[147],"type":["chr"],"align":["left"]},{"label":["2020/女/年齢，男女別割合（％）"],"name":[148],"type":["chr"],"align":["left"]},{"label":["2020/NA/人口性比"],"name":[149],"type":["chr"],"align":["left"]}],"data":[{"1":"01000_北海道","2":"総数","3":"2359183","4":"1244322","5":"1114861","6":"100","7":"52.743767651767584","8":"47.256232348232416","9":"111.61229964991151","10":"2498679","11":"1305473","12":"1193206","13":"100","14":"52.246527064901095","15":"47.753472935098905","16":"109.40885312343384","17":"2812335","18":"1468540","19":"1343795","20":"100","21":"52.217819000936949","22":"47.782180999063058","23":"109.28303796337984","24":"3068282","25":"1593845","26":"1474437","27":"100","28":"51.945844612718126","29":"48.054155387281874","30":"108.09854880201731","31":"3272012","32":"1695083","33":"1576929","34":"100","35":"51.805525163110644","36":"48.194474836889349","37":"107.49266453974782","38":"3518389","39":"1738623","40":"1779766","41":"100","42":"49.415314793219281","43":"50.584685206780719","44":"97.688291606874174","45":"4295567","46":"2169393","47":"2126174","48":"100","49":"50.503065136686267","50":"49.496934863313733","51":"102.03271228036841","52":"4773087","53":"2428833","54":"2344254","55":"100","56":"50.885998935280256","57":"49.114001064719744","58":"103.60792815113038","59":"5039206","60":"2544753","61":"2494453","62":"100","63":"50.49908656244655","64":"49.500913437553457","65":"102.01647415285034","66":"5171800","67":"2583159","68":"2588641","69":"100","70":"49.947001044123901","71":"50.052998955876092","72":"99.788228649704607","73":"5184287","74":"2552806","75":"2631481","76":"100","77":"49.241216776771815","78":"50.758783223228185","79":"97.010238721085202","80":"5338206","81":"2621285","82":"2716921","83":"100","84":"49.104230897046683","85":"50.895769102953317","86":"96.479985984134245","87":"5575989","88":"2737089","89":"2838900","90":"100","91":"49.080556217873472","92":"50.919443782126528","93":"96.413716580365644","94":"5679439","95":"2766296","96":"2913143","97":"100","98":"48.704381249257025","99":"51.295618750742975","100":"94.959155798393695","101":"5643647","102":"2722988","103":"2920659","104":"100","105":"48.229443139139867","106":"51.770556860860125","107":"93.231972647268989","108":"5692321","109":"2736844","110":"2955477","111":"100","112":"48.062997980468722","113":"51.937002019531278","114":"92.602446237950758","115":"5683062","116":"2719389","117":"2963673","118":"100","119":"47.793507502290161","120":"52.206492497709831","121":"91.757390238396752","122":"5627737","123":"2675033","124":"2952704","125":"100","126":"47.531825022465611","127":"52.468174977534389","128":"90.596043490983178","129":"5506419","130":"2603345","131":"2903074","132":"100","133":"47.258969406184463","134":"52.74103059381553","135":"89.675461252451711","136":"5381733","137":"2537089","138":"2844644","139":"100","140":"47.103278085415795","141":"52.896721914584212","142":"89.188278041118679","143":"5224614","144":"2465088","145":"2759526","146":"100","147":"47.084940000000003","148":"52.915059999999997","149":"89.330119999999994"},{"1":"01000_北海道","2":"0～4歳","3":"376676","4":"190044","5":"186632","6":"15.966374800089692","7":"8.0555005694768056","8":"7.910874230612885","9":"101.82819666509495","10":"405607","11":"204576","12":"201031","13":"16.232857441872287","14":"8.1873662043023536","15":"8.0454912375699319","16":"101.76340962339141","17":"445457","18":"224549","19":"220908","20":"15.839400355931993","21":"7.9844328645058287","22":"7.854967491426164","23":"101.64819743965813","24":"462550","25":"234131","26":"228419","27":"15.075211470132146","28":"7.6306871402302665","29":"7.4445243299018804","30":"102.50066763272758","31":"456318","32":"230441","33":"225877","34":"13.946157668800533","35":"7.0428221533142752","36":"6.9033355154862557","37":"102.02056871660238","38":"497219","39":"252253","40":"244966","41":"14.13200757505779","42":"7.1695597047398678","43":"6.9624478703179209","44":"102.97469852959186","45":"663628","46":"338126","47":"325502","48":"15.449431205090928","49":"7.8716605924592908","50":"7.5777706126316344","51":"103.87831718391899","52":"578015","53":"295270","54":"282745","55":"12.110004594558978","56":"6.1862080683640208","57":"5.9237965261949572","58":"104.42978655679144","59":"455213","60":"233417","61":"221796","62":"9.0334270914902071","63":"4.6320194094069578","64":"4.4014076820832493","65":"105.23949935977204","66":"451390","67":"230709","68":"220681","69":"8.7279090452066992","70":"4.4609033605321171","71":"4.2670056846745821","72":"104.54411571453819","73":"438566","74":"224166","75":"214400","76":"8.4595239422508826","77":"4.3239504294418882","78":"4.1355735128089943","79":"104.55503731343283","80":"462080","81":"236947","82":"225133","83":"8.657810747541852","84":"4.4395825034578404","85":"4.2182282440840098","86":"105.24756477282318","87":"407498","88":"208437","89":"199061","90":"7.3108774369785818","91":"3.7395456182153155","92":"3.5713318187632659","93":"104.71011398516032","94":"352073","95":"180019","96":"172054","97":"6.2004605352952309","98":"3.1703672394739506","99":"3.0300932958212807","100":"104.62936054959488","101":"291820","102":"149665","103":"142155","104":"5.1797625388965871","105":"2.6565319730791508","106":"2.5232305658174368","107":"105.28296577679295","108":"260027","109":"132618","110":"127409","111":"4.572733021622561","112":"2.3321682281514642","113":"2.2405647934710964","114":"104.08840819722312","115":"238264","116":"121481","117":"116783","118":"4.211988178488002","119":"2.1475192891536317","120":"2.0644688893343699","121":"104.02284579091135","122":"220680","123":"112055","124":"108625","125":"3.9261224310433382","126":"1.993572815889801","127":"1.9325496151535375","128":"103.15765247410818","129":"200977","130":"102766","131":"98211","132":"3.6557564107204863","133":"1.8693057578931991","134":"1.7864506528272872","135":"104.6379733431082","136":"186010","137":"95022","138":"90988","139":"3.4719636277232215","140":"1.7736300620048169","141":"1.6983335657184049","142":"104.43355167714424","143":"162373","144":"83004","145":"79369","146":"3.1433800000000001","147":"1.6068800000000001","148":"1.53651","149":"104.57987"},{"1":"01000_北海道","2":"5～9歳","3":"319370","4":"161814","5":"157556","6":"13.537313553039338","7":"6.8588998818658835","8":"6.6784136711734527","9":"102.70253116352282","10":"336438","11":"170315","12":"166123","13":"13.46463471298234","14":"6.8162016809682227","15":"6.6484330320141156","16":"102.52343143333553","17":"383080","18":"193478","19":"189602","20":"13.621421345607832","21":"6.8796213822322025","22":"6.7417999633756294","23":"102.04428223330977","24":"417967","25":"210495","26":"207472","27":"13.622183358635223","28":"6.8603537745226806","29":"6.7618295841125429","30":"101.45706408575614","31":"430141","32":"217615","33":"212526","34":"13.146126617436806","35":"6.6508292486731344","36":"6.4952973687636719","37":"102.39453055155604","38":"447774","39":"226133","40":"221641","41":"12.726676896727451","42":"6.4271744824122639","43":"6.2995024143151879","44":"102.02670083603664","45":"524173","46":"266014","47":"258159","48":"12.202882794375954","49":"6.1928746113651894","50":"6.0100081830107666","51":"103.04269849201462","52":"652105","53":"332268","54":"319837","55":"13.662265764962644","56":"6.9613539555633031","57":"6.7009118093993401","58":"103.88666727114125","59":"576230","60":"294325","61":"281905","62":"11.434936376881597","63":"5.8407018883530464","64":"5.5942344885285502","65":"104.40573952217946","66":"446543","67":"228280","68":"218263","69":"8.634189257125179","70":"4.4139371205383044","71":"4.2202521365868755","72":"104.58941735429275","73":"436424","74":"222706","75":"213718","76":"8.4182067852339202","77":"4.2957884083192157","78":"4.1224183769147045","79":"104.20554188229349","80":"427004","81":"218215","82":"208789","83":"8.0006055670952225","84":"4.0886084060657133","85":"3.9119971610295088","86":"104.51460565451245","87":"465277","88":"238711","89":"226566","90":"8.3474842115668864","91":"4.2826881699016788","92":"4.0647960416652094","93":"105.3604689141354","94":"405226","95":"207356","96":"197870","97":"7.1365535581414798","98":"3.6518071387373583","99":"3.4847464194041224","100":"104.7940567038965","101":"345826","102":"176765","103":"169061","104":"6.1383611807842211","105":"3.1375530299090375","106":"3.0008081508751832","107":"104.55693507077326","108":"294029","109":"150901","110":"143128","111":"5.1706788818648066","112":"2.6536859083705386","113":"2.5169929734942675","114":"105.43080319713822","115":"260721","116":"132985","117":"127736","118":"4.6089789892034476","119":"2.3508849340069289","120":"2.2580940551965192","121":"104.10925659172044","122":"238798","123":"122052","124":"116746","125":"4.2484601426875432","126":"2.171429649056106","127":"2.0770304936314372","128":"104.54490946156614","129":"219180","130":"111287","131":"107893","132":"3.9868676022714848","133":"2.0243021026279164","134":"1.9625654996435684","135":"103.14570917483061","136":"202269","137":"103549","138":"98720","139":"3.7754454653833038","140":"1.9327905042046765","141":"1.8426549611786271","142":"104.89161264181523","143":"189483","144":"96778","145":"92705","146":"3.6682000000000001","147":"1.8735299999999999","148":"1.7946800000000001","149":"104.39351000000001"},{"1":"01000_北海道","2":"10～14歳","3":"270012","4":"138018","5":"131994","6":"11.445148595933423","7":"5.8502456146894923","8":"5.5949029812439308","9":"104.56384381108232","10":"300821","11":"153388","12":"147433","13":"12.039201514080041","14":"6.1387637227511016","15":"5.9004377913289385","16":"104.0391228558057","17":"329334","18":"167701","19":"161633","20":"11.710340339966612","21":"5.9630520546094257","22":"5.7472882853571852","23":"103.75418386096899","24":"372110","25":"188761","26":"183349","27":"12.127633639932705","28":"6.1520094958677207","29":"5.9756241440649855","30":"102.9517477597369","31":"401194","32":"202527","33":"198667","34":"12.261437812614801","35":"6.1897042724353746","36":"6.0717335401794257","37":"101.94294976015141","38":"436104","39":"220621","40":"215483","41":"12.394991002984606","42":"6.2705118734739109","43":"6.1244791295106937","44":"102.38441083519349","45":"472030","46":"238681","47":"233349","48":"10.988980289769374","49":"5.5565553133115353","50":"5.4324249764578392","51":"102.28498943642354","52":"520095","53":"263869","54":"256226","55":"10.896521439075373","56":"5.5283250475535803","57":"5.3681963915217921","58":"102.98291352165667","59":"650036","60":"330838","61":"319198","62":"12.899571876998085","63":"6.5652803239240471","64":"6.3342915530740358","65":"103.64663938997111","66":"564190","67":"287232","68":"276958","69":"10.90896786418655","70":"5.5538110522448658","71":"5.3551568119416837","72":"103.70958773532448","73":"434497","74":"221689","75":"212808","76":"8.3810367751631034","77":"4.2761714388111614","78":"4.1048653363519421","79":"104.17324536671553","80":"423527","81":"216154","82":"207373","83":"7.9354583891840313","84":"4.0499922617818589","85":"3.8854661274021733","86":"104.23439888510076","87":"425549","88":"217367","89":"208182","90":"7.6347284708852516","91":"3.8997577800227812","92":"3.7349706908624705","93":"104.41200488034508","94":"460660","95":"236038","96":"224622","97":"8.1128179388623991","98":"4.1569342262258555","99":"3.9558837126365423","100":"105.08231606877332","101":"396605","102":"202723","103":"193882","104":"7.0396810422146556","105":"3.5983037529049855","106":"3.441377289309671","107":"104.55999009706936","108":"344617","109":"176055","110":"168562","111":"6.0602996447003656","112":"3.0960343045982146","113":"2.964265340102151","114":"104.44524863255063","115":"293367","116":"150621","117":"142746","118":"5.1860891110637342","119":"2.6626509730049075","120":"2.5234381380588271","121":"105.51679206422597","122":"259579","123":"132431","124":"127148","125":"4.6181753422503116","126":"2.3560826521003277","127":"2.2620926901499838","128":"104.15500047189103","129":"237155","130":"121300","131":"115855","132":"4.313831491088119","133":"2.2064378143787349","134":"2.1073936767093846","135":"104.69984031763843","136":"220017","137":"111816","138":"108201","139":"4.1067201842953605","140":"2.0870979248293087","141":"2.0196222594660518","142":"103.34100424210497","143":"203948","144":"104728","145":"99220","146":"3.9482300000000001","147":"2.0274299999999998","148":"1.9208000000000001","149":"105.5513"},{"1":"01000_北海道","2":"15～19歳","3":"239092","4":"125670","5":"113422","6":"10.134525384423336","7":"5.3268440811925144","8":"4.8076813032308223","9":"110.79861049884502","10":"252275","11":"131986","12":"120289","13":"10.096334903362937","14":"5.2822311309295831","15":"4.814103772433354","16":"109.72408117117939","17":"296826","18":"154310","19":"142516","20":"10.554432526708233","21":"5.4868996758920972","22":"5.0675328508161366","23":"108.27556204215666","24":"317212","25":"164046","26":"153166","27":"10.3384239127955","28":"5.3465098709962122","29":"4.9919140417992871","30":"107.10340414974601","31":"354389","32":"182608","33":"171781","34":"10.830966278096748","35":"5.5809325066824611","36":"5.2500337714142855","37":"106.30279250906678","38":"398031","39":"200381","40":"197650","41":"11.312876432935642","42":"5.6952485924666094","43":"5.6176278404690327","44":"101.38173539084241","45":"455200","46":"230778","47":"224422","48":"10.597173543848948","49":"5.3725714325623297","50":"5.2246021112866181","51":"102.83216440455926","52":"478640","53":"243826","54":"234814","55":"10.027996849804433","56":"5.1084037270190867","57":"4.9195931227853462","58":"103.83793129881522","59":"508799","60":"254493","61":"254306","62":"10.096808902037345","63":"5.0502599020559984","64":"5.0465489999813462","65":"100.0735334596903","66":"599110","67":"298657","68":"300453","69":"11.584167987934569","70":"5.7747206001778881","71":"5.8094473877566806","72":"99.402235957038215","73":"499412","74":"250272","75":"249140","76":"9.6331858170660691","77":"4.8275105139819612","78":"4.805675303084108","79":"100.45436300875011","80":"397272","81":"201906","82":"195366","83":"7.443528807343851","84":"3.7830331042096281","85":"3.660495703134222","86":"103.3475630355333","87":"410100","88":"209528","89":"200572","90":"7.357559636869178","91":"3.759119130928859","92":"3.5984405059403186","93":"104.46522944379075","94":"412479","95":"209552","96":"202927","97":"7.2642882616333591","98":"3.690481536761371","99":"3.5738067248719876","100":"103.264720810932","101":"443367","102":"226108","103":"217259","104":"7.8696997381363971","105":"4.0133841002838375","106":"3.8563156378525587","107":"104.07301883926559","108":"394609","109":"201737","110":"192872","111":"6.939439384869484","112":"3.547667902114283","113":"3.3917714827552006","114":"104.59631258036417","115":"341843","116":"175008","117":"166835","118":"6.0430391284410323","119":"3.0937599769198378","120":"2.949279151521194","121":"104.89885215931909","122":"292235","123":"150839","124":"141396","125":"5.199158911709036","126":"2.6835797597251498","127":"2.5155791519838857","128":"106.67840674417948","129":"258530","130":"132356","131":"126174","132":"4.7026411224347431","133":"2.407545617146841","134":"2.2950955052879021","135":"104.89958311538035","136":"239098","137":"123196","138":"115902","139":"4.462875971514257","140":"2.2995109460834899","141":"2.1633650254307661","142":"106.29324774378355","143":"221229","144":"113445","145":"107784","146":"4.2827700000000002","147":"2.19618","148":"2.0865900000000002","149":"105.25217000000001"},{"1":"01000_北海道","2":"20～24歳","3":"208337","4":"109351","5":"98986","6":"8.8308961195464697","7":"4.6351215653893743","8":"4.1957745541570963","9":"110.47117774230699","10":"215391","11":"112790","12":"102601","13":"8.6201949109909677","14":"4.5139851897742771","15":"4.1062097212166906","16":"109.93070242980087","17":"248258","18":"132268","19":"115990","20":"8.8274689892918161","21":"4.7031381396597487","22":"4.1243308496320674","23":"114.03396844555564","24":"278229","25":"145037","26":"133192","27":"9.0679083604440525","28":"4.7269775072825775","29":"4.3409308531614759","30":"108.89317676737342","31":"291584","32":"150654","33":"140930","34":"8.911496889668026","35":"4.6043426676911174","36":"4.3071542219769086","37":"106.89987937273824","38":"296266","39":"125878","40":"170388","41":"8.4205015420409737","42":"3.5777169608022312","43":"4.8427845812387433","44":"73.877268352231368","45":"414482","46":"212766","47":"201716","48":"9.6492479894586989","49":"4.9532474214203983","50":"4.6960005680383006","51":"105.47799877054868","52":"477693","53":"253023","54":"224670","55":"10.008156232604106","56":"5.3010902701990368","57":"4.7070659624050677","58":"112.61984243557217","59":"466201","60":"234547","61":"231654","62":"9.2514773160692378","63":"4.6544435770238408","64":"4.597033739045397","65":"101.24884526060418","66":"451306","67":"213227","68":"238079","69":"8.7262848524691599","70":"4.1228779148458949","71":"4.6034069376232649","72":"89.561448090759782","73":"514232","74":"238736","75":"275496","76":"9.9190496205167644","77":"4.6049919690017163","78":"5.3140576515150491","79":"86.656793565060838","80":"443148","81":"209711","82":"233437","83":"8.3030893290159202","84":"3.9292723114563479","85":"4.3738170175595714","86":"89.836229903571422","87":"376820","88":"185415","89":"191405","90":"6.7604867650939857","91":"3.3265104122655416","92":"3.4339763528284446","93":"96.870510174760327","94":"376187","95":"183074","96":"193113","97":"6.6251392392802266","98":"3.2241697376357723","99":"3.4009695016444548","100":"94.801489283476513","101":"364934","102":"176755","103":"188179","104":"6.47752540048553","105":"3.1373755313640816","106":"3.3401498691214475","107":"93.929184446723596","108":"415477","109":"207782","110":"207695","111":"7.3064158630629779","112":"3.6539729055012709","113":"3.6524429575617057","114":"100.04188834589181","115":"358051","116":"179696","117":"178355","118":"6.3295612400354546","119":"3.1766335985359939","120":"3.1529276414994611","121":"100.7518712679768","122":"314753","123":"159089","124":"155664","125":"5.5997771140936372","126":"2.8303556798633935","127":"2.7694214342302437","128":"102.20025182444239","129":"264185","130":"133097","131":"131088","132":"4.8055051442015344","133":"2.4210243510335241","134":"2.3844807931680099","135":"101.53255828145977","136":"234274","137":"117965","138":"116309","139":"4.3728337558261918","140":"2.2018718850834356","141":"2.1709618707427567","142":"101.42379351554909","143":"220409","144":"112616","145":"107793","146":"4.2668999999999997","147":"2.1801300000000001","148":"2.08677","149":"104.47432000000001"},{"1":"01000_北海道","2":"25～29歳","3":"175257","4":"96638","5":"78619","6":"7.4287157884742303","7":"4.096248574188607","8":"3.3324672142856233","9":"122.91939607474021","10":"186159","11":"99237","12":"86922","13":"7.450296736795722","14":"3.9715785821227936","15":"3.4787181546729293","16":"114.16787464623455","17":"214713","18":"116156","19":"98557","20":"7.6346879016902323","21":"4.1302334181383085","22":"3.5044544835519242","23":"117.85667177369442","24":"234977","25":"126338","26":"108639","27":"7.6582595732725993","28":"4.1175485173787809","29":"3.5407110558938193","30":"116.2915711668922","31":"259621","32":"138081","33":"121540","34":"7.9346319893838571","35":"4.2200820416149396","36":"3.7145499477689166","37":"113.60951127200923","38":"251138","39":"113300","40":"137838","41":"7.1378690645065106","42":"3.2202238012908753","43":"3.9176452632156362","44":"82.1979425122245","45":"334066","46":"160615","47":"173451","48":"7.7771427440673166","49":"3.7391586747480199","50":"4.0379840693192968","51":"92.599639091155424","52":"417087","53":"217471","54":"199616","55":"8.7383986338258008","56":"4.5562395598441832","57":"4.1821590739816177","58":"108.94467377364541","59":"456601","60":"236265","61":"220336","62":"9.0609711133063424","63":"4.6885362495599505","64":"4.3724348637463919","65":"107.22941325974875","66":"443552","67":"218388","68":"225164","69":"8.576356394292123","70":"4.2226690900653541","71":"4.3536873042267681","72":"96.990637935016252","73":"432539","74":"204712","75":"227827","76":"8.3432688043698207","77":"3.9487011425100498","78":"4.39456766185977","79":"89.854143714309544","80":"515030","81":"246916","82":"268114","83":"9.6499140177165845","84":"4.626367725372325","85":"5.0235462923442604","86":"92.093661651387094","87":"460048","88":"223093","89":"236955","90":"8.2536712894962001","91":"4.0024873252086213","92":"4.2511839642875788","93":"94.1499440822097","94":"372732","95":"181763","96":"190969","97":"6.5642922241741415","98":"3.2010813333509449","99":"3.3632108908231957","100":"95.179322298383511","101":"355206","102":"169103","103":"186103","104":"6.3048548159526456","105":"3.0015536447639968","106":"3.3033011711886493","107":"90.86527353132405","108":"359523","109":"172479","110":"187044","111":"6.322430725012433","112":"3.0331481685995594","113":"3.2892825564128736","114":"92.2130621671906","115":"398170","116":"195963","117":"202207","118":"7.0387777130769562","119":"3.4641987015287423","120":"3.574579011548213","121":"96.912075249620429","122":"343983","123":"169948","124":"174035","125":"6.1198086468985888","126":"3.0235483728065673","127":"3.096260274092022","128":"97.651621800212595","129":"289677","130":"142807","131":"146870","132":"5.2692026937822654","133":"2.5976485157294644","134":"2.6715541780528014","135":"97.233607952611152","136":"247587","137":"123076","138":"124511","139":"4.6213271259454292","140":"2.2972710899718471","141":"2.3240560359735825","142":"98.847491386303219","143":"224130","144":"112587","145":"111543","146":"4.3389300000000004","147":"2.17957","148":"2.1593599999999999","149":"100.93595999999999"},{"1":"01000_北海道","2":"30～34歳","3":"157450","4":"86287","5":"71163","6":"6.673920590306051","7":"3.6574949887312682","8":"3.0164256015747823","9":"121.25261723086436","10":"152114","11":"83238","12":"68876","13":"6.0877767812512129","14":"3.3312802484832988","15":"2.7564965327679145","16":"120.85196585167549","17":"180075","18":"97392","19":"82683","20":"6.4030423118156268","21":"3.4630298310834235","22":"2.9400124807322028","23":"117.78963027466347","24":"201819","25":"108882","26":"92937","27":"6.5775896739608681","28":"3.5486307972995963","29":"3.0289588766612718","30":"117.15678362761869","31":"220332","32":"119732","33":"100600","34":"6.7338671967403396","35":"3.6592931902770109","36":"3.0745740064633291","37":"119.01789264413519","38":"226494","39":"106578","40":"119916","41":"6.437434860102166","42":"3.0291704527270862","43":"3.4082644073750799","44":"88.87721404983489","45":"276842","46":"133284","47":"143558","48":"6.4449532474214202","49":"3.1028859372108157","50":"3.3420673102106049","51":"92.84331071761936","52":"331041","53":"160057","54":"170984","55":"6.9356470523903342","56":"3.3533576211539948","57":"3.5822894312363385","58":"93.609343564310109","59":"406635","60":"210205","61":"196430","62":"8.0694260167177134","63":"4.1713912866431739","64":"3.898034730074539","65":"107.0126762714453","66":"444456","67":"229144","68":"215312","69":"8.5938358018484866","70":"4.4306431029815538","71":"4.1631926988669319","72":"106.42416586163334","73":"422693","74":"206700","75":"215993","76":"8.1533487632918469","77":"3.9870477849702377","78":"4.1663009783216092","79":"95.69754575379757","80":"426829","81":"205196","82":"221633","83":"7.9973266611031431","84":"3.8446765368607116","85":"4.1526501242424327","86":"92.583685642481043","87":"520637","88":"252957","89":"267680","90":"9.3406919694236983","91":"4.5382741113472731","92":"4.8024178580764243","93":"94.499775851763303","94":"455435","95":"221540","96":"233895","97":"8.0207989362779415","98":"3.9016057095809833","99":"4.1191932266969582","100":"94.717715214091797","101":"361257","102":"175788","103":"185469","104":"6.4122591855053273","105":"3.1202114220668675","106":"3.2920477634384588","107":"94.780259773870569","108":"359859","109":"173236","110":"186623","111":"6.3283394894686831","112":"3.0464604742346215","113":"3.2818790152340607","114":"92.826714820788439","115":"358152","116":"172198","117":"185954","118":"6.3313466998868266","119":"3.044085301847014","120":"3.2872613980398127","121":"92.602471578992663","122":"398071","123":"196201","124":"201870","125":"7.0820893703455363","126":"3.4906160372173916","127":"3.5914733331281439","128":"97.191757071382582","129":"338063","130":"166953","131":"171110","132":"6.1493403696811066","133":"3.0368624272380291","134":"3.1124779424430775","135":"97.570568640056095","136":"287674","137":"141876","138":"145798","139":"5.3695697255075006","140":"2.6481818807959776","141":"2.7213878447115225","142":"97.309976817240297","143":"247463","144":"124006","145":"123457","146":"4.7906399999999998","147":"2.40063","148":"2.3900100000000002","149":"100.44468999999999"},{"1":"01000_北海道","2":"35～39歳","3":"143281","4":"78926","5":"64355","6":"6.0733313185115358","7":"3.3454801937789478","8":"2.7278511247325872","9":"122.64159738948021","10":"139774","11":"76040","12":"63734","13":"5.5939158251219947","14":"3.0432080311236458","15":"2.5507077939983485","16":"119.30837543540341","17":"148585","18":"81969","19":"66616","20":"5.2833321777099806","21":"2.9146243246270447","22":"2.3687078530829364","23":"123.04701573195629","24":"169407","25":"91739","26":"77668","27":"5.5212330548495867","28":"2.9899142256155073","29":"2.5313188292340794","30":"118.11685636298088","31":"190365","32":"103303","33":"87062","34":"5.8180047787315274","35":"3.1571840814083623","36":"2.6608206973231647","37":"118.65452206473547","38":"205518","39":"104367","40":"101151","41":"5.8412529143309628","42":"2.9663291921387884","43":"2.874923722192174","44":"103.17940504789868","45":"249904","46":"125239","47":"124665","48":"5.8178296513664929","49":"2.915596259793714","50":"2.9022333915727794","51":"100.46043396302089","52":"272037","53":"131605","54":"140432","55":"5.6994529897840724","56":"2.7572591622482707","57":"2.9421938275358017","58":"93.714395579355141","59":"325295","60":"156892","61":"168403","62":"6.4552828362245958","63":"3.1134269962371057","64":"3.34185583998749","65":"93.164611081750323","66":"395352","67":"204354","68":"190998","69":"7.6443791329904478","70":"3.9513128891295102","71":"3.6930662438609381","72":"106.99274337951184","73":"420657","74":"214338","75":"206319","76":"8.114076246164613","77":"4.1343775913640588","78":"3.9796986548005542","79":"103.88669972227473","80":"408639","81":"200120","82":"208519","83":"7.6565078039836267","84":"3.7495695264847542","85":"3.9069382774988735","86":"95.972069691490944","87":"424505","88":"204233","89":"220272","90":"7.6159981800759589","91":"3.6641221100139059","92":"3.9518760700620521","93":"92.718547977046555","94":"511932","95":"247804","96":"264128","97":"9.0157841207782425","98":"4.3641486921414003","99":"4.6516354286368422","100":"93.819663193603091","101":"442849","102":"214554","103":"228295","104":"7.8605053135076925","105":"3.8083022814420477","106":"4.0522030320656448","107":"93.981033312161898","108":"362359","109":"177080","110":"185279","111":"6.3723035107205384","112":"3.1140595533114759","113":"3.2582439574090634","114":"95.574781815532248","115":"357383","116":"172185","117":"185198","118":"6.3177524560679652","119":"3.0438554901829762","120":"3.273896965884989","121":"92.973466236136446","122":"357532","123":"172188","124":"185344","125":"6.3608591853171417","126":"3.0634002590016784","127":"3.2974589263154637","128":"92.901847375690608","129":"393511","130":"194191","131":"199320","132":"7.1579352907995917","133":"3.5323195846003372","134":"3.6256157061992536","135":"97.426750953241012","136":"337369","137":"166514","138":"170855","139":"6.2971501377418182","140":"3.1080616714515594","141":"3.1890884662902588","142":"97.459249070849552","143":"287154","144":"142111","145":"145043","146":"5.5590200000000003","147":"2.7511299999999999","148":"2.80789","149":"97.978530000000006"},{"1":"01000_北海道","2":"40～44歳","3":"127242","4":"70818","5":"56424","6":"5.3934773182071929","7":"3.0018018949780494","8":"2.3916754232291435","9":"125.51042109740536","10":"126620","11":"68948","12":"57672","13":"5.0674776551930041","14":"2.7593780553644547","15":"2.3080995998285494","16":"119.55194895269801","17":"132094","18":"71915","19":"60179","20":"4.6969511100206764","21":"2.5571277959418062","22":"2.1398233140788703","23":"119.50181957161136","24":"136412","25":"75205","26":"61207","27":"4.4458755746701248","28":"2.4510458947384888","29":"1.9948296799316361","30":"122.86993317757774","31":"156820","32":"84964","33":"71856","34":"4.7927902156419417","35":"2.5967008537291281","36":"2.1960893619128128","37":"118.2420396348252","38":"180418","39":"94652","40":"85766","41":"5.127858232844634","42":"2.6902085016750563","43":"2.4376497311695777","44":"110.3607490147611","45":"212512","46":"110617","47":"101895","48":"4.9473342358313435","49":"2.5751923240332584","50":"2.372141911798086","51":"108.5597919426861","52":"244333","53":"123275","54":"121058","55":"5.1190258948338343","56":"2.5827371545621793","57":"2.536288740271655","58":"101.83135356605924","59":"265390","60":"128209","61":"137181","62":"5.2665042865880061","63":"2.5442301822945916","64":"2.7222741042934144","65":"93.459735677681309","66":"314889","67":"151735","68":"163154","69":"6.0885765110793146","70":"2.9338914884566303","71":"3.1546850226226844","72":"93.001090993785013","73":"373007","74":"190592","75":"182415","76":"7.1949527485650391","77":"3.676339677953786","78":"3.5186130706112526","79":"104.48263574815668","80":"404726","81":"205156","82":"199570","83":"7.5831914660007422","84":"3.8439270726339507","85":"3.7392643933667915","86":"102.7990178884602","87":"401796","88":"196248","89":"205548","90":"7.2085784731906566","91":"3.5208640907493356","92":"3.6877143824413214","93":"95.475509370074136","94":"414669","95":"198446","96":"216223","97":"7.3028569919032087","98":"3.4948905238038632","99":"3.8079664680993455","100":"91.778395452842659","101":"495423","102":"238040","103":"257383","104":"8.7936861637576733","105":"4.2251753641249525","106":"4.5685107996327199","107":"92.484740639436168","108":"441130","109":"214022","110":"227108","111":"7.7575394779325233","112":"3.7637071025459039","113":"3.9938323753866198","114":"94.237983690578929","115":"358952","116":"174914","117":"184038","118":"6.3454889561353172","119":"3.0920982618106403","120":"3.2533906943246773","121":"95.04232821482519","122":"354700","123":"170573","124":"184127","125":"6.3104750149133233","126":"3.0346677606958283","127":"3.275807254217495","128":"92.638776496657186","129":"354218","130":"170760","131":"183458","132":"6.4431985963199239","133":"3.1061114689473439","134":"3.3370871273725804","135":"93.078524784964415","136":"391243","137":"193093","138":"198150","139":"7.3027335390641168","140":"3.6041711347129723","141":"3.6985624043511445","142":"97.447893010345695","143":"336549","144":"166377","145":"170172","146":"6.51525","147":"3.2208899999999998","148":"3.2943600000000002","149":"97.769900000000007"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="tidy-dataへの変換" class="level3">
+<h3 class="anchored" data-anchor-id="tidy-dataへの変換">③tidy dataへの変換</h3>
+<p>最後に，データを整形し，tidy data（整然データ）に変換しましょう． tidy dataは通常，縦長のデータになることが多いため，tidyrの<code>pivot_longer()</code>関数が便利です． <code>pivot_longer()</code>関数では，<code>names_sep</code>引数を用いることで，列名に含まれる複数の情報を列方向に展開することができます．</p>
+<p>今回のExcelファイルでは，軸（次元）にあたる地域・年齢階級以外の西暦・性別が列名に含まれているため，<code>names_sep = "/"</code>引数を使ってこれらを展開します． さらに，西暦・性別は，それぞれ<code>"/"</code>で区切られた部分の1・2番目に格納されているため，<code>names_to</code>引数の1・2番目にそれぞれ<code>"year"</code>・<code>"sex"</code>を指定します．</p>
+<p>さらに，<code>"/"</code>で区切られた部分の3番目にあたる<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>・<code>人口性比</code>は観測値にあたるため， 今回のケースでは，これらを列方向に展開せず列名として残しておきたいです． これは，<code>pivot_longer()</code>関数の<code>names_to</code>引数の3番目に<code>".value"</code>を指定することで実現できます．</p>
+<p>したがって，以下のようなコードにより，データを縦長データに変換することができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb11-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_longer</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(region, age_class),</span>
+<span id="cb11-3">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_to =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"year"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sex"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".value"</span>),</span>
+<span id="cb11-4">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/"</span>,</span>
+<span id="cb11-5">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_transform =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sex =</span> \(x) x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb11-6">                                        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">na_if</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NA"</span>))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span>   </span>
+<span id="cb11-7">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 人口・人口割合・人口性比の列を数値に変換</span></span>
+<span id="cb11-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">人口（人）</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">年齢，男女別割合（％）</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, 人口性比),</span>
+<span id="cb11-9">                \(x) {</span>
+<span id="cb11-10">                  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">parse_number</span>(x, </span>
+<span id="cb11-11">                               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-"</span>)</span>
+<span id="cb11-12">                }))</span>
+<span id="cb11-13"></span>
+<span id="cb11-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data,</span>
+<span id="cb11-15">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["year"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["人口性比"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"01000_北海道","2":"総数","3":"1920","4":"総数","5":"2359183","6":"100.00000","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1920","4":"男","5":"1244322","6":"52.74377","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1920","4":"女","5":"1114861","6":"47.25623","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1920","4":"NA","5":"NA","6":"NA","7":"111.6123"},{"1":"01000_北海道","2":"総数","3":"1925","4":"総数","5":"2498679","6":"100.00000","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1925","4":"男","5":"1305473","6":"52.24653","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1925","4":"女","5":"1193206","6":"47.75347","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1925","4":"NA","5":"NA","6":"NA","7":"109.4089"},{"1":"01000_北海道","2":"総数","3":"1930","4":"総数","5":"2812335","6":"100.00000","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1930","4":"男","5":"1468540","6":"52.21782","7":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><code>data</code>を見ると，<code>人口性比</code>の性別<code>sex</code>の列が常に<code>NA</code>となっていることがわかります． そこで，以下のコードでは，<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>を含む<code>data_population</code>と<code>人口性比</code>を含む<code>data_sex_ratio</code>に<code>data</code>を分割しています． こうすることで，各データの意味がさらに明確になります． これらのデータは，tidy dataの原則に従ったデータ形式であるため，データ分析に適した形式になっています．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">data_population <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb12-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">drop_na</span>(sex) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb12-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>人口性比)</span>
+<span id="cb12-4"></span>
+<span id="cb12-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data_population,</span>
+<span id="cb12-6">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["year"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"01000_北海道","2":"総数","3":"1920","4":"総数","5":"2359183","6":"100.00000"},{"1":"01000_北海道","2":"総数","3":"1920","4":"男","5":"1244322","6":"52.74377"},{"1":"01000_北海道","2":"総数","3":"1920","4":"女","5":"1114861","6":"47.25623"},{"1":"01000_北海道","2":"総数","3":"1925","4":"総数","5":"2498679","6":"100.00000"},{"1":"01000_北海道","2":"総数","3":"1925","4":"男","5":"1305473","6":"52.24653"},{"1":"01000_北海道","2":"総数","3":"1925","4":"女","5":"1193206","6":"47.75347"},{"1":"01000_北海道","2":"総数","3":"1930","4":"総数","5":"2812335","6":"100.00000"},{"1":"01000_北海道","2":"総数","3":"1930","4":"男","5":"1468540","6":"52.21782"},{"1":"01000_北海道","2":"総数","3":"1930","4":"女","5":"1343795","6":"47.78218"},{"1":"01000_北海道","2":"総数","3":"1935","4":"総数","5":"3068282","6":"100.00000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">data_sex_ratio <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb13-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(sex)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb13-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(sex, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">人口（人）</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">年齢，男女別割合（％）</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>))</span>
+<span id="cb13-4"></span>
+<span id="cb13-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data_sex_ratio,</span>
+<span id="cb13-6">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["year"],"name":[3],"type":["chr"],"align":["left"]},{"label":["人口性比"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"01000_北海道","2":"総数","3":"1920","4":"111.61230"},{"1":"01000_北海道","2":"総数","3":"1925","4":"109.40885"},{"1":"01000_北海道","2":"総数","3":"1930","4":"109.28304"},{"1":"01000_北海道","2":"総数","3":"1935","4":"108.09855"},{"1":"01000_北海道","2":"総数","3":"1940","4":"107.49266"},{"1":"01000_北海道","2":"総数","3":"1945","4":"97.68829"},{"1":"01000_北海道","2":"総数","3":"1950","4":"102.03271"},{"1":"01000_北海道","2":"総数","3":"1955","4":"103.60793"},{"1":"01000_北海道","2":"総数","3":"1960","4":"102.01647"},{"1":"01000_北海道","2":"総数","3":"1965","4":"99.78823"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>この記事では，Excelファイルを整形する際のTipsを紹介しました． 人が見ることを前提に作成されることの多いExcelファイルをRで整形する際には， 列名の読み込みや整形，データの整形など，いくつかのステップを踏む必要があります．</p>
+<p>この記事で紹介したデータ整形の流れは，私自身のこれまでの経験をもとにまとめたものですが， さらに効率的なデータ整形の方法があるかもしれません． 改善点や追加すべき内容があれば，コメント等をいただけると幸いです．</p>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+
+<ol>
+<li id="fn1"><p>この事例は，Wikipedia日本語版の<a href="https://ja.wikipedia.org/wiki/Tidy_data">Tidy data</a>のページでも用いられています．↩︎</p></li>
+<li id="fn2"><p><a href="https://docs.ropensci.org/writexl/">writexl</a>パッケージも便利です．↩︎</p></li>
+<li id="fn3"><p><a href="https://readxl.tidyverse.org/reference/cell-specification.html">cellranger</a>を使うことで，セルの範囲を詳細に指定することもできます．↩︎</p></li>
+</ol>
+</section></div> ]]></description>
+  <category>Japanese</category>
+  <category>R</category>
+  <category>Excel</category>
+  <category>Tidy Data</category>
+  <category>Data Wrangling</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html</guid>
+  <pubDate>Sun, 22 Dec 2024 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>R ggraphで全国の市町村合併を可視化する</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html</link>

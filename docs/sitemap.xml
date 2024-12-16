@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html</loc>
+    <lastmod>2024-12-16T16:18:35.556Z</lastmod>
+  </url>
+  <url>
     <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html</loc>
     <lastmod>2024-12-10T00:34:32.425Z</lastmod>
   </url>
