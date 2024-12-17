@@ -391,23 +391,23 @@ data2 <- cells |>
   # 説明部分にあたる最初の10行を除外
   filter(row > 10) |>
   
-  # 1列目の列は地域を表す (データから見てleft側)
+  # 1列目は地域を表す (データから見てleft側)
   behead("left", region) |> 
   
-  # 2列目の列は年齢階級を表す (データから見てleft側)
+  # 2列目は年齢階級を表す (データから見てleft側)
   behead("left", age_class) |> 
   
-  # 1行目の行は西暦を表す (データから見てup-left側)
+  # 1行目は西暦を表す (データから見てup-left側)
   filter(row != 10 + 1 | str_detect(character, "^\\d+年$")) |> # 和暦を削除
   behead("up-left", year) |> 
   
-  # 2行目の行は値の種別を表す (データから見てup-left側)
+  # 2行目は値の種別を表す (データから見てup-left側)
   behead("up-left", value_type) |> 
   
-  # 3行目の行は性別を表す (データから見てup側)
+  # 3行目は性別を表す (データから見てup側)
   behead("up", sex) |>
   
-  # 5行目の行は単位を表す (データから見てup側)
+  # 5行目は単位を表す (データから見てup側)
   behead("up", .) |> # 4行目の空白の行に適当な名前を付与 (後で削除)
   behead("up", value_unit) |> 
   

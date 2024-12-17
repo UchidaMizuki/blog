@@ -561,23 +561,23 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 説明部分にあたる最初の10行を除外</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row <span class="sc">&gt;</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1列目の列は地域を表す (データから見てleft側)</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1列目は地域を表す (データから見てleft側)</span></span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"left"</span>, region) <span class="sc">|&gt;</span> </span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2列目の列は年齢階級を表す (データから見てleft側)</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2列目は年齢階級を表す (データから見てleft側)</span></span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"left"</span>, age_class) <span class="sc">|&gt;</span> </span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1行目の行は西暦を表す (データから見てup-left側)</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1行目は西暦を表す (データから見てup-left側)</span></span>
 <span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row <span class="sc">!=</span> <span class="dv">10</span> <span class="sc">+</span> <span class="dv">1</span> <span class="sc">|</span> <span class="fu">str_detect</span>(character, <span class="st">"^</span><span class="sc">\\</span><span class="st">d+年$"</span>)) <span class="sc">|&gt;</span> <span class="co"># 和暦を削除</span></span>
 <span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"up-left"</span>, year) <span class="sc">|&gt;</span> </span>
 <span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2行目の行は値の種別を表す (データから見てup-left側)</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2行目は値の種別を表す (データから見てup-left側)</span></span>
 <span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"up-left"</span>, value_type) <span class="sc">|&gt;</span> </span>
 <span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3行目の行は性別を表す (データから見てup側)</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3行目は性別を表す (データから見てup側)</span></span>
 <span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"up"</span>, sex) <span class="sc">|&gt;</span></span>
 <span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 5行目の行は単位を表す (データから見てup側)</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 5行目は単位を表す (データから見てup側)</span></span>
 <span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"up"</span>, .) <span class="sc">|&gt;</span> <span class="co"># 4行目の空白の行に適当な名前を付与 (後で削除)</span></span>
 <span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">behead</span>(<span class="st">"up"</span>, value_unit) <span class="sc">|&gt;</span> </span>
 <span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  </span>
