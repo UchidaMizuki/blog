@@ -23,6 +23,16 @@
 <p>この記事は<a href="https://qiita.com/advent-calendar/2024/rlang">R言語 Advent Calendar 2024</a>の23日目の記事です．</p>
 <p>データ分析において，面倒だけれどもやらなくては始まらないのがデータの前処理です．最近では，機械判読しやすいデータ作成を心掛けることが重視されるようになってきていますが， 人と機械の両方にとって読みやすいデータ形式を作成することはそもそも容易ではありません．</p>
 <p>そこで，この記事では，人が見ることを前提に作成されることの多いExcelファイルを Rで整形する際のTipsを紹介します．この記事では，主にExcelファイル向けのTipsを紹介しますが，CSVファイル等のデータ形式にも応用できると思います．</p>
+<p>Excelファイルを整形するアプローチには主に以下の2つがあります． この記事では，Excelファイルのテーブル構造の読み解き方を紹介した後に， 以下の2つのアプローチによるデータ整形の方法を紹介します．</p>
+<ol type="1">
+<li><a href="https://readxl.tidyverse.org">readxl</a>パッケージを使う方法</li>
+<li><a href="https://nacnudus.github.io/tidyxl/">tidyxl</a>パッケージと<a href="https://nacnudus.github.io/unpivotr/">unpivotr</a>パッケージを使う方法</li>
+</ol>
+<p>また，Excelファイルのデータ整形については，すでにいくつかの日本語記事がありますので， 以下の記事も参考になると思います．</p>
+<ul>
+<li><a href="https://bunseki-data.com/r-onlinecourse/2023/11/09/%E7%A5%9Eexcel%E3%82%92r%E3%81%A7tidy%E5%8C%96%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86/">神ExcelをRでtidy化してみよう</a></li>
+<li><a href="https://y-mattu.hatenablog.com/entry/read_dark-excel">闇のExcelに対する防衛術</a></li>
+</ul>
 <section id="excelファイルを整形する前に" class="level2">
 <h2 class="anchored" data-anchor-id="excelファイルを整形する前に">Excelファイルを整形する前に</h2>
 <p>本題に入る前に，一点注意しておきたいことがあります． それは，分析に使用したいデータがさらに機械判読に適したデータ形式で提供されていないかを確認することです．</p>
@@ -201,18 +211,18 @@ font-style: inherit;">limits =</span> rev) </span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r_files/figure-html/weather-forecast-plot-1.png" class="img-fluid figure-img" width="4800"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r_files/figure-html/weather-forecast-plot-1.png" class="img-fluid figure-img" width="4000"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="excelファイルのデータ構造を読み解く" class="level2">
-<h2 class="anchored" data-anchor-id="excelファイルのデータ構造を読み解く">Excelファイルのデータ構造を読み解く</h2>
-<p>このような「人と機械の溝」を踏まえて，実際のExcelファイルのデータ構造を読み解いてみましょう．</p>
-<p>「地域・日付別の天気」のようなシンプルな事例であれば，データ構造はそこまで難しくなりませんが，たとえば，「地域・西暦・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に，e-Statに公開されている<a href="https://www.e-stat.go.jp/stat-search/files?page=1&amp;layout=datalist&amp;toukei=00200521&amp;tstat=000001011777&amp;cycle=0&amp;tclass1=000001011778&amp;stat_infid=000001085927&amp;tclass2val=0">こちらのExcelファイル</a>を見てみましょう． 以下の画像はExcelファイルの上部を一部抜粋したものです．</p>
+<section id="excelファイルのテーブル構造を読み解く" class="level2">
+<h2 class="anchored" data-anchor-id="excelファイルのテーブル構造を読み解く">Excelファイルのテーブル構造を読み解く</h2>
+<p>このような「人と機械の溝」を踏まえて，実際のExcelファイルのテーブル構造を読み解いてみましょう．</p>
+<p>「地域・日付別の天気」のようなシンプルな事例であれば，テーブル構造はそこまで難しくなりませんが，たとえば，「西暦・地域・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に，e-Statに公開されている<a href="https://www.e-stat.go.jp/stat-search/files?page=1&amp;layout=datalist&amp;toukei=00200521&amp;tstat=000001011777&amp;cycle=0&amp;tclass1=000001011778&amp;stat_infid=000001085927&amp;tclass2val=0">こちらのExcelファイル</a>を見てみましょう． 以下の画像はExcelファイルの上部を一部抜粋したものです．</p>
 <p><img src="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-tidying-excel-file-with-r/population_by_year_sex_age_class.png" class="img-fluid"></p>
-<p>データ上部の説明を無視すると，以下のようなデータ形式であることがわかります．そのため，データの軸（次元）にあたる地域・西暦・性別・年齢を水色（<span style="color:#a6cee3;">■</span>），観測値の種別・単位にあたる人口・人口割合・人口性比を青色（<span style="color:#1f78b4;">■</span>）で塗りつぶすと以下の図のようになります．データ形式の詳細をまとめると以下のようになります．</p>
+<p>データ上部の説明を無視すると，以下のようなデータ形式であることがわかります．そのため，データの軸（次元）にあたる西暦・地域・性別・年齢を水色（<span style="color:#a6cee3;">■</span>），観測値の種別・単位にあたる人口・人口割合・人口性比を青色（<span style="color:#1f78b4;">■</span>）で塗りつぶすと以下の図のようになります．データ形式の詳細をまとめると以下のようになります．</p>
 <ul>
 <li>1・2列目に，それぞれ地域・年齢階級の軸（次元）の情報が格納されている</li>
 <li>3列目以降の列名にあたる部分には，軸（次元）と観測値の情報が混在している
@@ -228,30 +238,30 @@ font-style: inherit;">limits =</span> rev) </span></code></pre></div>
 <li>列名の反復を避けるために一部の列名が省略 or セルが結合されていることが多い</li>
 </ul>
 </section>
-<section id="excelファイルを整形してみよう" class="level2">
-<h2 class="anchored" data-anchor-id="excelファイルを整形してみよう">Excelファイルを整形してみよう</h2>
-<p>それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「地域・西暦・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．</p>
-<p>Excelファイルを読み込むのに役立つパッケージとして，<a href="https://readxl.tidyverse.org">readxl</a>パッケージがあります<sup>2</sup>． そのため，事前にtidyverseパッケージとreadxlパッケージをロードしておきます．</p>
+<section id="readxlでexcelファイルを整形してみよう" class="level2">
+<h2 class="anchored" data-anchor-id="readxlでexcelファイルを整形してみよう">readxlでExcelファイルを整形してみよう</h2>
+<p>それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「西暦・地域・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．</p>
+<p>Excelファイルを読み込むのに役立つパッケージとして，<a href="https://readxl.tidyverse.org">readxl</a>パッケージがあります<sup>2</sup>． ここでは，readxlパッケージを使ってExcelファイルを整形するため， 事前に，readxlパッケージとtidyverseパッケージをロードしておきます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 必要に応じてパッケージのインストールしてください</span></span>
+font-style: inherit;"># 必要に応じてパッケージをインストールしてください</span></span>
 <span id="cb4-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># install.packages("pak")</span></span>
 <span id="cb4-3"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># pak::pak("tidyverse")</span></span>
+font-style: inherit;"># pak::pak("readxl")</span></span>
 <span id="cb4-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># pak::pak("readxl")</span></span>
+font-style: inherit;"># pak::pak("tidyverse")</span></span>
 <span id="cb4-5"></span>
 <span id="cb4-6"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span>
+font-style: inherit;">library</span>(readxl)</span>
 <span id="cb4-7"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(readxl)</span></code></pre></div>
+font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
 </div>
 <div class="cell">
 <details class="code-fold">
@@ -413,8 +423,7 @@ font-style: inherit;">2</span>) </span>
 <span id="cb6-19"></span>
 <span id="cb6-20"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">head</span>(data_col_names,</span>
-<span id="cb6-21">     <span class="at" style="color: #657422;
+font-style: inherit;">head</span>(data_col_names, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -497,8 +506,7 @@ font-style: inherit;">fill</span>(year, value_type)</span>
 <span id="cb7-14"></span>
 <span id="cb7-15"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">head</span>(data_col_names,</span>
-<span id="cb7-16">     <span class="at" style="color: #657422;
+font-style: inherit;">head</span>(data_col_names, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -566,8 +574,7 @@ font-style: inherit;">"age_class"</span>, col_names)</span>
 <span id="cb8-8"></span>
 <span id="cb8-9"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">head</span>(col_names,</span>
-<span id="cb8-10">     <span class="at" style="color: #657422;
+font-style: inherit;">head</span>(col_names, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -630,8 +637,7 @@ font-style: inherit;">vec_unique_loc</span>(col_names)))</span>
 <span id="cb10-10"></span>
 <span id="cb10-11"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">head</span>(data,</span>
-<span id="cb10-12">     <span class="at" style="color: #657422;
+font-style: inherit;">head</span>(data, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -727,12 +733,16 @@ background-color: null;
 font-style: inherit;">na =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"-"</span>)</span>
-<span id="cb11-12">                }))</span>
-<span id="cb11-13"></span>
-<span id="cb11-14"><span class="fu" style="color: #4758AB;
+<span id="cb11-12">                })) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">head</span>(data,</span>
-<span id="cb11-15">     <span class="at" style="color: #657422;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb11-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">relocate</span>(year, region, sex, age_class)</span>
+<span id="cb11-14"></span>
+<span id="cb11-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -740,12 +750,12 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["year"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["人口性比"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"01000_北海道","2":"総数","3":"1920","4":"総数","5":"2359183","6":"100.00000","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1920","4":"男","5":"1244322","6":"52.74377","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1920","4":"女","5":"1114861","6":"47.25623","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1920","4":"NA","5":"NA","6":"NA","7":"111.6123"},{"1":"01000_北海道","2":"総数","3":"1925","4":"総数","5":"2498679","6":"100.00000","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1925","4":"男","5":"1305473","6":"52.24653","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1925","4":"女","5":"1193206","6":"47.75347","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1925","4":"NA","5":"NA","6":"NA","7":"109.4089"},{"1":"01000_北海道","2":"総数","3":"1930","4":"総数","5":"2812335","6":"100.00000","7":"NA"},{"1":"01000_北海道","2":"総数","3":"1930","4":"男","5":"1468540","6":"52.21782","7":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["region"],"name":[2],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["人口性比"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"1920","2":"01000_北海道","3":"総数","4":"総数","5":"2359183","6":"100.00000","7":"NA"},{"1":"1920","2":"01000_北海道","3":"男","4":"総数","5":"1244322","6":"52.74377","7":"NA"},{"1":"1920","2":"01000_北海道","3":"女","4":"総数","5":"1114861","6":"47.25623","7":"NA"},{"1":"1920","2":"01000_北海道","3":"NA","4":"総数","5":"NA","6":"NA","7":"111.6123"},{"1":"1925","2":"01000_北海道","3":"総数","4":"総数","5":"2498679","6":"100.00000","7":"NA"},{"1":"1925","2":"01000_北海道","3":"男","4":"総数","5":"1305473","6":"52.24653","7":"NA"},{"1":"1925","2":"01000_北海道","3":"女","4":"総数","5":"1193206","6":"47.75347","7":"NA"},{"1":"1925","2":"01000_北海道","3":"NA","4":"総数","5":"NA","6":"NA","7":"109.4089"},{"1":"1930","2":"01000_北海道","3":"総数","4":"総数","5":"2812335","6":"100.00000","7":"NA"},{"1":"1930","2":"01000_北海道","3":"男","4":"総数","5":"1468540","6":"52.21782","7":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
-<p><code>data</code>を見ると，<code>人口性比</code>の性別<code>sex</code>の列が常に<code>NA</code>となっていることがわかります． そこで，以下のコードでは，<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>を含む<code>data_population</code>と<code>人口性比</code>を含む<code>data_sex_ratio</code>に<code>data</code>を分割しています． こうすることで，各データの意味がさらに明確になります． これらのデータは，tidy dataの原則に従ったデータ形式であるため，データ分析に適した形式になっています．</p>
+<p><code>data</code>を見ると，<code>人口性比</code>の性別<code>sex</code>の列が常に<code>NA</code>となっていることがわかります． そこで，以下のコードでは，<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>を含む<code>data_population</code>と<code>人口性比</code>を含む<code>data_sex_ratio</code>に<code>data</code>を分割しています． こうすることで，各データの意味がさらに明確になります．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">data_population <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -765,16 +775,15 @@ font-style: inherit;">!</span>人口性比)</span>
 <span id="cb12-4"></span>
 <span id="cb12-5"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">head</span>(data_population,</span>
-<span id="cb12-6">     <span class="at" style="color: #657422;
+font-style: inherit;">head</span>(data_population, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">10</span>)</span></code></pre></div>
+font-style: inherit;">5</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["year"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"01000_北海道","2":"総数","3":"1920","4":"総数","5":"2359183","6":"100.00000"},{"1":"01000_北海道","2":"総数","3":"1920","4":"男","5":"1244322","6":"52.74377"},{"1":"01000_北海道","2":"総数","3":"1920","4":"女","5":"1114861","6":"47.25623"},{"1":"01000_北海道","2":"総数","3":"1925","4":"総数","5":"2498679","6":"100.00000"},{"1":"01000_北海道","2":"総数","3":"1925","4":"男","5":"1305473","6":"52.24653"},{"1":"01000_北海道","2":"総数","3":"1925","4":"女","5":"1193206","6":"47.75347"},{"1":"01000_北海道","2":"総数","3":"1930","4":"総数","5":"2812335","6":"100.00000"},{"1":"01000_北海道","2":"総数","3":"1930","4":"男","5":"1468540","6":"52.21782"},{"1":"01000_北海道","2":"総数","3":"1930","4":"女","5":"1343795","6":"47.78218"},{"1":"01000_北海道","2":"総数","3":"1935","4":"総数","5":"3068282","6":"100.00000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["region"],"name":[2],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1920","2":"01000_北海道","3":"総数","4":"総数","5":"2359183","6":"100.00000"},{"1":"1920","2":"01000_北海道","3":"男","4":"総数","5":"1244322","6":"52.74377"},{"1":"1920","2":"01000_北海道","3":"女","4":"総数","5":"1114861","6":"47.25623"},{"1":"1925","2":"01000_北海道","3":"総数","4":"総数","5":"2498679","6":"100.00000"},{"1":"1925","2":"01000_北海道","3":"男","4":"総数","5":"1305473","6":"52.24653"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -812,8 +821,69 @@ font-style: inherit;">`</span>))</span>
 <span id="cb13-4"></span>
 <span id="cb13-5"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">head</span>(data_sex_ratio,</span>
-<span id="cb13-6">     <span class="at" style="color: #657422;
+font-style: inherit;">head</span>(data_sex_ratio, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["region"],"name":[2],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[3],"type":["chr"],"align":["left"]},{"label":["人口性比"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"1920","2":"01000_北海道","3":"総数","4":"111.6123"},{"1":"1925","2":"01000_北海道","3":"総数","4":"109.4089"},{"1":"1930","2":"01000_北海道","3":"総数","4":"109.2830"},{"1":"1935","2":"01000_北海道","3":"総数","4":"108.0985"},{"1":"1940","2":"01000_北海道","3":"総数","4":"107.4927"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="tidyxlとunpivotrでexcelファイルを整形してみよう" class="level2">
+<h2 class="anchored" data-anchor-id="tidyxlとunpivotrでexcelファイルを整形してみよう">tidyxlとunpivotrでExcelファイルを整形してみよう</h2>
+<p>次に，<a href="https://nacnudus.github.io/tidyxl/">tidyxl</a>パッケージと<a href="https://nacnudus.github.io/unpivotr/">unpivotr</a>パッケージを使ってExcelファイルを整形する方法を紹介します．</p>
+<p>readxlパッケージでは，列名の作成・データの読み込み・tidy dataへの変換という多くのステップを踏む必要がありました． tidyxlパッケージとunpivotrパッケージでは，Excelファイルのテーブルを「行・列別の値」に展開した縦長データを用いることで， readxlよりも柔軟かつ効率的にデータ整形を行うことができます．</p>
+<p>まずは，必要となるパッケージをロードしておきましょう．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 必要に応じてパッケージをインストールしてください</span></span>
+<span id="cb14-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># install.packages("pak")</span></span>
+<span id="cb14-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># pak::pak("tidyxl")</span></span>
+<span id="cb14-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># pak::pak("unpivotr")</span></span>
+<span id="cb14-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># pak::pak("tidyverse")</span></span>
+<span id="cb14-6"></span>
+<span id="cb14-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyxl)</span>
+<span id="cb14-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(unpivotr)</span>
+<span id="cb14-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
+</div>
+<section id="excelファイルの読み込み" class="level3">
+<h3 class="anchored" data-anchor-id="excelファイルの読み込み">①Excelファイルの読み込み</h3>
+<p>tidyxlパッケージの<code>xlsx_cells()</code>関数を使ってExcelファイルを読み込みます． この関数により，Excelファイルのセル情報を行・列別に取得することができます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1">cells <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">xlsx_cells</span>(file,</span>
+<span id="cb15-2">                    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sheets =</span> sheet)</span>
+<span id="cb15-3"></span>
+<span id="cb15-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(cells, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -821,7 +891,241 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[2],"type":["chr"],"align":["left"]},{"label":["year"],"name":[3],"type":["chr"],"align":["left"]},{"label":["人口性比"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"01000_北海道","2":"総数","3":"1920","4":"111.61230"},{"1":"01000_北海道","2":"総数","3":"1925","4":"109.40885"},{"1":"01000_北海道","2":"総数","3":"1930","4":"109.28304"},{"1":"01000_北海道","2":"総数","3":"1935","4":"108.09855"},{"1":"01000_北海道","2":"総数","3":"1940","4":"107.49266"},{"1":"01000_北海道","2":"総数","3":"1945","4":"97.68829"},{"1":"01000_北海道","2":"総数","3":"1950","4":"102.03271"},{"1":"01000_北海道","2":"総数","3":"1955","4":"103.60793"},{"1":"01000_北海道","2":"総数","3":"1960","4":"102.01647"},{"1":"01000_北海道","2":"総数","3":"1965","4":"99.78823"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["sheet"],"name":[1],"type":["chr"],"align":["left"]},{"label":["address"],"name":[2],"type":["chr"],"align":["left"]},{"label":["row"],"name":[3],"type":["int"],"align":["right"]},{"label":["col"],"name":[4],"type":["int"],"align":["right"]},{"label":["is_blank"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["content"],"name":[6],"type":["chr"],"align":["left"]},{"label":["data_type"],"name":[7],"type":["chr"],"align":["left"]},{"label":["error"],"name":[8],"type":["chr"],"align":["left"]},{"label":["logical"],"name":[9],"type":["lgl"],"align":["right"]},{"label":["numeric"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["date"],"name":[11],"type":["dttm"],"align":["right"]},{"label":["character"],"name":[12],"type":["chr"],"align":["left"]},{"label":["character_formatted"],"name":[13],"type":["list"],"align":["right"]},{"label":["formula"],"name":[14],"type":["chr"],"align":["left"]},{"label":["is_array"],"name":[15],"type":["lgl"],"align":["right"]},{"label":["formula_ref"],"name":[16],"type":["chr"],"align":["left"]},{"label":["formula_group"],"name":[17],"type":["int"],"align":["right"]},{"label":["comment"],"name":[18],"type":["chr"],"align":["left"]},{"label":["height"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["width"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["row_outline_level"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["col_outline_level"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["style_format"],"name":[23],"type":["chr"],"align":["left"]},{"label":["local_format_id"],"name":[24],"type":["int"],"align":["right"]}],"data":[{"1":"da03","2":"A1","3":"1","4":"1","5":"FALSE","6":"0","7":"character","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"国勢調査（総務省統計局）　時系列データ　男女，年齢，配偶関係","13":"<tibble[,14]>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"16.750","21":"1","22":"1","23":"標準 2","24":"73"},{"1":"da03","2":"B1","3":"1","4":"2","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"19.875","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"C1","3":"1","4":"3","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"D1","3":"1","4":"4","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"E1","3":"1","4":"5","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"F1","3":"1","4":"6","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"G1","3":"1","4":"7","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"H1","3":"1","4":"8","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"I1","3":"1","4":"9","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"},{"1":"da03","2":"J1","3":"1","4":"10","5":"TRUE","6":"NA","7":"blank","8":"NA","9":"NA","10":"NA","11":"<NA>","12":"NA","13":"<NULL>","14":"NA","15":"FALSE","16":"NA","17":"NA","18":"NA","19":"19.5","20":"10.000","21":"1","22":"1","23":"標準 2","24":"74"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>読み込んだ<code>cells</code>に対して，unpivotrパッケージの<code>behead()</code>関数を適用することで，データに軸（次元）の情報を追加することができます． 具体的には，軸（次元）の情報がデータから見てどの方向<code>direction</code>にあるかを指定することで情報を追加します． 特に，<code>direction = "up-left"</code>等を指定することで空白セルや結合セルの対応が可能になり，とても便利です．</p>
+<p><code>behead()</code>関数を使うには，事前にテーブル構造を読み解いておく必要があります．データに対する方向<code>direction</code>の詳しい指定方法については，以下が参考になります．</p>
+<ul>
+<li><a href="https://nacnudus.github.io/unpivotr/reference/direction.html">Directions from data cells to headers</a></li>
+</ul>
+<p>以下のコードでは，上で整理したテーブル構造に基づき，readxlで作成した<code>data</code>と同様の情報を持つ<code>data2</code>を作成しています． readxlを用いた場合と比べて少ないコードでデータの読み込めたことがわかります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">data2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> cells <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb16-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 説明部分にあたる最初の10行を除外</span></span>
+<span id="cb16-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(row <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb16-4">  </span>
+<span id="cb16-5">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1列目の列は地域を表す (データから見てleft側)</span></span>
+<span id="cb16-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, region) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb16-7">  </span>
+<span id="cb16-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2列目の列は年齢階級を表す (データから見てleft側)</span></span>
+<span id="cb16-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, age_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb16-10">  </span>
+<span id="cb16-11">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1行目の行は西暦を表す (データから見てup-left側)</span></span>
+<span id="cb16-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(row <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_detect</span>(character, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"^</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+年$"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 和暦を削除</span></span>
+<span id="cb16-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"up-left"</span>, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb16-14">  </span>
+<span id="cb16-15">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2行目の行は値の種別を表す (データから見てup-left側)</span></span>
+<span id="cb16-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"up-left"</span>, value_type) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb16-17">  </span>
+<span id="cb16-18">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 3行目の行は性別を表す (データから見てup側)</span></span>
+<span id="cb16-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"up"</span>, sex) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb16-20">  </span>
+<span id="cb16-21">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 5行目の行は単位を表す (データから見てup側)</span></span>
+<span id="cb16-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"up"</span>, .) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 4行目の空白の行に適当な名前を付与 (後で削除)</span></span>
+<span id="cb16-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"up"</span>, value_unit) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb16-24">  </span>
+<span id="cb16-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(year, region, age_class, sex, value_type, value_unit, numeric)</span>
+<span id="cb16-26"></span>
+<span id="cb16-27"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["region"],"name":[2],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[4],"type":["chr"],"align":["left"]},{"label":["value_type"],"name":[5],"type":["chr"],"align":["left"]},{"label":["value_unit"],"name":[6],"type":["chr"],"align":["left"]},{"label":["numeric"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"1920年","2":"01000_北海道","3":"総数","4":"総数","5":"人口","6":"（人）","7":"2359183"},{"1":"1920年","2":"01000_北海道","3":"総数","4":"男","5":"人口","6":"（人）","7":"1244322"},{"1":"1920年","2":"01000_北海道","3":"総数","4":"女","5":"人口","6":"（人）","7":"1114861"},{"1":"1920年","2":"01000_北海道","3":"0～4歳","4":"総数","5":"人口","6":"（人）","7":"376676"},{"1":"1920年","2":"01000_北海道","3":"0～4歳","4":"男","5":"人口","6":"（人）","7":"190044"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="tidy-dataへの変換-1" class="level3">
+<h3 class="anchored" data-anchor-id="tidy-dataへの変換-1">②tidy dataへの変換</h3>
+<p>新たに作成した<code>data2</code>は縦長データではあるものの，値の種別<code>value_type</code>（人口，年齢・男女別割合や人口性比）が列方向に展開されており，必ずしもデータ分析に適した形式とは言えません．</p>
+<p>そこで，tidyrの<code>pivot_wider()</code>関数を使って，値の種別<code>value_type</code>を行方向に展開します． 以下のコードでは，<code>value_type</code>列と<code>value_unit</code>列を結合したのち横長データに変換しています． これによりreadxlを使って作成した<code>data</code>とほぼ同等のデータが得られました．</p>
+<p>繰り返しになるため割愛しますが，readxlを使った場合と同様に，<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>を含むデータと人口性比を含むデータに分割すれば，データ整形は完了です．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1">data2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data2 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb17-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># readxlを使った場合と同様にvalue_type列を作成</span></span>
+<span id="cb17-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value_unit =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">if_else</span>(value_unit <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-"</span>,</span>
+<span id="cb17-4">                              <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb17-5">                              value_unit)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb17-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unite</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_type"</span>, value_type, value_unit,</span>
+<span id="cb17-7">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb17-8">  </span>
+<span id="cb17-9">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 重複箇所を削除</span></span>
+<span id="cb17-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice_head</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb17-11">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(year, region, age_class, sex, value_type)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb17-12">  </span>
+<span id="cb17-13">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 値の種別を行方向に展開して横長データに変換</span></span>
+<span id="cb17-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_wider</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_from =</span> value_type,</span>
+<span id="cb17-15">              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_from =</span> numeric)</span>
+<span id="cb17-16"></span>
+<span id="cb17-17"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["region"],"name":[2],"type":["chr"],"align":["left"]},{"label":["age_class"],"name":[3],"type":["chr"],"align":["left"]},{"label":["sex"],"name":[4],"type":["chr"],"align":["left"]},{"label":["人口（人）"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["年齢，男女別割合（％）"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["人口性比"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"1920年","2":"01000_北海道","3":"総数","4":"総数","5":"2359183","6":"100.000000","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"総数","4":"男","5":"1244322","6":"52.743768","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"総数","4":"女","5":"1114861","6":"47.256232","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"0～4歳","4":"総数","5":"376676","6":"15.966375","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"0～4歳","4":"男","5":"190044","6":"8.055501","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"0～4歳","4":"女","5":"186632","6":"7.910874","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"5～9歳","4":"総数","5":"319370","6":"13.537314","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"5～9歳","4":"男","5":"161814","6":"6.858900","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"5～9歳","4":"女","5":"157556","6":"6.678414","7":"NA"},{"1":"1920年","2":"01000_北海道","3":"10～14歳","4":"総数","5":"270012","6":"11.445149","7":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -830,8 +1134,8 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 </section>
 <section id="まとめ" class="level2">
 <h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>この記事では，Excelファイルを整形する際のTipsを紹介しました． 人が見ることを前提に作成されることの多いExcelファイルをRで整形する際には， 列名の読み込みや整形，データの整形など，いくつかのステップを踏む必要があります．</p>
-<p>この記事で紹介したデータ整形の流れは，私自身のこれまでの経験をもとにまとめたものですが， さらに効率的なデータ整形の方法があるかもしれません． 改善点や追加すべき内容があれば，コメント等をいただけると幸いです．</p>
+<p>この記事では，Excelファイルを整形する際のTipsを紹介しました． データ整形のアプローチとして，readxlパッケージを使う方法とtidyxlパッケージとunpivotrパッケージを使う方法を紹介しましたが， いずれの場合でも，データのテーブル構造を読み解くことが重要です．</p>
+<p>この記事で紹介したデータ整形の流れについて改善点・追加すべき内容・ご質問等があれば，コメント等をいただけると幸いです．</p>
 
 
 </section>

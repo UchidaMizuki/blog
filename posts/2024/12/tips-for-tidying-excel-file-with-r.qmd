@@ -14,6 +14,19 @@ format:
 
 そこで，この記事では，人が見ることを前提に作成されることの多いExcelファイルを Rで整形する際のTipsを紹介します．この記事では，主にExcelファイル向けのTipsを紹介しますが，CSVファイル等のデータ形式にも応用できると思います．
 
+Excelファイルを整形するアプローチには主に以下の2つがあります．
+この記事では，Excelファイルのテーブル構造の読み解き方を紹介した後に，
+以下の2つのアプローチによるデータ整形の方法を紹介します．
+
+1.  [readxl](https://readxl.tidyverse.org)パッケージを使う方法
+2.  [tidyxl](https://nacnudus.github.io/tidyxl/)パッケージと[unpivotr](https://nacnudus.github.io/unpivotr/)パッケージを使う方法
+
+また，Excelファイルのデータ整形については，すでにいくつかの日本語記事がありますので，
+以下の記事も参考になると思います．
+
+-   [神ExcelをRでtidy化してみよう](https://bunseki-data.com/r-onlinecourse/2023/11/09/%E7%A5%9Eexcel%E3%82%92r%E3%81%A7tidy%E5%8C%96%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86/)
+-   [闇のExcelに対する防衛術](https://y-mattu.hatenablog.com/entry/read_dark-excel)
+
 ## Excelファイルを整形する前に
 
 本題に入る前に，一点注意しておきたいことがあります． それは，分析に使用したいデータがさらに機械判読に適したデータ形式で提供されていないかを確認することです．
@@ -73,8 +86,8 @@ weather_forecast
 ```{r}
 #| label: weather-forecast-plot
 #| dev: ragg_png
-#| fig-width: 6
-#| fig-height: 4
+#| fig-width: 5
+#| fig-height: 3
 #| fig-dpi: 800
 
 weather_forecast |> 
@@ -86,15 +99,15 @@ weather_forecast |>
   
 ```
 
-## Excelファイルのデータ構造を読み解く
+## Excelファイルのテーブル構造を読み解く
 
-このような「人と機械の溝」を踏まえて，実際のExcelファイルのデータ構造を読み解いてみましょう．
+このような「人と機械の溝」を踏まえて，実際のExcelファイルのテーブル構造を読み解いてみましょう．
 
-「地域・日付別の天気」のようなシンプルな事例であれば，データ構造はそこまで難しくなりませんが，たとえば，「地域・西暦・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に，e-Statに公開されている[こちらのExcelファイル](https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001011777&cycle=0&tclass1=000001011778&stat_infid=000001085927&tclass2val=0)を見てみましょう． 以下の画像はExcelファイルの上部を一部抜粋したものです．
+「地域・日付別の天気」のようなシンプルな事例であれば，テーブル構造はそこまで難しくなりませんが，たとえば，「西暦・地域・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に，e-Statに公開されている[こちらのExcelファイル](https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001011777&cycle=0&tclass1=000001011778&stat_infid=000001085927&tclass2val=0)を見てみましょう． 以下の画像はExcelファイルの上部を一部抜粋したものです．
 
 ![](tips-tidying-excel-file-with-r/population_by_year_sex_age_class.png)
 
-データ上部の説明を無視すると，以下のようなデータ形式であることがわかります．そのため，データの軸（次元）にあたる地域・西暦・性別・年齢を水色（[■]{style="color:#a6cee3;"}），観測値の種別・単位にあたる人口・人口割合・人口性比を青色（[■]{style="color:#1f78b4;"}）で塗りつぶすと以下の図のようになります．データ形式の詳細をまとめると以下のようになります．
+データ上部の説明を無視すると，以下のようなデータ形式であることがわかります．そのため，データの軸（次元）にあたる西暦・地域・性別・年齢を水色（[■]{style="color:#a6cee3;"}），観測値の種別・単位にあたる人口・人口割合・人口性比を青色（[■]{style="color:#1f78b4;"}）で塗りつぶすと以下の図のようになります．データ形式の詳細をまとめると以下のようになります．
 
 -   1・2列目に，それぞれ地域・年齢階級の軸（次元）の情報が格納されている
 -   3列目以降の列名にあたる部分には，軸（次元）と観測値の情報が混在している
@@ -108,11 +121,13 @@ Excelファイルを整形する際には，以下の点を意識しなければ
 -   列名が複数行にまたがって記載されている際には，各行が軸（次元）・観測値のどちらに対応するかを事前に整理しておく必要がある
 -   列名の反復を避けるために一部の列名が省略 or セルが結合されていることが多い
 
-## Excelファイルを整形してみよう
+## readxlでExcelファイルを整形してみよう
 
-それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「地域・西暦・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．
+それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「西暦・地域・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．
 
-Excelファイルを読み込むのに役立つパッケージとして，[readxl](https://readxl.tidyverse.org)パッケージがあります[^2]． そのため，事前にtidyverseパッケージとreadxlパッケージをロードしておきます．
+Excelファイルを読み込むのに役立つパッケージとして，[readxl](https://readxl.tidyverse.org)パッケージがあります[^2]． 
+ここでは，readxlパッケージを使ってExcelファイルを整形するため，
+事前に，readxlパッケージとtidyverseパッケージをロードしておきます．
 
 [^2]: [writexl](https://docs.ropensci.org/writexl/)パッケージも便利です．
 
@@ -121,13 +136,13 @@ Excelファイルを読み込むのに役立つパッケージとして，[readx
 #| message: false
 #| warning: false
 
-# 必要に応じてパッケージのインストールしてください
+# 必要に応じてパッケージをインストールしてください
 # install.packages("pak")
-# pak::pak("tidyverse")
 # pak::pak("readxl")
+# pak::pak("tidyverse")
 
-library(tidyverse)
 library(readxl)
+library(tidyverse)
 
 ```
 
@@ -185,8 +200,7 @@ data_col_names <- read_excel(file,
   # 最初の2行（地域・年齢階級）を除外
   slice_tail(n = -2) 
 
-head(data_col_names,
-     n = 10)
+head(data_col_names, n = 10)
 
 ```
 
@@ -219,8 +233,7 @@ data_col_names <- data_col_names |>
   # 西暦年とvalue_typeのNAを埋める
   fill(year, value_type)
 
-head(data_col_names,
-     n = 10)
+head(data_col_names, n = 10)
 
 ```
 
@@ -245,8 +258,7 @@ col_names <- data_col_names |>
   pull(col_name)
 col_names <- c("region", "age_class", col_names)
 
-head(col_names,
-     n = 10)
+head(col_names, n = 10)
 
 ```
 
@@ -265,8 +277,7 @@ data <- read_excel(file,
   # 末尾の列に重複がみられるため重複箇所を削除 (元データ作成時のミスと思われる)
   select(all_of(vctrs::vec_unique_loc(col_names)))
 
-head(data,
-     n = 10)
+head(data, n = 10)
 
 ```
 
@@ -294,14 +305,14 @@ data <- data |>
                 \(x) {
                   parse_number(x, 
                                na = "-")
-                }))
+                })) |> 
+  relocate(year, region, sex, age_class)
 
-head(data,
-     n = 10)
+head(data, n = 10)
 
 ```
 
-`data`を見ると，`人口性比`の性別`sex`の列が常に`NA`となっていることがわかります． そこで，以下のコードでは，`人口（人）`・`年齢，男女別割合（％）`を含む`data_population`と`人口性比`を含む`data_sex_ratio`に`data`を分割しています． こうすることで，各データの意味がさらに明確になります． これらのデータは，tidy dataの原則に従ったデータ形式であるため，データ分析に適した形式になっています．
+`data`を見ると，`人口性比`の性別`sex`の列が常に`NA`となっていることがわかります． そこで，以下のコードでは，`人口（人）`・`年齢，男女別割合（％）`を含む`data_population`と`人口性比`を含む`data_sex_ratio`に`data`を分割しています． こうすることで，各データの意味がさらに明確になります．
 
 ```{r}
 #| label: tidy-data-population-sex-ratio
@@ -310,20 +321,139 @@ data_population <- data |>
   drop_na(sex) |> 
   select(!人口性比)
 
-head(data_population,
-     n = 10)
+head(data_population, n = 5)
 
 data_sex_ratio <- data |> 
   filter(is.na(sex)) |> 
   select(!c(sex, `人口（人）`, `年齢，男女別割合（％）`))
 
-head(data_sex_ratio,
-     n = 10)
+head(data_sex_ratio, n = 5)
+
+```
+
+## tidyxlとunpivotrでExcelファイルを整形してみよう
+
+次に，[tidyxl](https://nacnudus.github.io/tidyxl/)パッケージと[unpivotr](https://nacnudus.github.io/unpivotr/)パッケージを使ってExcelファイルを整形する方法を紹介します．
+
+readxlパッケージでは，列名の作成・データの読み込み・tidy dataへの変換という多くのステップを踏む必要がありました．
+tidyxlパッケージとunpivotrパッケージでは，Excelファイルのテーブルを「行・列別の値」に展開した縦長データを用いることで，
+readxlよりも柔軟かつ効率的にデータ整形を行うことができます．
+
+まずは，必要となるパッケージをロードしておきましょう．
+
+```{r}
+#| label: setup-tidyxl-unpivotr
+#| message: false
+#| warning: false
+
+# 必要に応じてパッケージをインストールしてください
+# install.packages("pak")
+# pak::pak("tidyxl")
+# pak::pak("unpivotr")
+# pak::pak("tidyverse")
+
+library(tidyxl)
+library(unpivotr)
+library(tidyverse)
+
+```
+
+### ①Excelファイルの読み込み
+
+tidyxlパッケージの`xlsx_cells()`関数を使ってExcelファイルを読み込みます．
+この関数により，Excelファイルのセル情報を行・列別に取得することができます．
+
+```{r}
+#| label: read-excel-tidyxl
+
+cells <- xlsx_cells(file,
+                    sheets = sheet)
+
+head(cells, n = 10)
+
+```
+
+読み込んだ`cells`に対して，unpivotrパッケージの`behead()`関数を適用することで，データに軸（次元）の情報を追加することができます．
+具体的には，軸（次元）の情報がデータから見てどの方向`direction`にあるかを指定することで情報を追加します．
+特に，`direction = "up-left"`等を指定することで空白セルや結合セルの対応が可能になり，とても便利です．
+
+`behead()`関数を使うには，事前にテーブル構造を読み解いておく必要があります．データに対する方向`direction`の詳しい指定方法については，以下が参考になります．
+
+-   [Directions from data cells to headers](https://nacnudus.github.io/unpivotr/reference/direction.html)
+
+以下のコードでは，上で整理したテーブル構造に基づき，readxlで作成した`data`と同様の情報を持つ`data2`を作成しています．
+readxlを用いた場合と比べて少ないコードでデータの読み込めたことがわかります．
+
+```{r}
+#| label: make-data-tidyxl
+
+data2 <- cells |> 
+  # 説明部分にあたる最初の10行を除外
+  filter(row > 10) |>
+  
+  # 1列目の列は地域を表す (データから見てleft側)
+  behead("left", region) |> 
+  
+  # 2列目の列は年齢階級を表す (データから見てleft側)
+  behead("left", age_class) |> 
+  
+  # 1行目の行は西暦を表す (データから見てup-left側)
+  filter(row != 10 + 1 | str_detect(character, "^\\d+年$")) |> # 和暦を削除
+  behead("up-left", year) |> 
+  
+  # 2行目の行は値の種別を表す (データから見てup-left側)
+  behead("up-left", value_type) |> 
+  
+  # 3行目の行は性別を表す (データから見てup側)
+  behead("up", sex) |>
+  
+  # 5行目の行は単位を表す (データから見てup側)
+  behead("up", .) |> # 4行目の空白の行に適当な名前を付与 (後で削除)
+  behead("up", value_unit) |> 
+  
+  select(year, region, age_class, sex, value_type, value_unit, numeric)
+
+head(data2, n = 5)
+
+```
+
+### ②tidy dataへの変換
+
+新たに作成した`data2`は縦長データではあるものの，値の種別`value_type`（人口，年齢・男女別割合や人口性比）が列方向に展開されており，必ずしもデータ分析に適した形式とは言えません．
+
+そこで，tidyrの`pivot_wider()`関数を使って，値の種別`value_type`を行方向に展開します．
+以下のコードでは，`value_type`列と`value_unit`列を結合したのち横長データに変換しています．
+これによりreadxlを使って作成した`data`とほぼ同等のデータが得られました．
+
+繰り返しになるため割愛しますが，readxlを使った場合と同様に，`人口（人）`・`年齢，男女別割合（％）`を含むデータと人口性比を含むデータに分割すれば，データ整形は完了です．
+
+```{r}
+#| label: tidy-data-tidyxl
+
+data2 <- data2 |> 
+  # readxlを使った場合と同様にvalue_type列を作成
+  mutate(value_unit = if_else(value_unit == "-",
+                              "",
+                              value_unit)) |>
+  unite("value_type", value_type, value_unit,
+        sep = "") |>
+  
+  # 重複箇所を削除
+  slice_head(n = 1,
+             by = c(year, region, age_class, sex, value_type)) |> 
+  
+  # 値の種別を行方向に展開して横長データに変換
+  pivot_wider(names_from = value_type,
+              values_from = numeric)
+
+head(data2, n = 10)
 
 ```
 
 ## まとめ
 
-この記事では，Excelファイルを整形する際のTipsを紹介しました． 人が見ることを前提に作成されることの多いExcelファイルをRで整形する際には， 列名の読み込みや整形，データの整形など，いくつかのステップを踏む必要があります．
+この記事では，Excelファイルを整形する際のTipsを紹介しました．
+データ整形のアプローチとして，readxlパッケージを使う方法とtidyxlパッケージとunpivotrパッケージを使う方法を紹介しましたが，
+いずれの場合でも，データのテーブル構造を読み解くことが重要です．
 
-この記事で紹介したデータ整形の流れは，私自身のこれまでの経験をもとにまとめたものですが， さらに効率的なデータ整形の方法があるかもしれません． 改善点や追加すべき内容があれば，コメント等をいただけると幸いです．
+この記事で紹介したデータ整形の流れについて改善点・追加すべき内容・ご質問等があれば，コメント等をいただけると幸いです．
