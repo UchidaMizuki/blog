@@ -928,7 +928,9 @@ font-style: inherit;"># 1列目は地域を表す (データから見てleft側)
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"left"</span>, region) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"region"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
 <span id="cb16-7">  </span>
@@ -939,7 +941,9 @@ font-style: inherit;"># 2列目は年齢階級を表す (データから見てle
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"left"</span>, age_class) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"age_class"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
 <span id="cb16-10">  </span>
@@ -975,7 +979,9 @@ font-style: inherit;"># 和暦を削除</span></span>
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"up-left"</span>, year) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"up-left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"year"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
 <span id="cb16-14">  </span>
@@ -986,7 +992,9 @@ font-style: inherit;"># 2行目は値の種別を表す (データから見てup
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"up-left"</span>, value_type) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"up-left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_type"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
 <span id="cb16-17">  </span>
@@ -997,7 +1005,9 @@ font-style: inherit;"># 3行目は性別を表す (データから見てup側)</
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"up"</span>, sex) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"up"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sex"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
 <span id="cb16-20">  </span>
@@ -1008,7 +1018,9 @@ font-style: inherit;"># 5行目は単位を表す (データから見てup側)</
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"up"</span>, .) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"up"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"."</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -1017,7 +1029,9 @@ font-style: inherit;"># 4行目の空白の行に適当な名前を付与 (後�
 background-color: null;
 font-style: inherit;">behead</span>(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"up"</span>, value_unit) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"up"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_unit"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
 <span id="cb16-24">  </span>
