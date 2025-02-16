@@ -1,0 +1,130 @@
+---
+title: "Julia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）"
+engine: julia
+lang: ja
+categories: [JuMP, Julia, Japanese]
+date: "2025-02-17"
+---
+
+この記事では，数理最適化ライブラリであるJulia JuMPを用いて， 経済学でよく用いられるコブ・ダグラス型効用関数を用いた効用最大化問題を 解いてみます．
+
+コブ・ダグラス型効用関数の効用最大化は解析的に解くことができるため， 必ずしもJulia JuMPを使って解く必要はありませんが， ここでは，Julia JuMPの使い方を学ぶために，あえて解析的な解と数値的な解を 比較してみました．
+
+## コブ・ダグラス型効用関数
+
+コブ・ダグラス型効用関数は以下のように定義されます． ここで，$x_i$は生産要素$i$の消費量， $\alpha_i$は生産要素$i$の弾力性パラメータです．
+
+$$
+U = \prod_{i=1}^{n} x_i^{\alpha_i}
+$$
+
+この効用関数をJuliaで実装すると以下のようになります．
+
+```{julia}
+function cobb_douglas(quantities; weights)
+    return prod(quantities .^ weights)
+end
+```
+
+実装した`cobb_douglas`関数に，消費量`quantities`と弾力性パラメータ`weights`を 渡すことで，以下のように，効用を計算することができます．
+
+```{julia}
+cobb_douglas(
+  [2, 3, 5], 
+  weights=[0.3, 0.4, 0.3]
+)
+```
+
+## 効用最大化問題の解析的な解
+
+一般的に，効用最大化問題は，価格と所得が与えられたときに， 効用を最大化するような消費量を求める問題として定式化されます．
+
+こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます\[\^1\]． ここで，$p_i$は生産要素$i$の価格，$Y$は所得です．
+
+具体的な解法は割愛しますが，以下の条件から導出できます．
+
+1.  効用最大化条件: $MRS_{ij}=\frac{\partial U/\partial x}{\partial U/\partial y}=\frac{p_x}{p_y}$
+2.  予算制約式: $\sum_{i=1}^{n} p_i x_i = Y$
+
+$$
+x_i = \frac{1}{p_i}\frac{w_i}{\sum_{j=1}^{n} w_j}Y
+$$
+
+```{julia}
+function demand_marshallian_cobb_douglas_analytical(prices, income; weights)
+    return income .* weights ./ sum(weights) ./ prices
+end
+```
+
+実装した`demand_marshallian_cobb_douglas_analytical`関数に，価格`prices`と 所得`income`，弾力性パラメータ`weights`を渡すことで，以下のように，需要量を 計算することができます．
+
+```{julia}
+quantities_analytical = demand_marshallian_cobb_douglas_analytical(
+  [1, 2, 3], 
+  100, 
+  weights=[0.3, 0.4, 0.3]
+)
+```
+
+## 効用最大化問題の数値的な解
+
+次に，Julia JuMPを用いて，効用最大化問題を数値的に解いてみます． 事前に，JuMPパッケージとIpoptパッケージをインストールしておきましょう． Ipoptは，非線形最適化問題を解くためのソルバーを提供しています．
+
+```{julia}
+#| eval: false
+import Pkg
+Pkg.add("JuMP")
+Pkg.add("Ipopt")
+```
+
+すでに定義した`cobb_douglas`関数を用いて，以下のように，JuMPを用いて 効用最大化問題を定式化し，数値的に解くことができます．
+
+```{julia}
+using JuMP
+using Ipopt
+
+function demand_marshallian_cobb_douglas_numerical(prices, income; weights)
+    n = length(prices)
+    model = Model(Ipopt.Optimizer) 
+    @variable(model, quantities[1:n] >= 0) # 消費量を変数として定義
+    @objective(model, Max, cobb_douglas(quantities; weights)) # 効用最大化
+    @constraint(model, sum(prices .* quantities) <= income) # 予算制約式
+    optimize!(model)
+    return value.(quantities)
+end
+```
+
+効用最大化問題の定式化では，以下のことを行っています．
+
+1.  `@variable`マクロを用いて，消費量`quantities`を変数として定義
+2.  `@objective`マクロを用いて，効用を最大化するような目的関数を定義
+3.  `@constraint`マクロを用いて，予算制約式を定義
+
+それでは，実装した`demand_marshallian_cobb_douglas_numerical`関数を用いて， 数値的な解を求めてみましょう．
+
+```{julia}
+#| messages: false
+quantities_numerical = demand_marshallian_cobb_douglas_numerical(
+  [1, 2, 3], 
+  100, 
+  weights=[0.3, 0.4, 0.3]
+)
+```
+
+上記のように様々な評価結果が表示されますが，最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．
+
+```{julia}
+quantities_numerical
+```
+
+```{julia}
+quantities_analytical
+```
+
+## まとめ
+
+この記事では，Julia JuMPを用いて，コブ・ダグラス型効用関数を用いた 効用最大化問題を解いてみました．
+
+Julia JuMPを用いることで，非線形最適化問題を簡単に定式化し， 数値的に解くことができることを確認しました．
+
+Julia JuMPでは，シンプルな関数であれば，定義済みの関数をそのまま目的変数等として 扱うことができるため，経済モデルの実装にも有用かもしれません．

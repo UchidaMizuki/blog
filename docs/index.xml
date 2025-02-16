@@ -9,8 +9,374 @@
 <link>https://uchidamizuki.quarto.pub/blog/</link>
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.4.549</generator>
-<lastBuildDate>Sun, 22 Dec 2024 15:00:00 GMT</lastBuildDate>
+<generator>quarto-1.6.40</generator>
+<lastBuildDate>Sun, 16 Feb 2025 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>Julia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>この記事では，数理最適化ライブラリであるJulia JuMPを用いて， 経済学でよく用いられるコブ・ダグラス型効用関数を用いた効用最大化問題を 解いてみます．</p>
+<p>コブ・ダグラス型効用関数の効用最大化は解析的に解くことができるため， 必ずしもJulia JuMPを使って解く必要はありませんが， ここでは，Julia JuMPの使い方を学ぶために，あえて解析的な解と数値的な解を 比較してみました．</p>
+<section id="コブダグラス型効用関数" class="level2">
+<h2 class="anchored" data-anchor-id="コブダグラス型効用関数">コブ・ダグラス型効用関数</h2>
+<p>コブ・ダグラス型効用関数は以下のように定義されます． ここで，<img src="https://latex.codecogs.com/png.latex?x_i">は生産要素<img src="https://latex.codecogs.com/png.latex?i">の消費量， <img src="https://latex.codecogs.com/png.latex?%5Calpha_i">は生産要素<img src="https://latex.codecogs.com/png.latex?i">の弾力性パラメータです．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AU%20=%20%5Cprod_%7Bi=1%7D%5E%7Bn%7D%20x_i%5E%7B%5Calpha_i%7D%0A"></p>
+<p>この効用関数をJuliaで実装すると以下のようになります．</p>
+<div id="2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cobb_douglas</span>(quantities; weights)</span>
+<span id="cb1-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">prod</span>(quantities <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> weights)</span>
+<span id="cb1-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>cobb_douglas (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>実装した<code>cobb_douglas</code>関数に，消費量<code>quantities</code>と弾力性パラメータ<code>weights</code>を 渡すことで，以下のように，効用を計算することができます．</p>
+<div id="4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cobb_douglas</span>(</span>
+<span id="cb3-2">  [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>], </span>
+<span id="cb3-3">  weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>]</span>
+<span id="cb3-4">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3.0963389922845703</code></pre>
+</div>
+</div>
+</section>
+<section id="効用最大化問題の解析的な解" class="level2">
+<h2 class="anchored" data-anchor-id="効用最大化問題の解析的な解">効用最大化問題の解析的な解</h2>
+<p>一般的に，効用最大化問題は，価格と所得が与えられたときに， 効用を最大化するような消費量を求める問題として定式化されます．</p>
+<p>こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます[^1]． ここで，<img src="https://latex.codecogs.com/png.latex?p_i">は生産要素<img src="https://latex.codecogs.com/png.latex?i">の価格，<img src="https://latex.codecogs.com/png.latex?Y">は所得です．</p>
+<p>具体的な解法は割愛しますが，以下の条件から導出できます．</p>
+<ol type="1">
+<li>効用最大化条件: <img src="https://latex.codecogs.com/png.latex?MRS_%7Bij%7D=%5Cfrac%7B%5Cpartial%20U/%5Cpartial%20x%7D%7B%5Cpartial%20U/%5Cpartial%20y%7D=%5Cfrac%7Bp_x%7D%7Bp_y%7D"></li>
+<li>予算制約式: <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5E%7Bn%7D%20p_i%20x_i%20=%20Y"></li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_i%20=%20%5Cfrac%7B1%7D%7Bp_i%7D%5Cfrac%7Bw_i%7D%7B%5Csum_%7Bj=1%7D%5E%7Bn%7D%20w_j%7DY%0A"></p>
+<div id="6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_cobb_douglas_analytical</span>(prices, income; weights)</span>
+<span id="cb5-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.*</span> weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">./</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(weights) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">./</span> prices</span>
+<span id="cb5-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian_cobb_douglas_analytical (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>実装した<code>demand_marshallian_cobb_douglas_analytical</code>関数に，価格<code>prices</code>と 所得<code>income</code>，弾力性パラメータ<code>weights</code>を渡すことで，以下のように，需要量を 計算することができます．</p>
+<div id="8" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1">quantities_analytical <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_cobb_douglas_analytical</span>(</span>
+<span id="cb7-2">  [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>], </span>
+<span id="cb7-3">  <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, </span>
+<span id="cb7-4">  weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>]</span>
+<span id="cb7-5">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.0
+ 20.0
+ 10.0</code></pre>
+</div>
+</div>
+</section>
+<section id="効用最大化問題の数値的な解" class="level2">
+<h2 class="anchored" data-anchor-id="効用最大化問題の数値的な解">効用最大化問題の数値的な解</h2>
+<p>次に，Julia JuMPを用いて，効用最大化問題を数値的に解いてみます． 事前に，JuMPパッケージとIpoptパッケージをインストールしておきましょう． Ipoptは，非線形最適化問題を解くためのソルバーを提供しています．</p>
+<div id="10" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Pkg</span></span>
+<span id="cb9-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Pkg</span>.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"JuMP"</span>)</span>
+<span id="cb9-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Pkg</span>.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Ipopt"</span>)</span></code></pre></div>
+</div>
+<p>すでに定義した<code>cobb_douglas</code>関数を用いて，以下のように，JuMPを用いて 効用最大化問題を定式化し，数値的に解くことができます．</p>
+<div id="12" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">JuMP</span></span>
+<span id="cb10-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Ipopt</span></span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_cobb_douglas_numerical</span>(prices, income; weights)</span>
+<span id="cb10-5">    n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(prices)</span>
+<span id="cb10-6">    model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Model</span>(Ipopt.Optimizer) </span>
+<span id="cb10-7">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@variable</span>(model, quantities[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>n] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 消費量を変数として定義</span></span>
+<span id="cb10-8">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@objective</span>(model, Max, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cobb_douglas</span>(quantities; weights)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 効用最大化</span></span>
+<span id="cb10-9">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@constraint</span>(model, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.*</span> quantities) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> income) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 予算制約式</span></span>
+<span id="cb10-10">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">optimize!</span>(model)</span>
+<span id="cb10-11">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">value</span>.(quantities)</span>
+<span id="cb10-12"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian_cobb_douglas_numerical (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>効用最大化問題の定式化では，以下のことを行っています．</p>
+<ol type="1">
+<li><code>@variable</code>マクロを用いて，消費量<code>quantities</code>を変数として定義</li>
+<li><code>@objective</code>マクロを用いて，効用を最大化するような目的関数を定義</li>
+<li><code>@constraint</code>マクロを用いて，予算制約式を定義</li>
+</ol>
+<p>それでは，実装した<code>demand_marshallian_cobb_douglas_numerical</code>関数を用いて， 数値的な解を求めてみましょう．</p>
+<div id="14" class="cell" data-messages="false" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1">quantities_numerical <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_cobb_douglas_numerical</span>(</span>
+<span id="cb12-2">  [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>], </span>
+<span id="cb12-3">  <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, </span>
+<span id="cb12-4">  weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>]</span>
+<span id="cb12-5">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>This is Ipopt version 3.14.17, running with linear solver MUMPS 5.7.3.
+
+Number of nonzeros in equality constraint Jacobian...:        0
+Number of nonzeros in inequality constraint Jacobian.:        3
+Number of nonzeros in Lagrangian Hessian.............:        6
+
+Total number of variables............................:        3
+                     variables with only lower bounds:        3
+                variables with lower and upper bounds:        0
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:        0
+Total number of inequality constraints...............:        1
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        1
+
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+   0  9.9999900e-03 0.00e+00 7.00e-01  -1.0 0.00e+00    -  0.00e+00 0.00e+00   0
+   1  1.1323788e-01 0.00e+00 3.94e-01  -1.0 6.19e-01    -  7.24e-01 1.00e+00f  1
+   2  3.0332663e+00 0.00e+00 3.26e-01  -1.0 1.73e+01    -  8.41e-02 1.00e+00f  1
+   3  1.1420971e+01 0.00e+00 1.26e-01  -1.0 4.77e+01    -  3.20e-01 1.00e+00f  1
+   4  1.6777675e+01 0.00e+00 3.78e-02  -1.0 2.62e+01    -  1.00e+00 1.00e+00f  1
+   5  1.8315460e+01 0.00e+00 5.77e-03  -1.0 7.91e+00    -  1.00e+00 1.00e+00f  1
+   6  1.8343161e+01 0.00e+00 6.89e-05  -2.5 6.32e-01    -  9.99e-01 1.00e+00f  1
+   7  1.8346144e+01 0.00e+00 7.49e-08  -3.8 2.34e-02    -  1.00e+00 1.00e+00f  1
+   8  1.8346293e+01 0.00e+00 3.38e-11  -5.7 8.15e-04    -  1.00e+00 1.00e+00f  1
+   9  1.8346295e+01 0.00e+00 2.75e-14  -8.6 1.01e-05    -  1.00e+00 1.00e+00f  1
+
+Number of Iterations....: 9
+
+                                   (scaled)                 (unscaled)
+Objective...............:  -1.8346295273804525e+01    1.8346295273804525e+01
+Dual infeasibility......:   2.7535867802551789e-14    2.7535867802551789e-14
+Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
+Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
+Complementarity.........:   2.5064583666568809e-09    2.5064583666568809e-09
+Overall NLP error.......:   2.5064583666568809e-09    2.5064583666568809e-09
+
+
+Number of objective function evaluations             = 10
+Number of objective gradient evaluations             = 10
+Number of equality constraint evaluations            = 0
+Number of inequality constraint evaluations          = 10
+Number of equality constraint Jacobian evaluations   = 0
+Number of inequality constraint Jacobian evaluations = 1
+Number of Lagrangian Hessian evaluations             = 9
+Total seconds in IPOPT                               = 0.002
+
+EXIT: Optimal Solution Found.</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.000000297265977
+ 20.00000019590169
+ 10.000000099089569</code></pre>
+</div>
+</div>
+<p>上記のように様々な評価結果が表示されますが，最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．</p>
+<div id="16" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1">quantities_numerical</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.000000297265977
+ 20.00000019590169
+ 10.000000099089569</code></pre>
+</div>
+</div>
+<div id="18" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1">quantities_analytical</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.0
+ 20.0
+ 10.0</code></pre>
+</div>
+</div>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>この記事では，Julia JuMPを用いて，コブ・ダグラス型効用関数を用いた 効用最大化問題を解いてみました．</p>
+<p>Julia JuMPを用いることで，非線形最適化問題を簡単に定式化し， 数値的に解くことができることを確認しました．</p>
+<p>Julia JuMPでは，シンプルな関数であれば，定義済みの関数をそのまま目的変数等として 扱うことができるため，経済モデルの実装にも有用かもしれません．</p>
+
+
+</section>
+
+ ]]></description>
+  <category>JuMP</category>
+  <category>Julia</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</guid>
+  <pubDate>Sun, 16 Feb 2025 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>RでExcelファイルを整形する際のTips</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html</link>
@@ -293,6 +659,7 @@ background-color: null;
 font-style: inherit;">"xlsx"</span>)</span>
 <span id="cb5-8"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
@@ -2485,6 +2852,7 @@ background-color: null;
 font-style: inherit;"># DirectLiNGAMの結果をデータフレームとして返す関数</span></span>
 <span id="cb1-16"><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">def</span> discover_causality(data):</span>
 <span id="cb1-17">  model <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -2493,6 +2861,7 @@ font-style: inherit;">=</span> lingam.DirectLiNGAM()</span>
 <span id="cb1-19"></span>
 <span id="cb1-20">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">return</span> pd.DataFrame(</span>
 <span id="cb1-21">    model.adjacency_matrix_,</span>
 <span id="cb1-22">    columns<span class="op" style="color: #5E5E5E;
@@ -2527,6 +2896,7 @@ background-color: null;
 font-style: inherit;">\</span></span>
 <span id="cb1-30">  .pipe(<span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">lambda</span> df: df[np.logical_not(np.isclose(df.value, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>, rtol<span class="op" style="color: #5E5E5E;
@@ -2555,11 +2925,13 @@ background-color: null;
 font-style: inherit;"># mermaidファイルを出力する関数</span></span>
 <span id="cb1-34"><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">def</span> write_mermaid(df, <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">file</span>):</span>
 <span id="cb1-35">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">with</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">open</span>(<span class="bu" style="color: null;
@@ -2578,8 +2950,10 @@ background-color: null;
 font-style: inherit;">'</span>)</span>
 <span id="cb1-37">    <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> df.itertuples():</span>
 <span id="cb1-38">      f.write(<span class="st" style="color: #20794D;
 background-color: null;
@@ -2613,8 +2987,10 @@ background-color: null;
 font-style: inherit;">'be-careful-with-function-forms-in-lingam'</span></span>
 <span id="cb1-42"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">not</span> os.path.exists(<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">dir</span>):</span>
@@ -2637,6 +3013,7 @@ font-style: inherit;">\</span></span>
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">lambda</span> df: df.x11 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> df.x12 <span class="op" style="color: #5E5E5E;
@@ -2646,6 +3023,7 @@ font-style: inherit;">+</span> rng.random(n),</span>
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">lambda</span> df: df.x21 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">*</span> df.x22 <span class="op" style="color: #5E5E5E;
@@ -2708,6 +3086,7 @@ font-style: inherit;">\</span></span>
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">lambda</span> df: df.x11 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> df.x12 <span class="op" style="color: #5E5E5E;
@@ -2717,6 +3096,7 @@ font-style: inherit;">+</span> rng.random(n),</span>
 background-color: null;
 font-style: inherit;">=</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">lambda</span> df: df.x21 <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">**</span> df.x22 <span class="op" style="color: #5E5E5E;
@@ -5270,6 +5650,7 @@ font-style: inherit;">TRUE</span>))</span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x, radius) {</span>
 <span id="cb1-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -5364,6 +5745,7 @@ font-style: inherit;">2</span></span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(radius) {</span>
 <span id="cb7-2">  out <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -5400,6 +5782,7 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(radius) {</span>
 <span id="cb9-2">  pi <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -5447,7 +5830,7 @@ font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">kable</span>(data)</span></code></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th style="text-align: right;">radius</th>
@@ -5696,7 +6079,7 @@ format:
 <section id="なぜベイズの定理が重要なのか" class="level2">
 <h2 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h2>
 <p>式&nbsp;2 に基づき，ベイズの定理の重要性について考えてみましょう． 実は， 式&nbsp;2 に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， 式&nbsp;2 からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 29%">
 <col style="width: 70%">
@@ -5772,7 +6155,7 @@ format:
 <p>ちょうど選挙シーズンですので<sup>1</sup>，オープンデータを使って，しばしば問題になる「1票の格差」を定量化してみたいと思います．</p>
 <p>「1票の格差」は，通常，議員1人あたりの有権者数が地域（選挙区）によって異なる（≒議員1人を当選させるために必要な票数が地域によって異なる）ことを指します．たとえば，2022年の参議院選挙では，「1票の格差」が最大で3.03倍であったとされています<sup>2</sup>．</p>
 <p>現在，日本の都市部と地方は以下の表のような関係にあるとされ，「1票の格差」が「地方で新幹線が整備される一方で東京の通勤ラッシュが解消されない」といった経済効率性の低下などを引き起こすことが問題視されています<sup>3</sup>．</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 15%">
 <col style="width: 50%">
@@ -5806,7 +6189,7 @@ format:
 <h3 class="anchored" data-anchor-id="世代間の1票の格差とは">世代間の「1票の格差」とは？</h3>
 <p>ここまで紹介した地域間の「1票の格差」に加えて，世代間にも「1票の格差」が存在するといわれています<sup>4</sup>．これは，少子高齢化により，若年層の有権者数に対して高齢者層の有権者数が多くなることにより引き起こされるものです<sup>5</sup>．</p>
 <p>さきほど示した都市・地方部の関係と同様に，若年層と高齢者層は，以下の表のような関係にあると考えられます．地方における人口減少・人手不足が深刻となった最近になってようやく，国は，少子化対策を国の最重要課題に位置づけましたが，これまで，こうした若年層向けの政策が十分に行われなかった<sup>6</sup>のは世代間の「1票の格差」の影響によるものかもしれません．</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 49%">
@@ -5846,7 +6229,7 @@ format:
 <h3 class="anchored" data-anchor-id="使用データについて">使用データについて</h3>
 <p>今回は，以下の表に示すデータを使用します．ここで，表中の定常人口（nLx）とは，「一定の出生・（生命表上の）死亡率のもとで得られる年齢階級別人口」のことです<sup>8</sup>．</p>
 <p>データ入手・整形方法については，下に折りたたまれているコードも参考にしてください．</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: center;">内容</th>
@@ -5909,6 +6292,7 @@ background-color: null;
 font-style: inherit;"># jpstatパッケージを使って2020年国勢調査データをダウンロードしています</span></span>
 <span id="cb2-2"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
@@ -6166,6 +6550,7 @@ background-color: null;
 font-style: inherit;">"quantify-vote-disparity-between-generations/lifetable_male_2020.xlsx"</span></span>
 <span id="cb3-3"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
@@ -6190,6 +6575,7 @@ background-color: null;
 font-style: inherit;">"quantify-vote-disparity-between-generations/lifetable_female_2020.xlsx"</span></span>
 <span id="cb3-9"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
@@ -6449,6 +6835,7 @@ font-style: inherit;"># 100歳以上を数値100で置き換える</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(age) {</span>
 <span id="cb5-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -7760,7 +8147,7 @@ font-style: inherit;">kable</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">head</span>(pop))</span></code></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th style="text-align: right;">year</th>
@@ -8348,7 +8735,7 @@ font-style: inherit;">head</span>(data_sleeptime_2015, <span class="dv" style="c
 background-color: null;
 font-style: inherit;">10</span>))</span></code></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 3%">
 <col style="width: 3%">
@@ -8835,7 +9222,7 @@ font-style: inherit;">head</span>(data_sleeptime_2015, <span class="dv" style="c
 background-color: null;
 font-style: inherit;">10</span>))</span></code></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th style="text-align: left;">ageclass_name</th>
@@ -10380,7 +10767,7 @@ font-style: inherit;">layout_japan</span>(plot)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="レオンチェフ逆行列による経済波及効果の推計について">レオンチェフ逆行列による経済波及効果の推計について</h3>
 <p>生産額のバランス式（行方向）は，行列を用いて以下のように表せます．変数の意味は以下の表の通りです．</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AAX%20+%20F%20+%20E%20-%20M%20=%20X%0A"></p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: center;">変数</th>
@@ -10488,7 +10875,7 @@ font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">kable</span>(iotable_wider)</span></code></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 13%">
@@ -10623,7 +11010,7 @@ font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">kable</span>(iotable)</span></code></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th style="text-align: left;">input_type</th>
