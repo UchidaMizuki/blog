@@ -80,12 +80,7 @@ font-style: inherit;">0.3</span>]</span>
 <section id="効用最大化問題の解析的な解" class="level2">
 <h2 class="anchored" data-anchor-id="効用最大化問題の解析的な解">効用最大化問題の解析的な解</h2>
 <p>一般的に，効用最大化問題は，価格と所得が与えられたときに， 効用を最大化するような消費量を求める問題として定式化されます．</p>
-<p>こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます[^1]． ここで，<img src="https://latex.codecogs.com/png.latex?p_i">は生産要素<img src="https://latex.codecogs.com/png.latex?i">の価格，<img src="https://latex.codecogs.com/png.latex?Y">は所得です．</p>
-<p>具体的な解法は割愛しますが，以下の条件から導出できます．</p>
-<ol type="1">
-<li>効用最大化条件: <img src="https://latex.codecogs.com/png.latex?MRS_%7Bij%7D=%5Cfrac%7B%5Cpartial%20U/%5Cpartial%20x%7D%7B%5Cpartial%20U/%5Cpartial%20y%7D=%5Cfrac%7Bp_x%7D%7Bp_y%7D"></li>
-<li>予算制約式: <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5E%7Bn%7D%20p_i%20x_i%20=%20Y"></li>
-</ol>
+<p>こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます<sup>1</sup>． ここで，<img src="https://latex.codecogs.com/png.latex?p_i">は生産要素<img src="https://latex.codecogs.com/png.latex?i">の価格，<img src="https://latex.codecogs.com/png.latex?Y">は所得です．</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0Ax_i%20=%20%5Cfrac%7B1%7D%7Bp_i%7D%5Cfrac%7Bw_i%7D%7B%5Csum_%7Bj=1%7D%5E%7Bn%7D%20w_j%7DY%0A"></p>
 <div id="6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="kw" style="color: #003B4F;
@@ -173,7 +168,8 @@ font-style: inherit;">add</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Ipopt"</span>)</span></code></pre></div>
 </div>
-<p>すでに定義した<code>cobb_douglas</code>関数を用いて，以下のように，JuMPを用いて 効用最大化問題を定式化し，数値的に解くことができます．</p>
+<p>コブ・ダグラス型効用関数を用いた効用最大化問題は以下のように定式化されます． JuMPでは，すでに定義した<code>cobb_douglas</code>関数を用いて， 簡単に，効用最大化問題を記述し，数値的に解くことができます．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Baligned%7D%0A%20%20%5Ctext%7Bmaximize%7D%20&amp;&amp;%20U%20=%20%5Cprod_%7Bi=1%7D%5E%7Bn%7D%20x_i%5E%7B%5Calpha_i%7D%20%5C%5C%0A%20%20%5Ctext%7Bsubject%20to%7D%20&amp;&amp;%20%5Csum_%7Bi=1%7D%5E%7Bn%7D%20p_i%20x_i%20%5Cleq%20Y%20%5C%5C%0A%5Cend%7Baligned%7D%0A"></p>
 <div id="12" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -202,7 +198,10 @@ background-color: null;
 font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">Model</span>(Ipopt.Optimizer) </span>
-<span id="cb10-7">    <span class="pp" style="color: #AD0000;
+<span id="cb10-7">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_silent</span>(model)</span>
+<span id="cb10-8">    <span class="pp" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">@variable</span>(model, quantities[<span class="fl" style="color: #AD0000;
 background-color: null;
@@ -215,14 +214,14 @@ background-color: null;
 font-style: inherit;">0</span>) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 消費量を変数として定義</span></span>
-<span id="cb10-8">    <span class="pp" style="color: #AD0000;
+<span id="cb10-9">    <span class="pp" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">@objective</span>(model, Max, <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cobb_douglas</span>(quantities; weights)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 効用最大化</span></span>
-<span id="cb10-9">    <span class="pp" style="color: #AD0000;
+<span id="cb10-10">    <span class="pp" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">@constraint</span>(model, <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -233,16 +232,16 @@ background-color: null;
 font-style: inherit;">&lt;=</span> income) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 予算制約式</span></span>
-<span id="cb10-10">    <span class="fu" style="color: #4758AB;
+<span id="cb10-11">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">optimize!</span>(model)</span>
-<span id="cb10-11">    <span class="cf" style="color: #003B4F;
+<span id="cb10-12">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">value</span>.(quantities)</span>
-<span id="cb10-12"><span class="kw" style="color: #003B4F;
+<span id="cb10-13"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">end</span></span></code></pre></div>
@@ -283,57 +282,6 @@ font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.3</span>]</span>
 <span id="cb12-5">)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>This is Ipopt version 3.14.17, running with linear solver MUMPS 5.7.3.
-
-Number of nonzeros in equality constraint Jacobian...:        0
-Number of nonzeros in inequality constraint Jacobian.:        3
-Number of nonzeros in Lagrangian Hessian.............:        6
-
-Total number of variables............................:        3
-                     variables with only lower bounds:        3
-                variables with lower and upper bounds:        0
-                     variables with only upper bounds:        0
-Total number of equality constraints.................:        0
-Total number of inequality constraints...............:        1
-        inequality constraints with only lower bounds:        0
-   inequality constraints with lower and upper bounds:        0
-        inequality constraints with only upper bounds:        1
-
-iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
-   0  9.9999900e-03 0.00e+00 7.00e-01  -1.0 0.00e+00    -  0.00e+00 0.00e+00   0
-   1  1.1323788e-01 0.00e+00 3.94e-01  -1.0 6.19e-01    -  7.24e-01 1.00e+00f  1
-   2  3.0332663e+00 0.00e+00 3.26e-01  -1.0 1.73e+01    -  8.41e-02 1.00e+00f  1
-   3  1.1420971e+01 0.00e+00 1.26e-01  -1.0 4.77e+01    -  3.20e-01 1.00e+00f  1
-   4  1.6777675e+01 0.00e+00 3.78e-02  -1.0 2.62e+01    -  1.00e+00 1.00e+00f  1
-   5  1.8315460e+01 0.00e+00 5.77e-03  -1.0 7.91e+00    -  1.00e+00 1.00e+00f  1
-   6  1.8343161e+01 0.00e+00 6.89e-05  -2.5 6.32e-01    -  9.99e-01 1.00e+00f  1
-   7  1.8346144e+01 0.00e+00 7.49e-08  -3.8 2.34e-02    -  1.00e+00 1.00e+00f  1
-   8  1.8346293e+01 0.00e+00 3.38e-11  -5.7 8.15e-04    -  1.00e+00 1.00e+00f  1
-   9  1.8346295e+01 0.00e+00 2.75e-14  -8.6 1.01e-05    -  1.00e+00 1.00e+00f  1
-
-Number of Iterations....: 9
-
-                                   (scaled)                 (unscaled)
-Objective...............:  -1.8346295273804525e+01    1.8346295273804525e+01
-Dual infeasibility......:   2.7535867802551789e-14    2.7535867802551789e-14
-Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
-Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
-Complementarity.........:   2.5064583666568809e-09    2.5064583666568809e-09
-Overall NLP error.......:   2.5064583666568809e-09    2.5064583666568809e-09
-
-
-Number of objective function evaluations             = 10
-Number of objective gradient evaluations             = 10
-Number of equality constraint evaluations            = 0
-Number of inequality constraint evaluations          = 10
-Number of equality constraint Jacobian evaluations   = 0
-Number of inequality constraint Jacobian evaluations = 1
-Number of Lagrangian Hessian evaluations             = 9
-Total seconds in IPOPT                               = 0.002
-
-EXIT: Optimal Solution Found.</code></pre>
-</div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.000000297265977
@@ -341,9 +289,9 @@ EXIT: Optimal Solution Found.</code></pre>
  10.000000099089569</code></pre>
 </div>
 </div>
-<p>上記のように様々な評価結果が表示されますが，最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．</p>
+<p>最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．</p>
 <div id="16" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1">quantities_numerical</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1">quantities_numerical</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.000000297265977
@@ -352,7 +300,7 @@ EXIT: Optimal Solution Found.</code></pre>
 </div>
 </div>
 <div id="18" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1">quantities_analytical</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1">quantities_analytical</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.0
@@ -370,7 +318,18 @@ EXIT: Optimal Solution Found.</code></pre>
 
 </section>
 
- ]]></description>
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+
+<ol>
+<li id="fn1"><p>具体的な解法は割愛しますが，以下の条件から導出できます．</p>
+<ol type="1">
+<li>効用最大化条件: <img src="https://latex.codecogs.com/png.latex?MRS_%7Bij%7D=%5Cfrac%7B%5Cpartial%20U/%5Cpartial%20x_i%7D%7B%5Cpartial%20U/%5Cpartial%20x_j%7D=%5Cfrac%7Bp_i%7D%7Bp_j%7D"></li>
+<li>予算制約式: <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5E%7Bn%7D%20p_i%20x_i%20=%20Y"></li>
+</ol>
+↩︎</li>
+</ol>
+</section></div> ]]></description>
   <category>JuMP</category>
   <category>Julia</category>
   <category>Japanese</category>

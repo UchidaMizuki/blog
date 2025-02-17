@@ -39,12 +39,12 @@ cobb_douglas(
 
 一般的に，効用最大化問題は，価格と所得が与えられたときに， 効用を最大化するような消費量を求める問題として定式化されます．
 
-こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます\[\^1\]． ここで，$p_i$は生産要素$i$の価格，$Y$は所得です．
+こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます[^1]． ここで，$p_i$は生産要素$i$の価格，$Y$は所得です．
 
-具体的な解法は割愛しますが，以下の条件から導出できます．
+[^1]: 具体的な解法は割愛しますが，以下の条件から導出できます．
 
-1.  効用最大化条件: $MRS_{ij}=\frac{\partial U/\partial x}{\partial U/\partial y}=\frac{p_x}{p_y}$
-2.  予算制約式: $\sum_{i=1}^{n} p_i x_i = Y$
+    1.  効用最大化条件: $MRS_{ij}=\frac{\partial U/\partial x_i}{\partial U/\partial x_j}=\frac{p_i}{p_j}$
+    2.  予算制約式: $\sum_{i=1}^{n} p_i x_i = Y$
 
 $$
 x_i = \frac{1}{p_i}\frac{w_i}{\sum_{j=1}^{n} w_j}Y
@@ -77,7 +77,14 @@ Pkg.add("JuMP")
 Pkg.add("Ipopt")
 ```
 
-すでに定義した`cobb_douglas`関数を用いて，以下のように，JuMPを用いて 効用最大化問題を定式化し，数値的に解くことができます．
+コブ・ダグラス型効用関数を用いた効用最大化問題は以下のように定式化されます． JuMPでは，すでに定義した`cobb_douglas`関数を用いて， 簡単に，効用最大化問題を記述し，数値的に解くことができます．
+
+$$
+\begin{aligned}
+  \text{maximize} && U = \prod_{i=1}^{n} x_i^{\alpha_i} \\
+  \text{subject to} && \sum_{i=1}^{n} p_i x_i \leq Y \\
+\end{aligned}
+$$
 
 ```{julia}
 using JuMP
@@ -86,6 +93,7 @@ using Ipopt
 function demand_marshallian_cobb_douglas_numerical(prices, income; weights)
     n = length(prices)
     model = Model(Ipopt.Optimizer) 
+    set_silent(model)
     @variable(model, quantities[1:n] >= 0) # 消費量を変数として定義
     @objective(model, Max, cobb_douglas(quantities; weights)) # 効用最大化
     @constraint(model, sum(prices .* quantities) <= income) # 予算制約式
@@ -111,7 +119,7 @@ quantities_numerical = demand_marshallian_cobb_douglas_numerical(
 )
 ```
 
-上記のように様々な評価結果が表示されますが，最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．
+最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．
 
 ```{julia}
 quantities_numerical
