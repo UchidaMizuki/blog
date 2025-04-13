@@ -1,0 +1,12 @@
+{
+  "hash": "c5ac580161d7f52ab4f9a275c0e949dd",
+  "result": {
+    "engine": "julia",
+    "markdown": "---\ntitle: \"Julia JuMPで効用最大化問題を解いてみた（構造体と多重ディスパッチを使って）\"\nengine: julia\nlang: ja\ncategories: [JuMP, Julia, Japanese]\n# date: \"2025-02-17\"\ndraft: true\n---\n\n",
+    "supporting": [
+      "solving-utility-maximisation-problems-with-julia-jump-struct_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

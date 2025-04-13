@@ -1,0 +1,9 @@
+---
+title: "Julia JuMPで効用最大化問題を解いてみた（構造体と多重ディスパッチを使って）"
+engine: julia
+lang: ja
+categories: [JuMP, Julia, Japanese]
+# date: "2025-02-17"
+draft: true
+---
+

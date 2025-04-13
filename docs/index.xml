@@ -10,7 +10,534 @@
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Sun, 16 Feb 2025 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 12 Apr 2025 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>割合データ（割り算値）から観測ノイズを除去する</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>この記事では，以下のような割合データ（割り算値）を扱うときにしばしば生じる少数問題への対処法について説明します．</p>
+<ul>
+<li>地域別の感染症の罹患率</li>
+<li>店舗別の一定時間あたりの来店客数</li>
+<li>学校別の難関校合格率</li>
+</ul>
+<p>少数問題（small number problem）とは，観測値が小さい場合に割合データのばらつきが大きくなることを指します． 以下では，カウントデータが従うことが多いとされるポアソン分布を対象に少数問題の対処法を考えます（二項分布でも同様の議論を展開することができます）． 分母にあたる人口等が<img src="https://latex.codecogs.com/png.latex?N">，割合の真値が<img src="https://latex.codecogs.com/png.latex?%5Ctheta">のとき，分子にあたるカウントデータ（感染者数等）<img src="https://latex.codecogs.com/png.latex?n">は以下のようなポアソン分布に従うと考えられます．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0An%20%5Csim%20%5Ctext%7BPoisson%7D(N%20%5Ctheta)%0A"></p>
+<p>さらに，このポアソン分布の分散は以下のように表されます．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BVar%7D%5Bn%5D%20=%20N%20%5Ctheta%0A"></p>
+<p>割合（真値）を推定するための素朴な方法として，<img src="https://latex.codecogs.com/png.latex?n">を<img src="https://latex.codecogs.com/png.latex?N">で割ることが考えられます． しかし，この方法で得られる割合の分散は以下のように，<img src="https://latex.codecogs.com/png.latex?N">が小さいときに分散が大きくなるという性質を持っています． こうした性質は，ポアソン分布や二項分布のように分散（観測ノイズ）が期待値と比例する分布に共通するものです．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BVar%7D%5Cleft%5B%5Cfrac%7Bn%7D%7BN%7D%5Cright%5D%20=%20%5Cfrac%7B%5Ctheta%7D%7BN%7D%0A"></p>
+<p>こうした観測ノイズの性質は，たとえば難関校合格率の学校別ランキング等を考えた場合に問題となる可能性があります． 総受験者数が大きく異なる以下のような学校Aと学校Bを比べてみましょう．</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>学校</th>
+<th>総受験者数</th>
+<th>難関校合格者数</th>
+<th>難関校合格率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>学校A</td>
+<td>100</td>
+<td>30</td>
+<td>30 %</td>
+</tr>
+<tr class="even">
+<td>学校B</td>
+<td>5</td>
+<td>2</td>
+<td>40 %</td>
+</tr>
+</tbody>
+</table>
+<p>この場合，学校Bでは，合格者数が少し変動しただけで難関校合格率が大きく変化してしまうため，学校Aの難関校合格率と比べて精度が低いと考えられます． このような状況で，難関校合格率ランキングを作ると，難関校合格率の真値は必ずしも高くないがたまたま合格者数が多かった総受験者数の少ない学校等が上位に順位付けされることとなります． こうした現象は，今後の難関校合格率を予想する場合等に問題となりえます．</p>
+<p>以下では，こうした複数地域・店舗・学校等のデータの観測値のみを用いて割合データの平滑化を行う方法について説明します．</p>
+<section id="ベイズの定理を用いた平滑化" class="level2">
+<h2 class="anchored" data-anchor-id="ベイズの定理を用いた平滑化">ベイズの定理を用いた平滑化</h2>
+<p>カウントデータがポアソン分布，割合の真値がポアソン分布の共役事前分布であるガンマ分布に従うと仮定します．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20%5Ctheta%20&amp;%5Csim%20%5Ctext%7BGamma%7D(%5Calpha,%20%5Cbeta)%20%5C%5C%0A%20%20n%20%5Cmid%20%5Ctheta%20&amp;%5Csim%20%5Ctext%7BPoisson%7D(N%20%5Ctheta)%0A%5Cend%7Balign%7D%0A"></p>
+<p>すると，ベイズの定理を用いて，<img src="https://latex.codecogs.com/png.latex?%5Ctheta">の事後分布，すなわち観測値<img src="https://latex.codecogs.com/png.latex?n">が与えられたときの<img src="https://latex.codecogs.com/png.latex?%5Ctheta">の分布は以下のようになります．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20P(%5Ctheta%20%5Cmid%20n)%20&amp;%5Cpropto%20P(n%20%5Cmid%20%5Ctheta)%20P(%5Ctheta)%20%5C%5C%0A%20%20&amp;%5Cpropto%20(N%20%5Ctheta)%5En%20%5Cexp(-N%20%5Ctheta)%20%5Ccdot%20%5Ctheta%5E%7B%5Calpha%20-%201%7D%20%5Cexp(-%5Cbeta%5Ctheta)%20%5C%5C%0A%20%20&amp;%5Cpropto%20%5Ctheta%5E%7Bn%20+%20%5Calpha%20-%201%7D%20%5Cexp%5B-(N%20+%20%5Cbeta)%5Ctheta%5D%20%5C%5C%0A%20%20%5Ctheta%20%5Cmid%20n%20&amp;%5Csim%20%5Ctext%7BGamma%7D(n%20+%20%5Calpha,%20N%20+%20%5Cbeta)%0A%5Cend%7Balign%7D%0A"></p>
+<p>そのため，<img src="https://latex.codecogs.com/png.latex?%5Ctheta">の事後分布の期待値は以下のような簡単な式で表され，この式を用いることで，観測ノイズを除去（平滑化）することができます．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BE%7D%5B%5Ctheta%20%5Cmid%20n%5D%20=%20%5Cfrac%7Bn%20+%20%5Calpha%7D%7BN%20+%20%5Cbeta%7D%0A"></p>
+<p>一方で，こうした平滑化を行うためには，<img src="https://latex.codecogs.com/png.latex?%5Calpha">と<img src="https://latex.codecogs.com/png.latex?%5Cbeta">の値を決める必要があります． 以下では，事前分布のパラメータ<img src="https://latex.codecogs.com/png.latex?%5Calpha">と<img src="https://latex.codecogs.com/png.latex?%5Cbeta">を観測値から推定する方法について説明します．</p>
+</section>
+<section id="経験ベイズ法による事前分布のパラメータ推定" class="level2">
+<h2 class="anchored" data-anchor-id="経験ベイズ法による事前分布のパラメータ推定">経験ベイズ法による事前分布のパラメータ推定</h2>
+<p>経験ベイズ法は，観測値から事前分布のパラメータを（経験的に）推定する方法です． 経験ベイズ法における事前分布のパラメータの推定方法として，モーメント法や最尤法を用いる方法が考えられますが，以下では，最尤法を用いた方法について説明します．</p>
+<p>最尤法を行うにあたって，事前に<img src="https://latex.codecogs.com/png.latex?n">が従う分布を確かめておきましょう． <img src="https://latex.codecogs.com/png.latex?n">は，以下のようなガンマ分布とポアソン分布の混合分布に従うと考えられます． 通常，混合分布を求めるには積分計算が必要となってしまいますが，ガンマ分布とポアソン分布の混合分布は，負の二項分布に従うことが知られています． そのため，あらかじめ以下のように<img src="https://latex.codecogs.com/png.latex?n">の確率分布を求めておきます．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20P(n)%20&amp;=%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P(n%20%5Cmid%20%5Ctheta)%20P(%5Ctheta)%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20%5Cfrac%7B1%7D%7Bn!%7D%20(N%20%5Ctheta)%5En%20%5Cexp(-N%20%5Ctheta)%20%5Ccdot%20%5Cfrac%7B%5Cbeta%5E%7B%5Calpha%7D%7D%7B%5CGamma(%5Calpha)%7D%20%5Ctheta%5E%7B%5Calpha%20-%201%7D%20%5Cexp(-%5Cbeta%5Ctheta)%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7BN%5En%20%5Cbeta%5E%7B%5Calpha%7D%7D%7Bn!%20%5CGamma(%5Calpha)%7D%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20%5Ctheta%5E%7Bn%20+%20%5Calpha%20-%201%7D%20%5Cexp%5B-(N%20+%20%5Cbeta)%5Ctheta%5D%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7BN%5En%20%5Cbeta%5E%7B%5Calpha%7D%7D%7Bn!%20%5CGamma(%5Calpha)%7D%20%5Ccdot%20%5Cfrac%7B%5CGamma(n%20+%20%5Calpha)%7D%7B(N%20+%20%5Cbeta)%5E%7Bn%20+%20%5Calpha%7D%7D%20%5Cquad%20%5Ctext%7B(%E3%82%AC%E3%83%B3%E3%83%9E%E5%88%86%E5%B8%83%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%81%AE%E7%A9%8D%E5%88%86%E3%81%AF%E6%AD%A3%E8%A6%8F%E5%8C%96%E5%AE%9A%E6%95%B0%E3%81%AE%E9%80%86%E6%95%B0%E3%81%AB%E7%AD%89%E3%81%97%E3%81%84)%7D%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7B%5CGamma(n%20+%20%5Calpha)%7D%7B%5CGamma(n%20+%201)%20%5CGamma(%5Calpha)%7D%20%5Cleft(%20%5Cfrac%7BN%7D%7BN%20+%20%5Cbeta%7D%20%5Cright)%5E%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Cbeta%7D%7BN%20+%20%5Cbeta%7D%20%5Cright)%5E%5Calpha%20%5C%5C%0A%20%20&amp;=%20%5Cbinom%7Bn%20+%20%5Calpha%20-%201%7D%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%7D%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%20+%20%5Calpha%7D%20%5Cright)%5E%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Calpha%7D%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%20+%20%5Calpha%7D%20%5Cright)%5E%7B%5Calpha%7D%20%5C%5C%0A%5Cend%7Balign%7D%0A"></p>
+<p>以上の式より，<img src="https://latex.codecogs.com/png.latex?n">は以下のような負の二項分布に従うことがわかります． ただし，負の二項分布にはいくつかのパラメータ設定方法があるため注意が必要です． ここでのパラメータ設定方法は，<a href="https://mc-stan.org/docs/functions-reference/unbounded_discrete_distributions.html#nbalt">stanのNegBinomial2</a>と同様です．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0An%20%5Csim%20%5Ctext%7BNegBinomial2%7D(%5Cmu,%20%5Calpha),%20%5Cquad%20%5Cmu%20=%20%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%0A"></p>
+<p>このように，<img src="https://latex.codecogs.com/png.latex?n">は，負の二項分布と呼ばれる一般的な確率分布に従うことがわかるため，Rで提供されている既存の関数を用いて最尤法を行うことができます． 以下では，実験的に作成したテストデータを対象に，R MASSパッケージの<code>glm.nb()</code>関数を用いて最尤法を行い，割合データの平滑化を行ってみます．</p>
+</section>
+<section id="平滑化の実例" class="level2">
+<h2 class="anchored" data-anchor-id="平滑化の実例">平滑化の実例</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_set</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_bw</span>())</span></code></pre></div>
+</div>
+<section id="テストデータの作成" class="level3">
+<h3 class="anchored" data-anchor-id="テストデータの作成">テストデータの作成</h3>
+<p>まず，サンプルサイズを10,000とし，割合の真値を<img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%205,%20%5Cbeta%20=%2050">のガンマ分布からランダムに生成します．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb2-2"></span>
+<span id="cb2-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># サンプルサイズ</span></span>
+<span id="cb2-4">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e4</span></span>
+<span id="cb2-5"></span>
+<span id="cb2-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 割合 (真値)</span></span>
+<span id="cb2-7">alpha_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span></span>
+<span id="cb2-8">beta_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span></span>
+<span id="cb2-9">rate_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rgamma</span>(n, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shape =</span> alpha_true, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate =</span> beta_true)</span></code></pre></div>
+</div>
+<p>割合の真値<code>rate_true</code>は以下のような分布を持ちます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate_true =</span> rate_true) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb3-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(rate_true)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">binwidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e-2</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>次に，人口（分母）<code>population</code>を1から100までの整数からランダムに選びます． さらに，割合の真値<code>rate_true</code>に基づき，ポアソン分布からカウントデータ（分子）<code>count</code>を生成し，これらの結果をデータフレーム<code>data</code>にまとめます．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 人口 (分母)</span></span>
+<span id="cb4-2">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb4-3">population <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(x, n, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">replace =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-4"></span>
+<span id="cb4-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># カウントデータ (分子)</span></span>
+<span id="cb4-6">count <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rpois</span>(n, rate_true <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> population)</span>
+<span id="cb4-7"></span>
+<span id="cb4-8">data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb4-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">population =</span> population,</span>
+<span id="cb4-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate_true =</span> rate_true,</span>
+<span id="cb4-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">count =</span> count</span>
+<span id="cb4-12">)</span>
+<span id="cb4-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["population"],"name":[1],"type":["int"],"align":["right"]},{"label":["rate_true"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"50","2":"0.04607358","3":"5"},{"1":"1","2":"0.10383167","3":"0"},{"1":"22","2":"0.10588879","3":"5"},{"1":"7","2":"0.06167660","3":"1"},{"1":"94","2":"0.11275060","3":"11"},{"1":"29","2":"0.06726748","3":"2"},{"1":"62","2":"0.13655770","3":"9"},{"1":"63","2":"0.06552866","3":"2"},{"1":"76","2":"0.07089299","3":"7"},{"1":"45","2":"0.03104801","3":"0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="少数問題の確認" class="level3">
+<h3 class="anchored" data-anchor-id="少数問題の確認">少数問題の確認</h3>
+<p>それでは，テストデータを用いて，少数問題が発生しているかを確認してみましょう． まずは，割り算を用いた割合の推定値<code>rate_crude</code>を計算し，<code>population</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画します． すると，以下のように，<code>population</code>が小さい場合に，<code>rate_crude</code>が大きくなる傾向がみられることがわかります． もし，手元のデータでも同様の傾向がみられる場合，少数問題が発生している可能性があります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">data_crude <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb5-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate_crude =</span> count <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> population</span>
+<span id="cb5-4">  )</span>
+<span id="cb5-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data_crude, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["population"],"name":[1],"type":["int"],"align":["right"]},{"label":["rate_true"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]},{"label":["rate_crude"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"50","2":"0.04607358","3":"5","4":"0.10000000"},{"1":"1","2":"0.10383167","3":"0","4":"0.00000000"},{"1":"22","2":"0.10588879","3":"5","4":"0.22727273"},{"1":"7","2":"0.06167660","3":"1","4":"0.14285714"},{"1":"94","2":"0.11275060","3":"11","4":"0.11702128"},{"1":"29","2":"0.06726748","3":"2","4":"0.06896552"},{"1":"62","2":"0.13655770","3":"9","4":"0.14516129"},{"1":"63","2":"0.06552866","3":"2","4":"0.03174603"},{"1":"76","2":"0.07089299","3":"7","4":"0.09210526"},{"1":"45","2":"0.03104801","3":"0","4":"0.00000000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">data_crude <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(population, rate_crude)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>通常のデータでは割合の真値<code>rate_true</code>はわかりませんが，ここでは<code>rate_true</code>と<code>rate_crude</code>の関係も確認することができます． 以下のように，<code>rate_true</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画すると，<code>population</code>が小さい場合に，<code>rate_crude</code>が45度線から大きく外れる傾向がみられることがわかります． 以上の結果より，テストデータで少数問題が発生していることが確認できました．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">data_crude <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb7-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(rate_true, rate_crude, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> population)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_abline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_color_viridis_c</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"turbo"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-6">  tune<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_obs_pred</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="負の二項分布を用いた平滑化" class="level2">
+<h2 class="anchored" data-anchor-id="負の二項分布を用いた平滑化">負の二項分布を用いた平滑化</h2>
+<p>それでは，負の二項分布を用いて平滑化を行ってみましょう． ここでは，Rで簡単に利用可能なMASSパッケージの<code>glm.nb()</code>関数を用いて，最尤法を行います． <code>glm.nb()</code>により，目的変数が負の二項分布に従うような一般化線形モデルを推定することができます．</p>
+<p>以下のような簡単なコードで負の二項分布のパラメータ推定ができます． ここでは，期待値が<code>population</code>に比例するよう，<code>log(population)</code>をオフセット項に指定しています．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> MASS<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glm.nb</span>(</span>
+<span id="cb8-2">  count <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">offset</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log</span>(population)),</span>
+<span id="cb8-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> data</span>
+<span id="cb8-4">)</span></code></pre></div>
+</div>
+<p>次に，<code>glm.nb()</code>の出力値を格納した<code>model</code>からガンマ分布のパラメータを取得します． ガンマ分布の<img src="https://latex.codecogs.com/png.latex?%5Calpha">は，<code>model$theta</code>で取得できます． <img src="https://latex.codecogs.com/png.latex?%5Calpha">の推定値<code>alpha_estimated</code>は，真値の<code>alpha_true</code>とおおよそ一致することがわかります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">alpha_estimated <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> model<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>theta</span>
+<span id="cb9-2"></span>
+<span id="cb9-3">alpha_true</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">alpha_estimated</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5.014545</code></pre>
+</div>
+</div>
+<p>また，ガンマ分布の<img src="https://latex.codecogs.com/png.latex?%5Cbeta">は，上に示した<img src="https://latex.codecogs.com/png.latex?%5Cmu">の関係式より以下で求められます． <img src="https://latex.codecogs.com/png.latex?%5Cmu">はサンプルサイズの数だけ出力されますが，<img src="https://latex.codecogs.com/png.latex?%5Cbeta">の推定値<code>beta_estimated</code>が全てほぼ同等の値をもち，さらに，真値の<code>beta_true</code>とおおよそ一致することがわかります．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbeta%20=%20%5Cfrac%7Ba%20N%7D%7B%5Cmu%7D%0A"></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">mu <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"response"</span>)</span>
+<span id="cb13-2">beta_estimated <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> alpha_estimated <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> population <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> mu</span>
+<span id="cb13-3"></span>
+<span id="cb13-4">beta_true</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 50</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">near</span>(beta_estimated, beta_estimated[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]]))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(beta_estimated)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2        3        4        5        6 
+50.07359 50.07359 50.07359 50.07359 50.07359 50.07359 </code></pre>
+</div>
+</div>
+<p>それでは，最後に求められたガンマ分布の<img src="https://latex.codecogs.com/png.latex?%5Calpha">と<img src="https://latex.codecogs.com/png.latex?%5Cbeta">を使って割合の平滑化を行ってみましょう． 以下に，平滑化に使用する式を再掲します． この式に従って平滑化した割合<code>rate_smoothed</code>を対象に，先ほどと同様のグラフを描画してみます． すると，<code>population</code>が小さい場合であっても，割合が過大・過小になる傾向がみられないことがわかり，少数問題が解消されていることが確認できました．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7Bn%20+%20%5Calpha%7D%7BN%20+%20%5Cbeta%7D%0A"></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">data_smoothed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb19-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb19-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate_smoothed =</span> (count <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> alpha_estimated) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (population <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta_estimated)</span>
+<span id="cb19-4">  )</span>
+<span id="cb19-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(data_smoothed, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["population"],"name":[1],"type":["int"],"align":["right"]},{"label":["rate_true"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["count"],"name":[3],"type":["int"],"align":["right"]},{"label":["rate_smoothed"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"50","2":"0.04607358","3":"5","4":"0.10007180"},{"1":"1","2":"0.10383167","3":"0","4":"0.09818273"},{"1":"22","2":"0.10588879","3":"5","4":"0.13894887"},{"1":"7","2":"0.06167660","3":"1","4":"0.10538227"},{"1":"94","2":"0.11275060","3":"11","4":"0.11115531"},{"1":"29","2":"0.06726748","3":"2","4":"0.08870907"},{"1":"62","2":"0.13655770","3":"9","4":"0.12504770"},{"1":"63","2":"0.06552866","3":"2","4":"0.06203521"},{"1":"76","2":"0.07089299","3":"7","4":"0.09529787"},{"1":"45","2":"0.03104801","3":"0","4":"0.05274382"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1">data_smoothed <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb20-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(population, rate_smoothed)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb20-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1">data_smoothed <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb21-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(rate_true, rate_smoothed, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> population)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_abline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_color_viridis_c</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"turbo"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-6">  tune<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_obs_pred</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="おわりに" class="level2">
+<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
+<p>この記事では，割合データにおける少数問題への対処法として，経験ベイズ法を用いた平滑化手法について説明しました． 分母の人口等が小さい場合に割合データのばらつきが大きくなる現象は，実務でもしばしば問題になると思われます． そうした場合には，何らかのしきい値で分母の小さいデータを除外する方法も考えられますが， この記事で説明した方法を使うと全てのデータを活用できるという利点もあります．</p>
+<p>この記事で用いたMASSパッケージの<code>glm.nb()</code>は，一般化線形モデル用の関数であるため，分母にあたる<code>offset(log(population))</code>以外の項も説明変数として含むことが可能です． これにより，地域特性等によって<img src="https://latex.codecogs.com/png.latex?%5Cbeta">が異なる状況を再現できる可能性があります．</p>
+<p>また，汎用性の高いと思われるポアソン分布を対象としましたが，二項分布でも同様の枠組みが利用できます． 二項分布の場合，事前分布としてベータ分布を用いると，平滑化の式は以下のようになります． また，混合分布はベータ・二項分布となるため，既存のRパッケージ（例：bbmle）等を用いれば，比較的簡単にパラメータ推定が可能だと思われます．</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7Bn%20+%20%5Calpha%7D%7BN%20+%20%5Calpha%20+%20%5Cbeta%7D%0A"></p>
+
+
+</section>
+
+ ]]></description>
+  <category>Japanese</category>
+  <category>Statistics</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html</guid>
+  <pubDate>Sat, 12 Apr 2025 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Julia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</link>
@@ -2680,7 +3207,7 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 
  ]]></description>
   <category>Japanese</category>
-  <category>Distribution</category>
+  <category>Statistics</category>
   <guid>https://uchidamizuki.quarto.pub/blog/posts/2024/03/normal-distribution-with-mean-following-a-normal-distribution.html</guid>
   <pubDate>Fri, 22 Mar 2024 15:00:00 GMT</pubDate>
 </item>
@@ -10684,1105 +11211,6 @@ font-style: inherit;">layout_japan</span>(plot)</span></code></pre></div>
   <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</guid>
   <pubDate>Fri, 10 Jun 2022 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2022/06/foreigner_ratio_2015.png" medium="image" type="image/png" height="144" width="144"/>
-</item>
-<item>
-  <title>Rで産業連関分析</title>
-  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja.html</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．</p>
-<p>これまで，産業連関分析では，Excel・VBAが用いられることが多かったようです．</p>
-<p>一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます． これらのプログラミング言語は以下のような特長を持っています．</p>
-<ul>
-<li>無料で利用することができる</li>
-<li>作業の再現性が高まりミスが修正しやすい・他者がミスに気づきやすい</li>
-<li>高度な分析手法が簡単に利用できる</li>
-</ul>
-<p>そのため今後は，産業連関分析においても，これらのプログラミング言語の利用が 進むのではないかと思われます．</p>
-<p>ここでは，Rを用いて産業連関分析を行います． Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが 多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．</p>
-<p>産業連関表として，e-Statのデータベースで公開されている日本（国）の 2013年・13部門産業連関表を用います． ここで使用するデータは， <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできます．</p>
-<section id="産業連関分析の基礎" class="level2">
-<h2 class="anchored" data-anchor-id="産業連関分析の基礎">産業連関分析の基礎</h2>
-<p>産業連関分析は一般的に以下の流れに従って行われます．</p>
-<ol type="1">
-<li><strong>産業連関表</strong>の整形</li>
-<li><strong>投入係数行列</strong>の算出</li>
-<li><strong>レオンチェフ逆行列</strong>の算出</li>
-<li><strong>経済波及効果</strong>の算出</li>
-</ol>
-<p>まず，産業連関分析において重要な投入係数行列・レオンチェフ逆行列・経済波及効果の算出方法について解説します．</p>
-<section id="投入係数行列とは" class="level3">
-<h3 class="anchored" data-anchor-id="投入係数行列とは">投入係数行列とは</h3>
-<p>投入係数は，産業の「<strong>クッキングレシピ</strong>」として呼ばれており，産業<img src="https://latex.codecogs.com/png.latex?j">の生産物を1単位生産するのに必要な産業<img src="https://latex.codecogs.com/png.latex?i">の生産物の量を表すものです．具体的には，以下のように中間投入<img src="https://latex.codecogs.com/png.latex?x_%7Bij%7D">を生産額<img src="https://latex.codecogs.com/png.latex?X_j">（産出額）で割ることで算出できます．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Aa_%7Bij%7D=%5Cfrac%7Bx_%7Bij%7D%7D%7BX_j%7D%0A"></p>
-<p>産業連関分析では，「クッキングレシピ」に相当する投入係数<img src="https://latex.codecogs.com/png.latex?a_%7Bij%7D">に基づく生産額のバランス式（行方向）を連立方程式として解きます．そこで，以下のように，<strong>投入係数行列</strong>（通常，<img src="https://latex.codecogs.com/png.latex?A">と表される）と呼ばれる行列を作成することで，連立方程式が簡単に解けるようになります．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AA%20=%20%5Cbegin%7Bpmatrix%7D%0A%20%20a_%7B11%7D%20&amp;%20%5Ccdots%20&amp;%20a_%7B1n%7D%20%5C%5C%0A%20%20%5Cvdots%20&amp;%20%5Cddots%20&amp;%20%5Cvdots%20%5C%5C%0A%20%20a_%7Bn1%7D%20&amp;%20%5Ccdots%20&amp;%20a_%7Bnn%7D%20%5C%5C%0A%5Cend%7Bpmatrix%7D%0A"></p>
-</section>
-<section id="レオンチェフ逆行列による経済波及効果の推計について" class="level3">
-<h3 class="anchored" data-anchor-id="レオンチェフ逆行列による経済波及効果の推計について">レオンチェフ逆行列による経済波及効果の推計について</h3>
-<p>生産額のバランス式（行方向）は，行列を用いて以下のように表せます．変数の意味は以下の表の通りです．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AAX%20+%20F%20+%20E%20-%20M%20=%20X%0A"></p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: center;">変数</th>
-<th style="text-align: center;">意味</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?A"></td>
-<td style="text-align: center;">投入係数行列</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?X%20=%20(X_1,%20%5Ccdots,%20X_n)%20%5E%20%5Ctop"></td>
-<td style="text-align: center;">生産額ベクトル</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?F%20=%20(F_1,%20%5Ccdots,%20F_n)%20%5E%20%5Ctop"></td>
-<td style="text-align: center;">最終需要ベクトル</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?E%20=%20(E_1,%20%5Ccdots,%20E_n)%20%5E%20%5Ctop"></td>
-<td style="text-align: center;">移輸出ベクトル</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?M%20=%20(M_1,%20%5Ccdots,%20M_n)%20%5E%20%5Ctop"></td>
-<td style="text-align: center;">移輸入ベクトル</td>
-</tr>
-</tbody>
-</table>
-<p>経済波及効果の推計では，<strong>最終需要の変化が生産額に与える波及効果</strong>を算出します．</p>
-<p>特に，日本の産業連関表での経済波及効果の推計では，<strong>移輸入</strong><img src="https://latex.codecogs.com/png.latex?M"><strong>の扱いに注意が必要</strong>です（これは，日本表の多くが競争移輸入型表と呼ばれる形式を採用しており，投入係数に移輸入分が含まれているためです）．</p>
-<p>最終需要による経済波及効果は，域内の生産額だけでなく域外からの移輸入を誘発すると考えられます．この効果を無視すると経済波及効果を過大評価することにつながるため，通常，<strong>投入係数から移輸入相当分を差し引く</strong>という処理が行われます．</p>
-<p>移輸入は域内需要におおよそ比例すると考えられるため，以下のように，移輸入係数<img src="https://latex.codecogs.com/png.latex?%5Chat%7BM_i%7D">が算出できます．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%7BM_i%7D%20=%20%5Cfrac%7BM_i%7D%7B%5Csum_%7Bj%7Da_%7Bij%7DX_j%20+%20F_i%7D%0A"></p>
-<p>さらに，行列での計算に適した移輸入係数行列<img src="https://latex.codecogs.com/png.latex?%5Chat%7BM%7D">が，以下のように定義されます．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%7BM%7D%20=%0A%5Cbegin%7Bpmatrix%7D%0A%20%20%5Chat%7BM_1%7D%20&amp;%20&amp;%200%20%5C%5C%0A%20%20&amp;%20%5Cddots%20&amp;%20%5C%5C%0A%20%200%20&amp;%20&amp;%20%5Chat%7BM_n%7D%20%5C%5C%0A%5Cend%7Bpmatrix%7D%0A"></p>
-<p>以上より，生産額のバランス式（行方向）は，移輸入係数行列<img src="https://latex.codecogs.com/png.latex?%5Chat%7BM%7D">を用いて，以下のように変形されます．ただし，<img src="https://latex.codecogs.com/png.latex?I">は単位行列（対角成分が1，それ以外が0の正方行列）です．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20AX%20+%20F%20+%20E%20-%20%5Chat%7BM%7D%20(AX%20+%20F)%20&amp;=%20X%20%5C%5C%0A%20%20(I%20-%20%5Chat%7BM%7D)%20(AX%20+%20F)%20+%20E%20&amp;=%20X%0A%5Cend%7Balign%7D%0A"></p>
-<p>上のバランス式より，経済波及効果の算出式が，以下のように導出されます．ここで，<img src="https://latex.codecogs.com/png.latex?%5CDelta%20X">，<img src="https://latex.codecogs.com/png.latex?%5CDelta%20F">は，それぞれ，生産額の変化量，最終需要の変化量です．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20X%20&amp;=%20(I%20-%20%5Chat%7BM%7D)%20(AX%20+%20F)%20+%20E%20%5C%5C%0A%20%20%5BI%20-%20(I%20-%20%5Chat%7BM%7D)%20A%5D%20X%20&amp;=%20(I%20-%20%5Chat%7BM%7D)%20F%20+%20E%20%5C%5C%0A%20%20X%20&amp;=%20%5BI%20-%20(I%20-%20%5Chat%7BM%7D)%20A%5D%20%5E%20%7B-1%7D%20%5B(I%20-%20%5Chat%7BM%7D)%20F%20+%20E%5D%20%5C%5C%0A%20%20%5CDelta%20X%20&amp;=%20%5BI%20-%20(I%20-%20%5Chat%7BM%7D)%20A%5D%20%5E%20%7B-1%7D%20(I%20-%20%5Chat%7BM%7D)%20%5CDelta%20F%0A%5Cend%7Balign%7D%0A"></p>
-<p>生産額の変化量<img src="https://latex.codecogs.com/png.latex?%5CDelta%20X">の式の右辺の<img src="https://latex.codecogs.com/png.latex?(I%20-%20%5Chat%7BM%7D)%20%5CDelta%20F">は，最終需要の変化量に自給率<img src="https://latex.codecogs.com/png.latex?I%20-%20%5Chat%7BM%7D">を掛けた値となっています．</p>
-<p>また，<img src="https://latex.codecogs.com/png.latex?%5BI%20-%20(I%20-%20%5Chat%7BM%7D)%20A%5D%20%5E%20%7B-1%7D">は，最終需要の変化による直接・間接の波及効果を表す行列であり（開放型または競争移輸入型の）<strong>レオンチェフ逆行列</strong>と呼ばれています．</p>
-<p>以上のように，最終需要の変化量<img src="https://latex.codecogs.com/png.latex?%5CDelta%20F">から生産額の変化量<img src="https://latex.codecogs.com/png.latex?%5CDelta%20X">を推計するというのが，最も一般的な産業連関分析の方法となっています．</p>
-</section>
-</section>
-<section id="rによる産業連関分析" class="level2">
-<h2 class="anchored" data-anchor-id="rによる産業連関分析">Rによる産業連関分析</h2>
-<section id="産業連関表の整形" class="level3">
-<h3 class="anchored" data-anchor-id="産業連関表の整形">産業連関表の整形</h3>
-<p>ここでは， <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる日本の2011年の3部門表（<code>iotable_3sector_2011_wider.csv</code>）を使用します．</p>
-<p>こちらの表は，以下のように，日本の2011年の13部門表より作成したもので，<strong>単位は「百万円」</strong>です．</p>
-<ul>
-<li>13部門の産業分類を<strong>第1次・第2次・第3次産業に集計</strong>（注：「分類不明」を第3次産業に分類）</li>
-<li>付加価値部門を1部門に集計</li>
-<li>最終需要部門を域内最終需要（<code>finaldemand</code>）・輸出（<code>export</code>）・輸入（<code>import</code>）の3部門に集計</li>
-</ul>
-<p>産業連関表のデータ形式は，e-Statのデータベースで提供されている表などを除いて， 行に投入部門（<code>input</code>）・列に産出部門（<code>output</code>）を持つ「横長データ」であることが多いと思われます．</p>
-<p>ここでも，以下の通り，まずは横長の産業連関表データを読み込みます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.2.3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'tibble' was built under R version 4.2.3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'dplyr' was built under R version 4.2.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">iotable_wider <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"iotable_3sector_2011_wider.csv"</span>,</span>
-<span id="cb5-2">                          <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">col_types =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">cols</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.default =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"c"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb5-3">  </span>
-<span id="cb5-4">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># input (投入) 列以外を数値に変換</span></span>
-<span id="cb5-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">across</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span>input, parse_number))</span>
-<span id="cb5-6"></span>
-<span id="cb5-7">knitr<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">kable</span>(iotable_wider)</span></code></pre></div>
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 16%">
-<col style="width: 13%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 18%">
-<col style="width: 11%">
-<col style="width: 11%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">input</th>
-<th style="text-align: right;">industry/01_primary</th>
-<th style="text-align: right;">industry/02_secondary</th>
-<th style="text-align: right;">industry/03_tertiary</th>
-<th style="text-align: right;">finaldemand/04_finaldemand</th>
-<th style="text-align: right;">export/05_export</th>
-<th style="text-align: right;">import/06_import</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">industry/01_primary</td>
-<td style="text-align: right;">1456611</td>
-<td style="text-align: right;">7850628</td>
-<td style="text-align: right;">1373767</td>
-<td style="text-align: right;">3869875</td>
-<td style="text-align: right;">47890</td>
-<td style="text-align: right;">-2562809</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry/02_secondary</td>
-<td style="text-align: right;">2715710</td>
-<td style="text-align: right;">161897553</td>
-<td style="text-align: right;">62841827</td>
-<td style="text-align: right;">132924323</td>
-<td style="text-align: right;">54473273</td>
-<td style="text-align: right;">-71673715</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry/03_tertiary</td>
-<td style="text-align: right;">2025270</td>
-<td style="text-align: right;">66811645</td>
-<td style="text-align: right;">155796589</td>
-<td style="text-align: right;">352324555</td>
-<td style="text-align: right;">16423417</td>
-<td style="text-align: right;">-8921553</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">valueadded/04_valueadded</td>
-<td style="text-align: right;">5838371</td>
-<td style="text-align: right;">106619145</td>
-<td style="text-align: right;">364447740</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>データ分析においては，「横長データ」よりも，以下のような「縦長データ」のほうが， 分析しやすい場合が多くあります． ここでも，横長の産業連関表を「縦長データ」に変換します．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">iotable <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> iotable_wider <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb6-2">  </span>
-<span id="cb6-3">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># input (投入) 列を分類・名称に分割</span></span>
-<span id="cb6-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">separate</span>(input, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"input_type"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"input_name"</span>),</span>
-<span id="cb6-5">           <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"/"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb6-6">  </span>
-<span id="cb6-7">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># input (投入) と同様にoutput (産出) の分類・名称列を追加し縦長データに</span></span>
-<span id="cb6-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">pivot_longer</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(input_type, input_name),</span>
-<span id="cb6-9">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names_to =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"output_type"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"output_name"</span>),</span>
-<span id="cb6-10">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names_sep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"/"</span>,</span>
-<span id="cb6-11">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"value_M"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb6-12">  </span>
-<span id="cb6-13">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 数値が存在しない行を削除</span></span>
-<span id="cb6-14">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">drop_na</span>(value_M)</span>
-<span id="cb6-15"></span>
-<span id="cb6-16">knitr<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">kable</span>(iotable)</span></code></pre></div>
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">input_type</th>
-<th style="text-align: left;">input_name</th>
-<th style="text-align: left;">output_type</th>
-<th style="text-align: left;">output_name</th>
-<th style="text-align: right;">value_M</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: right;">1456611</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: right;">7850628</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: right;">1373767</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: left;">finaldemand</td>
-<td style="text-align: left;">04_finaldemand</td>
-<td style="text-align: right;">3869875</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: left;">export</td>
-<td style="text-align: left;">05_export</td>
-<td style="text-align: right;">47890</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: left;">import</td>
-<td style="text-align: left;">06_import</td>
-<td style="text-align: right;">-2562809</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: right;">2715710</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: right;">161897553</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: right;">62841827</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: left;">finaldemand</td>
-<td style="text-align: left;">04_finaldemand</td>
-<td style="text-align: right;">132924323</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: left;">export</td>
-<td style="text-align: left;">05_export</td>
-<td style="text-align: right;">54473273</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: left;">import</td>
-<td style="text-align: left;">06_import</td>
-<td style="text-align: right;">-71673715</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: right;">2025270</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: right;">66811645</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: right;">155796589</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: left;">finaldemand</td>
-<td style="text-align: left;">04_finaldemand</td>
-<td style="text-align: right;">352324555</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: left;">export</td>
-<td style="text-align: left;">05_export</td>
-<td style="text-align: right;">16423417</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: left;">import</td>
-<td style="text-align: left;">06_import</td>
-<td style="text-align: right;">-8921553</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">valueadded</td>
-<td style="text-align: left;">04_valueadded</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">01_primary</td>
-<td style="text-align: right;">5838371</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">valueadded</td>
-<td style="text-align: left;">04_valueadded</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">02_secondary</td>
-<td style="text-align: right;">106619145</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">valueadded</td>
-<td style="text-align: left;">04_valueadded</td>
-<td style="text-align: left;">industry</td>
-<td style="text-align: left;">03_tertiary</td>
-<td style="text-align: right;">364447740</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>上で構築した表データは，各行のフィルタリングなどが容易にできる一方で， 産業連関分析に用いられる行列計算などに適していません．</p>
-<p>そこで，表データの基本的な演算と行列計算を同時に行えるdibbleパッケージを用います． 以下のように，産業連関表をdibbleに変換します．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("UchidaMizuki/dibble")</span></span>
-<span id="cb7-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(dibble)</span>
-<span id="cb7-3"></span>
-<span id="cb7-4">iotable <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb7-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">dibble_by</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">input =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(input_type, input_name),</span>
-<span id="cb7-6">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">output =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(output_type, output_name),</span>
-<span id="cb7-7">            </span>
-<span id="cb7-8">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># "_"で列名を分割してinput (投入)・output (産出) 軸を設定</span></span>
-<span id="cb7-9">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.names_sep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"_"</span>)</span>
-<span id="cb7-10"></span>
-<span id="cb7-11">iotable</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   24 x 1
-# Dimensions: input [4], output [6]
-# Measures:   value_M
-   input$type $name        output$type $name            value_M
-   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;              &lt;dbl&gt;
- 1 industry   01_primary   industry    01_primary       1456611
- 2 industry   01_primary   industry    02_secondary     7850628
- 3 industry   01_primary   industry    03_tertiary      1373767
- 4 industry   01_primary   finaldemand 04_finaldemand   3869875
- 5 industry   01_primary   export      05_export          47890
- 6 industry   01_primary   import      06_import       -2562809
- 7 industry   02_secondary industry    01_primary       2715710
- 8 industry   02_secondary industry    02_secondary   161897553
- 9 industry   02_secondary industry    03_tertiary     62841827
-10 industry   02_secondary finaldemand 04_finaldemand 132924323
-# ℹ 14 more rows</code></pre>
-</div>
-</div>
-</section>
-<section id="投入係数行列の算出" class="level3">
-<h3 class="anchored" data-anchor-id="投入係数行列の算出">投入係数行列の算出</h3>
-<p>産業の「クッキングレシピ」と呼ばれる投入係数行列<img src="https://latex.codecogs.com/png.latex?A">を以下のように中間投入を生産額で割って算出します．</p>
-<p>注：dibbleではブロードキャストが自動で行われますが，安全のため，ブロードキャストを行う際に，警告を発するように設計されています．そのため，<code>broadcast()</code>でブロードキャスト後の軸名<code>c("input", "output")</code>を与えて警告が出ないようにする必要があります．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 生産額</span></span>
-<span id="cb9-2">total_input <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb9-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(output<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"industry"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb9-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">apply</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"output"</span>, sum)</span>
-<span id="cb9-5"></span>
-<span id="cb9-6"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 中間投入</span></span>
-<span id="cb9-7">interindustry <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb9-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(input<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"industry"</span>,</span>
-<span id="cb9-9">         output<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"industry"</span>)</span>
-<span id="cb9-10"></span>
-<span id="cb9-11"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 投入係数</span></span>
-<span id="cb9-12">inputcoeff <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">broadcast</span>(interindustry <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> total_input,</span>
-<span id="cb9-13">                        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"input"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"output"</span>))</span>
-<span id="cb9-14"></span>
-<span id="cb9-15">inputcoeff</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   9
-# Dimensions: input [3], output [3]
-  input$type $name        output$type $name              .
-  &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
-1 industry   01_primary   industry    01_primary   0.121  
-2 industry   01_primary   industry    02_secondary 0.0229 
-3 industry   01_primary   industry    03_tertiary  0.00235
-4 industry   02_secondary industry    01_primary   0.226  
-5 industry   02_secondary industry    02_secondary 0.472  
-6 industry   02_secondary industry    03_tertiary  0.108  
-7 industry   03_tertiary  industry    01_primary   0.168  
-8 industry   03_tertiary  industry    02_secondary 0.195  
-9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
-</div>
-</div>
-</section>
-<section id="レオンチェフ逆行列の算出" class="level3">
-<h3 class="anchored" data-anchor-id="レオンチェフ逆行列の算出">レオンチェフ逆行列の算出</h3>
-<p>経済波及効果を表すレオンチェフ逆行列は以下のように，移輸入係数と投入係数を用いて算出できます．</p>
-<p>注：<code>solve()</code>で逆行列を算出すると行列の軸名が入れ替わるため注意してください．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 域内需要</span></span>
-<span id="cb11-2">localdemand <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb11-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(input<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"industry"</span>,</span>
-<span id="cb11-4">         <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span>output<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"export"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"import"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb11-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">apply</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"input"</span>, sum)</span>
-<span id="cb11-6"></span>
-<span id="cb11-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># (移) 輸入</span></span>
-<span id="cb11-8">import <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> iotable <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb11-9">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(input<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"industry"</span>,</span>
-<span id="cb11-10">         output<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>type <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"import"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb11-11">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">apply</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"input"</span>, sum)</span>
-<span id="cb11-12"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 符号を正に</span></span>
-<span id="cb11-13">import <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span>import</span>
-<span id="cb11-14"></span>
-<span id="cb11-15"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># (移) 輸入係数</span></span>
-<span id="cb11-16">importcoeff <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> import <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> localdemand</span>
-<span id="cb11-17"></span>
-<span id="cb11-18">I <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">eye</span>(inputcoeff) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 単位行列</span></span>
-<span id="cb11-19">M <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> importcoeff     <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 移輸入係数ベクトル (broadcastが行われるため行列でなくてよい)</span></span>
-<span id="cb11-20">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> inputcoeff      <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 投入係数行列</span></span>
-<span id="cb11-21"></span>
-<span id="cb11-22"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># レオンチェフ逆行列</span></span>
-<span id="cb11-23">leontiefinv <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">broadcast</span>(I <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> (<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> M) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> A,</span>
-<span id="cb11-24">                         <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"input"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"output"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb11-25">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">solve</span>()</span>
-<span id="cb11-26"></span>
-<span id="cb11-27">leontiefinv</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   9
-# Dimensions: output [3], input [3]
-  output$type $name        input$type $name              .
-  &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
-1 industry    01_primary   industry   01_primary   1.12   
-2 industry    01_primary   industry   02_secondary 0.0361 
-3 industry    01_primary   industry   03_tertiary  0.00716
-4 industry    02_secondary industry   01_primary   0.374  
-5 industry    02_secondary industry   02_secondary 1.68   
-6 industry    02_secondary industry   03_tertiary  0.197  
-7 industry    03_tertiary  industry   01_primary   0.348  
-8 industry    03_tertiary  industry   02_secondary 0.445  
-9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
-</div>
-</div>
-</section>
-<section id="経済波及効果の算出" class="level3">
-<h3 class="anchored" data-anchor-id="経済波及効果の算出">経済波及効果の算出</h3>
-<p><a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる最終需要がそれぞれ百万円ずつ増加する（<code>finaldemand_change_3sector.csv</code>）ケースで経済波及効果を算出しています．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 最終需要変化量</span></span>
-<span id="cb13-2">finaldemand_change <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"finaldemand_change_3sector.csv"</span>,</span>
-<span id="cb13-3">                               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">col_types =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">cols</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.default =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"c"</span>,</span>
-<span id="cb13-4">                                                <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">value_M =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"n"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb13-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">dibble_by</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">input =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(input_type, input_name),</span>
-<span id="cb13-6">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.names_sep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"_"</span>)</span>
-<span id="cb13-7"></span>
-<span id="cb13-8">L <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> leontiefinv         <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># レオンチェフ逆行列</span></span>
-<span id="cb13-9">M <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> importcoeff         <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 移輸入係数</span></span>
-<span id="cb13-10">FD <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> finaldemand_change <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 最終需要変化量</span></span>
-<span id="cb13-11"></span>
-<span id="cb13-12"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 経済波及効果</span></span>
-<span id="cb13-13">spillover <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> L <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%*%</span> ((<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> M) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> FD)</span>
-<span id="cb13-14"></span>
-<span id="cb13-15">spillover</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   3
-# Dimensions: output [3]
-  output$type $name            .
-  &lt;chr&gt;       &lt;chr&gt;        &lt;dbl&gt;
-1 industry    01_primary   0.958
-2 industry    02_secondary 1.85 
-3 industry    03_tertiary  2.03 </code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">theme_set</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">theme_light</span>())</span>
-<span id="cb15-2"></span>
-<span id="cb15-3">spillover <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb15-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as_tibble</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">n =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"value_M"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb15-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">unpack</span>(output, </span>
-<span id="cb15-6">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names_sep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"_"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb15-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(output_name, value_M,</span>
-<span id="cb15-8">             <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> output_name)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb15-9">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_col</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">show.legend =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb15-10">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_brewer</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Set2"</span>)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/plot-spillover-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>Rを用いた産業連関分析の方法について紹介しました．</p>
-<p>ここまでの計算を，<a href="https://github.com/UchidaMizuki/jpio">jpio</a>にパッケージ形式でまとめました．以下のように，ここまでの計算と同様の計算を行うことができます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("UchidaMizuki/jpio")</span></span>
-<span id="cb16-2"></span>
-<span id="cb16-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 産業連関表</span></span>
-<span id="cb16-4">iotable <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"iotable_3sector_2011.csv"</span>,</span>
-<span id="cb16-5">                    <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">col_types =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">cols</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.default =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"c"</span>,</span>
-<span id="cb16-6">                                     <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">value_M =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"n"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb16-7">  jpio<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as_iotable</span>()</span>
-<span id="cb16-8"></span>
-<span id="cb16-9">iotable</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   24
-# Dimensions: input [4], output [6]
-   input$type $name        output$type $name                  .
-   &lt;fct&gt;      &lt;chr&gt;        &lt;fct&gt;       &lt;chr&gt;              &lt;dbl&gt;
- 1 industry   01_primary   industry    01_primary       1456611
- 2 industry   01_primary   industry    02_secondary     7850628
- 3 industry   01_primary   industry    03_tertiary      1373767
- 4 industry   01_primary   finaldemand 04_finaldemand   3869875
- 5 industry   01_primary   export      05_export          47890
- 6 industry   01_primary   import      06_import       -2562809
- 7 industry   02_secondary industry    01_primary       2715710
- 8 industry   02_secondary industry    02_secondary   161897553
- 9 industry   02_secondary industry    03_tertiary     62841827
-10 industry   02_secondary finaldemand 04_finaldemand 132924323
-# ℹ 14 more rows</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 投入係数</span></span>
-<span id="cb18-2">jpio<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">input_coef</span>(iotable)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   9
-# Dimensions: input [3], output [3]
-  input$type $name        output$type $name              .
-  &lt;fct&gt;      &lt;chr&gt;        &lt;fct&gt;       &lt;chr&gt;          &lt;dbl&gt;
-1 industry   01_primary   industry    01_primary   0.121  
-2 industry   01_primary   industry    02_secondary 0.0229 
-3 industry   01_primary   industry    03_tertiary  0.00235
-4 industry   02_secondary industry    01_primary   0.226  
-5 industry   02_secondary industry    02_secondary 0.472  
-6 industry   02_secondary industry    03_tertiary  0.108  
-7 industry   03_tertiary  industry    01_primary   0.168  
-8 industry   03_tertiary  industry    02_secondary 0.195  
-9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># レオンチェフ逆行列</span></span>
-<span id="cb20-2">jpio<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">leontief_inv</span>(iotable)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   9
-# Dimensions: output [3], input [3]
-  output$type $name        input$type $name              .
-  &lt;fct&gt;       &lt;chr&gt;        &lt;fct&gt;      &lt;chr&gt;          &lt;dbl&gt;
-1 industry    01_primary   industry   01_primary   1.12   
-2 industry    01_primary   industry   02_secondary 0.0361 
-3 industry    01_primary   industry   03_tertiary  0.00716
-4 industry    02_secondary industry   01_primary   0.374  
-5 industry    02_secondary industry   02_secondary 1.68   
-6 industry    02_secondary industry   03_tertiary  0.197  
-7 industry    03_tertiary  industry   01_primary   0.348  
-8 industry    03_tertiary  industry   02_secondary 0.445  
-9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 経済波及効果</span></span>
-<span id="cb22-2">jpio<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">spillover_effect</span>(iotable,</span>
-<span id="cb22-3">                       <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">01_primary</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>,</span>
-<span id="cb22-4">                            <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">02_secondary</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>,</span>
-<span id="cb22-5">                            <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">03_tertiary</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>))</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A dibble:   3
-# Dimensions: output [3]
-  output$type $name            .
-  &lt;fct&gt;       &lt;chr&gt;        &lt;dbl&gt;
-1 industry    01_primary   0.958
-2 industry    02_secondary 1.85 
-3 industry    03_tertiary  2.03 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># スカイラインチャート</span></span>
-<span id="cb24-2">jpio<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">skyline_chart</span>(iotable, </span>
-<span id="cb24-3">                    <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.5</span>, <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">NA</span>))</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja_files/figure-html/jpio-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-
-
-</section>
-
- ]]></description>
-  <category>ioanalysis</category>
-  <category>dibble</category>
-  <category>R</category>
-  <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja.html</guid>
-  <pubDate>Mon, 30 May 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2022/05/skyline_chart.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 </channel>
 </rss>
