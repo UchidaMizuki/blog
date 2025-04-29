@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</loc>
+    <lastmod>2025-04-29T15:01:14.104Z</lastmod>
+  </url>
+  <url>
     <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</loc>
     <lastmod>2025-03-17T14:25:14.726Z</lastmod>
   </url>
@@ -91,13 +95,5 @@
   <url>
     <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html</loc>
     <lastmod>2025-04-13T02:56:49.867Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/drafts/solving-utility-maximisation-problems-with-julia-jump-struct.html</loc>
-    <lastmod>2025-04-28T16:05:25.744Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</loc>
-    <lastmod>2025-04-29T15:01:14.104Z</lastmod>
   </url>
 </urlset>
