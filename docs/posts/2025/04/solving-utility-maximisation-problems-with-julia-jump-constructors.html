@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Julia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介） – UchidaMizuki</title>
+<title>Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って） – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -111,35 +111,6 @@ gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../../styles.css">
 </head>
@@ -194,7 +165,7 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Julia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）</h1>
+      <h1 class="title">Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">JuMP</div>
                 <div class="quarto-category">Julia</div>
@@ -210,7 +181,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2025年2月17日</p>
+        <p class="date">2025年4月30日</p>
       </div>
     </div>
     
@@ -229,55 +200,56 @@ window.Quarto = {
 
 
 
-<p>この記事では，数理最適化ライブラリであるJulia JuMPを用いて， 経済学でよく用いられるコブ・ダグラス型効用関数を用いた効用最大化問題を 解いてみます．</p>
-<p>コブ・ダグラス型効用関数の効用最大化は解析的に解くことができるため， 必ずしもJulia JuMPを使って解く必要はありませんが， ここでは，Julia JuMPの使い方を学ぶために，あえて解析的な解と数値的な解を 比較してみました．</p>
-<section id="コブダグラス型効用関数" class="level2">
-<h2 class="anchored" data-anchor-id="コブダグラス型効用関数">コブ・ダグラス型効用関数</h2>
-<p>コブ・ダグラス型効用関数は以下のように定義されます． ここで，<span class="math inline">\(x_i\)</span>は生産要素<span class="math inline">\(i\)</span>の消費量， <span class="math inline">\(\alpha_i\)</span>は生産要素<span class="math inline">\(i\)</span>の弾力性パラメータです．</p>
-<p><span class="math display">\[
-U = \prod_{i=1}^{n} x_i^{\alpha_i}
-\]</span></p>
-<p>この効用関数をJuliaで実装すると以下のようになります．</p>
+<p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で，Juliaの数理最適化ライブラリのJuMPを使って効用最大化問題を解く方法を紹介しました．</p>
+<p>過去の記事では，簡単な事例紹介としてコブ・ダグラス型効用関数を使った効用最大化問題を解く方法を紹介しましたが， 経済モデルでは，コブ・ダグラス型効用関数以外にも，CES型効用関数などの様々な効用関数が使われます． しかし，過去の記事で用いた実装方法では，効用関数を変更するたびに最適化問題の実装を変更する必要がありました．</p>
+<p>そこで，この記事では，Juliaのコンストラクタを使って， 同一のコードで異なる効用関数に対する効用最大化問題を解く方法を紹介します．</p>
+<section id="コブダグラス型効用関数の実装" class="level2">
+<h2 class="anchored" data-anchor-id="コブダグラス型効用関数の実装">コブ・ダグラス型効用関数の実装</h2>
+<p>効用関数は，消費量ベクトルを引数として受け取り，効用（スカラー値）を返す関数と捉えることができます． 一方で，効用関数を設定する際には，消費量ベクトル以外に弾力性パラメータ等のパラメータを事前に設定する必要があります．</p>
+<p>パラメータは効用関数によって異なるため，効用関数を抽象型<code>AbstractEconomicUtility</code>として定義し，そのサブタイプとしてコブ・ダグラス型効用関数<code>CobbDouglasUtility</code>の型を定義します． <code>CobbDouglasUtility</code>は，弾力性パラメータ<code>weights</code>を持つ型として定義します．</p>
 <div id="2" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">cobb_douglas</span>(quantities; weights)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">prod</span>(quantities <span class="op">.^</span> weights)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>cobb_douglas (generic function with 1 method)</code></pre>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">abstract type</span> AbstractEconomicUtility <span class="kw">end</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> CobbDouglasUtility <span class="op">&lt;:</span><span class="dt"> AbstractEconomicUtility</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    weights<span class="op">::</span><span class="dt">Vector{Float64}</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<p>実装した<code>cobb_douglas</code>関数に，消費量<code>quantities</code>と弾力性パラメータ<code>weights</code>を 渡すことで，以下のように，効用を計算することができます．</p>
+<p>次に，function-like objectsを定義することで，効用関数の型<code>f</code>に対して<code>f(quantities)</code>と呼ぶことで効用を計算できるようにします． 効用関数のパラメータは，型<code>f</code>から取得することができるため，関数の引数が<code>quantities</code>のみとなっていることに注意してください． これにより，様々な効用関数の型<code>f</code>に対して<code>f(quantities)</code>のような同一のコードを呼び出すことができるようになります．</p>
+<p>以上により，コブ・ダグラス型効用関数を定義することができます．</p>
 <div id="4" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cobb_douglas</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span>], </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  weights<span class="op">=</span>[<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span>]</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span>(f<span class="op">::</span><span class="dt">CobbDouglasUtility</span>)(quantities)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">prod</span>(quantities <span class="op">.^</span> f.weights)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 効用関数の定義</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>cobb_douglas <span class="op">=</span> <span class="fu">CobbDouglasUtility</span>([<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 効用の算出</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cobb_douglas</span>([<span class="fl">2</span>., <span class="fl">3</span>., <span class="fl">5</span>.])</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3.0963389922845703</code></pre>
 </div>
 </div>
-</section>
-<section id="効用最大化問題の解析的な解" class="level2">
-<h2 class="anchored" data-anchor-id="効用最大化問題の解析的な解">効用最大化問題の解析的な解</h2>
-<p>一般的に，効用最大化問題は，価格と所得が与えられたときに， 効用を最大化するような消費量を求める問題として定式化されます．</p>
-<p>こうした消費量（需要量）は，マーシャルの需要関数として知られています． コブ・ダグラス型効用関数の場合，マーシャルの需要関数は以下のように導出されます<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>． ここで，<span class="math inline">\(p_i\)</span>は生産要素<span class="math inline">\(i\)</span>の価格，<span class="math inline">\(Y\)</span>は所得です．</p>
-<p><span class="math display">\[
-x_i = \frac{1}{p_i}\frac{w_i}{\sum_{j=1}^{n} w_j}Y
-\]</span></p>
-<div id="6" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">demand_marshallian_cobb_douglas_analytical</span>(prices, income; weights)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> income <span class="op">.*</span> weights <span class="op">./</span> <span class="fu">sum</span>(weights) <span class="op">./</span> prices</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>demand_marshallian_cobb_douglas_analytical (generic function with 1 method)</code></pre>
-</div>
-</div>
-<p>実装した<code>demand_marshallian_cobb_douglas_analytical</code>関数に，価格<code>prices</code>と 所得<code>income</code>，弾力性パラメータ<code>weights</code>を渡すことで，以下のように，需要量を 計算することができます．</p>
+<p>さらに，<a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>と同様にマーシャルの需要関数<code>demand_marshallian()</code>を定義します．</p>
+<p><code>demand_marshallian()</code>により，コブ・ダグラス型効用関数の効用最大化問題の解析的な解を求めることができます．</p>
 <div id="8" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>quantities_analytical <span class="op">=</span> <span class="fu">demand_marshallian_cobb_douglas_analytical</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>], </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">100</span>, </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  weights<span class="op">=</span>[<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span>]</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">demand_marshallian</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  f<span class="op">::</span><span class="dt">CobbDouglasUtility</span>;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  prices,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  income</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> income <span class="op">*</span> f.weights <span class="op">/</span> <span class="fu">sum</span>(f.weights) <span class="op">./</span> prices</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian (generic function with 1 method)</code></pre>
+</div>
+</div>
+<div id="10" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>quantities_analytical_cobb_douglas <span class="op">=</span> <span class="fu">demand_marshallian</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  cobb_douglas;</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  prices <span class="op">=</span> [<span class="fl">1</span>., <span class="fl">2</span>., <span class="fl">3</span>.],</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  income <span class="op">=</span> <span class="fl">100</span>.</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
@@ -289,69 +261,42 @@ x_i = \frac{1}{p_i}\frac{w_i}{\sum_{j=1}^{n} w_j}Y
 </section>
 <section id="効用最大化問題の数値的な解" class="level2">
 <h2 class="anchored" data-anchor-id="効用最大化問題の数値的な解">効用最大化問題の数値的な解</h2>
-<p>次に，Julia JuMPを用いて，効用最大化問題を数値的に解いてみます． 事前に，JuMPパッケージとIpoptパッケージをインストールしておきましょう． Ipoptは，非線形最適化問題を解くためのソルバーを提供しています．</p>
-<div id="10" class="cell" data-execution_count="0">
+<p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>のコードを少し変更することで，効用最大化問題を数値的に解くことができます．</p>
+<p>過去の記事では，コブ・ダグラス型効用関数専用のコードを定義していましたが， 以下の関数<code>demand_marshallian_numerical</code>は，抽象型<code>AbstractEconomicUtility</code>を引数に取ることで， 様々な効用関数に対して同一のコードを使うことができます．</p>
+<div id="12" class="cell" data-execution_count="0">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">Pkg</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"JuMP"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"Ipopt"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>コブ・ダグラス型効用関数を用いた効用最大化問題は以下のように定式化されます． JuMPでは，すでに定義した<code>cobb_douglas</code>関数を用いて， 簡単に，効用最大化問題を記述し，数値的に解くことができます．</p>
-<p><span class="math display">\[
-\begin{aligned}
-  \text{maximize} &amp;&amp; U = \prod_{i=1}^{n} x_i^{\alpha_i} \\
-  \text{subject to} &amp;&amp; \sum_{i=1}^{n} p_i x_i \leq Y \\
-\end{aligned}
-\]</span></p>
-<div id="12" class="cell" data-execution_count="1">
+<div id="14" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">JuMP</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Ipopt</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">demand_marshallian_cobb_douglas_numerical</span>(prices, income; weights)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="fu">length</span>(prices)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> <span class="fu">Model</span>(Ipopt.Optimizer) </span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_silent</span>(model)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@variable</span>(model, quantities[<span class="fl">1</span><span class="op">:</span>n] <span class="op">&gt;=</span> <span class="fl">0</span>) <span class="co"># 消費量を変数として定義</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@objective</span>(model, Max, <span class="fu">cobb_douglas</span>(quantities; weights)) <span class="co"># 効用最大化</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@constraint</span>(model, <span class="fu">sum</span>(prices <span class="op">.*</span> quantities) <span class="op">&lt;=</span> income) <span class="co"># 予算制約式</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">optimize!</span>(model)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">value</span>.(quantities)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">demand_marshallian_numerical</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  f<span class="op">::</span><span class="dt">AbstractEconomicUtility</span>;</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  prices<span class="op">::</span><span class="dt">Vector{Float64}</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  income<span class="op">::</span><span class="dt">Float64</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="fu">length</span>(prices)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> <span class="fu">Model</span>(Ipopt.Optimizer) </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">set_silent</span>(model)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@variable</span>(model, quantities[<span class="fl">1</span><span class="op">:</span>n] <span class="op">&gt;=</span> <span class="fl">0</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@objective</span>(model, Max, <span class="fu">f</span>(quantities))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@constraint</span>(model, <span class="fu">sum</span>(prices <span class="op">.*</span> quantities) <span class="op">&lt;=</span> income)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">optimize!</span>(model)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">value</span>.(quantities)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>demand_marshallian_cobb_douglas_numerical (generic function with 1 method)</code></pre>
+<pre><code>demand_marshallian_numerical (generic function with 1 method)</code></pre>
 </div>
 </div>
-<p>効用最大化問題の定式化では，以下のことを行っています．</p>
-<ol type="1">
-<li><code>@variable</code>マクロを用いて，消費量<code>quantities</code>を変数として定義</li>
-<li><code>@objective</code>マクロを用いて，効用を最大化するような目的関数を定義</li>
-<li><code>@constraint</code>マクロを用いて，予算制約式を定義</li>
-</ol>
-<p>それでは，実装した<code>demand_marshallian_cobb_douglas_numerical</code>関数を用いて， 数値的な解を求めてみましょう．</p>
-<div id="14" class="cell" data-messages="false" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>quantities_numerical <span class="op">=</span> <span class="fu">demand_marshallian_cobb_douglas_numerical</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>], </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">100</span>, </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  weights<span class="op">=</span>[<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span>]</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-******************************************************************************
-This program contains Ipopt, a library for large-scale nonlinear optimization.
- Ipopt is released as open source code under the Eclipse Public License (EPL).
-         For more information visit https://github.com/coin-or/Ipopt
-******************************************************************************
-</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>3-element Vector{Float64}:
- 30.000000297265977
- 20.00000019590169
- 10.000000099089569</code></pre>
-</div>
-</div>
-<p>最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．</p>
+<p>上で定義した<code>cobb_douglas</code>に対して<code>demand_marshallian_numerical()</code>を適用することで， 過去の記事と同様に，コブ・ダグラス型効用関数の効用最大化問題の解析的な解と数値的な解がおおよそ一致することを確認できます．</p>
 <div id="16" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>quantities_numerical</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>quantities_numerical_cobb_douglas <span class="op">=</span> <span class="fu">demand_marshallian_numerical</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  cobb_douglas;</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  prices <span class="op">=</span> [<span class="fl">1</span>., <span class="fl">2</span>., <span class="fl">3</span>.],</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  income <span class="op">=</span> <span class="fl">100</span>.</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.000000297265977
@@ -360,7 +305,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 </div>
 </div>
 <div id="18" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>quantities_analytical</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>quantities_analytical_cobb_douglas</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.0
@@ -369,11 +314,74 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 </div>
 </div>
 </section>
+<section id="ces型効用関数の実装" class="level2">
+<h2 class="anchored" data-anchor-id="ces型効用関数の実装">CES型効用関数の実装</h2>
+<p>コンストラクタを使うメリットを実感するために， コブ・ダグラス型効用関数以外の効用関数を実装してみます．</p>
+<p>以下では，CES型効用関数を実装してみましょう． CES型効用関数は，コブ・ダグラス型効用関数の一般化であり，代替性の程度を表すパラメータ<code>substitution</code>を持ちます． コブ・ダグラス型効用関数と同様に，CES型効用関数は，以下のように定義することができます．</p>
+<p>マーシャルの需要関数の導出は割愛しますが引数の型<code>f::CESUtility</code>を指定することで， 効用関数に応じて<code>demand_marshallian()</code>の結果を変化させることができます． このような仕組みは多重ディスパッチと呼ばれています．</p>
+<div id="20" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> CESUtility <span class="op">&lt;:</span><span class="dt"> AbstractEconomicUtility</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    substitution<span class="op">::</span><span class="dt">Float64</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    weights<span class="op">::</span><span class="dt">Vector{Float64}</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span>(f<span class="op">::</span><span class="dt">CESUtility</span>)(quantities)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">sum</span>(f.weights <span class="op">.*</span> quantities <span class="op">.^</span> f.substitution) <span class="op">^</span> (<span class="fl">1</span> <span class="op">/</span> f.substitution)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">demand_marshallian</span>(</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  f<span class="op">::</span><span class="dt">CESUtility</span>;</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  prices,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  income</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> f.weights <span class="op">.^</span> (<span class="fl">1</span> <span class="op">/</span> (<span class="fl">1</span> <span class="op">-</span> f.substitution)) <span class="op">.*</span> prices <span class="op">.^</span> (<span class="fl">1</span> <span class="op">/</span> (f.substitution <span class="op">-</span> <span class="fl">1</span>)) <span class="op">*</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    income <span class="op">/</span> <span class="fu">sum</span>(f.weights <span class="op">.^</span> (<span class="fl">1</span> <span class="op">/</span> (<span class="fl">1</span> <span class="op">-</span> f.substitution)) <span class="op">.*</span> prices <span class="op">.^</span> (f.substitution <span class="op">/</span> (f.substitution <span class="op">-</span> <span class="fl">1</span>)))</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian (generic function with 2 methods)</code></pre>
+</div>
+</div>
+<div id="22" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ces <span class="op">=</span> <span class="fu">CESUtility</span>(<span class="fl">0.5</span>, [<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.3</span>])</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ces</span>([<span class="fl">2</span>., <span class="fl">3</span>., <span class="fl">5</span>.])</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3.196603520188051</code></pre>
+</div>
+</div>
+<p>上で定義した<code>ces</code>に対して<code>demand_marshallian()</code>と<code>demand_marshallian_numerical()</code>を適用することで， CES型効用関数の効用最大化問題の解析的な解と数値的な解を求めることができます．</p>
+<div id="24" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>quantities_analytical_ces <span class="op">=</span> <span class="fu">demand_marshallian</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  ces;</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  prices <span class="op">=</span> [<span class="fl">1</span>., <span class="fl">2</span>., <span class="fl">3</span>.],</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  income <span class="op">=</span> <span class="fl">100</span>.</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>quantities_numerical_ces <span class="op">=</span> <span class="fu">demand_marshallian_numerical</span>(</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  ces;</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  prices <span class="op">=</span> [<span class="fl">1</span>., <span class="fl">2</span>., <span class="fl">3</span>.],</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  income <span class="op">=</span> <span class="fl">100</span>.</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 45.00000043558223
+ 20.000000194987294
+  5.000000053970372</code></pre>
+</div>
+</div>
+<div id="26" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>quantities_analytical_ces</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 45.0
+ 20.000000000000004
+  4.999999999999999</code></pre>
+</div>
+</div>
+</section>
 <section id="まとめ" class="level2">
 <h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>この記事では，Julia JuMPを用いて，コブ・ダグラス型効用関数を用いた 効用最大化問題を解いてみました．</p>
-<p>Julia JuMPを用いることで，非線形最適化問題を簡単に定式化し， 数値的に解くことができることを確認しました．</p>
-<p>Julia JuMPでは，シンプルな関数であれば，定義済みの関数をそのまま目的変数等として 扱うことができるため，経済モデルの実装にも有用かもしれません．</p>
+<p>この記事では，<a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で紹介した効用最大化問題をJuliaのコンストラクタを用いて拡張することで，様々な効用関数に対して同一のコードを使うことができることを示しました．</p>
+<p>このような仕組みを活用することで効用関数を実装した際に， 自動的に最適化問題の解析的な解と数値的な解の整合性を確認することができ， 効用関数に対するテストを実装するのが容易になることが期待されます<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
 
 
 </section>
@@ -382,12 +390,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
 
 <ol>
-<li id="fn1"><p>具体的な解法は割愛しますが，以下の条件から導出できます．</p>
-<ol type="1">
-<li>効用最大化条件: <span class="math inline">\(MRS_{ij}=\frac{\partial U/\partial x_i}{\partial U/\partial x_j}=\frac{p_i}{p_j}\)</span></li>
-<li>予算制約式: <span class="math inline">\(\sum_{i=1}^{n} p_i x_i = Y\)</span></li>
-</ol>
-<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></li>
+<li id="fn1"><p>ただし，別で検討したレオンチェフ型効用関数ではうまく数値的な解を求めることができませんでした．特殊な効用関数では，数値的な解を求めることが難しい可能性があるため，別途，テストを実装する必要があるかもしれません．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

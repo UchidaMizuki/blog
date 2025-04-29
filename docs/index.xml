@@ -10,7 +10,570 @@
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Sat, 12 Apr 2025 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 29 Apr 2025 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で，Juliaの数理最適化ライブラリのJuMPを使って効用最大化問題を解く方法を紹介しました．</p>
+<p>過去の記事では，簡単な事例紹介としてコブ・ダグラス型効用関数を使った効用最大化問題を解く方法を紹介しましたが， 経済モデルでは，コブ・ダグラス型効用関数以外にも，CES型効用関数などの様々な効用関数が使われます． しかし，過去の記事で用いた実装方法では，効用関数を変更するたびに最適化問題の実装を変更する必要がありました．</p>
+<p>そこで，この記事では，Juliaのコンストラクタを使って， 同一のコードで異なる効用関数に対する効用最大化問題を解く方法を紹介します．</p>
+<section id="コブダグラス型効用関数の実装" class="level2">
+<h2 class="anchored" data-anchor-id="コブダグラス型効用関数の実装">コブ・ダグラス型効用関数の実装</h2>
+<p>効用関数は，消費量ベクトルを引数として受け取り，効用（スカラー値）を返す関数と捉えることができます． 一方で，効用関数を設定する際には，消費量ベクトル以外に弾力性パラメータ等のパラメータを事前に設定する必要があります．</p>
+<p>パラメータは効用関数によって異なるため，効用関数を抽象型<code>AbstractEconomicUtility</code>として定義し，そのサブタイプとしてコブ・ダグラス型効用関数<code>CobbDouglasUtility</code>の型を定義します． <code>CobbDouglasUtility</code>は，弾力性パラメータ<code>weights</code>を持つ型として定義します．</p>
+<div id="2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">abstract type</span> AbstractEconomicUtility <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">struct</span> CobbDouglasUtility <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;:</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;"> AbstractEconomicUtility</span></span>
+<span id="cb1-4">    weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Vector{Float64}</span></span>
+<span id="cb1-5"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+</div>
+<p>次に，function-like objectsを定義することで，効用関数の型<code>f</code>に対して<code>f(quantities)</code>と呼ぶことで効用を計算できるようにします． 効用関数のパラメータは，型<code>f</code>から取得することができるため，関数の引数が<code>quantities</code>のみとなっていることに注意してください． これにより，様々な効用関数の型<code>f</code>に対して<code>f(quantities)</code>のような同一のコードを呼び出すことができるようになります．</p>
+<p>以上により，コブ・ダグラス型効用関数を定義することができます．</p>
+<div id="4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(f<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">CobbDouglasUtility</span>)(quantities)</span>
+<span id="cb2-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">prod</span>(quantities <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> f.weights)</span>
+<span id="cb2-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+</div>
+<div id="6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 効用関数の定義</span></span>
+<span id="cb3-2">cobb_douglas <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">CobbDouglasUtility</span>([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>])</span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 効用の算出</span></span>
+<span id="cb3-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cobb_douglas</span>([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>.])</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3.0963389922845703</code></pre>
+</div>
+</div>
+<p>さらに，<a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>と同様にマーシャルの需要関数<code>demand_marshallian()</code>を定義します．</p>
+<p><code>demand_marshallian()</code>により，コブ・ダグラス型効用関数の効用最大化問題の解析的な解を求めることができます．</p>
+<div id="8" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian</span>(</span>
+<span id="cb5-2">  f<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">CobbDouglasUtility</span>;</span>
+<span id="cb5-3">  prices,</span>
+<span id="cb5-4">  income</span>
+<span id="cb5-5">)</span>
+<span id="cb5-6">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> f.weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(f.weights) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">./</span> prices</span>
+<span id="cb5-7"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian (generic function with 1 method)</code></pre>
+</div>
+</div>
+<div id="10" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1">quantities_analytical_cobb_douglas <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian</span>(</span>
+<span id="cb7-2">  cobb_douglas;</span>
+<span id="cb7-3">  prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>.],</span>
+<span id="cb7-4">  income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>.</span>
+<span id="cb7-5">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.0
+ 20.0
+ 10.0</code></pre>
+</div>
+</div>
+</section>
+<section id="効用最大化問題の数値的な解" class="level2">
+<h2 class="anchored" data-anchor-id="効用最大化問題の数値的な解">効用最大化問題の数値的な解</h2>
+<p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>のコードを少し変更することで，効用最大化問題を数値的に解くことができます．</p>
+<p>過去の記事では，コブ・ダグラス型効用関数専用のコードを定義していましたが， 以下の関数<code>demand_marshallian_numerical</code>は，抽象型<code>AbstractEconomicUtility</code>を引数に取ることで， 様々な効用関数に対して同一のコードを使うことができます．</p>
+<div id="12" class="cell" data-execution_count="0">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Pkg</span></span>
+<span id="cb9-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Pkg</span>.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"JuMP"</span>)</span>
+<span id="cb9-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Pkg</span>.<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Ipopt"</span>)</span></code></pre></div>
+</div>
+<div id="14" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">JuMP</span></span>
+<span id="cb10-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">using</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">Ipopt</span></span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_numerical</span>(</span>
+<span id="cb10-5">  f<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">AbstractEconomicUtility</span>;</span>
+<span id="cb10-6">  prices<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Vector{Float64}</span>,</span>
+<span id="cb10-7">  income<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Float64</span></span>
+<span id="cb10-8">)</span>
+<span id="cb10-9">    n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(prices)</span>
+<span id="cb10-10">    model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Model</span>(Ipopt.Optimizer) </span>
+<span id="cb10-11">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_silent</span>(model)</span>
+<span id="cb10-12">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@variable</span>(model, quantities[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>n] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb10-13">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@objective</span>(model, Max, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">f</span>(quantities))</span>
+<span id="cb10-14">    <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@constraint</span>(model, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.*</span> quantities) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> income)</span>
+<span id="cb10-15">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">optimize!</span>(model)</span>
+<span id="cb10-16">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">value</span>.(quantities)</span>
+<span id="cb10-17"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian_numerical (generic function with 1 method)</code></pre>
+</div>
+</div>
+<p>上で定義した<code>cobb_douglas</code>に対して<code>demand_marshallian_numerical()</code>を適用することで， 過去の記事と同様に，コブ・ダグラス型効用関数の効用最大化問題の解析的な解と数値的な解がおおよそ一致することを確認できます．</p>
+<div id="16" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1">quantities_numerical_cobb_douglas <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_numerical</span>(</span>
+<span id="cb12-2">  cobb_douglas;</span>
+<span id="cb12-3">  prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>.],</span>
+<span id="cb12-4">  income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>.</span>
+<span id="cb12-5">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.000000297265977
+ 20.00000019590169
+ 10.000000099089569</code></pre>
+</div>
+</div>
+<div id="18" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1">quantities_analytical_cobb_douglas</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 30.0
+ 20.0
+ 10.0</code></pre>
+</div>
+</div>
+</section>
+<section id="ces型効用関数の実装" class="level2">
+<h2 class="anchored" data-anchor-id="ces型効用関数の実装">CES型効用関数の実装</h2>
+<p>コンストラクタを使うメリットを実感するために， コブ・ダグラス型効用関数以外の効用関数を実装してみます．</p>
+<p>以下では，CES型効用関数を実装してみましょう． CES型効用関数は，コブ・ダグラス型効用関数の一般化であり，代替性の程度を表すパラメータ<code>substitution</code>を持ちます． コブ・ダグラス型効用関数と同様に，CES型効用関数は，以下のように定義することができます．</p>
+<p>マーシャルの需要関数の導出は割愛しますが引数の型<code>f::CESUtility</code>を指定することで， 効用関数に応じて<code>demand_marshallian()</code>の結果を変化させることができます． このような仕組みは多重ディスパッチと呼ばれています．</p>
+<div id="20" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">struct</span> CESUtility <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;:</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;"> AbstractEconomicUtility</span></span>
+<span id="cb16-2">    substitution<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Float64</span></span>
+<span id="cb16-3">    weights<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Vector{Float64}</span></span>
+<span id="cb16-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb16-5"></span>
+<span id="cb16-6"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(f<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">CESUtility</span>)(quantities)</span>
+<span id="cb16-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(f.weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.*</span> quantities <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> f.substitution) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> f.substitution)</span>
+<span id="cb16-8"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span>
+<span id="cb16-9"></span>
+<span id="cb16-10"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian</span>(</span>
+<span id="cb16-11">  f<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">CESUtility</span>;</span>
+<span id="cb16-12">  prices,</span>
+<span id="cb16-13">  income</span>
+<span id="cb16-14">)</span>
+<span id="cb16-15">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> f.weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> f.substitution)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.*</span> prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (f.substitution <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span>
+<span id="cb16-16">    income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(f.weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> f.substitution)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.*</span> prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.^</span> (f.substitution <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (f.substitution <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)))</span>
+<span id="cb16-17"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>demand_marshallian (generic function with 2 methods)</code></pre>
+</div>
+</div>
+<div id="22" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1">ces <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">CESUtility</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>])</span>
+<span id="cb18-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ces</span>([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>.])</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3.196603520188051</code></pre>
+</div>
+</div>
+<p>上で定義した<code>ces</code>に対して<code>demand_marshallian()</code>と<code>demand_marshallian_numerical()</code>を適用することで， CES型効用関数の効用最大化問題の解析的な解と数値的な解を求めることができます．</p>
+<div id="24" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1">quantities_analytical_ces <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian</span>(</span>
+<span id="cb20-2">  ces;</span>
+<span id="cb20-3">  prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>.],</span>
+<span id="cb20-4">  income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>.</span>
+<span id="cb20-5">)</span>
+<span id="cb20-6"></span>
+<span id="cb20-7">quantities_numerical_ces <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">demand_marshallian_numerical</span>(</span>
+<span id="cb20-8">  ces;</span>
+<span id="cb20-9">  prices <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>., <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>.],</span>
+<span id="cb20-10">  income <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>.</span>
+<span id="cb20-11">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 45.00000043558223
+ 20.000000194987294
+  5.000000053970372</code></pre>
+</div>
+</div>
+<div id="26" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1">quantities_analytical_ces</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>3-element Vector{Float64}:
+ 45.0
+ 20.000000000000004
+  4.999999999999999</code></pre>
+</div>
+</div>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>この記事では，<a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で紹介した効用最大化問題をJuliaのコンストラクタを用いて拡張することで，様々な効用関数に対して同一のコードを使うことができることを示しました．</p>
+<p>このような仕組みを活用することで効用関数を実装した際に， 自動的に最適化問題の解析的な解と数値的な解の整合性を確認することができ， 効用関数に対するテストを実装するのが容易になることが期待されます<sup>1</sup>．</p>
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+
+<ol>
+<li id="fn1"><p>ただし，別で検討したレオンチェフ型効用関数ではうまく数値的な解を求めることができませんでした．特殊な効用関数では，数値的な解を求めることが難しい可能性があるため，別途，テストを実装する必要があるかもしれません．↩︎</p></li>
+</ol>
+</section></div> ]]></description>
+  <category>JuMP</category>
+  <category>Julia</category>
+  <category>Japanese</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</guid>
+  <pubDate>Tue, 29 Apr 2025 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>割合データ（割り算値）から観測ノイズを除去する</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html</link>
@@ -809,6 +1372,15 @@ font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0.3</span>]</span>
 <span id="cb12-5">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+</code></pre>
+</div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.000000297265977
@@ -818,7 +1390,7 @@ font-style: inherit;">0.3</span>]</span>
 </div>
 <p>最終的な結果は以下のようになり， 数値的な解が解析的な解とほぼ一致していることがわかります．</p>
 <div id="16" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1">quantities_numerical</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1">quantities_numerical</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.000000297265977
@@ -827,7 +1399,7 @@ font-style: inherit;">0.3</span>]</span>
 </div>
 </div>
 <div id="18" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1">quantities_analytical</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1">quantities_analytical</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{Float64}:
  30.0
@@ -10534,683 +11106,6 @@ font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
   <category>Japanese</category>
   <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv-ja.html</guid>
   <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Rで日本地図を描いてみよう</title>
-  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>Rでは，ggplot2などのパッケージを利用するだけで，都道府県別の日本地図を描くことができます．ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．</p>
-<section id="地図描画用のサンプルデータ" class="level2">
-<h2 class="anchored" data-anchor-id="地図描画用のサンプルデータ">地図描画用のサンプルデータ</h2>
-<p>ここでは，<a href="https://www.e-stat.go.jp/dbview?sid=0000010201">こちら</a>からダウンロードできる社会・人口統計体系の2015年の都道府県別外国人人口比率データ（10万人あたり外国人人口）を地図描画用のサンプルデータとしました．</p>
-<div class="cell">
-<details class="code-fold">
-<summary>パッケージの読み込み</summary>
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>データのダウンロード</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(jpstat)</span>
-<span id="cb2-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(arrow)</span>
-<span id="cb2-3"></span>
-<span id="cb2-4">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"https://www.e-stat.go.jp/en/dbview?sid=0000010201"</span>,</span>
-<span id="cb2-5">                              <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">lang =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"E"</span>)</span>
-<span id="cb2-6">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(tab) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-9">  </span>
-<span id="cb2-10">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(cat01) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-11">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Ratio of population of foreigners (per 100,000 persons)</span></span>
-<span id="cb2-12">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(code <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#A01601"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-13">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-14">  </span>
-<span id="cb2-15">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(area) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-16">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"All Japan"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-17">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(code, name) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-18">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rekey</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"pref"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-19">  </span>
-<span id="cb2-20">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(time) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-21">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2015"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-22">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>()</span>
-<span id="cb2-23">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-24">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">collect</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"foreigners_per_100K"</span>)</span>
-<span id="cb2-25"></span>
-<span id="cb2-26"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">write_parquet</span>(foreigner_ratio_2015, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"foreigner_ratio_2015.parquet"</span>)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>データの読み込み</summary>
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(arrow)</span>
-<span id="cb3-2"></span>
-<span id="cb3-3">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_parquet</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"foreigner_ratio_2015.parquet"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_code =</span> pref_code <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-5">           <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_extract</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"^</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">\\</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">d{2}"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-6">           <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">parse_integer</span>(),</span>
-<span id="cb3-7">         </span>
-<span id="cb3-8">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> pref_name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-9">           <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_remove</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"-.+$"</span>),</span>
-<span id="cb3-10">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">case_when</span>(pref_name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Gumma"</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Gunma"</span>,</span>
-<span id="cb3-11">                               <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> pref_name),</span>
-<span id="cb3-12">         </span>
-<span id="cb3-13">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">foreigner_ratio =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">parse_number</span>(foreigners_per_100K) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1e5</span>,</span>
-<span id="cb3-14">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.keep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"unused"</span>)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 地図描画用のサンプルデータ</span></span>
-<span id="cb4-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">head</span>(foreigner_ratio_2015)</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["pref_code"],"name":[1],"type":["int"],"align":["right"]},{"label":["pref_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["foreigner_ratio"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"Hokkaido","3":"0.004028"},{"1":"2","2":"Aomori","3":"0.002635"},{"1":"3","2":"Iwate","3":"0.003921"},{"1":"4","2":"Miyagi","3":"0.005994"},{"1":"5","2":"Akita","3":"0.002848"},{"1":"6","2":"Yamagata","3":"0.004896"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-</div>
-</section>
-<section id="geom_map-で日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="geom_map-で日本地図を描く"><code>geom_map()</code> で日本地図を描く</h2>
-<p>ggplot2で<code>map_data()</code> や<code>geom_map()</code> を使って世界の国々の地図を描画することができます．これには，あらかじめmapsパッケージとmapdataパッケージをダウンロードしておく必要があります（mapdataパッケージに日本地図が格納されています）．</p>
-<p><code>map_data("japan")</code> とすることで，mapsパッケージの地図データがデータフレームに変換されます．このデータフレームの<code>region</code> 列が都道府県のIDとなるため，<code>aes(map_id = region)</code>を設定した上で，<code>geom_map()</code> することで，描画したいデータの<code>region</code> 列と都道府県ジオメトリがリンクします．</p>
-<p>ただし，<code>map_data("japan")</code> は，以下の点に注意が必要です．</p>
-<ul>
-<li><p>あらかじめ<code>library(mapdata)</code> を実行してください（実行しないとデータが読み込めないようです）</p></li>
-<li><p><code>region</code> 列はすべてアルファベット表記である</p></li>
-<li><p>他の都道府県と異なり奈良県だけが<code>NARA</code> と大文字表記になっているなど元データにやや問題があるようです（今回は<code>str_to_title()</code>で修正しました）</p></li>
-</ul>
-<p>また，日本地図全体を表示するためには，<code>expand_limits()</code> などで軸を設定すること必要になります．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("maps")</span></span>
-<span id="cb5-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("mapdata")</span></span>
-<span id="cb5-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span>
-<span id="cb5-4"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(mapdata)</span>
-<span id="cb5-5"></span>
-<span id="cb5-6">map_data_japan <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">map_data</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"japan"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb5-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb5-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">region =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_to_title</span>(region))</span>
-<span id="cb5-9"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">head</span>(map_data_japan)</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["long"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["lat"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["group"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["order"],"name":[4],"type":["int"],"align":["right"]},{"label":["region"],"name":[5],"type":["chr"],"align":["left"]},{"label":["subregion"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"139.7707","2":"42.3018","3":"1","4":"1","5":"Hokkaido","6":"NA"},{"1":"139.7706","2":"42.3001","3":"1","4":"2","5":"Hokkaido","6":"NA"},{"1":"139.7773","2":"42.2956","3":"1","4":"3","5":"Hokkaido","6":"NA"},{"1":"139.7783","2":"42.2916","3":"1","4":"4","5":"Hokkaido","6":"NA"},{"1":"139.7829","2":"42.2838","3":"1","4":"5","5":"Hokkaido","6":"NA"},{"1":"139.7819","2":"42.2833","3":"1","4":"6","5":"Hokkaido","6":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-2">         <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">region =</span> pref_name),</span>
-<span id="cb6-3">       <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">map_id =</span> region)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb6-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_map</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> foreigner_ratio),</span>
-<span id="cb6-5">           <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">map =</span> map_data_japan) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb6-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">expand_limits</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> map_data_japan<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>long,</span>
-<span id="cb6-7">                <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> map_data_japan<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>lat) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb6-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"外国人人口比率"</span>,</span>
-<span id="cb6-9">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.03</span>),</span>
-<span id="cb6-10">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">label_percent</span>(),</span>
-<span id="cb6-11">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"turbo"</span>)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/geom_map-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="sfパッケージで日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="sfパッケージで日本地図を描く">sfパッケージで日本地図を描く</h2>
-<p>ggplot2の<code>geom_sf()</code>を使えばsfパッケージのジオメトリを簡単に描画できます．</p>
-<p>sfパッケージの<code>st_as_sf()</code> を使えば，maps・mapdataパッケージの提供する地図データをsfオブジェクトに変換することができます．日本地図データをsfに変換することで，先ほどのコードよりも直感的に地図を描くことができます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(sf)</span>
-<span id="cb7-2"></span>
-<span id="cb7-3">map_japan <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> maps<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">map</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"japan"</span>, </span>
-<span id="cb7-4">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">plot =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>,</span>
-<span id="cb7-5">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> ID) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_to_title</span>(pref_name))</span>
-<span id="cb7-9"></span>
-<span id="cb7-10">map_japan <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-11">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">left_join</span>(foreigner_ratio_2015,</span>
-<span id="cb7-12">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">join_by</span>(pref_name)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-13">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb7-14">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb7-15">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"外国人人口比率"</span>,</span>
-<span id="cb7-16">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.03</span>),</span>
-<span id="cb7-17">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">label_percent</span>(),</span>
-<span id="cb7-18">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"turbo"</span>)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/sf-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<section id="さらに詳細な地図情報を入手可能なrnaturalearthについて" class="level3">
-<h3 class="anchored" data-anchor-id="さらに詳細な地図情報を入手可能なrnaturalearthについて">さらに詳細な地図情報を入手可能なrnaturalearthについて</h3>
-<p>世界地図のデータを取得可能なパッケージにはrnaturalearthパッケージもあります．</p>
-<p>都道府県別地図を取得するにはrnaturalearthの<code>ne_states("japan")</code> を実行します．<code>ne_states("japan")</code> の出力には英語の都道府県名に加えて日本語の都道府県名も含まれており便利です．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">map_japan <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ne_states</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"japan"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(iso_3166_2, name_ja, name_en) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">arrange</span>(iso_3166_2)</span>
-<span id="cb8-6"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">head</span>(map_japan)</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["iso_3166_2"],"name":[1],"type":["chr"],"align":["left"]},{"label":["name_ja"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name_en"],"name":[3],"type":["chr"],"align":["left"]},{"label":["geometry"],"name":[4],"type":["s_MULTIP"],"align":["right"]}],"data":[{"1":"JP-01","2":"北海道","3":"Hokkaidō","4":"<s_MULTIP>"},{"1":"JP-02","2":"青森県","3":"Aomori Prefecture","4":"<s_MULTIP>"},{"1":"JP-03","2":"岩手県","3":"Iwate Prefecture","4":"<s_MULTIP>"},{"1":"JP-04","2":"宮城県","3":"Miyagi Prefecture","4":"<s_MULTIP>"},{"1":"JP-05","2":"秋田県","3":"Akita Prefecture","4":"<s_MULTIP>"},{"1":"JP-06","2":"山形県","3":"Yamagata Prefecture","4":"<s_MULTIP>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="日本地図をレイアウトするためのjpmapパッケージ" class="level2">
-<h2 class="anchored" data-anchor-id="日本地図をレイアウトするためのjpmapパッケージ">日本地図をレイアウトするためのjpmapパッケージ</h2>
-<p>日本地図の描画では，日本列島を大きく描画するために琉球諸島や小笠原諸島を地図上の左上や右下に配置したいケースがあります．ggplot2で作成した日本地図のレイアウトを簡単に行えるように<a href="https://github.com/UchidaMizuki/jpmap">jpmap</a>を作成しました．</p>
-<p>jpmapは，以下の機能を持っています．</p>
-<ul>
-<li><p>琉球諸島・小笠原諸島を再配置したレイアウトを可能にする<code>jpmap::layout_japan()</code></p>
-<ul>
-<li><p>ただし再配置される琉球諸島・小笠原諸島の縮尺は厳密ではありませんのでご注意ください</p></li>
-<li><p><code>ryukyu = FALSE</code>や<code>ogasawara = FALSE</code> を指定することで琉球諸島・小笠原諸島を非表示にすることが可能です</p></li>
-</ul></li>
-<li><p>日本語の都道府県名や都道府県コードが含む都道府県データを提供する<code>jpmap::prefecture</code>（rnaturalearthのデータがベースです）</p>
-<ul>
-<li>ただし，英語の都道府県名（<code>pref_name</code>）がHokkaidoではなくHokkaidōといった表記なっているためご注意ください．</li>
-</ul></li>
-</ul>
-<p><code>jpmap::layout_japan()</code> で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("UchidaMizuki/jpmap")</span></span>
-<span id="cb9-2">jpmap<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span>prefecture</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["pref_code"],"name":[1],"type":["int"],"align":["right"]},{"label":["pref_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["pref_name_ja"],"name":[3],"type":["chr"],"align":["left"]},{"label":["geometry"],"name":[4],"type":["s_MULTIP"],"align":["right"]}],"data":[{"1":"1","2":"Hokkaidō","3":"北海道","4":"<s_MULTIP>"},{"1":"2","2":"Aomori","3":"青森県","4":"<s_MULTIP>"},{"1":"3","2":"Iwate","3":"岩手県","4":"<s_MULTIP>"},{"1":"4","2":"Miyagi","3":"宮城県","4":"<s_MULTIP>"},{"1":"5","2":"Akita","3":"秋田県","4":"<s_MULTIP>"},{"1":"6","2":"Yamagata","3":"山形県","4":"<s_MULTIP>"},{"1":"7","2":"Fukushima","3":"福島県","4":"<s_MULTIP>"},{"1":"8","2":"Ibaraki","3":"茨城県","4":"<s_MULTIP>"},{"1":"9","2":"Tochigi","3":"栃木県","4":"<s_MULTIP>"},{"1":"10","2":"Gunma","3":"群馬県","4":"<s_MULTIP>"},{"1":"11","2":"Saitama","3":"埼玉県","4":"<s_MULTIP>"},{"1":"12","2":"Chiba","3":"千葉県","4":"<s_MULTIP>"},{"1":"13","2":"Tokyo","3":"東京都","4":"<s_MULTIP>"},{"1":"14","2":"Kanagawa","3":"神奈川県","4":"<s_MULTIP>"},{"1":"15","2":"Niigata","3":"新潟県","4":"<s_MULTIP>"},{"1":"16","2":"Toyama","3":"富山県","4":"<s_MULTIP>"},{"1":"17","2":"Ishikawa","3":"石川県","4":"<s_MULTIP>"},{"1":"18","2":"Fukui","3":"福井県","4":"<s_MULTIP>"},{"1":"19","2":"Yamanashi","3":"山梨県","4":"<s_MULTIP>"},{"1":"20","2":"Nagano","3":"長野県","4":"<s_MULTIP>"},{"1":"21","2":"Gifu","3":"岐阜県","4":"<s_MULTIP>"},{"1":"22","2":"Shizuoka","3":"静岡県","4":"<s_MULTIP>"},{"1":"23","2":"Aichi","3":"愛知県","4":"<s_MULTIP>"},{"1":"24","2":"Mie","3":"三重県","4":"<s_MULTIP>"},{"1":"25","2":"Shiga","3":"滋賀県","4":"<s_MULTIP>"},{"1":"26","2":"Kyōto","3":"京都府","4":"<s_MULTIP>"},{"1":"27","2":"Ōsaka","3":"大阪府","4":"<s_MULTIP>"},{"1":"28","2":"Hyōgo","3":"兵庫県","4":"<s_MULTIP>"},{"1":"29","2":"Nara","3":"奈良県","4":"<s_MULTIP>"},{"1":"30","2":"Wakayama","3":"和歌山県","4":"<s_MULTIP>"},{"1":"31","2":"Tottori","3":"鳥取県","4":"<s_MULTIP>"},{"1":"32","2":"Shimane","3":"島根県","4":"<s_MULTIP>"},{"1":"33","2":"Okayama","3":"岡山県","4":"<s_MULTIP>"},{"1":"34","2":"Hiroshima","3":"広島県","4":"<s_MULTIP>"},{"1":"35","2":"Yamaguchi","3":"山口県","4":"<s_MULTIP>"},{"1":"36","2":"Tokushima","3":"徳島県","4":"<s_MULTIP>"},{"1":"37","2":"Kagawa","3":"香川県","4":"<s_MULTIP>"},{"1":"38","2":"Ehime","3":"愛媛県","4":"<s_MULTIP>"},{"1":"39","2":"Kōchi","3":"高知県","4":"<s_MULTIP>"},{"1":"40","2":"Fukuoka","3":"福岡県","4":"<s_MULTIP>"},{"1":"41","2":"Saga","3":"佐賀県","4":"<s_MULTIP>"},{"1":"42","2":"Nagasaki","3":"長崎県","4":"<s_MULTIP>"},{"1":"43","2":"Kumamoto","3":"熊本県","4":"<s_MULTIP>"},{"1":"44","2":"Ōita","3":"大分県","4":"<s_MULTIP>"},{"1":"45","2":"Miyazaki","3":"宮崎県","4":"<s_MULTIP>"},{"1":"46","2":"Kagoshima","3":"鹿児島県","4":"<s_MULTIP>"},{"1":"47","2":"Okinawa","3":"沖縄県","4":"<s_MULTIP>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">plot <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> jpmap<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span>prefecture <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb10-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">left_join</span>(foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb10-3">              <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span>pref_name),</span>
-<span id="cb10-4">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">join_by</span>(pref_code)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb10-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb10-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb10-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"外国人人口比率"</span>,</span>
-<span id="cb10-8">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.03</span>),</span>
-<span id="cb10-9">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">label_percent</span>(),</span>
-<span id="cb10-10">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"turbo"</span>)</span>
-<span id="cb10-11"></span>
-<span id="cb10-12">jpmap<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">layout_japan</span>(plot)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja_files/figure-html/jpmap-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>2015年の都道府県別外国人人口比率に関する日本地図から以下のことがわかりました．</p>
-<ul>
-<li><p>2015年では<strong>どの都道府県でも外国人人口比率が3％以下</strong>である</p></li>
-<li><p><strong>東京都</strong>は外国人人口比率が最も多く，<strong>愛知県</strong>や<strong>群馬県</strong>なども外国人口比率が高い．</p></li>
-</ul>
-<p>ここまで，ggplot2などのパッケージを活用した日本地図の描画を試してみました．</p>
-<p>その結果，Rを使えば，自前でデータを整備しなくても，簡単に日本地図を描けることがわかりました．みなさんもぜひ，ggplot2を使って，色々な地図を使ってみてください！</p>
-
-
-</section>
-
- ]]></description>
-  <category>ggplot2</category>
-  <category>sf</category>
-  <category>jpmap</category>
-  <category>R</category>
-  <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</guid>
-  <pubDate>Fri, 10 Jun 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2022/06/foreigner_ratio_2015.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 </channel>
 </rss>

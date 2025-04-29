@@ -1,0 +1,175 @@
+---
+title: "Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）"
+engine: julia
+lang: ja
+categories: [JuMP, Julia, Japanese]
+date: "2025-04-30"
+---
+
+[過去の記事](https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html)で，Juliaの数理最適化ライブラリのJuMPを使って効用最大化問題を解く方法を紹介しました．
+
+過去の記事では，簡単な事例紹介としてコブ・ダグラス型効用関数を使った効用最大化問題を解く方法を紹介しましたが， 経済モデルでは，コブ・ダグラス型効用関数以外にも，CES型効用関数などの様々な効用関数が使われます． しかし，過去の記事で用いた実装方法では，効用関数を変更するたびに最適化問題の実装を変更する必要がありました．
+
+そこで，この記事では，Juliaのコンストラクタを使って， 同一のコードで異なる効用関数に対する効用最大化問題を解く方法を紹介します．
+
+## コブ・ダグラス型効用関数の実装
+
+効用関数は，消費量ベクトルを引数として受け取り，効用（スカラー値）を返す関数と捉えることができます． 一方で，効用関数を設定する際には，消費量ベクトル以外に弾力性パラメータ等のパラメータを事前に設定する必要があります．
+
+パラメータは効用関数によって異なるため，効用関数を抽象型`AbstractEconomicUtility`として定義し，そのサブタイプとしてコブ・ダグラス型効用関数`CobbDouglasUtility`の型を定義します． `CobbDouglasUtility`は，弾力性パラメータ`weights`を持つ型として定義します．
+
+```{julia}
+abstract type AbstractEconomicUtility end
+
+struct CobbDouglasUtility <: AbstractEconomicUtility
+    weights::Vector{Float64}
+end
+```
+
+次に，function-like objectsを定義することで，効用関数の型`f`に対して`f(quantities)`と呼ぶことで効用を計算できるようにします． 効用関数のパラメータは，型`f`から取得することができるため，関数の引数が`quantities`のみとなっていることに注意してください． これにより，様々な効用関数の型`f`に対して`f(quantities)`のような同一のコードを呼び出すことができるようになります．
+
+以上により，コブ・ダグラス型効用関数を定義することができます．
+
+```{julia}
+function(f::CobbDouglasUtility)(quantities)
+    return prod(quantities .^ f.weights)
+end
+```
+
+```{julia}
+# 効用関数の定義
+cobb_douglas = CobbDouglasUtility([0.3, 0.4, 0.3])
+
+# 効用の算出
+cobb_douglas([2., 3., 5.])
+```
+
+さらに，[過去の記事](https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html)と同様にマーシャルの需要関数`demand_marshallian()`を定義します．
+
+`demand_marshallian()`により，コブ・ダグラス型効用関数の効用最大化問題の解析的な解を求めることができます．
+
+```{julia}
+function demand_marshallian(
+  f::CobbDouglasUtility;
+  prices,
+  income
+)
+  return income * f.weights / sum(f.weights) ./ prices
+end
+```
+
+```{julia}
+quantities_analytical_cobb_douglas = demand_marshallian(
+  cobb_douglas;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+```
+
+## 効用最大化問題の数値的な解
+
+[過去の記事](https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html)のコードを少し変更することで，効用最大化問題を数値的に解くことができます．
+
+過去の記事では，コブ・ダグラス型効用関数専用のコードを定義していましたが， 以下の関数`demand_marshallian_numerical`は，抽象型`AbstractEconomicUtility`を引数に取ることで， 様々な効用関数に対して同一のコードを使うことができます．
+
+```{julia}
+#| eval: false
+import Pkg
+Pkg.add("JuMP")
+Pkg.add("Ipopt")
+```
+
+```{julia}
+using JuMP
+using Ipopt
+
+function demand_marshallian_numerical(
+  f::AbstractEconomicUtility;
+  prices::Vector{Float64},
+  income::Float64
+)
+    n = length(prices)
+    model = Model(Ipopt.Optimizer) 
+    set_silent(model)
+    @variable(model, quantities[1:n] >= 0)
+    @objective(model, Max, f(quantities))
+    @constraint(model, sum(prices .* quantities) <= income)
+    optimize!(model)
+    return value.(quantities)
+end
+```
+
+上で定義した`cobb_douglas`に対して`demand_marshallian_numerical()`を適用することで， 過去の記事と同様に，コブ・ダグラス型効用関数の効用最大化問題の解析的な解と数値的な解がおおよそ一致することを確認できます．
+
+```{julia}
+quantities_numerical_cobb_douglas = demand_marshallian_numerical(
+  cobb_douglas;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+```
+
+```{julia}
+quantities_analytical_cobb_douglas
+```
+
+## CES型効用関数の実装
+
+コンストラクタを使うメリットを実感するために， コブ・ダグラス型効用関数以外の効用関数を実装してみます．
+
+以下では，CES型効用関数を実装してみましょう． CES型効用関数は，コブ・ダグラス型効用関数の一般化であり，代替性の程度を表すパラメータ`substitution`を持ちます． コブ・ダグラス型効用関数と同様に，CES型効用関数は，以下のように定義することができます．
+
+マーシャルの需要関数の導出は割愛しますが引数の型`f::CESUtility`を指定することで， 効用関数に応じて`demand_marshallian()`の結果を変化させることができます． このような仕組みは多重ディスパッチと呼ばれています．
+
+```{julia}
+struct CESUtility <: AbstractEconomicUtility
+    substitution::Float64
+    weights::Vector{Float64}
+end
+
+function(f::CESUtility)(quantities)
+    return sum(f.weights .* quantities .^ f.substitution) ^ (1 / f.substitution)
+end
+
+function demand_marshallian(
+  f::CESUtility;
+  prices,
+  income
+)
+  return f.weights .^ (1 / (1 - f.substitution)) .* prices .^ (1 / (f.substitution - 1)) *
+    income / sum(f.weights .^ (1 / (1 - f.substitution)) .* prices .^ (f.substitution / (f.substitution - 1)))
+end
+```
+
+```{julia}
+ces = CESUtility(0.5, [0.3, 0.4, 0.3])
+ces([2., 3., 5.])
+```
+
+上で定義した`ces`に対して`demand_marshallian()`と`demand_marshallian_numerical()`を適用することで， CES型効用関数の効用最大化問題の解析的な解と数値的な解を求めることができます．
+
+```{julia}
+quantities_analytical_ces = demand_marshallian(
+  ces;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+
+quantities_numerical_ces = demand_marshallian_numerical(
+  ces;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+```
+
+```{julia}
+quantities_analytical_ces
+```
+
+## まとめ
+
+この記事では，[過去の記事](https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html)で紹介した効用最大化問題をJuliaのコンストラクタを用いて拡張することで，様々な効用関数に対して同一のコードを使うことができることを示しました．
+
+このような仕組みを活用することで効用関数を実装した際に， 自動的に最適化問題の解析的な解と数値的な解の整合性を確認することができ， 効用関数に対するテストを実装するのが容易になることが期待されます[^1]．
+
+[^1]: ただし，別で検討したレオンチェフ型効用関数ではうまく数値的な解を求めることができませんでした．特殊な効用関数では，数値的な解を求めることが難しい可能性があるため，別途，テストを実装する必要があるかもしれません．
