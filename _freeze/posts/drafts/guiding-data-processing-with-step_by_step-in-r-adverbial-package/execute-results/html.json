@@ -1,0 +1,12 @@
+{
+  "hash": "22fb96a32d8134d0706dccf9ff0de55e",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: \"Guiding data processing with `step_by_step()` in R adverbial package\"\nlang: en\ncategories: [adverbial, English]\ndrafts: true\n---\n\n\nImplementing the right functions is essential for efficiently sharing data processing knowledge. \nHowever, finding the right balance between usability and customization can be challenging.\n\nOne approach to achieving this balance is to break the data processing flow into multiple functions. \nTo ensure the effectiveness of this approach, users must have a clear understanding of the overall workflow.\n\nOne of the advantages of programming, as I see it, is that it allows me to make explicit implicit knowledge that previously had to be accurately understood by humans. \nThis principle inspired the implementation of step-by-step data processing functions in the R adverbial package.\n\nThe step-by-step data processing functionality provided by this package consists mainly of the following three functions.\n\n1.  `step_by_step()` defines a step-by-step data processing workflow.\n2.  `as_step()` converts a function into a step that can be used in the workflow.\n3.  `end_step()` ends a step in the workflow.\n\n## Example\n\n````\n```{asciicast, cache = TRUE}`r ''`\ncli::ansi_palette_show()\n```\n````\n\n\n```{asciicast, cache = TRUE}\ncli::ansi_palette_show()\n```\n\n",
+    "supporting": [
+      "guiding-data-processing-with-step_by_step-in-r-adverbial-package_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
