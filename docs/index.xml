@@ -10,7 +10,426 @@
 <atom:link href="https://uchidamizuki.quarto.pub/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Tue, 29 Apr 2025 15:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 24 May 2025 15:00:00 GMT</lastBuildDate>
+<item>
+  <title>Guiding data processing with adverbial::step_by_step() in R</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Implementing the right functions is essential for efficiently sharing data processing knowledge. However, finding the right balance between usability and customization can be challenging.</p>
+<p>One approach to achieving this balance is to break the data processing flow into multiple functions. To ensure the effectiveness of this approach, users must have a clear understanding of the overall workflow.</p>
+<p>One of the advantages of programming, as I see it, is that it allows me to make explicit implicit knowledge that previously had to be accurately understood by humans. This principle inspired the implementation of step-by-step data processing functions in the R adverbial package.</p>
+<p>The step-by-step data processing functionality provided by this package consists mainly of the following three functions.</p>
+<ol type="1">
+<li><code>step_by_step()</code> defines a step-by-step data processing workflow.</li>
+<li><code>as_step()</code> converts a function into a step that can be used in the workflow.</li>
+<li><code>end_step()</code> ends a step in the workflow.</li>
+</ol>
+<p>These functions provide a clear framework for data processing, making it easier to share knowledge and collaborate on similarly structured data analysis tasks.</p>
+<section id="example" class="level2">
+<h2 class="anchored" data-anchor-id="example">Example</h2>
+<p>Let’s turn the following data process into a step-by-step data process. This process uses the <code>penguins</code> data to calculate the average weight of penguins by island, species and year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(species, island, body_mass, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(body_mass)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb1-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert body_mass to kg</span></span>
+<span id="cb1-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">body_mass =</span> units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(body_mass, g) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-9">      units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kg"</span>)</span>
+<span id="cb1-10">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(</span>
+<span id="cb1-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean_body_mass =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(body_mass),</span>
+<span id="cb1-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(island, species, year)</span>
+<span id="cb1-14">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(island, species, year)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 15 × 4
+   island    species    year mean_body_mass
+   &lt;fct&gt;     &lt;fct&gt;     &lt;int&gt;           [kg]
+ 1 Biscoe    Adelie     2007           3.62
+ 2 Biscoe    Adelie     2008           3.63
+ 3 Biscoe    Adelie     2009           3.86
+ 4 Biscoe    Gentoo     2007           5.07
+ 5 Biscoe    Gentoo     2008           5.02
+ 6 Biscoe    Gentoo     2009           5.14
+ 7 Dream     Adelie     2007           3.67
+ 8 Dream     Adelie     2008           3.76
+ 9 Dream     Adelie     2009           3.65
+10 Dream     Chinstrap  2007           3.69
+11 Dream     Chinstrap  2008           3.8 
+12 Dream     Chinstrap  2009           3.72
+13 Torgersen Adelie     2007           3.76
+14 Torgersen Adelie     2008           3.86
+15 Torgersen Adelie     2009           3.49</code></pre>
+</div>
+</div>
+<section id="defining-a-step-by-step-data-processing-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="defining-a-step-by-step-data-processing-workflow">Defining a step-by-step data processing workflow</h3>
+<p>This process can be broken down into the following steps:</p>
+<ol type="1">
+<li>Select columns from the data frame with <code>select()</code>.</li>
+<li>Filter rows from data frames with <code>filter()</code>.</li>
+<li>Mutate columns in the data frame with <code>mutate()</code>.</li>
+<li>Summarise the data frame with <code>summarise()</code>.</li>
+<li>Order rows in the data frame with <code>arrange()</code>.</li>
+</ol>
+<p>Thus, we can define a step-by-step data processing workflow using the <code>adverbial</code> package as follows. Now we can use the <code>data_wrangler()</code> to process the data step by step. It shows the steps involved in processing data in the header, making it easier to understand and customise workflows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(adverbial)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3">data_wrangler <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_by_step</span>(</span>
+<span id="cb3-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb3-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">select_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Select columns from the data frame"</span>,</span>
+<span id="cb3-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filter_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Filter rows from data frames"</span>,</span>
+<span id="cb3-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mutate_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mutate columns in the data frame"</span>,</span>
+<span id="cb3-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">summarise_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Summarise the data frame"</span>,</span>
+<span id="cb3-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">arrange_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Order rows in the data frame"</span></span>
+<span id="cb3-10">  )</span>
+<span id="cb3-11">)</span>
+<span id="cb3-12"></span>
+<span id="cb3-13">select_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(mutate, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"select_step"</span>)</span>
+<span id="cb3-14">filter_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(filter, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"filter_step"</span>)</span>
+<span id="cb3-15">mutate_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(mutate, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mutate_step"</span>)</span>
+<span id="cb3-16">summarise_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(summarise, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"summarise_step"</span>)</span>
+<span id="cb3-17">arrange_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(arrange, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"arrange_step"</span>)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data_wrangler</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Steps:
+# ☒ 1. select_step:    Select columns from the data frame
+# ☐ 2. filter_step:    Filter rows from data frames
+# ☐ 3. mutate_step:    Mutate columns in the data frame
+# ☐ 4. summarise_step: Summarise the data frame
+# ☐ 5. arrange_step:   Order rows in the data frame
+# ℹ Please call `select_step()` to continue.
+#
+# A tibble: 344 × 8
+   species island    bill_len bill_dep flipper_len body_mass sex     year
+ * &lt;fct&gt;   &lt;fct&gt;        &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt;     &lt;int&gt; &lt;fct&gt;  &lt;int&gt;
+ 1 Adelie  Torgersen     39.1     18.7         181      3750 male    2007
+ 2 Adelie  Torgersen     39.5     17.4         186      3800 female  2007
+ 3 Adelie  Torgersen     40.3     18           195      3250 female  2007
+ 4 Adelie  Torgersen     NA       NA            NA        NA &lt;NA&gt;    2007
+ 5 Adelie  Torgersen     36.7     19.3         193      3450 female  2007
+ 6 Adelie  Torgersen     39.3     20.6         190      3650 male    2007
+ 7 Adelie  Torgersen     38.9     17.8         181      3625 female  2007
+ 8 Adelie  Torgersen     39.2     19.6         195      4675 male    2007
+ 9 Adelie  Torgersen     34.1     18.1         193      3475 &lt;NA&gt;    2007
+10 Adelie  Torgersen     42       20.2         190      4250 &lt;NA&gt;    2007
+# ℹ 334 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="processing-data-step-by-step" class="level3">
+<h3 class="anchored" data-anchor-id="processing-data-step-by-step">Processing data step by step</h3>
+<p>You can process the data step by step as follows (up to step 3). You can also use the <code>as_step()</code> function to convert any function into a step that can be used in the workflow. If you specify incorrect step names, an error will occur.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data_wrangler</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select_step</span>(species, island, body_mass, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter_step</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(body_mass)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate_step</span>(</span>
+<span id="cb6-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert body_mass to kg</span></span>
+<span id="cb6-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">body_mass =</span> units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(body_mass, g) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-7">      units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kg"</span>)</span>
+<span id="cb6-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb6-9">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># You can use another function during the step-by-step process.</span></span>
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(head)(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Steps:
+# ☒ 1. select_step:    Select columns from the data frame
+# ☒ 2. filter_step:    Filter rows from data frames
+# ☒ 3. mutate_step:    Mutate columns in the data frame
+# ☐ 4. summarise_step: Summarise the data frame
+# ☐ 5. arrange_step:   Order rows in the data frame
+# ℹ Please call `summarise_step()` to continue.
+#
+# A tibble: 3 × 8
+  species island    bill_len bill_dep flipper_len body_mass sex     year
+* &lt;fct&gt;   &lt;fct&gt;        &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt;      [kg] &lt;fct&gt;  &lt;int&gt;
+1 Adelie  Torgersen     39.1     18.7         181      3.75 male    2007
+2 Adelie  Torgersen     39.5     17.4         186      3.8  female  2007
+3 Adelie  Torgersen     40.3     18           195      3.25 female  2007</code></pre>
+</div>
+</div>
+</section>
+<section id="completing-the-data-processing" class="level3">
+<h3 class="anchored" data-anchor-id="completing-the-data-processing">Completing the data processing</h3>
+<p>You can complete the data processing by adding the remaining steps and ending the workflow with <code>end_step()</code>. The following code performs almost the same processing as the original code, the only difference being that it successively informs the user which function to apply next.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data_wrangler</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select_step</span>(species, island, body_mass, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter_step</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(body_mass)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate_step</span>(</span>
+<span id="cb8-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert body_mass to kg</span></span>
+<span id="cb8-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">body_mass =</span> units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(body_mass, g) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-7">      units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kg"</span>)</span>
+<span id="cb8-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise_step</span>(</span>
+<span id="cb8-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean_body_mass =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(body_mass),</span>
+<span id="cb8-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(island, species, year)</span>
+<span id="cb8-12">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange_step</span>(island, species, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">end_step</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 15 × 4
+   island    species    year mean_body_mass
+ * &lt;fct&gt;     &lt;fct&gt;     &lt;int&gt;           [kg]
+ 1 Biscoe    Adelie     2007           3.62
+ 2 Biscoe    Adelie     2008           3.63
+ 3 Biscoe    Adelie     2009           3.86
+ 4 Biscoe    Gentoo     2007           5.07
+ 5 Biscoe    Gentoo     2008           5.02
+ 6 Biscoe    Gentoo     2009           5.14
+ 7 Dream     Adelie     2007           3.67
+ 8 Dream     Adelie     2008           3.76
+ 9 Dream     Adelie     2009           3.65
+10 Dream     Chinstrap  2007           3.69
+11 Dream     Chinstrap  2008           3.8 
+12 Dream     Chinstrap  2009           3.72
+13 Torgersen Adelie     2007           3.76
+14 Torgersen Adelie     2008           3.86
+15 Torgersen Adelie     2009           3.49</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>adverbial package provides a way of breaking down data processing tasks into smaller, more manageable steps. This approach allows users to understand the overall workflow and adapt it to their needs. The aim is to eliminate the need for workers to remember each mentally demanding step of data processing.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>adverbial</category>
+  <category>English</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</guid>
+  <pubDate>Sat, 24 May 2025 15:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</link>
@@ -10546,566 +10965,6 @@ font-style: inherit;">2</span>))</span></code></pre></div>
   <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r.html</guid>
   <pubDate>Sun, 11 Dec 2022 15:00:00 GMT</pubDate>
   <media:content url="https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true" medium="image"/>
-</item>
-<item>
-  <title>CSVの代わりにParquetを使ってみよう</title>
-  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv-ja.html</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>本記事では，<strong>CSVの代替として有望かつビッグデータ分析にも適している<a href="https://parquet.apache.org">Parquet</a></strong>を紹介します．</p>
-<p>さて，<strong>データフレーム</strong>（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．<strong>Rの<a href="https://tibble.tidyverse.org">tibble</a>・<a href="https://dplyr.tidyverse.org">dplyr</a></strong>や<strong>Pythonの<a href="https://pandas.pydata.org">pandas</a></strong>などのデータフレーム操作のためのパッケージを使えば，これまで<strong>Excelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行う</strong>ことができます．</p>
-<p>このようにデータ分析ツールが充実している一方で，データの保存には<strong>Excelなどとの互換性が高いCSV</strong>が未だに広く使われています．しかし，CSVは，必ずしもデータ分析に適したファイル形式とは言えません．そこで，<strong>CSVの代替</strong>として使われることが多くなっているParquetをCSVと比較してみましょう．</p>
-<section id="サンプルデータの準備" class="level2">
-<h2 class="anchored" data-anchor-id="サンプルデータの準備">サンプルデータの準備</h2>
-<p>CSVとParquetを比較するため，まずは，データ分析にありがちなサンプルデータを用意しましょう．今回は，tidyrパッケージで提供されている<code>who</code> （<a href="https://www.who.int/teams/global-tuberculosis-programme/data">世界保健機関（WHO）結核データ</a>）からサンプルデータをつくります．</p>
-<p>近年，データ分析では，<strong>整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）</strong>の概念が普及しています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．</p>
-<p>それでは，<code>who</code>は，tidy dataと言えるでしょうか？<code>who</code>には，<code>"new_sp_m014"</code> ～<code>"newrel_f65"</code> といったたくさんの列が存在しますが，これらには，1列ごとに，診断結果（<code>sp</code>や<code>sel</code>）・性別（<code>m</code>と<code>f</code>）・年齢階級（<code>014</code>や<code>65</code>）といった複数の変数が含まれています．そのため，<strong><code>who</code> は，tidy dataでない</strong>といえます．そこで，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従って<strong>tidy dataである<code>who_longer</code>に変形</strong>します．</p>
-<p>データ分析では，<code>who</code> よりtidy dataである<code>who_longer</code> のほうを分析が行いやすい一方で，行数は<code>who</code>（約7,000行）より<code>who_longer</code> （約400,000行）のほうが約50倍多いことがわかります．そのため，tidy dataである<code>who_longer</code>のようなデータをテキストファイルであるCSVで保存すると容量が増大してしまいます．</p>
-<p>このように，<strong>tidy dataはデータ分析に適している一方で，CSVのようなテキストファイルでの保存に適していない</strong>ことがわかります．しかし，このような<strong>データ保存上の課題はParquetを使えば解決する</strong>ことができます．</p>
-<p>ここで，tidy dataでない<code>who</code> とtidy dataである<code>who_longer</code> を見比べてみましょう．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.2.3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'tibble' was built under R version 4.2.3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'dplyr' was built under R version 4.2.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(fs)</span></code></pre></div>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>コード</summary>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">levels_gender <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"f"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"m"</span>)</span>
-<span id="cb6-2">levels_age <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"014"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"1524"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2534"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"3544"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"4554"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"5564"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"65"</span>)</span>
-<span id="cb6-3"></span>
-<span id="cb6-4">who_longer <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> who <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">pivot_longer</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">cols =</span> new_sp_m014<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span>newrel_f65,</span>
-<span id="cb6-6">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names_to =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"diagnosis"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"gender"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"age"</span>), </span>
-<span id="cb6-7">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names_pattern =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"new_?(.*)_(.)(.*)"</span>,</span>
-<span id="cb6-8">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names_transform =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">list</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">gender =</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> .x <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-9">                                        readr<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">parse_factor</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">levels =</span> levels_gender),</span>
-<span id="cb6-10">                                      <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">age =</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> .x <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-11">                                        readr<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">parse_factor</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">levels =</span> levels_age,</span>
-<span id="cb6-12">                                                            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ordered =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>)),</span>
-<span id="cb6-13">               <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"count"</span>)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># データ整形前</span></span>
-<span id="cb7-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(who, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 7,240 × 60
-  country   iso2  iso3   year new_sp_m014 new_sp_m1524 new_sp_m2534 new_sp_m3544
-  &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
-1 Afghanis… AF    AFG    1980          NA           NA           NA           NA
-2 Afghanis… AF    AFG    1981          NA           NA           NA           NA
-3 Afghanis… AF    AFG    1982          NA           NA           NA           NA
-4 Afghanis… AF    AFG    1983          NA           NA           NA           NA
-5 Afghanis… AF    AFG    1984          NA           NA           NA           NA
-# ℹ 7,235 more rows
-# ℹ 52 more variables: new_sp_m4554 &lt;dbl&gt;, new_sp_m5564 &lt;dbl&gt;,
-#   new_sp_m65 &lt;dbl&gt;, new_sp_f014 &lt;dbl&gt;, new_sp_f1524 &lt;dbl&gt;,
-#   new_sp_f2534 &lt;dbl&gt;, new_sp_f3544 &lt;dbl&gt;, new_sp_f4554 &lt;dbl&gt;,
-#   new_sp_f5564 &lt;dbl&gt;, new_sp_f65 &lt;dbl&gt;, new_sn_m014 &lt;dbl&gt;,
-#   new_sn_m1524 &lt;dbl&gt;, new_sn_m2534 &lt;dbl&gt;, new_sn_m3544 &lt;dbl&gt;,
-#   new_sn_m4554 &lt;dbl&gt;, new_sn_m5564 &lt;dbl&gt;, new_sn_m65 &lt;dbl&gt;, …</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># データ整形後</span></span>
-<span id="cb9-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(who_longer, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 405,440 × 8
-  country     iso2  iso3   year diagnosis gender age   count
-  &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;     &lt;fct&gt;  &lt;ord&gt; &lt;dbl&gt;
-1 Afghanistan AF    AFG    1980 sp        m      014      NA
-2 Afghanistan AF    AFG    1980 sp        m      1524     NA
-3 Afghanistan AF    AFG    1980 sp        m      2534     NA
-4 Afghanistan AF    AFG    1980 sp        m      3544     NA
-5 Afghanistan AF    AFG    1980 sp        m      4554     NA
-# ℹ 405,435 more rows</code></pre>
-</div>
-</div>
-</section>
-<section id="csvparquetの保存方法" class="level2">
-<h2 class="anchored" data-anchor-id="csvparquetの保存方法">CSV・Parquetの保存方法</h2>
-<p>Rでは，<code>write_csv()</code> でCSVを保存できます．同様に，arrowパッケージの<code>write_parquet()</code> でParquetを保存することができます．<code>who_longer</code>をCSVとParquetで保存してみましょう．</p>
-<p>CSVとParquetでは，どちらも簡単にデータ保存ができることがわかります．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(arrow)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'arrow' was built under R version 4.2.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># CSVを保存</span></span>
-<span id="cb13-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">write_csv</span>(who_longer, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.csv"</span>)</span>
-<span id="cb13-3"></span>
-<span id="cb13-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Parquetを保存</span></span>
-<span id="cb13-5"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">write_parquet</span>(who_longer, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.parquet"</span>)</span></code></pre></div>
-</div>
-</section>
-<section id="parquetのメリットcsvとの比較" class="level2">
-<h2 class="anchored" data-anchor-id="parquetのメリットcsvとの比較">Parquetのメリット・CSVとの比較</h2>
-<p>ここからは，保存した<code>who_longer</code> のCSV・Parquetファイルを比較して，CSVに対するParquetのメリットを紹介していきます．</p>
-<section id="メリット1csvよりデータ容量が軽い" class="level3">
-<h3 class="anchored" data-anchor-id="メリット1csvよりデータ容量が軽い">メリット1：CSVよりデータ容量が軽い</h3>
-<p>tidy dataは行数が多くなるため，CSVでの保存に適しておらず，Parquetを使ったほうがよいことを既に述べました．</p>
-<p>実際に，<code>who_longer</code> のCSV・Parquetのデータ容量は，それぞれ，14.1 MBと154 KBとなり，<strong>ParquetはCSVの約1 %のデータ容量</strong>しかないことがわかります．</p>
-<p>どのようなケースでもこのようなデータ容量の削減が見込めるわけではありませんが，<strong>Parquetは列指向でデータ圧縮</strong>を行うため，Rなどでよく用いられる<strong>tidy dataの保存に適したデータ形式</strong>であるといえます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># CSV</span></span>
-<span id="cb14-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">file_size</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.csv"</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>14.1M</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Parquet</span></span>
-<span id="cb16-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">file_size</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.parquet"</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>156K</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">units<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">set_units</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">file_size</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.parquet"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">file_size</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.csv"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb18-2">  units<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">%</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">`</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>1.080502 [%]</code></pre>
-</div>
-</div>
-</section>
-<section id="メリット2csvより読み込みが簡単" class="level3">
-<h3 class="anchored" data-anchor-id="メリット2csvより読み込みが簡単">メリット2：CSVより読み込みが簡単</h3>
-<p><code>write_csv()</code>・<code>write_parquet()</code> でデータを書き込めるのと同様に，<strong><code>read_csv()</code>・<code>read_parquet()</code> でCSV・Parquetデータを読み込む</strong>ことができます．</p>
-<p><strong>CSV</strong>はテキスト形式であるため，<strong>読み込み時に<code>col_types</code>で各列の型を指定する必要</strong>があります（デフォルトでは自動で型を推測）．</p>
-<p>一方，<strong>Parquet</strong>は，書き込み時に各列の型情報も保存されているため読み込み時に<strong>型を指定する必要がありません</strong>．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># CSVの読み込み</span></span>
-<span id="cb20-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.csv"</span>,</span>
-<span id="cb20-3">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">col_types =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">cols</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.default =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"c"</span>,</span>
-<span id="cb20-4">                          <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">year =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"i"</span>,</span>
-<span id="cb20-5">                          <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">count =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"i"</span>))</span>
-<span id="cb20-6"></span>
-<span id="cb20-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Parquetの読み込み</span></span>
-<span id="cb20-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_parquet</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.parquet"</span>)</span></code></pre></div>
-</div>
-</section>
-<section id="メリット3csvよりビッグデータの読み込み集計に適している" class="level3">
-<h3 class="anchored" data-anchor-id="メリット3csvよりビッグデータの読み込み集計に適している">メリット3：CSVよりビッグデータの読み込み・集計に適している</h3>
-<p>CSVはビッグデータの保存に適しておらず，これまでは，ビッグデータの保存にはSQLを用いるなどの使い分けが必要でした．</p>
-<p>Rでは，dplyr（dbplyr）・DBIなどのパッケージで簡単にSQLが使えますが，データベースへの接続・切断などが必要なSQLは，CSVと使い勝手が異なり，初学者にとってはハードルがあるかもしれません．</p>
-<p>また，（ほとんどの？）<strong>SQLは行指向</strong>であるため，<strong>データの追加・更新・削除などに適しています</strong>が，データ分析に用いられる<strong>データの保存・集計には列指向であるParquetのほうが適している</strong>と思われます．</p>
-<p>CSVファイルを用いてビッグデータを集計する場合には，一度，全データをメモリに移す必要があります．そのため，データの読み込みでメモリが逼迫するおそれがあります．</p>
-<p>Parquetでは，<strong>読み込み時に<code>as_data_frame = FALSE</code></strong>とすることで，SQLと同様に<strong>メモリにデータを移すことなくデータのフィルタリング・集計などが可能</strong>です．</p>
-<p>ここでは，日本の年・症例別の患者数を計算してみましょう．<strong>dplyrの<code>filter()</code> ・<code>group_by()</code> ・<code>summarise()</code> などを使って効率的にクエリを作成</strong>することができます．<strong>最後に<code>collect()</code> を行えばデータフレームを出力</strong>することができます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_parquet</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer.parquet"</span>,</span>
-<span id="cb21-2">             <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">as_data_frame =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(country <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Japan"</span>,</span>
-<span id="cb21-4">         <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">count =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sum</span>(count),</span>
-<span id="cb21-7">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">collect</span>()</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 33 × 4
-   country  year diagnosis count
-   &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;
- 1 Japan    1995 sp        14367
- 2 Japan    1996 sp        12867
- 3 Japan    1997 sp        13571
- 4 Japan    1998 sp        11935
- 5 Japan    2001 sp        11408
- 6 Japan    2002 sp        10807
- 7 Japan    2003 sp        10843
- 8 Japan    2004 sp        10471
- 9 Japan    1999 sp        12909
-10 Japan    2000 sp        11853
-# ℹ 23 more rows</code></pre>
-</div>
-</div>
-</section>
-<section id="メリット4複数のデータからなるデータセットを扱える" class="level3">
-<h3 class="anchored" data-anchor-id="メリット4複数のデータからなるデータセットを扱える">メリット4：複数のデータからなるデータセットを扱える</h3>
-<p>Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，<strong>Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える</strong>ため，このようなデメリットを簡単に解決することができます．</p>
-<p>ここでは，<code>who_longer</code>を年齢階級別に分割したParquetファイルを格納した<code>"who_longer_byage"</code> フォルダをデータセットのサンプルとして用いましょう．</p>
-<p><strong><code>open_dataset("who_longer_byage")</code></strong> とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の<strong>データ集計を簡単に行うことができます</strong>．</p>
-<div class="cell">
-<details class="code-fold">
-<summary>コード</summary>
-<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">dir_create</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer_byage"</span>)</span>
-<span id="cb23-2">who_longer <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb23-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">group_by</span>(age) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb23-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">group_walk</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> .x <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb23-5">               <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">write_parquet</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_glue</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer_byage/who_longer_{.y$age}.parquet"</span>)),</span>
-<span id="cb23-6">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.keep =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">open_dataset</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"who_longer_byage"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(country <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Japan"</span>,</span>
-<span id="cb24-3">         <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">count =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sum</span>(count),</span>
-<span id="cb24-6">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">collect</span>()</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 33 × 4
-   country  year diagnosis count
-   &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;
- 1 Japan    1995 sp        14367
- 2 Japan    1996 sp        12867
- 3 Japan    1997 sp        13571
- 4 Japan    1998 sp        11935
- 5 Japan    2001 sp        11408
- 6 Japan    2002 sp        10807
- 7 Japan    2003 sp        10843
- 8 Japan    2004 sp        10471
- 9 Japan    2005 sp        10931
-10 Japan    2006 sp        10159
-# ℹ 23 more rows</code></pre>
-</div>
-</div>
-</section>
-<section id="メリット5rpython間でのデータのやり取りに適している" class="level3">
-<h3 class="anchored" data-anchor-id="メリット5rpython間でのデータのやり取りに適している">メリット5：R・Python間でのデータのやり取りに適している</h3>
-<p>PythonのpandasパッケージはParquetの読み書きに対応しているため，Parquetは，R・Python間でのデータのやり取りにも適しています．</p>
-<p>Rで作成した<code>'who_longer.parquet'</code> をpandasで読み込んでみましょう．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> pd</span>
-<span id="cb26-2"></span>
-<span id="cb26-3">pd.read_parquet(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>            country iso2 iso3    year diagnosis gender   age   count
-0       Afghanistan   AF  AFG  1980.0        sp      m   014     NaN
-1       Afghanistan   AF  AFG  1980.0        sp      m  1524     NaN
-2       Afghanistan   AF  AFG  1980.0        sp      m  2534     NaN
-3       Afghanistan   AF  AFG  1980.0        sp      m  3544     NaN
-4       Afghanistan   AF  AFG  1980.0        sp      m  4554     NaN
-...             ...  ...  ...     ...       ...    ...   ...     ...
-405435     Zimbabwe   ZW  ZWE  2013.0       rel      f  2534  4649.0
-405436     Zimbabwe   ZW  ZWE  2013.0       rel      f  3544  3526.0
-405437     Zimbabwe   ZW  ZWE  2013.0       rel      f  4554  1453.0
-405438     Zimbabwe   ZW  ZWE  2013.0       rel      f  5564   811.0
-405439     Zimbabwe   ZW  ZWE  2013.0       rel      f    65   725.0
-
-[405440 rows x 8 columns]</code></pre>
-</div>
-</div>
-</section>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．</p>
-<p>また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる<a href="https://wcjochem.github.io/sfarrow/">sfarrow</a>なども登場しています．</p>
-<p>CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．</p>
-
-
-</section>
-
- ]]></description>
-  <category>parquet</category>
-  <category>arrow</category>
-  <category>R</category>
-  <category>Python</category>
-  <category>Japanese</category>
-  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv-ja.html</guid>
-  <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>

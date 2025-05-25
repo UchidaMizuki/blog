@@ -1,0 +1,132 @@
+---
+title: "Guiding data processing with `adverbial::step_by_step()` in R"
+lang: en
+categories: [adverbial, English]
+date: 2025-05-25
+---
+
+Implementing the right functions is essential for efficiently sharing data processing knowledge. However, finding the right balance between usability and customization can be challenging.
+
+One approach to achieving this balance is to break the data processing flow into multiple functions. To ensure the effectiveness of this approach, users must have a clear understanding of the overall workflow.
+
+One of the advantages of programming, as I see it, is that it allows me to make explicit implicit knowledge that previously had to be accurately understood by humans. This principle inspired the implementation of step-by-step data processing functions in the R adverbial package.
+
+The step-by-step data processing functionality provided by this package consists mainly of the following three functions.
+
+1.  `step_by_step()` defines a step-by-step data processing workflow.
+2.  `as_step()` converts a function into a step that can be used in the workflow.
+3.  `end_step()` ends a step in the workflow.
+
+These functions provide a clear framework for data processing, making it easier to share knowledge and collaborate on similarly structured data analysis tasks.
+
+## Example
+
+Let's turn the following data process into a step-by-step data process. This process uses the `penguins` data to calculate the average weight of penguins by island, species and year.
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+
+as_tibble(penguins) |>
+  select(species, island, body_mass, year) |>
+  filter(!is.na(body_mass)) |>
+  mutate(
+    # Convert body_mass to kg
+    body_mass = units::set_units(body_mass, g) |>
+      units::set_units("kg")
+  ) |> 
+  summarise(
+    mean_body_mass = mean(body_mass),
+    .by = c(island, species, year)
+  ) |> 
+  arrange(island, species, year)
+
+```
+
+### Defining a step-by-step data processing workflow
+
+This process can be broken down into the following steps:
+
+1.  Select columns from the data frame with `select()`.
+2.  Filter rows from data frames with `filter()`.
+3.  Mutate columns in the data frame with `mutate()`.
+4.  Summarise the data frame with `summarise()`.
+5.  Order rows in the data frame with `arrange()`.
+
+Thus, we can define a step-by-step data processing workflow using the `adverbial` package as follows. Now we can use the `data_wrangler()` to process the data step by step. It shows the steps involved in processing data in the header, making it easier to understand and customise workflows.
+
+```{r}
+
+library(adverbial)
+
+data_wrangler <- step_by_step(
+  c(
+    select_step = "Select columns from the data frame",
+    filter_step = "Filter rows from data frames",
+    mutate_step = "Mutate columns in the data frame",
+    summarise_step = "Summarise the data frame",
+    arrange_step = "Order rows in the data frame"
+  )
+)
+
+select_step <- as_step(mutate, "select_step")
+filter_step <- as_step(filter, "filter_step")
+mutate_step <- as_step(mutate, "mutate_step")
+summarise_step <- as_step(summarise, "summarise_step")
+arrange_step <- as_step(arrange, "arrange_step")
+
+```
+
+```{r}
+
+data_wrangler(as_tibble(penguins))
+
+```
+
+### Processing data step by step
+
+You can process the data step by step as follows (up to step 3). You can also use the `as_step()` function to convert any function into a step that can be used in the workflow. If you specify incorrect step names, an error will occur.
+
+```{r}
+
+data_wrangler(as_tibble(penguins)) |> 
+  select_step(species, island, body_mass, year) |>
+  filter_step(!is.na(body_mass)) |>
+  mutate_step(
+    # Convert body_mass to kg
+    body_mass = units::set_units(body_mass, g) |>
+      units::set_units("kg")
+  ) |> 
+  # You can use another function during the step-by-step process.
+  as_step(head)(n = 3)
+
+```
+
+### Completing the data processing
+
+You can complete the data processing by adding the remaining steps and ending the workflow with `end_step()`. The following code performs almost the same processing as the original code, the only difference being that it successively informs the user which function to apply next.
+
+```{r}
+
+data_wrangler(as_tibble(penguins)) |> 
+  select_step(species, island, body_mass, year) |>
+  filter_step(!is.na(body_mass)) |>
+  mutate_step(
+    # Convert body_mass to kg
+    body_mass = units::set_units(body_mass, g) |>
+      units::set_units("kg")
+  ) |> 
+  summarise_step(
+    mean_body_mass = mean(body_mass),
+    .by = c(island, species, year)
+  ) |> 
+  arrange_step(island, species, year) |> 
+  end_step()
+
+```
+
+## Conclusion
+
+adverbial package provides a way of breaking down data processing tasks into smaller, more manageable steps. This approach allows users to understand the overall workflow and adapt it to their needs. The aim is to eliminate the need for workers to remember each mentally demanding step of data processing.
