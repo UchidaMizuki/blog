@@ -3,6 +3,7 @@ title: "RでExcelファイルを整形する際のTips"
 lang: ja
 categories: [Japanese, R, Excel, Tidy Data, Data Wrangling]
 date: 2024-12-23
+last-modified: 2025-06-01
 format:
   html:
     df-print: paged
@@ -10,33 +11,33 @@ format:
 
 この記事は[R言語 Advent Calendar 2024](https://qiita.com/advent-calendar/2024/rlang)の23日目の記事です．
 
-データ分析において，面倒だけれどもやらなくては始まらないのがデータの前処理です．最近では，機械判読しやすいデータ作成を心掛けることが重視されるようになってきていますが， 人と機械の両方にとって読みやすいデータ形式を作成することはそもそも容易ではありません．
+データ分析において, 避けて通れないのがデータの前処理です．最近では, 機械判読しやすいデータの作成が重要視されるようになっていますが, 人と機械の両方にとって読みやすいデータ形式を整えるのは簡単ではありません．
 
 そこで，この記事では，人が見ることを前提に作成されることの多いExcelファイルを Rで整形する際のTipsを紹介します．この記事では，主にExcelファイル向けのTipsを紹介しますが，CSVファイル等のデータ形式にも応用できると思います．
 
-Excelファイルを整形するアプローチには主に以下の2つがあります． この記事では，Excelファイルのテーブル構造の読み解き方を紹介した後に， 以下の2つのアプローチによるデータ整形の方法を紹介します．
+Excelファイルの整形には, 主に以下の2つのアプローチがあります．この記事では, まずExcelファイルのテーブル構造の読み解き方を説明し, その後, 以下の方法を用いたデータ整形の手法を紹介します．
 
 1.  [readxl](https://readxl.tidyverse.org)パッケージを使う方法
 2.  [tidyxl](https://nacnudus.github.io/tidyxl/)パッケージと[unpivotr](https://nacnudus.github.io/unpivotr/)パッケージを使う方法
 
-また，Excelファイルのデータ整形については，すでにいくつかの日本語記事がありますので， 以下の記事も参考になると思います．
+また, Excelファイルのデータ整形については, すでにいくつかの日本語記事が公開されているため, 以下の記事も参考になると思います．
 
 -   [神ExcelをRでtidy化してみよう](https://bunseki-data.com/r-onlinecourse/2023/11/09/%E7%A5%9Eexcel%E3%82%92r%E3%81%A7tidy%E5%8C%96%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86/)
 -   [闇のExcelに対する防衛術](https://y-mattu.hatenablog.com/entry/read_dark-excel)
 
 ## Excelファイルを整形する前に
 
-本題に入る前に，一点注意しておきたいことがあります． それは，分析に使用したいデータがさらに機械判読に適したデータ形式で提供されていないかを確認することです．
+本題に入る前に, 一点注意しておきたいことがあります．それは, 分析に使用したいデータが, より機械判読に適した形式で提供されていないかを確認することです．
 
-Excelファイルはデータ閲覧には便利ですが，機械判読しにくいデータ形式であることが多いです． そのため，他の形式でもっと機械判読しやすいデータが提供されていないかを確認しておいたほうが良いでしょう． たとえば，政府統計の総合窓口のe-Statでは，API機能を通じて，一般的なExcelファイルより機械判読しやすいデータを入手できることがあります．
+Excelファイルはデータの閲覧には便利ですが, 機械判読しにくいことが少なくありません．そのため, より適切な形式で提供されているデータがないか, 事前に確認するのが望ましいでしょう．たとえば, 政府統計の総合窓口であるe-Statでは, API機能を利用して, 一般的なExcelファイルよりも機械判読しやすいデータを取得できる場合があります．
 
 ## データ形式を巡る「人と機械の溝」
 
-私たちにとって読みやすいデータが機械にとっても読みやすいとは限りません． そういったデータの典型的な例として，週間天気予報のデータが挙げられます[^1]．
+私たちにとって読みやすいデータが, 機械にとっても読みやすいとは限りません．その典型例として, 週間天気予報のデータが挙げられます[^1]．
 
 [^1]: この事例は，Wikipedia日本語版の[Tidy data](https://ja.wikipedia.org/wiki/Tidy_data)のページでも用いられています．
 
-たとえば，以下のようなダミーの週間天気予報があるとしましょう． このようなデータを見たとき，すぐに「地域・日付別の天気」であることがわかると思います． しかし，機械的に以下のようなことを理解することは意外に難しいと思われます．
+たとえば, 以下のようなダミーの週間天気予報データがあるとしましょう．人間がこのデータを見れば, すぐに「地域・日付別の天気」であることを理解できます．しかし, 機械的に以下の情報を把握するのは意外に難しいかもしれません．
 
 -   2列目以降の列名が日付を表していること
 -   2列目以降の列の値が天気を表していること
@@ -50,24 +51,23 @@ Excelファイルはデータ閲覧には便利ですが，機械判読しにく
 library(tidyverse)
 
 region <- c("札幌", "東京", "名古屋", "大阪", "福岡", "那覇")
-date <- seq(ymd("2024-12-20"), ymd("2024-12-26"),
-            by = "day") |> 
+date <- seq(ymd("2024-12-20"), ymd("2024-12-26"), by = "day") |>
   format("%m/%d")
-weather <- c("🌞", "⛅",  "☔")
+weather <- c("🌞", "⛅", "☔")
 
 set.seed(1234)
-weather_forecast <- expand_grid(region = region,
-                                date = date) |> 
-  mutate(weather = sample(weather, n(),
-                          replace = TRUE))
+weather_forecast <- expand_grid(region = region, date = date) |>
+  mutate(weather = sample(weather, n(), replace = TRUE))
 
-weather_forecast_wider <- weather_forecast |> 
-  pivot_wider(names_from = date,
-              values_from = weather)
+weather_forecast_wider <- weather_forecast |>
+  pivot_wider(names_from = date, values_from = weather)
 weather_forecast_wider
+
 ```
 
-上のデータが「地域・日付別の天気」であることを明確にするためには，以下のようなデータのほうが適しています． 以下のデータでは，軸（次元）である地域・日付に，観測値である天気が列名と対応しており，こうした縦長のデータはtidy data（整然データ）と呼ばれています． しかし，このような縦長のデータがニュースで流れたら，多くの人は読みづらいと感じるでしょう（週間天気予報を確認するのに縦長のテレビが必要になってしまいますね）．
+上のデータが「地域・日付別の天気」であることをより明確にするには, 以下のようなデータのほうが適しています．このデータでは, 地域と日付という軸（次元）に対し, 観測値である天気が適切に対応しており, こうした縦長のデータはtidy data（整然データ）と呼ばれます． しかし，このような縦長のデータがニュースで流れたら，多くの人は読みづらいと感じるでしょう[^2]．
+
+[^2]: 週間天気予報を確認するのに縦長のテレビが必要になってしまいますね．
 
 ```{r}
 #| label: weather-forecast-tidy
@@ -76,9 +76,9 @@ weather_forecast
 
 ```
 
-なぜ，このような「人と機械の溝」が生じるのでしょうか？それは，多くの人が2次元でデータを捉えることに慣れていることが一因かもしれません．
+なぜ, このような「人と機械の溝」が生じるのでしょうか？
 
-以下の図は，上の縦長データをggplot2で散布図として表したものです．この散布図をはじめに示した表と見比べると同じような見た目になっていることがわかります．私たちにとっては，以下の散布図のように縦方向だけでなく横方向にも軸を持つ表のほうが見やすいのかもしれません．
+以下の図は, 上の縦長データをggplot2で散布図として表したものです．この散布図と先ほどの表を見比べると, 見た目がよく似ていることがわかります．私たちにとっては, 縦方向だけでなく横方向にも軸を持つ表のほうが直感的に理解しやすいのかもしれません．
 
 ```{r}
 #| label: weather-forecast-plot
@@ -87,12 +87,11 @@ weather_forecast
 #| fig-height: 3
 #| fig-dpi: 800
 
-weather_forecast |> 
-  ggplot(aes(date, region, 
-             label = weather)) +
+weather_forecast |>
+  ggplot(aes(date, region, label = weather)) +
   geom_text() +
   scale_x_discrete(position = "top") +
-  scale_y_discrete(limits = rev) 
+  scale_y_discrete(limits = rev)
   
 ```
 
@@ -100,11 +99,11 @@ weather_forecast |>
 
 このような「人と機械の溝」を踏まえて，実際のExcelファイルのテーブル構造を読み解いてみましょう．
 
-「地域・日付別の天気」のようなシンプルな事例であれば，テーブル構造はそこまで難しくなりませんが，たとえば，「西暦・地域・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に，e-Statに公開されている[こちらのExcelファイル](https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001011777&cycle=0&tclass1=000001011778&stat_infid=000001085927&tclass2val=0)を見てみましょう． 以下の画像はExcelファイルの上部を一部抜粋したものです．
+このような「人と機械の溝」を踏まえ, 実際のExcelファイルのテーブル構造を読み解いてみましょう． 「地域・日付別の天気」のようなシンプルなデータであれば, テーブル構造はそれほど複雑ではありません．しかし, 例えば「西暦・地域・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に, e-Statに公開されている[こちらのExcelファイル](https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001011777&cycle=0&tclass1=000001011778&stat_infid=000001085927&tclass2val=0)を見てみましょう．以下の画像は, Excelファイルの上部を一部抜粋したものです．
 
 ![](tips-tidying-excel-file-with-r/population_by_year_sex_age_class.png)
 
-データ上部の説明を無視すると，以下のようなデータ形式であることがわかります．そのため，データの軸（次元）にあたる西暦・地域・性別・年齢を水色（[■]{style="color:#a6cee3;"}），観測値の種別・単位にあたる人口・人口割合・人口性比を青色（[■]{style="color:#1f78b4;"}）で塗りつぶすと以下の図のようになります．データ形式の詳細をまとめると以下のようになります．
+データ上部の説明を省くと, 以下のようなデータ形式であることがわかります．そこで, データの軸（次元）にあたる西暦・地域・性別・年齢を水色（[■]{style="color:#a6cee3;"}）, 観測値の種別・単位にあたる人口・人口割合・人口性比を青色（[■]{style="color:#1f78b4;"}）で塗り分けると, 以下の図のようになります．データ形式の詳細をまとめると以下のようになります．
 
 -   1・2列目に，それぞれ地域・年齢階級の軸（次元）の情報が格納されている
 -   3列目以降の列名にあたる部分には，軸（次元）と観測値の情報が混在している
@@ -113,18 +112,18 @@ weather_forecast |>
 
 ![](tips-tidying-excel-file-with-r/population_by_year_sex_age_class_colored.png)
 
-Excelファイルを整形する際には，以下の点を意識しなければならないことがわかります．
+Excelファイルを整形する際には, 以下の点を意識する必要があります．
 
--   列名が複数行にまたがって記載されている際には，各行が軸（次元）・観測値のどちらに対応するかを事前に整理しておく必要がある
--   列名の反復を避けるために一部の列名が省略 or セルが結合されていることが多い
+-   列名が複数行にわたる場合, 各行の情報が軸（次元）に対応するのか, それとも観測値なのかを事前に整理しておく必要がある
+-   列名の重複を避けるため, 一部の列名が省略されている, またはセルが結合されていることが多い
 
 ## readxlでExcelファイルを整形してみよう
 
 それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「西暦・地域・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．
 
-Excelファイルを読み込むのに役立つパッケージとして，[readxl](https://readxl.tidyverse.org)パッケージがあります[^2]． ここでは，readxlパッケージを使ってExcelファイルを整形するため， 事前に，readxlパッケージとtidyverseパッケージをロードしておきます．
+Excelファイルを読み込むのに役立つパッケージとして，[readxl](https://readxl.tidyverse.org)パッケージがあります[^3]． ここでは，readxlパッケージを使ってExcelファイルを整形するため， 事前に，readxlパッケージとtidyverseパッケージをロードしておきます．
 
-[^2]: [writexl](https://docs.ropensci.org/writexl/)パッケージも便利です．
+[^3]: [writexl](https://docs.ropensci.org/writexl/)パッケージも便利です．
 
 ```{r}
 #| label: setup
@@ -147,31 +146,33 @@ library(tidyverse)
 #| code-fold: true
 #| code-summary: データダウンロード時の使用コードはこちら
 
-library(fs) 
+library(fs)
 
 exdir <- "tips-tidying-excel-data-with-r"
 dir_create(exdir)
 
-destfile <- path(exdir, "population_by_year_sex_age_class",
-                 ext = "xlsx")
+destfile <- path(exdir, "population_by_year_sex_age_class", ext = "xlsx")
 if (!file_exists(destfile)) {
-  curl::curl_download("https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001085927&fileKind=0",
-                      destfile = destfile)
+  curl::curl_download(
+    "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001085927&fileKind=0",
+    destfile = destfile
+  )
 }
 
 ```
 
 ### ①列名の読み込み・結合セル等の処理
 
-Excelファイルの読み込みの最初のステップとして，列名を読み込みます． CSVファイル等のテーブルデータでは，1行目に列名が記載されていることが多く， Rのデータフレームでも列名は文字列ベクトルで表されます．
+Excelファイルを読み込む際の最初のステップとして, まず列名を取得します．
+通常, CSVファイルなどのテーブルデータでは, 1行目に列名が記載されます．
 
-しかし，上で示したExcelファイルでは，3列目以降に複数行にまたがって列名が記載されているため， これらをデータフレームの列名として使えるようにするには工夫が必要です．
+しかし, 上で示したExcelファイルでは, 3列目以降に複数行にわたって列名が記載されているため, これらをデータフレームの列名として適切に設定するには工夫が必要です．
 
-そこで，まずreadxlの`read_excel()`関数を使って列名を読み込みます． `read_excel()`関数では，`col_types`引数の指定方法等に違いはあるものの，おおよそreadrの`read_csv()`関数と同様の書き方でExcelファイルを読み込むことができます[^3]．
+そこで, まずreadxlパッケージの`read_excel()`関数を使って列名を読み込みます．`read_excel()`関数は, `col_types`引数の指定方法などに違いはあるものの, 基本的にはreadrの`read_csv()`関数と似た形式でExcelファイルを読み込むことができます[^4]．
 
-[^3]: [cellranger](https://readxl.tidyverse.org/reference/cell-specification.html)を使うことで，セルの範囲を詳細に指定することもできます．
+[^4]: [cellranger](https://readxl.tidyverse.org/reference/cell-specification.html)を使うことで，セルの範囲を詳細に指定することもできます．
 
-3列目以降の列名では，横方向に軸（次元）や観測値の情報が格納されているため， `t()`関数で転置してからデータフレームに変換します． さらに，最初の2行（地域・年齢階級）を除外すると以下のようなデータを取得できます．
+3列目以降の列名には, 横方向に軸（次元）や観測値の情報が格納されているため, `t()`関数で転置してからデータフレームに変換します．さらに, 最初の2行（地域・年齢階級）を除外すると, 以下のようなデータが取得できます．
 
 ```{r}
 #| label: read-col-names
@@ -180,20 +181,24 @@ Excelファイルの読み込みの最初のステップとして，列名を読
 file <- "tips-tidying-excel-file-with-r/population_by_year_sex_age_class.xlsx"
 sheet <- "da03"
 
-data_col_names <- read_excel(file,
-                             sheet = sheet, # シート名
-                             skip = 10, # 説明部分をスキップ
-                             n_max = 5, # 列名部分のみを読み込む
-                             col_names = FALSE,
-                             col_types = "text",
-                             .name_repair = "minimal") |> 
+data_col_names <- read_excel(
+  file,
+  sheet = sheet, # シート名
+  skip = 10, # 説明部分をスキップ
+  n_max = 5, # 列名部分のみを読み込む
+  col_names = FALSE,
+  col_types = "text",
+  .name_repair = "minimal"
+) |>
   # 転置してからデータフレームに変換
-  t() |> 
-  as_tibble(.name_repair = ~c("year", "value_type", "sex", "", "value_unit")) |> 
-  select(year, value_type, sex, value_unit) |> 
-  
+  t() |>
+  as_tibble(
+    .name_repair = ~ c("year", "value_type", "sex", "", "value_unit")
+  ) |>
+  select(year, value_type, sex, value_unit) |>
+
   # 最初の2行（地域・年齢階級）を除外
-  slice_tail(n = -2) 
+  slice_tail(n = -2)
 
 head(data_col_names, n = 10)
 
@@ -216,15 +221,15 @@ head(data_col_names, n = 10)
 
 data_col_names <- data_col_names |>
   # 西暦の年数のみを抽出
-  mutate(year = year |> 
-           str_extract("^\\d+(?=年$)") |> 
-           as.integer(),
-         
-         # value_unitが"-"の場合は空文字に置換
-         value_unit = if_else(value_unit == "-",
-                              "",
-                              value_unit)) |> 
-  
+  mutate(
+    year = year |>
+      str_extract("^\\d+(?=年$)") |>
+      as.integer(),
+
+    # value_unitが"-"の場合は空文字に置換
+    value_unit = if_else(value_unit == "-", "", value_unit)
+  ) |>
+
   # 西暦年とvalue_typeのNAを埋める
   fill(year, value_type)
 
@@ -245,11 +250,9 @@ head(data_col_names, n = 10)
 ```{r}
 #| label: make-col-names
 
-col_names <- data_col_names |> 
-  unite("value_type", value_type, value_unit,
-        sep = "") |> 
-  unite("col_name", year, sex, value_type,
-        sep = "/") |> 
+col_names <- data_col_names |>
+  unite("value_type", value_type, value_unit, sep = "") |>
+  unite("col_name", year, sex, value_type, sep = "/") |>
   pull(col_name)
 col_names <- c("region", "age_class", col_names)
 
@@ -262,13 +265,15 @@ head(col_names, n = 10)
 ```{r}
 #| label: read-data
 
-data <- read_excel(file,
-                   sheet = sheet,
-                   skip = 10 + 5,
-                   col_names = col_names,
-                   col_types = "text",
-                   .name_repair = "minimal") |>
-  
+data <- read_excel(
+  file,
+  sheet = sheet,
+  skip = 10 + 5,
+  col_names = col_names,
+  col_types = "text",
+  .name_repair = "minimal"
+) |>
+
   # 末尾の列に重複がみられるため重複箇所を削除 (元データ作成時のミスと思われる)
   select(all_of(vctrs::vec_unique_loc(col_names)))
 
@@ -289,18 +294,21 @@ head(data, n = 10)
 ```{r}
 #| label: tidy-data
 
-data <- data |> 
-  pivot_longer(!c(region, age_class),
-               names_to = c("year", "sex", ".value"),
-               names_sep = "/",
-               names_transform = list(sex = \(x) x |> 
-                                        na_if("NA"))) |>   
+data <- data |>
+  pivot_longer(
+    !c(region, age_class),
+    names_to = c("year", "sex", ".value"),
+    names_sep = "/",
+    names_transform = list(
+      sex = \(x)
+        x |>
+          na_if("NA")
+    )
+  ) |>
   # 人口・人口割合・人口性比の列を数値に変換
-  mutate(across(c(`人口（人）`, `年齢，男女別割合（％）`, 人口性比),
-                \(x) {
-                  parse_number(x, 
-                               na = "-")
-                })) |> 
+  mutate(across(c(`人口（人）`, `年齢，男女別割合（％）`, 人口性比), \(x) {
+    parse_number(x, na = "-")
+  })) |>
   relocate(year, region, sex, age_class)
 
 head(data, n = 10)
@@ -358,8 +366,7 @@ tidyxlパッケージの`xlsx_cells()`関数を使ってExcelファイルを読�
 ```{r}
 #| label: read-excel-tidyxl
 
-cells <- xlsx_cells(file,
-                    sheets = sheet)
+cells <- xlsx_cells(file, sheets = sheet)
 
 head(cells, n = 10)
 
@@ -371,7 +378,7 @@ head(cells, n = 10)
 
 -   [Directions from data cells to headers](https://nacnudus.github.io/unpivotr/reference/direction.html)
 
-以下のコードでは，上で整理したテーブル構造に基づき，readxlで作成した`data`と同様の情報を持つ`data2`を作成しています． readxlを用いた場合と比べて少ないコードでデータの読み込めたことがわかります．
+以下のコードでは，上で整理したテーブル構造に基づき，readxlで作成した`data`と同様の情報を持つ`data2`を作成しています． readxlを用いた場合と比べて少ないコードでデータの読み込めることがわかります．
 
 ```{r}
 #| label: make-data-tidyxl
@@ -417,21 +424,16 @@ head(data2, n = 5)
 ```{r}
 #| label: tidy-data-tidyxl
 
-data2 <- data2 |> 
+data2 <- data2 |>
   # readxlを使った場合と同様にvalue_type列を作成
-  mutate(value_unit = if_else(value_unit == "-",
-                              "",
-                              value_unit)) |>
-  unite("value_type", value_type, value_unit,
-        sep = "") |>
-  
+  mutate(value_unit = if_else(value_unit == "-", "", value_unit)) |>
+  unite("value_type", value_type, value_unit, sep = "") |>
+
   # 重複箇所を削除
-  slice_head(n = 1,
-             by = c(year, region, age_class, sex, value_type)) |> 
-  
+  slice_head(n = 1, by = c(year, region, age_class, sex, value_type)) |>
+
   # 値の種別を行方向に展開して横長データに変換
-  pivot_wider(names_from = value_type,
-              values_from = numeric)
+  pivot_wider(names_from = value_type, values_from = numeric)
 
 head(data2, n = 10)
 
