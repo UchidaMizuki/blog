@@ -274,7 +274,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>select_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(mutate, <span class="st">"select_step"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>select_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(select, <span class="st">"select_step"</span>)</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>filter_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(filter, <span class="st">"filter_step"</span>)</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>mutate_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(mutate, <span class="st">"mutate_step"</span>)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>summarise_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(summarise, <span class="st">"summarise_step"</span>)</span>
@@ -331,12 +331,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 # ☐ 5. arrange_step:   Order rows in the data frame
 # ℹ Please call `summarise_step()` to continue.
 #
-# A tibble: 3 × 8
-  species island    bill_len bill_dep flipper_len body_mass sex     year
-* &lt;fct&gt;   &lt;fct&gt;        &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt;      [kg] &lt;fct&gt;  &lt;int&gt;
-1 Adelie  Torgersen     39.1     18.7         181      3.75 male    2007
-2 Adelie  Torgersen     39.5     17.4         186      3.8  female  2007
-3 Adelie  Torgersen     40.3     18           195      3.25 female  2007</code></pre>
+# A tibble: 3 × 4
+  species island    body_mass  year
+* &lt;fct&gt;   &lt;fct&gt;          [kg] &lt;int&gt;
+1 Adelie  Torgersen      3.75  2007
+2 Adelie  Torgersen      3.8   2007
+3 Adelie  Torgersen      3.25  2007</code></pre>
 </div>
 </div>
 </section>

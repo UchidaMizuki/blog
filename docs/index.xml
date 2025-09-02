@@ -178,7 +178,7 @@ font-style: inherit;">"Order rows in the data frame"</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">as_step</span>(mutate, <span class="st" style="color: #20794D;
+font-style: inherit;">as_step</span>(select, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"select_step"</span>)</span>
 <span id="cb3-14">filter_step <span class="ot" style="color: #003B4F;
@@ -311,12 +311,12 @@ font-style: inherit;">3</span>)</span></code></pre></div>
 # ☐ 5. arrange_step:   Order rows in the data frame
 # ℹ Please call `summarise_step()` to continue.
 #
-# A tibble: 3 × 8
-  species island    bill_len bill_dep flipper_len body_mass sex     year
-* &lt;fct&gt;   &lt;fct&gt;        &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt;      [kg] &lt;fct&gt;  &lt;int&gt;
-1 Adelie  Torgersen     39.1     18.7         181      3.75 male    2007
-2 Adelie  Torgersen     39.5     17.4         186      3.8  female  2007
-3 Adelie  Torgersen     40.3     18           195      3.25 female  2007</code></pre>
+# A tibble: 3 × 4
+  species island    body_mass  year
+* &lt;fct&gt;   &lt;fct&gt;          [kg] &lt;int&gt;
+1 Adelie  Torgersen      3.75  2007
+2 Adelie  Torgersen      3.8   2007
+3 Adelie  Torgersen      3.25  2007</code></pre>
 </div>
 </div>
 </section>

@@ -71,7 +71,7 @@ data_wrangler <- step_by_step(
   )
 )
 
-select_step <- as_step(mutate, "select_step")
+select_step <- as_step(select, "select_step")
 filter_step <- as_step(filter, "filter_step")
 mutate_step <- as_step(mutate, "mutate_step")
 summarise_step <- as_step(summarise, "summarise_step")
