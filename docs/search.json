@@ -347,7 +347,7 @@
     "href": "index.html",
     "title": "UchidaMizuki",
     "section": "",
-    "text": "Guiding data processing with adverbial::step_by_step() in R\n\n\n\n\n\n\nadverbial\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nMay 25, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nJulia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）\n\n\n\n\n\n\nJuMP\n\n\nJulia\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 30, 2025\n\n\n\n\n\n\n\n\n\n\n\n\n割合データ（割り算値）から観測ノイズを除去する\n\n\n\n\n\n\nJapanese\n\n\nStatistics\n\n\n\n\n\n\n\n\n\nApr 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nJulia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）\n\n\n\n\n\n\nJuMP\n\n\nJulia\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 17, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nRでExcelファイルを整形する際のTips\n\n\n\n\n\n\nJapanese\n\n\nR\n\n\nExcel\n\n\nTidy Data\n\n\nData Wrangling\n\n\n\n\n\n\n\n\n\nDec 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nR ggraphで全国の市町村合併を可視化する\n\n\n\n\n\n\nJapanese\n\n\njpcity\n\n\n\n\n\n\n\n\n\nMay 26, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）\n\n\n\n\n\n\nJapanese\n\n\njpcity\n\n\n\n\n\n\n\n\n\nMay 25, 2024\n\n\n\n\n\n\n\n\n\n\n\n\n平均が正規分布に従う正規分布の周辺分布を求める\n\n\n\n\n\n\nJapanese\n\n\nStatistics\n\n\n\n\n\n\n\n\n\nMar 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nLiNGAMによる因果探索では関数形に注意しよう\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nMar 10, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nScraping dynamic sites with rvest (without Selenium)\n\n\n\n\n\n\nrvest\n\n\nR\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nFeb 15, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nrvestで動的サイトをスクレイピングする（Seleniumを使わずに）\n\n\n\n\n\n\nrvest\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 15, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nImprove the quality of data preprocessing with R’s dm package\n\n\n\n\n\n\ndm\n\n\nR\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRのdmパッケージでデータ前処理の質を高めよう\n\n\n\n\n\n\ndm\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRの数値積分で円の面積を求める\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 10, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nQuartoを活用してTokyo.Rで発表しました\n\n\n\n\n\n\ne-Stat\n\n\nLT\n\n\nTokyo.R\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 3, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nなぜベイズの定理が重要なのかーPCR検査を例にー\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
+    "text": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する\n\n\n\n\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nNov 26, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nGuiding data processing with adverbial::step_by_step() in R\n\n\n\n\n\n\nadverbial\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nMay 25, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nJulia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）\n\n\n\n\n\n\nJuMP\n\n\nJulia\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 30, 2025\n\n\n\n\n\n\n\n\n\n\n\n\n割合データ（割り算値）から観測ノイズを除去する\n\n\n\n\n\n\nJapanese\n\n\nStatistics\n\n\n\n\n\n\n\n\n\nApr 13, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nJulia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）\n\n\n\n\n\n\nJuMP\n\n\nJulia\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 17, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nRでExcelファイルを整形する際のTips\n\n\n\n\n\n\nJapanese\n\n\nR\n\n\nExcel\n\n\nTidy Data\n\n\nData Wrangling\n\n\n\n\n\n\n\n\n\nDec 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nR ggraphで全国の市町村合併を可視化する\n\n\n\n\n\n\nJapanese\n\n\njpcity\n\n\n\n\n\n\n\n\n\nMay 26, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）\n\n\n\n\n\n\nJapanese\n\n\njpcity\n\n\n\n\n\n\n\n\n\nMay 25, 2024\n\n\n\n\n\n\n\n\n\n\n\n\n平均が正規分布に従う正規分布の周辺分布を求める\n\n\n\n\n\n\nJapanese\n\n\nStatistics\n\n\n\n\n\n\n\n\n\nMar 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nLiNGAMによる因果探索では関数形に注意しよう\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nMar 10, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nScraping dynamic sites with rvest (without Selenium)\n\n\n\n\n\n\nrvest\n\n\nR\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nFeb 15, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nrvestで動的サイトをスクレイピングする（Seleniumを使わずに）\n\n\n\n\n\n\nrvest\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 15, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nImprove the quality of data preprocessing with R’s dm package\n\n\n\n\n\n\ndm\n\n\nR\n\n\nEnglish\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRのdmパッケージでデータ前処理の質を高めよう\n\n\n\n\n\n\ndm\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 28, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nRの数値積分で円の面積を求める\n\n\n\n\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 10, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nQuartoを活用してTokyo.Rで発表しました\n\n\n\n\n\n\ne-Stat\n\n\nLT\n\n\nTokyo.R\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nSep 3, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nなぜベイズの定理が重要なのかーPCR検査を例にー\n\n\n\n\n\n\nBayes\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 30, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n世代間の「1票の格差」を定量化してみる\n\n\n\n\n\n\nPolitics\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nApr 23, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）\n\n\n\n\n\n\nShiny\n\n\njpgrid\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nFeb 16, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで人口ピラミッドのアニメーションを作る\n\n\n\n\n\n\nggplot2\n\n\ngganimate\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJan 1, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）\n\n\n\n\n\n\ne-Stat\n\n\njpstat\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nDec 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nCSVの代わりにParquetを使ってみよう\n\n\n\n\n\n\nparquet\n\n\narrow\n\n\nR\n\n\nPython\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 12, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで日本地図を描いてみよう\n\n\n\n\n\n\nggplot2\n\n\nsf\n\n\njpmap\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nJun 11, 2022\n\n\n\n\n\n\n\n\n\n\n\n\nRで産業連関分析\n\n\n\n\n\n\nioanalysis\n\n\ndibble\n\n\nR\n\n\nJapanese\n\n\n\n\n\n\n\n\n\nMay 31, 2022\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -824,5 +824,96 @@
     "title": "Guiding data processing with adverbial::step_by_step() in R",
     "section": "Conclusion",
     "text": "Conclusion\nadverbial package provides a way of breaking down data processing tasks into smaller, more manageable steps. This approach allows users to understand the overall workflow and adapt it to their needs. The aim is to eliminate the need for workers to remember each mentally demanding step of data processing."
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html",
+    "href": "posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html",
+    "title": "対数ロジスティック分布を用いてジニ係数と中央値から所得分布を再現する",
+    "section": "",
+    "text": "この記事では，限られたデータから簡易的に所得分布を推定する方法を紹介します． 具体的には以下の2つの指標から所得分布を再現します．"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html#所得分布のモデル化",
+    "href": "posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html#所得分布のモデル化",
+    "title": "対数ロジスティック分布を用いてジニ係数と中央値から所得分布を再現する",
+    "section": "所得分布のモデル化",
+    "text": "所得分布のモデル化\nこの記事では，所得分布を対数ロジスティック分布でモデル化します． 対数ロジスティック分布は，所得分布の形状を比較的よく表現できることが知られています．\nさらに，対数ロジスティック分布はジニ係数と中央値からパラメータを一意に決定できるため，限られた情報から所得分布を再現するのに適しています．"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html#footnotes",
+    "href": "posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html#footnotes",
+    "title": "対数ロジスティック分布を用いてジニ係数と中央値から所得分布を再現する",
+    "section": "脚注",
+    "text": "脚注\n\n\n所得の平均値と比べて高所得者の影響を受けにくいため，所得分布の代表値としてしばしば用いられます．↩︎"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "",
+    "text": "この記事では、所得の中央値とジニ係数という2つの代表的な指標を用いて所得分布を簡易的に推定する方法を紹介します。\n所得の中央値は，平均値よりも高所得者の影響を受けにくい所得分布の代表値として広く利用されています． 一方で，ジニ係数は，所得の分配の不平等さを表す標準的な指標です．\n本記事では，これら2つの統計量から所得分布全体を推計できる確率分布として，対数ロジスティック分布に着目します。"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html#所得分布のモデル化",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html#所得分布のモデル化",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "所得分布のモデル化",
+    "text": "所得分布のモデル化\n対数ロジスティック分布は，経済学ではFisk分布としても知られており所得分布を表すのによく用いられているようです．\n対数ロジスティック分布のパラメータは，中央値とジニ係数から簡単に求められます． 具体的には，この確率分布は尺度（scale）パラメータ\\(\\alpha\\)と形状（shape）パラメータ\\(\\beta\\)の2つのパラメータをもちますが， これらのパラメータについて以下のような関係が成り立つことが知られています．\n\n尺度パラメータ\\(\\alpha\\)が所得の中央値\\(m\\)に等しい \\[\n\\alpha = m\n\\]\n形状パラメータ\\(\\beta\\)はジニ係数\\(G\\)の逆数に等しい \\[\n\\beta = \\frac{1}{G}\n\\]\n\nこれらの関係式を用いることで，所得の中央値とジニ係数から簡単に対数ロジスティック分布のパラメータを求めることができます．"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html#使用データ",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html#使用データ",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "使用データ",
+    "text": "使用データ\nこの記事では，OECDが公開しているSociety at a Glance 2024: OECD Social Indicatorsに掲載されている以下のデータを使用します．\n\n家計所得の中央値: Annual median equivalised disposable income, in 2021, USD at PPP rates\nジニ係数: Gini coefficient of household disposable income and gap between richest and poorest 10%, in 2021\n\nまず，以下のコードでデータをダウンロードします．\n\n\nコード\nlibrary(fs)\nlibrary(tidyverse)\n\nfile_median_income &lt;- \"income-distribution-from-median-and-gini-log-logistic/median_income_oecd_2021.xlsx\"\nif (!file_exists(file_median_income)) {\n curl::curl_download(\"https://stat.link/1or2b8\", file_median_income) \n}\n\nfile_gini_coefficient &lt;- \"income-distribution-from-median-and-gini-log-logistic/gini_coefficient_oecd_2021.xlsx\"\nif (!file_exists(file_gini_coefficient)) {\n curl::curl_download(\"https://stat.link/3f18vc\", file_gini_coefficient)\n}"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html#所得分布の可視化",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html#所得分布の可視化",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "所得分布の可視化",
+    "text": "所得分布の可視化\nまず，ダウンロードしたExcelファイルから必要なデータを読み込みます．\n\nlibrary(readxl)\n\nmedian_income &lt;- read_excel(\n  file_median_income,\n  sheet = \"Data4.1\",\n  range = cell_limits(ul = c(12, 1), lr = c(NA, 3)),\n  col_names = c(\"country_name\", \"country_code\", \"median_income_usd_ppp\"),\n  col_types = c(rep(\"text\", 2), \"numeric\")\n) |&gt; \n  drop_na(country_name) |&gt; \n  arrange(country_name)\nmedian_income\n\n\n  \n\n\ngini_coefficient &lt;- read_excel(\n  file_gini_coefficient,\n  sheet = \"data\",\n  range = cell_limits(ul = c(12, 4), lr = c(NA, 5)),\n  col_names = c(\"country_name\", \"gini_coefficient\"),\n  col_types = c(\"text\", \"numeric\")\n) |&gt; \n  drop_na(country_name) |&gt; \n  arrange(country_name)\ngini_coefficient\n\n\n  \n\n\n\n次に，読み込んだデータを結合し，対数ロジスティック分布のパラメータを計算します．\n\nincome_distribution_params &lt;- median_income |&gt; \n  inner_join(gini_coefficient, by = join_by(country_name)) |&gt; \n  mutate(\n    scale_param = median_income_usd_ppp,\n    shape_param = 1 / gini_coefficient,\n    .keep = \"unused\"\n  )\nincome_distribution_params\n\n\n  \n\n\n\n次に，各国の所得分布を可視化します． 以下のコードでは，対数ロジスティック分布の確率密度関数を用いて，各国の所得分布を計算し，プロットしています．\n\ndata_income_distribution_params &lt;- income_distribution_params |&gt; \n  expand_grid(\n    income = seq(0, 150000, by = 1000)\n  ) |&gt; \n  mutate(\n    density = VGAM::dfisk(\n      income,\n      scale = scale_param,\n      shape1.a = shape_param\n    )\n  ) |&gt; \n  select(!c(scale_param, shape_param))\n\nplot_income_distribution &lt;- data_income_distribution_params |&gt; \n  ggplot(aes(x = income, y = density, color = country_name)) +\n  geom_line() +\n  scale_x_continuous(labels = scales::dollar_format(prefix = \"$\", big.mark = \",\", accuracy = 1)) +\n  scale_y_continuous(labels = scales::comma_format(accuracy = 0.0001)) +\n  labs(\n    title = \"OECD各国の所得分布の推定（対数ロジスティック分布）\",\n    x = \"所得（USD, PPP）\",\n    y = \"確率密度\",\n    color = \"国名\"\n  ) +\n  theme_minimal()\n\nplotly::ggplotly(plot_income_distribution)"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "",
+    "text": "この記事では、所得の中央値1とジニ係数2という2つの代表的な指標のみを用いて所得分布を簡易的に推定する方法を紹介します。\n本記事では，これら2つの統計量から簡単に所得分布を再現可能な確率分布として，対数ロジスティック分布に着目します。"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#所得分布のモデル化",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#所得分布のモデル化",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "所得分布のモデル化",
+    "text": "所得分布のモデル化\n対数ロジスティック分布は，経済学ではFisk分布としても知られており，所得分布を表すのによく用いられています． この確率分布の利点は，所得の中央値とジニ係数から簡単にパラメータを推定できる点にあります．\n具体的には，この確率分布は尺度（scale）パラメータ\\(\\alpha\\)と形状（shape）パラメータ\\(\\beta\\)の2つのパラメータをもちますが， これらのパラメータについて以下のような関係が成り立つことが知られています． これらの関係式より，所得の中央値とジニ係数から簡単に対数ロジスティック分布のパラメータを設定することができます．\n\n尺度パラメータ\\(\\alpha\\)が所得の中央値\\(m\\)に等しい \\[\n\\alpha = m\n\\]\n形状パラメータ\\(\\beta\\)はジニ係数\\(G\\)の逆数に等しい \\[\n\\beta = \\frac{1}{G}\n\\]"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#使用データ",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#使用データ",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "使用データ",
+    "text": "使用データ\nこの記事では，OECDが公開しているSociety at a Glance 2024: OECD Social Indicatorsに掲載されている以下のデータを使用します．\n\n家計所得の中央値3: Annual median equivalised disposable income, in 2021, USD at PPP rates\nジニ係数: Gini coefficient of household disposable income and gap between richest and poorest 10%, in 2021\n\nまず，以下のコードでデータをダウンロードします．\n\n\nコード\nlibrary(fs)\nlibrary(tidyverse)\n\nfile_median_income &lt;- \"income-distribution-from-median-and-gini-log-logistic/median_income_oecd_2021.xlsx\"\nif (!file_exists(file_median_income)) {\n curl::curl_download(\"https://stat.link/1or2b8\", file_median_income) \n}\n\nfile_gini_coefficient &lt;- \"income-distribution-from-median-and-gini-log-logistic/gini_coefficient_oecd_2021.xlsx\"\nif (!file_exists(file_gini_coefficient)) {\n curl::curl_download(\"https://stat.link/3f18vc\", file_gini_coefficient)\n}"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#所得分布の可視化",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#所得分布の可視化",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "所得分布の可視化",
+    "text": "所得分布の可視化\nまず，ダウンロードしたExcelファイルから必要なデータを読み込みます．\n\n\nコード\nlibrary(readxl)\n\nmedian_income &lt;- read_excel(\n  file_median_income,\n  sheet = \"Data4.1\",\n  range = cell_limits(ul = c(12, 1), lr = c(NA, 3)),\n  col_names = c(\"country_name\", \"country_code\", \"median_income_usd_ppp\"),\n  col_types = c(rep(\"text\", 2), \"numeric\")\n) |&gt; \n  drop_na(country_name) |&gt; \n  arrange(country_name)\n\ngini_coefficient &lt;- read_excel(\n  file_gini_coefficient,\n  sheet = \"data\",\n  range = cell_limits(ul = c(12, 4), lr = c(NA, 5)),\n  col_names = c(\"country_name\", \"gini_coefficient\"),\n  col_types = c(\"text\", \"numeric\")\n) |&gt; \n  drop_na(country_name) |&gt; \n  arrange(country_name)\n\n\n読み込んだデータは以下の通りです．\n\nmedian_income\n\n\n  \n\n\ngini_coefficient\n\n\n  \n\n\n\n次に，読み込んだデータを結合し，対数ロジスティック分布のパラメータを計算します．\n\nincome_distribution_params &lt;- median_income |&gt; \n  inner_join(gini_coefficient, by = join_by(country_name)) |&gt; \n  mutate(\n    scale_param = median_income_usd_ppp,\n    shape_param = 1 / gini_coefficient,\n    .keep = \"unused\"\n  )\nincome_distribution_params\n\n\n  \n\n\n\n次に，各国の所得分布を可視化します． 以下のコードでは，対数ロジスティック分布の確率密度関数を用いて， G7各国の所得分布をプロットしています．\n\ndata_income_distribution_params &lt;- income_distribution_params |&gt;\n  # G7\n  filter(\n    country_name %in%\n      c(\n        \"Canada\",\n        \"France\",\n        \"Germany\",\n        \"Italy\",\n        \"Japan\",\n        \"United Kingdom\",\n        \"United States\"\n      )\n  ) |&gt;\n  expand_grid(\n    income = seq(0, 150000, by = 1000)\n  ) |&gt;\n  mutate(\n    density = VGAM::dfisk(\n      income,\n      scale = scale_param,\n      shape1.a = shape_param\n    )\n  ) |&gt;\n  select(!c(scale_param, shape_param))\n\nplot_income_distribution &lt;- data_income_distribution_params |&gt; \n  ggplot(aes(x = income, y = density, color = country_name)) +\n  geom_line() +\n  scale_x_continuous(labels = scales::dollar_format(prefix = \"$\", big.mark = \",\", accuracy = 1)) +\n  scale_y_continuous(labels = scales::comma_format(accuracy = 0.0001)) +\n  labs(\n    title = \"OECD各国の所得分布の推定（対数ロジスティック分布）\",\n    x = \"所得（USD PPP）\",\n    y = \"確率密度\",\n    color = \"国名\"\n  ) +\n  theme_minimal()\n\nplotly::ggplotly(plot_income_distribution)"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#おわりに",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#おわりに",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "おわりに",
+    "text": "おわりに\nこの記事では，対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する方法を紹介しました． 対数ロジスティック分布を用いることで，所得の中央値とジニ係数という2つの指標から所得分布の概形を捉えることができます．\nなお，この方法は，実際の所得分布とは異なる場合があることに注意してください． より正確な所得分布を推定するには，追加のデータやより複雑なモデルが必要となります．"
+  },
+  {
+    "objectID": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#footnotes",
+    "href": "posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html#footnotes",
+    "title": "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する",
+    "section": "脚注",
+    "text": "脚注\n\n\n所得の中央値は，平均値よりも高所得者の影響を受けにくい所得分布の代表値として広く利用されています．↩︎\nジニ係数は，所得の分配の不平等さを表す標準的な指標です．↩︎\nhttps://ja.wikipedia.org/wiki/%E8%B3%BC%E8%B2%B7%E5%8A%9B%E5%B9%B3%E4%BE%A1%E8%AA%AC#OECD%E7%B5%B1%E8%A8%88%E3%81%AE%E7%9B%B8%E5%AF%BE%E7%9A%84%E7%89%A9%E4%BE%A1%E6%B0%B4%E6%BA%96↩︎"
   }
 ]

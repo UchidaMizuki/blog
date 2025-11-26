@@ -1,0 +1,168 @@
+---
+title: "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する"
+lang: ja
+categories: [Japanese]
+date: 2025-11-26
+df-print: paged
+message: false
+warning: false
+---
+
+この記事では、所得の中央値[^1]とジニ係数[^2]という2つの代表的な指標のみを用いて所得分布を簡易的に推定する方法を紹介します。
+
+[^1]: 所得の中央値は，平均値よりも高所得者の影響を受けにくい所得分布の代表値として広く利用されています．
+
+[^2]: [ジニ係数](https://ja.wikipedia.org/wiki/%E3%82%B8%E3%83%8B%E4%BF%82%E6%95%B0)は，所得の分配の不平等さを表す標準的な指標です．
+
+本記事では，これら2つの統計量から簡単に所得分布を再現可能な確率分布として，[対数ロジスティック分布](https://en.wikipedia.org/wiki/Log-logistic_distribution)に着目します。
+
+## 所得分布のモデル化
+
+対数ロジスティック分布は，経済学ではFisk分布としても知られており，所得分布を表すのによく用いられています． この確率分布の利点は，所得の中央値とジニ係数から簡単にパラメータを推定できる点にあります．
+
+具体的には，この確率分布は尺度（scale）パラメータ$\alpha$と形状（shape）パラメータ$\beta$の2つのパラメータをもちますが， これらのパラメータについて以下のような関係が成り立つことが知られています． これらの関係式より，所得の中央値とジニ係数から簡単に対数ロジスティック分布のパラメータを設定することができます．
+
+-   尺度パラメータ$\alpha$が所得の中央値$m$に等しい $$
+    \alpha = m
+    $$
+
+-   形状パラメータ$\beta$はジニ係数$G$の逆数に等しい $$
+    \beta = \frac{1}{G}
+    $$
+
+## 使用データ
+
+この記事では，OECDが公開している[Society at a Glance 2024: OECD Social Indicators](https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en.html)に掲載されている以下のデータを使用します．
+
+-   家計所得の中央値[^3]: [Annual median equivalised disposable income, in 2021, USD at PPP rates](https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/household-income_3ee61044.html#title-b344384343)
+-   ジニ係数: [Gini coefficient of household disposable income and gap between richest and poorest 10%, in 2021](https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/income-and-wealth-inequalities_7ac4178f.html#title-dd39bc1fa5)
+
+[^3]: <https://ja.wikipedia.org/wiki/%E8%B3%BC%E8%B2%B7%E5%8A%9B%E5%B9%B3%E4%BE%A1%E8%AA%AC#OECD%E7%B5%B1%E8%A8%88%E3%81%AE%E7%9B%B8%E5%AF%BE%E7%9A%84%E7%89%A9%E4%BE%A1%E6%B0%B4%E6%BA%96>
+
+まず，以下のコードでデータをダウンロードします．
+
+```{r}
+#| label: download-data
+#| code-fold: true
+
+library(fs)
+library(tidyverse)
+
+file_median_income <- "income-distribution-from-median-and-gini-log-logistic/median_income_oecd_2021.xlsx"
+if (!file_exists(file_median_income)) {
+ curl::curl_download("https://stat.link/1or2b8", file_median_income) 
+}
+
+file_gini_coefficient <- "income-distribution-from-median-and-gini-log-logistic/gini_coefficient_oecd_2021.xlsx"
+if (!file_exists(file_gini_coefficient)) {
+ curl::curl_download("https://stat.link/3f18vc", file_gini_coefficient)
+}
+```
+
+## 所得分布の可視化
+
+まず，ダウンロードしたExcelファイルから必要なデータを読み込みます．
+
+```{r}
+#| label: load-data
+#| code-fold: true
+
+library(readxl)
+
+median_income <- read_excel(
+  file_median_income,
+  sheet = "Data4.1",
+  range = cell_limits(ul = c(12, 1), lr = c(NA, 3)),
+  col_names = c("country_name", "country_code", "median_income_usd_ppp"),
+  col_types = c(rep("text", 2), "numeric")
+) |> 
+  drop_na(country_name) |> 
+  arrange(country_name)
+
+gini_coefficient <- read_excel(
+  file_gini_coefficient,
+  sheet = "data",
+  range = cell_limits(ul = c(12, 4), lr = c(NA, 5)),
+  col_names = c("country_name", "gini_coefficient"),
+  col_types = c("text", "numeric")
+) |> 
+  drop_na(country_name) |> 
+  arrange(country_name)
+```
+
+読み込んだデータは以下の通りです．
+
+```{r}
+#| label: load-data-print
+
+median_income
+gini_coefficient
+```
+
+次に，読み込んだデータを結合し，対数ロジスティック分布のパラメータを計算します．
+
+```{r}
+#| label: prepare-data
+
+income_distribution_params <- median_income |> 
+  inner_join(gini_coefficient, by = join_by(country_name)) |> 
+  mutate(
+    scale_param = median_income_usd_ppp,
+    shape_param = 1 / gini_coefficient,
+    .keep = "unused"
+  )
+income_distribution_params
+```
+
+次に，各国の所得分布を可視化します． 以下のコードでは，対数ロジスティック分布の確率密度関数を用いて， G7各国の所得分布をプロットしています．
+
+```{r}
+#| label: plot-income-distribution
+
+data_income_distribution_params <- income_distribution_params |>
+  # G7
+  filter(
+    country_name %in%
+      c(
+        "Canada",
+        "France",
+        "Germany",
+        "Italy",
+        "Japan",
+        "United Kingdom",
+        "United States"
+      )
+  ) |>
+  expand_grid(
+    income = seq(0, 150000, by = 1000)
+  ) |>
+  mutate(
+    density = VGAM::dfisk(
+      income,
+      scale = scale_param,
+      shape1.a = shape_param
+    )
+  ) |>
+  select(!c(scale_param, shape_param))
+
+plot_income_distribution <- data_income_distribution_params |> 
+  ggplot(aes(x = income, y = density, color = country_name)) +
+  geom_line() +
+  scale_x_continuous(labels = scales::dollar_format(prefix = "$", big.mark = ",", accuracy = 1)) +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 0.0001)) +
+  labs(
+    title = "OECD各国の所得分布の推定（対数ロジスティック分布）",
+    x = "所得（USD PPP）",
+    y = "確率密度",
+    color = "国名"
+  ) +
+  theme_minimal()
+
+plotly::ggplotly(plot_income_distribution)
+```
+
+## おわりに
+
+この記事では，対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する方法を紹介しました． 対数ロジスティック分布を用いることで，所得の中央値とジニ係数という2つの指標から所得分布の概形を捉えることができます．
+
+なお，この方法は，実際の所得分布とは異なる場合があることに注意してください． より正確な所得分布を推定するには，追加のデータやより複雑なモデルが必要となります．
