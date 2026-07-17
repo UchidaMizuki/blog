@@ -1,0 +1,92 @@
+---
+title: "Calculating the Area of a Circle Using Numerical Integration in R"
+lang: en
+categories: [R, English]
+date: "2023-09-10"
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html).
+
+## Introduction
+
+I recently learned that the `integrate()` function in R's stats package[^1] can perform numerical integration of one-dimensional functions. So in this article, referring to [this article](https://mathwords.net/enmensekibun), I tried calculating the area of a circle using integration.
+
+[^1]: The stats package is one of the packages that comes with R by default.
+
+## A function to draw a semicircle
+
+A function that draws a semicircle of radius $r$ can be expressed as @eq-semicircle. Written in R, this becomes the `semicircle()` function.
+
+$$
+y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
+$$ {#eq-semicircle}
+
+```{r}
+semicircle <- function(x, radius) {
+  sqrt(radius^2 - x^2)
+}
+```
+
+Let's use the `semicircle()` function we implemented to draw a semicircle with radius $r = 5$.
+
+```{r}
+radius <- 5
+curve(semicircle(x, radius), -radius, radius,
+      asp = 1) # Set the aspect ratio to 1:1
+```
+
+## Calculating the area of a circle with numerical integration
+
+Next, let's use the `stats::integrate()` function to numerically integrate the `semicircle()` function we just wrote. For radius $r = 5$, we can confirm that the integral is approximately equal to the area of a semicircle, $\frac{1}{2}\pi r^2$.
+
+```{r}
+# Set the radius to 5
+radius <- 5
+integrate(semicircle, -radius, radius, # Integrate over the range from -radius to radius
+          radius = radius)
+
+pi * 5^2 / 2
+```
+
+Therefore, we can write `circle_area_approx()`, which approximately computes the area of a circle, as follows (the result of the numerical integration is stored in the `value` element of the return value of `stats::integrate()`).
+
+```{r}
+circle_area_approx <- function(radius) {
+  out <- integrate(semicircle, -radius, radius,
+                   radius = radius)
+  out$value * 2
+}
+
+circle_area_approx(5)
+```
+
+Finally, let's compare the approximate values from `circle_area_approx()` with the theoretical values from `circle_area_true()` ($\pi r^2$) over the range $1 \le r \le 10$.
+
+The calculation confirms that the approximate and theoretical circle areas are nearly equal.
+
+```{r}
+circle_area_true <- function(radius) {
+  pi * radius ^ 2
+}
+
+data <- data.frame(radius = 1:10)
+data$circle_area_approx <- sapply(data$radius, circle_area_approx)
+data$circle_area_true <- sapply(data$radius, circle_area_true)
+knitr::kable(data)
+```
+
+## Conclusion
+
+We have seen that the `stats::integrate()` function makes it easy to perform numerical integration of one-dimensional functions.
+
+### A note of caution
+
+The `stats::integrate()` function can also perform numerical integration over the range $-\infty \le x \le \infty$, but be aware that it may not integrate correctly when given large values such as $10^{-6} \le x \le 10^6$.
+
+```{r}
+# OK
+integrate(dnorm, -Inf, Inf)
+
+# Not OK
+integrate(dnorm, -1e6, 1e6)
+```

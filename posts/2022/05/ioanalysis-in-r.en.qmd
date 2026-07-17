@@ -1,0 +1,347 @@
+---
+title: "Input-Output Analysis in R"
+lang: en
+date: "2022-05-31"
+categories: [ioanalysis, dibble, R, English]
+image: skyline_chart.png
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r.html).
+
+Input-output analysis is a widely used analytical method for calculating economic ripple effects. In Japan, statistical data called input-output tables are compiled and published roughly once every five years by the national government and prefectures, and these tables serve as the basic data for input-output analysis.
+
+Until now, Excel and VBA have often been used for input-output analysis.
+
+On the other hand, in recent years, programming languages such as Python, R, and Julia have become increasingly widespread. These programming languages have the following characteristics.
+
+-   They can be used free of charge
+-   Reproducibility of work is improved, making mistakes easier to fix and easier for others to notice
+-   Advanced analytical methods can be used easily
+
+For these reasons, it seems likely that the use of these programming languages will spread further in input-output analysis going forward.
+
+Here, we will perform input-output analysis using R. In recent years, R has come to offer many packages, such as tidyverse, for modern data analysis, and I think it is a language that is easy to learn even for programming beginners.
+
+As the input-output table, we use Japan's (national) 2013 13-sector input-output table, published in the e-Stat database. The data used here can be downloaded from [here](https://github.com/UchidaMizuki/blog-ioanalysis-in-r).
+
+## Basics of input-output analysis
+
+Input-output analysis is generally carried out according to the following flow.
+
+1.  Formatting the **input-output table**
+2.  Calculating the **input coefficient matrix**
+3.  Calculating the **Leontief inverse matrix**
+4.  Calculating the **economic ripple effect**
+
+First, let's explain the calculation methods for the input coefficient matrix, the Leontief inverse matrix, and the economic ripple effect, which are important in input-output analysis.
+
+### What is the input coefficient matrix?
+
+The input coefficient is often referred to as the industry's "**cooking recipe**," and it represents the amount of output of industry $i$ required to produce one unit of output of industry $j$. Specifically, it can be calculated by dividing intermediate input $x_{ij}$ by output $X_j$ (production value), as shown below.
+
+$$
+a_{ij}=\frac{x_{ij}}{X_j}
+$$
+
+In input-output analysis, a system of simultaneous equations representing the balance of production values (in the row direction), based on the input coefficient $a_{ij}$ corresponding to the "cooking recipe," is solved. To make this system of simultaneous equations easy to solve, a matrix called the **input coefficient matrix** (usually denoted $A$) is constructed as follows.
+
+$$
+A = \begin{pmatrix}
+  a_{11} & \cdots & a_{1n} \\
+  \vdots & \ddots & \vdots \\
+  a_{n1} & \cdots & a_{nn} \\
+\end{pmatrix}
+$$
+
+### Estimating economic ripple effects using the Leontief inverse matrix
+
+The balance equation for production values (in the row direction) can be expressed using matrices as follows. The meanings of the variables are as shown in the table below.
+
+$$
+AX + F + E - M = X
+$$
+
+|              Variable               |       Meaning       |
+|:-------------------------------:|:----------------:|
+|               $A$               |   Input coefficient matrix   |
+| $X = (X_1, \cdots, X_n) ^ \top$ |  Production value vector  |
+| $F = (F_1, \cdots, F_n) ^ \top$ | Final demand vector |
+| $E = (E_1, \cdots, E_n) ^ \top$ |  Interregional exports vector  |
+| $M = (M_1, \cdots, M_n) ^ \top$ |  Interregional imports vector  |
+
+In estimating economic ripple effects, we calculate **the ripple effect that a change in final demand has on production value**.
+
+In particular, when estimating economic ripple effects using Japanese input-output tables, **care must be taken in how interregional imports** $M$ **are handled** (this is because most Japanese tables adopt a format called the competitive-import type, in which the interregional import portion is included in the input coefficients).
+
+Economic ripple effects caused by final demand are thought to induce interregional imports from outside the region, in addition to production within the region. Ignoring this effect would lead to an overestimation of the economic ripple effect, so it is standard practice to **subtract the portion corresponding to interregional imports from the input coefficients**.
+
+Since interregional imports are thought to be roughly proportional to demand within the region, the interregional import coefficient $\hat{M_i}$ can be calculated as follows.
+
+$$
+\hat{M_i} = \frac{M_i}{\sum_{j}a_{ij}X_j + F_i}
+$$
+
+Furthermore, the interregional import coefficient matrix $\hat{M}$, suited to matrix computation, is defined as follows.
+
+$$
+\hat{M} =
+\begin{pmatrix}
+  \hat{M_1} & & 0 \\
+  & \ddots & \\
+  0 & & \hat{M_n} \\
+\end{pmatrix}
+$$
+
+From the above, the balance equation for production values (in the row direction) can be transformed using the interregional import coefficient matrix $\hat{M}$ as follows, where $I$ is the identity matrix (a square matrix with 1s on the diagonal and 0s elsewhere).
+
+$$
+\begin{align}
+  AX + F + E - \hat{M} (AX + F) &= X \\
+  (I - \hat{M}) (AX + F) + E &= X
+\end{align}
+$$
+
+From the balance equation above, the formula for calculating the economic ripple effect is derived as follows, where $\Delta X$ and $\Delta F$ are the amount of change in production value and the amount of change in final demand, respectively.
+
+$$
+\begin{align}
+  X &= (I - \hat{M}) (AX + F) + E \\
+  [I - (I - \hat{M}) A] X &= (I - \hat{M}) F + E \\
+  X &= [I - (I - \hat{M}) A] ^ {-1} [(I - \hat{M}) F + E] \\
+  \Delta X &= [I - (I - \hat{M}) A] ^ {-1} (I - \hat{M}) \Delta F
+\end{align}
+$$
+
+On the right-hand side of the equation for the change in production value $\Delta X$, $(I - \hat{M}) \Delta F$ is the value obtained by multiplying the change in final demand by the self-sufficiency rate $I - \hat{M}$.
+
+Also, $[I - (I - \hat{M}) A] ^ {-1}$ is a matrix representing the direct and indirect ripple effects resulting from a change in final demand, and it is called the (open, or competitive-import type) **Leontief inverse matrix**.
+
+As described above, estimating the change in production value $\Delta X$ from the change in final demand $\Delta F$ is the most common method of input-output analysis.
+
+## Input-output analysis in R
+
+### Formatting the input-output table
+
+Here, we use the 2011 3-sector table for Japan (`iotable_3sector_2011_wider.csv`), which can be downloaded from [here](https://github.com/UchidaMizuki/blog-ioanalysis-in-r).
+
+This table is created from Japan's 2011 13-sector table as follows, and **the unit is "million yen"**.
+
+-   The 13 industry sectors are **aggregated into primary, secondary, and tertiary industries** (Note: "unclassifiable" is categorized as tertiary industry)
+-   The value-added sectors are aggregated into a single sector
+-   The final demand sectors are aggregated into three sectors: final demand within the region (`finaldemand`), exports (`export`), and imports (`import`)
+
+Except for tables such as those provided in the e-Stat database, input-output table data is often provided in a "wide" format, with input sectors (`input`) in the rows and output sectors (`output`) in the columns.
+
+Here too, we first load the wide-format input-output table data as follows.
+
+```{r}
+#| label: iotable_wider
+#| message: false
+
+library(tidyverse)
+
+iotable_wider <- read_csv("iotable_3sector_2011_wider.csv",
+                          col_types = cols(.default = "c")) |> 
+  
+  # Convert columns other than input to numeric
+  mutate(across(!input, parse_number))
+
+knitr::kable(iotable_wider)
+```
+
+In data analysis, "long" data as shown below is often easier to work with than "wide" data. Here too, we convert the wide-format input-output table into "long" data.
+
+```{r}
+#| label: iotable
+#| message: false
+
+iotable <- iotable_wider |>
+  
+  # Split the input column into type and name
+  separate(input, c("input_type", "input_name"),
+           sep = "/") |>
+  
+  # Add type/name columns for output, as with input, to create long-format data
+  pivot_longer(!c(input_type, input_name),
+               names_to = c("output_type", "output_name"),
+               names_sep = "/",
+               values_to = "value_M") |>
+  
+  # Remove rows with no numeric value
+  drop_na(value_M)
+
+knitr::kable(iotable)
+```
+
+The table data constructed above makes it easy to filter each row, but it is not well suited to the matrix computations used in input-output analysis.
+
+Therefore, we use the dibble package, which allows us to perform both basic table operations and matrix computations at the same time. As shown below, we convert the input-output table into a dibble.
+
+```{r}
+#| label: iotable-dibble
+#| message: false
+
+# pak::pak("UchidaMizuki/dibble")
+library(dibble)
+
+iotable <- iotable |>
+  dibble_by(input = c(input_type, input_name),
+            output = c(output_type, output_name),
+            
+            # Split column names on "_" to set the input/output axes
+            .names_sep = "_")
+
+iotable
+```
+
+### Calculating the input coefficient matrix
+
+We calculate the input coefficient matrix $A$, known as the industry's "cooking recipe," by dividing intermediate input by production value, as follows.
+
+Note: In dibble, broadcasting is performed automatically, but for safety it is designed to issue a warning whenever broadcasting occurs. Therefore, you need to pass the axis names after broadcasting, `c("input", "output")`, to `broadcast()` to prevent the warning from being issued.
+
+```{r}
+#| label: inputcoeff
+
+# Production value
+total_input <- iotable |>
+  filter(output$type == "industry") |>
+  apply("output", sum)
+
+# Intermediate input
+interindustry <- iotable |>
+  filter(input$type == "industry",
+         output$type == "industry")
+
+# Input coefficient
+inputcoeff <- broadcast(interindustry / total_input,
+                        c("input", "output"))
+
+inputcoeff
+```
+
+### Calculating the Leontief inverse matrix
+
+The Leontief inverse matrix, which represents the economic ripple effect, can be calculated using the interregional import coefficient and the input coefficient, as follows.
+
+Note: Be careful, since calculating the inverse matrix with `solve()` swaps the axis names of the matrix.
+
+```{r}
+#| label: leontiefinv
+
+# Demand within the region
+localdemand <- iotable |>
+  filter(input$type == "industry",
+         !output$type %in% c("export", "import")) |>
+  apply("input", sum)
+
+# (Interregional) imports
+import <- iotable |>
+  filter(input$type == "industry",
+         output$type == "import") |>
+  apply("input", sum)
+# Make the sign positive
+import <- -import
+
+# (Interregional) import coefficient
+importcoeff <- import / localdemand
+
+I <- eye(inputcoeff) # Identity matrix
+M <- importcoeff     # Interregional import coefficient vector (does not need to be a matrix, since broadcasting is performed)
+A <- inputcoeff      # Input coefficient matrix
+
+# Leontief inverse matrix
+leontiefinv <- broadcast(I - (1 - M) * A,
+                         c("input", "output")) |>
+  solve()
+
+leontiefinv
+```
+
+### Calculating the economic ripple effect
+
+We calculate the economic ripple effect for the case (`finaldemand_change_3sector.csv`, which can be downloaded from [here](https://github.com/UchidaMizuki/blog-ioanalysis-in-r)) in which final demand increases by one million yen in each sector.
+
+```{r}
+#| label: spillover
+
+# Amount of change in final demand
+finaldemand_change <- read_csv("finaldemand_change_3sector.csv",
+                               col_types = cols(.default = "c",
+                                                value_M = "n")) |> 
+  dibble_by(input = c(input_type, input_name),
+            .names_sep = "_")
+
+L <- leontiefinv         # Leontief inverse matrix
+M <- importcoeff         # Interregional import coefficient
+FD <- finaldemand_change # Amount of change in final demand
+
+# Economic ripple effect
+spillover <- L %*% ((1 - M) * FD)
+
+spillover
+```
+
+```{r}
+#| label: plot-spillover
+#| fig-width: 3
+#| fig-height: 3
+#| out-width: 100%
+
+theme_set(theme_light())
+
+spillover |> 
+  as_tibble(n = "value_M") |> 
+  unpack(output, 
+         names_sep = "_") |> 
+  ggplot(aes(output_name, value_M,
+             fill = output_name)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_brewer(palette = "Set2")
+```
+
+## Summary
+
+We introduced a method for performing input-output analysis in R.
+
+The calculations shown here have been packaged as [jpio](https://github.com/UchidaMizuki/jpio). As shown below, you can perform the same calculations as above using this package.
+
+```{r}
+#| label: jpio
+
+# pak::pak("UchidaMizuki/jpio")
+
+# Input-output table
+iotable <- read_csv("iotable_3sector_2011.csv",
+                    col_types = cols(.default = "c",
+                                     value_M = "n")) |> 
+  jpio::as_iotable()
+
+iotable
+
+# Input coefficient
+jpio::input_coef(iotable)
+
+# Leontief inverse matrix
+jpio::leontief_inv(iotable)
+
+# Economic ripple effect
+jpio::spillover_effect(iotable,
+                       list(`01_primary` = 1,
+                            `02_secondary` = 1,
+                            `03_tertiary` = 1))
+
+# Skyline chart
+jpio::skyline_chart(iotable, 
+                    ylim = c(-0.5, NA))
+```
+
+```{r}
+#| label: save-plot-spillover
+#| include: false
+#| message: false
+
+ggsave("skyline_chart.png",
+       width = 7,
+       height = 5)
+```

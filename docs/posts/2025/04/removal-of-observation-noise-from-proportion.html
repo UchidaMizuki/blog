@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
 <link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html" />
 <link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>割合データ（割り算値）から観測ノイズを除去する – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -57,24 +55,11 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -102,25 +87,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-
-<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
+</script><link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -145,17 +119,12 @@ const typesetMath = (el) => {
 window.Quarto = {
   typesetMath
 };
-</script>
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -167,7 +136,10 @@ window.Quarto = {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -190,15 +162,11 @@ window.Quarto = {
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">割合データ（割り算値）から観測ノイズを除去する</h1>
                                 <div class="quarto-categories">
@@ -228,13 +196,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<p>この記事では，以下のような割合データ（割り算値）を扱うときにしばしば生じる少数問題への対処法について説明します．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>この記事では，以下のような割合データ（割り算値）を扱うときにしばしば生じる少数問題への対処法について説明します．</p>
 <ul>
 <li>地域別の感染症の罹患率</li>
 <li>店舗別の一定時間あたりの来店客数</li>
@@ -254,14 +216,12 @@ n \sim \text{Poisson}(N \theta)
 \]</span></p>
 <p>こうした観測ノイズの性質は，たとえば難関校合格率の学校別ランキング等を考えた場合に問題となる可能性があります． 総受験者数が大きく異なる以下のような学校Aと学校Bを比べてみましょう．</p>
 <table class="caption-top table">
-<thead>
-<tr class="header">
+<thead><tr class="header">
 <th>学校</th>
 <th>総受験者数</th>
 <th>難関校合格者数</th>
 <th>難関校合格率</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr class="odd">
 <td>学校A</td>
@@ -279,8 +239,7 @@ n \sim \text{Poisson}(N \theta)
 </table>
 <p>この場合，学校Bでは，合格者数が少し変動しただけで難関校合格率が大きく変化してしまうため，学校Aの難関校合格率と比べて精度が低いと考えられます． このような状況で，難関校合格率ランキングを作ると，難関校合格率の真値は必ずしも高くないがたまたま合格者数が多かった総受験者数の少ない学校等が上位に順位付けされることとなります． こうした現象は，今後の難関校合格率を予想する場合等に問題となりえます．</p>
 <p>以下では，こうした複数地域・店舗・学校等のデータの観測値のみを用いて割合データの平滑化を行う方法について説明します．</p>
-<section id="ベイズの定理を用いた平滑化" class="level2">
-<h2 class="anchored" data-anchor-id="ベイズの定理を用いた平滑化">ベイズの定理を用いた平滑化</h2>
+<section id="ベイズの定理を用いた平滑化" class="level2"><h2 class="anchored" data-anchor-id="ベイズの定理を用いた平滑化">ベイズの定理を用いた平滑化</h2>
 <p>カウントデータがポアソン分布，割合の真値がポアソン分布の共役事前分布であるガンマ分布に従うと仮定します．</p>
 <p><span class="math display">\[
 \begin{align}
@@ -302,9 +261,7 @@ n \sim \text{Poisson}(N \theta)
 \text{E}[\theta \mid n] = \frac{n + \alpha}{N + \beta}
 \]</span></p>
 <p>一方で，こうした平滑化を行うためには，<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>の値を決める必要があります． 以下では，事前分布のパラメータ<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>を観測値から推定する方法について説明します．</p>
-</section>
-<section id="経験ベイズ法による事前分布のパラメータ推定" class="level2">
-<h2 class="anchored" data-anchor-id="経験ベイズ法による事前分布のパラメータ推定">経験ベイズ法による事前分布のパラメータ推定</h2>
+</section><section id="経験ベイズ法による事前分布のパラメータ推定" class="level2"><h2 class="anchored" data-anchor-id="経験ベイズ法による事前分布のパラメータ推定">経験ベイズ法による事前分布のパラメータ推定</h2>
 <p>経験ベイズ法は，観測値から事前分布のパラメータを（経験的に）推定する方法です． 経験ベイズ法における事前分布のパラメータの推定方法として，モーメント法や最尤法を用いる方法が考えられますが，以下では，最尤法を用いた方法について説明します．</p>
 <p>最尤法を行うにあたって，事前に<span class="math inline">\(n\)</span>が従う分布を確かめておきましょう． <span class="math inline">\(n\)</span>は，以下のようなガンマ分布とポアソン分布の混合分布に従うと考えられます． 通常，混合分布を求めるには積分計算が必要となってしまいますが，ガンマ分布とポアソン分布の混合分布は，負の二項分布に従うことが知られています． そのため，あらかじめ以下のように<span class="math inline">\(n\)</span>の確率分布を求めておきます．</p>
 <p><span class="math display">\[
@@ -322,16 +279,13 @@ n \sim \text{Poisson}(N \theta)
 n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 \]</span></p>
 <p>このように，<span class="math inline">\(n\)</span>は，負の二項分布と呼ばれる一般的な確率分布に従うことがわかるため，Rで提供されている既存の関数を用いて最尤法を行うことができます． 以下では，実験的に作成したテストデータを対象に，R MASSパッケージの<code>glm.nb()</code>関数を用いて最尤法を行い，割合データの平滑化を行ってみます．</p>
-</section>
-<section id="平滑化の実例" class="level2">
-<h2 class="anchored" data-anchor-id="平滑化の実例">平滑化の実例</h2>
+</section><section id="平滑化の実例" class="level2"><h2 class="anchored" data-anchor-id="平滑化の実例">平滑化の実例</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="テストデータの作成" class="level3">
-<h3 class="anchored" data-anchor-id="テストデータの作成">テストデータの作成</h3>
+<section id="テストデータの作成" class="level3"><h3 class="anchored" data-anchor-id="テストデータの作成">テストデータの作成</h3>
 <p>まず，サンプルサイズを10,000とし，割合の真値を<span class="math inline">\(\alpha = 5, \beta = 50\)</span>のガンマ分布からランダムに生成します．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
@@ -351,8 +305,7 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">1e-2</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -380,9 +333,7 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 </div>
 </div>
 </div>
-</section>
-<section id="少数問題の確認" class="level3">
-<h3 class="anchored" data-anchor-id="少数問題の確認">少数問題の確認</h3>
+</section><section id="少数問題の確認" class="level3"><h3 class="anchored" data-anchor-id="少数問題の確認">少数問題の確認</h3>
 <p>それでは，テストデータを用いて，少数問題が発生しているかを確認してみましょう． まずは，割り算を用いた割合の推定値<code>rate_crude</code>を計算し，<code>population</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画します． すると，以下のように，<code>population</code>が小さい場合に，<code>rate_crude</code>が大きくなる傾向がみられることがわかります． もし，手元のデータでも同様の傾向がみられる場合，少数問題が発生している可能性があります．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
@@ -402,8 +353,7 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -418,16 +368,12 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  tune<span class="sc">::</span><span class="fu">coord_obs_pred</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="負の二項分布を用いた平滑化" class="level2">
-<h2 class="anchored" data-anchor-id="負の二項分布を用いた平滑化">負の二項分布を用いた平滑化</h2>
+</section></section><section id="負の二項分布を用いた平滑化" class="level2"><h2 class="anchored" data-anchor-id="負の二項分布を用いた平滑化">負の二項分布を用いた平滑化</h2>
 <p>それでは，負の二項分布を用いて平滑化を行ってみましょう． ここでは，Rで簡単に利用可能なMASSパッケージの<code>glm.nb()</code>関数を用いて，最尤法を行います． <code>glm.nb()</code>により，目的変数が負の二項分布に従うような一般化線形モデルを推定することができます．</p>
 <p>以下のような簡単なコードで負の二項分布のパラメータ推定ができます． ここでは，期待値が<code>population</code>に比例するよう，<code>log(population)</code>をオフセット項に指定しています．</p>
 <div class="cell">
@@ -493,8 +439,7 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -506,15 +451,12 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  tune<span class="sc">::</span><span class="fu">coord_obs_pred</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
+</section><section id="おわりに" class="level2"><h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
 <p>この記事では，割合データにおける少数問題への対処法として，経験ベイズ法を用いた平滑化手法について説明しました． 分母の人口等が小さい場合に割合データのばらつきが大きくなる現象は，実務でもしばしば問題になると思われます． そうした場合には，何らかのしきい値で分母の小さいデータを除外する方法も考えられますが， この記事で説明した方法を使うと全てのデータを活用できるという利点もあります．</p>
 <p>この記事で用いたMASSパッケージの<code>glm.nb()</code>は，一般化線形モデル用の関数であるため，分母にあたる<code>offset(log(population))</code>以外の項も説明変数として含むことが可能です． これにより，地域特性等によって<span class="math inline">\(\beta\)</span>が異なる状況を再現できる可能性があります．</p>
 <p>また，汎用性の高いと思われるポアソン分布を対象としましたが，二項分布でも同様の枠組みが利用できます． 二項分布の場合，事前分布としてベータ分布を用いると，平滑化の式は以下のようになります． また，混合分布はベータ・二項分布となるため，既存のRパッケージ（例：bbmle）等を用いれば，比較的簡単にパラメータ推定が可能だと思われます．</p>
@@ -523,10 +465,7 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 \]</span></p>
 
 
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -942,14 +881,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>

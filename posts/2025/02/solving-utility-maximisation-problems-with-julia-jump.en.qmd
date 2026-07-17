@@ -1,0 +1,140 @@
+---
+title: "Solving Utility Maximisation Problems with Julia's JuMP (A Simple Example)"
+engine: julia
+lang: en
+categories: [JuMP, Julia, English]
+date: "2025-02-17"
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html).
+
+In this article, I use Julia's mathematical optimization library JuMP to solve a utility maximization problem based on the Cobb-Douglas utility function, which is commonly used in economics.
+
+The utility maximization of a Cobb-Douglas utility function can be solved analytically, so it isn't strictly necessary to use Julia JuMP to solve it. Here, however, in order to learn how to use Julia JuMP, I deliberately compare the analytical solution with the numerical one.
+
+## Cobb-Douglas utility function
+
+The Cobb-Douglas utility function is defined as follows. Here, $x_i$ is the consumption quantity of production factor $i$, and $\alpha_i$ is the elasticity parameter of production factor $i$.
+
+$$
+U = \prod_{i=1}^{n} x_i^{\alpha_i}
+$$
+
+Implementing this utility function in Julia looks like this.
+
+```{julia}
+function cobb_douglas(quantities; weights)
+    return prod(quantities .^ weights)
+end
+```
+
+By passing the consumption quantities `quantities` and the elasticity parameters `weights` to the implemented `cobb_douglas` function, we can compute the utility as follows.
+
+```{julia}
+cobb_douglas(
+  [2, 3, 5],
+  weights=[0.3, 0.4, 0.3]
+)
+```
+
+## Analytical solution to the utility maximization problem
+
+In general, a utility maximization problem is formulated as the problem of finding the consumption quantities that maximize utility given prices and income.
+
+These consumption quantities (demand quantities) are known as the Marshallian demand functions. For the Cobb-Douglas utility function, the Marshallian demand functions are derived as follows[^1]. Here, $p_i$ is the price of production factor $i$, and $Y$ is income.
+
+[^1]: I omit the detailed derivation here, but it can be derived from the following conditions.
+
+    1.  Utility maximization condition: $MRS_{ij}=\frac{\partial U/\partial x_i}{\partial U/\partial x_j}=\frac{p_i}{p_j}$
+    2.  Budget constraint: $\sum_{i=1}^{n} p_i x_i = Y$
+
+$$
+x_i = \frac{1}{p_i}\frac{w_i}{\sum_{j=1}^{n} w_j}Y
+$$
+
+```{julia}
+function demand_marshallian_cobb_douglas_analytical(prices, income; weights)
+    return income .* weights ./ sum(weights) ./ prices
+end
+```
+
+By passing the prices `prices`, the income `income`, and the elasticity parameters `weights` to the implemented `demand_marshallian_cobb_douglas_analytical` function, we can compute the demand quantities as follows.
+
+```{julia}
+quantities_analytical = demand_marshallian_cobb_douglas_analytical(
+  [1, 2, 3],
+  100,
+  weights=[0.3, 0.4, 0.3]
+)
+```
+
+## Numerical solution to the utility maximization problem
+
+Next, let's use Julia JuMP to solve the utility maximization problem numerically. Before we start, let's install the JuMP and Ipopt packages. Ipopt provides a solver for nonlinear optimization problems.
+
+```{julia}
+#| eval: false
+import Pkg
+Pkg.add("JuMP")
+Pkg.add("Ipopt")
+```
+
+The utility maximization problem with the Cobb-Douglas utility function is formulated as follows. With JuMP, we can easily describe and numerically solve the utility maximization problem using the `cobb_douglas` function we already defined.
+
+$$
+\begin{aligned}
+  \text{maximize} && U = \prod_{i=1}^{n} x_i^{\alpha_i} \\
+  \text{subject to} && \sum_{i=1}^{n} p_i x_i \leq Y \\
+\end{aligned}
+$$
+
+```{julia}
+using JuMP
+using Ipopt
+
+function demand_marshallian_cobb_douglas_numerical(prices, income; weights)
+    n = length(prices)
+    model = Model(Ipopt.Optimizer)
+    set_silent(model)
+    @variable(model, quantities[1:n] >= 0) # Define consumption quantities as variables
+    @objective(model, Max, cobb_douglas(quantities; weights)) # Maximize utility
+    @constraint(model, sum(prices .* quantities) <= income) # Budget constraint
+    optimize!(model)
+    return value.(quantities)
+end
+```
+
+In this formulation of the utility maximization problem, we are doing the following.
+
+1.  Using the `@variable` macro to define the consumption quantities `quantities` as variables
+2.  Using the `@objective` macro to define the objective function that maximizes utility
+3.  Using the `@constraint` macro to define the budget constraint
+
+Now, let's use the implemented `demand_marshallian_cobb_douglas_numerical` function to find the numerical solution.
+
+```{julia}
+#| messages: false
+quantities_numerical = demand_marshallian_cobb_douglas_numerical(
+  [1, 2, 3],
+  100,
+  weights=[0.3, 0.4, 0.3]
+)
+```
+
+The final results are as follows, and we can see that the numerical solution almost matches the analytical solution.
+
+```{julia}
+quantities_numerical
+```
+
+```{julia}
+quantities_analytical
+```
+
+## Summary
+
+In this article, I used Julia JuMP to solve a utility maximization problem based on the Cobb-Douglas utility function.
+
+We confirmed that Julia JuMP makes it easy to formulate and numerically solve nonlinear optimization problems.
+
+With Julia JuMP, simple functions can be used as-is as objective functions and the like, so it may also be useful for implementing economic models.

@@ -1,0 +1,177 @@
+---
+title: "Solving Utility Maximisation Problems with Julia JuMP (Using Constructors)"
+engine: julia
+lang: en
+categories: [JuMP, Julia, English]
+date: "2025-04-30"
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html).
+
+In [my previous article](https://uchidamizuki.quarto.pub/blog/en/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html), I introduced how to solve utility maximisation problems using JuMP, Julia's mathematical optimisation library.
+
+In that article, I introduced, as a simple example, how to solve a utility maximisation problem using the Cobb-Douglas utility function. However, economic models use a variety of utility functions besides the Cobb-Douglas type, such as the CES utility function. With the implementation approach used in the previous article, though, we would have needed to modify the optimisation problem's implementation every time we changed the utility function.
+
+So, in this article, I'll introduce how to use Julia's constructors to solve utility maximisation problems for different utility functions with the same code.
+
+## Implementing the Cobb-Douglas Utility Function
+
+A utility function can be thought of as a function that takes a vector of quantities consumed as its argument and returns utility (a scalar value). On the other hand, when defining a utility function, we need to set parameters in advance, such as elasticity parameters, in addition to the quantity vector.
+
+Since the parameters differ depending on the utility function, we define the utility function as the abstract type `AbstractEconomicUtility`, and define the Cobb-Douglas utility function `CobbDouglasUtility` as a subtype of it. We define `CobbDouglasUtility` as a type that holds the elasticity parameter `weights`.
+
+```{julia}
+abstract type AbstractEconomicUtility end
+
+struct CobbDouglasUtility <: AbstractEconomicUtility
+    weights::Vector{Float64}
+end
+```
+
+Next, by defining function-like objects, we make it possible to compute utility by calling `f(quantities)` for a utility function type `f`. Note that since the utility function's parameters can be obtained from the type `f`, the function's only argument is `quantities`. This allows us to call the same code, `f(quantities)`, for various utility function types `f`.
+
+With this, we can define the Cobb-Douglas utility function.
+
+```{julia}
+function(f::CobbDouglasUtility)(quantities)
+    return prod(quantities .^ f.weights)
+end
+```
+
+```{julia}
+# Define the utility function
+cobb_douglas = CobbDouglasUtility([0.3, 0.4, 0.3])
+
+# Compute utility
+cobb_douglas([2., 3., 5.])
+```
+
+Next, as in [the previous article](https://uchidamizuki.quarto.pub/blog/en/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html), we define the Marshallian demand function, `demand_marshallian()`.
+
+With `demand_marshallian()`, we can find the analytical solution to the utility maximisation problem for the Cobb-Douglas utility function.
+
+```{julia}
+function demand_marshallian(
+  f::CobbDouglasUtility;
+  prices,
+  income
+)
+  return income * f.weights / sum(f.weights) ./ prices
+end
+```
+
+```{julia}
+quantities_analytical_cobb_douglas = demand_marshallian(
+  cobb_douglas;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+```
+
+## Numerical Solution to the Utility Maximisation Problem
+
+By slightly modifying the code from [the previous article](https://uchidamizuki.quarto.pub/blog/en/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html), we can solve the utility maximisation problem numerically.
+
+In the previous article, we defined code specific to the Cobb-Douglas utility function. However, the function `demand_marshallian_numerical` below takes the abstract type `AbstractEconomicUtility` as its argument, allowing the same code to be used for a variety of utility functions.
+
+```{julia}
+#| eval: false
+import Pkg
+Pkg.add("JuMP")
+Pkg.add("Ipopt")
+```
+
+```{julia}
+using JuMP
+using Ipopt
+
+function demand_marshallian_numerical(
+  f::AbstractEconomicUtility;
+  prices::Vector{Float64},
+  income::Float64
+)
+    n = length(prices)
+    model = Model(Ipopt.Optimizer)
+    set_silent(model)
+    @variable(model, quantities[1:n] >= 0)
+    @objective(model, Max, f(quantities))
+    @constraint(model, sum(prices .* quantities) <= income)
+    optimize!(model)
+    return value.(quantities)
+end
+```
+
+By applying `demand_marshallian_numerical()` to the `cobb_douglas` defined above, we can confirm, as in the previous article, that the analytical and numerical solutions to the Cobb-Douglas utility maximisation problem approximately agree.
+
+```{julia}
+quantities_numerical_cobb_douglas = demand_marshallian_numerical(
+  cobb_douglas;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+```
+
+```{julia}
+quantities_analytical_cobb_douglas
+```
+
+## Implementing the CES Utility Function
+
+To get a feel for the benefits of using constructors, let's implement a utility function other than the Cobb-Douglas type.
+
+Below, let's implement the CES utility function. The CES utility function is a generalisation of the Cobb-Douglas utility function and has a parameter `substitution` that represents the degree of substitutability. As with the Cobb-Douglas utility function, the CES utility function can be defined as follows.
+
+I'll skip the derivation of the Marshallian demand function, but by specifying the argument type `f::CESUtility`, we can change the behaviour of `demand_marshallian()` depending on the utility function. This mechanism is called multiple dispatch.
+
+```{julia}
+struct CESUtility <: AbstractEconomicUtility
+    substitution::Float64
+    weights::Vector{Float64}
+end
+
+function(f::CESUtility)(quantities)
+    return sum(f.weights .* quantities .^ f.substitution) ^ (1 / f.substitution)
+end
+
+function demand_marshallian(
+  f::CESUtility;
+  prices,
+  income
+)
+  return f.weights .^ (1 / (1 - f.substitution)) .* prices .^ (1 / (f.substitution - 1)) *
+    income / sum(f.weights .^ (1 / (1 - f.substitution)) .* prices .^ (f.substitution / (f.substitution - 1)))
+end
+```
+
+```{julia}
+ces = CESUtility(0.5, [0.3, 0.4, 0.3])
+ces([2., 3., 5.])
+```
+
+By applying `demand_marshallian()` and `demand_marshallian_numerical()` to the `ces` defined above, we can find the analytical and numerical solutions to the CES utility maximisation problem.
+
+```{julia}
+quantities_analytical_ces = demand_marshallian(
+  ces;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+
+quantities_numerical_ces = demand_marshallian_numerical(
+  ces;
+  prices = [1., 2., 3.],
+  income = 100.
+)
+```
+
+```{julia}
+quantities_analytical_ces
+```
+
+## Summary
+
+In this article, I showed that by extending the utility maximisation problem introduced in [my previous article](https://uchidamizuki.quarto.pub/blog/en/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html) using Julia's constructors, we can use the same code for a variety of utility functions.
+
+By taking advantage of this mechanism, whenever we implement a new utility function, we can automatically check the consistency between the analytical and numerical solutions to the optimisation problem, which is expected to make it easier to implement tests for utility functions[^1].
+
+[^1]: However, when I separately looked at the Leontief utility function, I was not able to successfully obtain a numerical solution. For special utility functions, it may be difficult to find a numerical solution, so it may be necessary to implement additional tests separately.

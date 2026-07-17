@@ -1,0 +1,163 @@
+---
+title: "Be careful with function forms in causal discovery with LiNGAM"
+lang: en
+categories: [R, English]
+date: 2024-03-10
+format:
+  html:
+    mermaid:
+      theme: default
+    df-print: paged
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2024/03/be-careful-with-function-forms-in-lingam.html).
+
+## Causal discovery with LiNGAM
+
+LiNGAM (Linear Non-Gaussian Acyclic Model) is one of the representative causal discovery methods, and it seems to be increasingly used in practice in recent years, being implemented in commercial software and other tools. As its name suggests, LiNGAM is a method that can reveal causal relationships from data when the functional form is linear and the error terms follow a non-Gaussian (non-normal) distribution.
+
+LiNGAM can be used via the Python lingam package or the R pcalg package, and simply feeding a data frame into the functions provided by these packages lets you easily estimate a causal graph. A causal graph is a network structure built by treating observed variables as nodes and causal relationships as arrows. In particular, causal discovery typically estimates a causal graph in the form of a DAG (Directed Acyclic Graph).
+
+As an example of a causal graph, I created the following causal graph related to running a restaurant business. In practice, profit is likely to fluctuate due to various factors such as the day of the week, weather, and the location of the store, so it is expected that even more complex causal relationships would be the subject of analysis.
+
+```{mermaid}
+flowchart LR
+  ingredient-quality --> food-deliciousness
+  ingredient-quality --> cost
+  chef-skill --> food-deliciousness
+  chef-skill --> wages
+  food-deliciousness --> customer-count
+  food-deliciousness --> spend-per-customer
+  customer-count --> revenue
+  spend-per-customer --> revenue
+  revenue --> profit
+  cost --> expenses
+  wages --> expenses
+  fixed-costs --> expenses
+  expenses --> profit
+```
+
+## The effect of functional form on LiNGAM estimation
+
+LiNGAM is a method that estimates causal relationships under the assumption that the functional form is linear and the error terms follow a non-Gaussian distribution. Therefore, if the functional form is not linear (or is difficult to approximate linearly), incorrect causal relationships may be estimated. Packages and commercial software make it easy to run LiNGAM, but users need to understand that these assumptions exist before using LiNGAM.
+
+Here, let's apply LiNGAM to data with a simpler causal relationship than the causal graph shown above. Specifically, we will check how the results of LiNGAM change when a nonlinear function is placed in `fun` in the flowchart below.
+
+Note that in this article, we use Direct LiNGAM, the most common variant of LiNGAM, with a uniform distribution (a non-Gaussian distribution) for the error terms. We also ignore any causal relationships whose coefficient has an absolute value less than 0.001.
+
+```{mermaid}
+flowchart LR
+  x11 --> add1(+)
+  x12 --> add1
+  add1 --> x21
+  x21 --> fun2(fun)
+  x22 --> fun2
+  fun2 --> x31
+style fun2 stroke:red,color:red
+```
+
+Before estimating the causal graph, let's prepare a data frame with 1,000 rows and columns `x11`, `x12`, and `x22`, along with functions for causal discovery.
+
+```{python}
+#| code-fold: true
+
+import numpy as np
+import os
+import pandas as pd
+import lingam
+
+rng = np.random.default_rng(1234)
+
+n = 1000
+data = pd.DataFrame({
+  'x11': 1 + rng.random(n),
+  'x12': 2 + rng.random(n),
+  'x22': 3 + rng.random(n)
+})
+
+# Function that returns the DirectLiNGAM result as a data frame
+def discover_causality(data):
+  model = lingam.DirectLiNGAM()
+  model.fit(data)
+
+  return pd.DataFrame(
+    model.adjacency_matrix_,
+    columns=data.columns,
+    index=data.columns
+  )\
+  .reset_index(names = 'node_to')\
+  .melt(
+    id_vars='node_to',
+    var_name='node_from'
+  )\
+  .pipe(lambda df: df[np.logical_not(np.isclose(df.value, 0, rtol=0, atol=1e-3))])\
+  .reindex(columns=['node_from', 'node_to', 'value'])
+
+# Function that writes a mermaid file
+def write_mermaid(df, file):
+  with open(file, 'w') as f:
+    f.write('flowchart LR\n')
+    for row in df.itertuples():
+      f.write('  {}-->|{:.3f}|{}\n'.format(row.node_from, row.value, row.node_to))
+
+# Output folder
+dir = 'be-careful-with-function-forms-in-lingam'
+if not os.path.exists(dir):
+  os.makedirs(dir)
+```
+
+### Case where the causal graph includes multiplication (`fun` is `*`)
+
+Let's see what the Direct LiNGAM estimation results look like when `fun` is multiplication (`*`). The estimated causal graph has the same structure as the true causal graph, so in this case we can see that the causal graph was estimated correctly. This suggests that causal relationship estimation can work well even for multiplication rather than addition (linear) cases. However, the situation may differ significantly depending on the number of observed variables and the amount of data.
+
+```{python}
+data_nonlinear_prod = data\
+ .assign(
+    x21=lambda df: df.x11 + df.x12 + rng.random(n),
+    x31=lambda df: df.x21 * df.x22 + rng.random(n),
+  )
+
+causality_nonlinear_prod = discover_causality(data_nonlinear_prod)
+print(causality_nonlinear_prod)
+```
+
+```{python}
+#| code-fold: true
+
+write_mermaid(causality_nonlinear_prod, os.path.join(dir, 'dag_lingam_nonlinear_prod.mmd'))
+```
+
+```{mermaid}
+%%| file: be-careful-with-function-forms-in-lingam/dag_lingam_nonlinear_prod.mmd
+```
+
+### Case where the causal graph includes exponentiation (`fun` is `**`)
+
+Next, let's see what the Direct LiNGAM estimation results look like when `fun` is exponentiation (`**`). The estimated causal graph has a different structure from the true causal graph, and we can see that incorrect causal relationships are also estimated between upstream observed variables that originally had no causal relationship. This shows that when Direct LiNGAM involves a nonlinear function, there is a risk that incorrect causal relationships will be estimated even between observed variables that are not directly related to that function.
+
+```{python}
+data_nonlinear_power = data\
+ .assign(
+    x21=lambda df: df.x11 + df.x12 + rng.random(n),
+    x31=lambda df: df.x21 ** df.x22 + rng.random(n),
+  )
+
+causality_nonlinear_power = discover_causality(data_nonlinear_power)
+print(causality_nonlinear_power)
+```
+
+```{python}
+#| code-fold: true
+
+write_mermaid(causality_nonlinear_power, os.path.join(dir, 'dag_lingam_nonlinear_power.mmd'))
+```
+
+```{mermaid}
+%%| file: be-careful-with-function-forms-in-lingam/dag_lingam_nonlinear_power.mmd
+```
+
+## Summary
+
+In this article, we showed that applying LiNGAM to data with nonlinear functions can result in incorrect causal relationships being estimated. Therefore, when applying LiNGAM, it is important to confirm that the causal relationships can be expressed linearly.
+
+On the other hand, it seems rare to be in a situation where causal relationships are unknown, yet it is known that they can be expressed linearly. Therefore, careful identification of causal relationships is required, through means such as verifying linearity after the fact or conducting experiments.

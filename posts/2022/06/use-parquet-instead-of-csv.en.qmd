@@ -1,0 +1,225 @@
+---
+title: "Let's try using Parquet instead of CSV"
+lang: en
+date: "2022-06-12"
+categories: [parquet, arrow, R, Python, English]
+fig-align: center
+# image: https://www.apache.org/logos/res/parquet/parquet.png
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv.html).
+
+In this article, I introduce **[Parquet](https://parquet.apache.org), a promising alternative to CSV that is also well-suited for big data analysis**.
+
+Now, **data frames** are one of the most fundamental data structures in data analysis. By using packages for manipulating data frames, such as **[tibble](https://tibble.tidyverse.org)/[dplyr](https://dplyr.tidyverse.org) in R** and **[pandas](https://pandas.pydata.org) in Python**, we can **carry out data analysis that used to be done with spreadsheet software like Excel even more efficiently**.
+
+While data analysis tools have become this well-developed, **CSV, which has high compatibility with software like Excel,** is still widely used for storing data. However, CSV is not necessarily a file format well-suited for data analysis. So, let's compare Parquet, which is increasingly being used **as an alternative to CSV**, with CSV.
+
+## Preparing sample data
+
+To compare CSV and Parquet, let's first prepare sample data typical of data analysis. This time, we'll create sample data from `who` ([World Health Organization (WHO) tuberculosis data](https://www.who.int/teams/global-tuberculosis-programme/data)) provided by the tidyr package.
+
+In recent years, the concept of **[tidy data](https://ja.wikipedia.org/wiki/Tidy_data)** has become widespread in data analysis. Tidy data is data in which each variable forms a single column, and each observation (value) forms a single row.
+
+So, can `who` be considered tidy data? `who` has many columns such as `"new_sp_m014"` through `"newrel_f65"`, but each of these columns actually contains multiple variables, such as the diagnosis result (`sp` or `sel`), gender (`m` or `f`), and age group (`014` or `65`). Therefore, **`who` is not tidy data**. So, following [this article](https://tidyr.tidyverse.org/articles/pivot.html), we'll **transform it into `who_longer`, which is tidy data**.
+
+In data analysis, `who_longer`, being tidy data, is easier to work with than `who`. However, we can see that `who_longer` (about 400,000 rows) has roughly 50 times more rows than `who` (about 7,000 rows). Therefore, storing data like `who_longer`, which is tidy data, as a text file such as CSV results in a large increase in file size.
+
+In this way, we can see that **while tidy data is well-suited for data analysis, it is not well-suited for storage as a text file like CSV**. However, **this data storage problem can be solved by using Parquet**.
+
+Here, let's compare `who`, which is not tidy data, with `who_longer`, which is tidy data.
+
+```{r}
+#| label: load-packages
+#| message: false
+
+library(tidyverse)
+library(fs)
+```
+
+```{r}
+#| label: sample-data
+#| code-fold: true
+
+levels_gender <- c("f", "m")
+levels_age <- c("014", "1524", "2534", "3544", "4554", "5564", "65")
+
+who_longer <- who |> 
+  pivot_longer(cols = new_sp_m014:newrel_f65,
+               names_to = c("diagnosis", "gender", "age"), 
+               names_pattern = "new_?(.*)_(.)(.*)",
+               names_transform = list(gender = ~ .x |> 
+                                        readr::parse_factor(levels = levels_gender),
+                                      age = ~ .x |> 
+                                        readr::parse_factor(levels = levels_age,
+                                                            ordered = TRUE)),
+               values_to = "count")
+```
+
+```{r}
+#| label: print-data
+# Before tidying
+print(who, n = 5)
+
+# After tidying
+print(who_longer, n = 5)
+```
+
+## Saving CSV and Parquet files
+
+In R, you can save CSV files with `write_csv()`. Similarly, you can save Parquet files with `write_parquet()` from the arrow package. Let's try saving `who_longer` as both CSV and Parquet.
+
+As you can see, both CSV and Parquet make it easy to save data.
+
+```{r}
+#| label: write-data
+#| message: false
+
+library(arrow)
+
+# Save as CSV
+write_csv(who_longer, "who_longer.csv")
+
+# Save as Parquet
+write_parquet(who_longer, "who_longer.parquet")
+```
+
+## Advantages of Parquet compared to CSV
+
+From here, we'll compare the saved CSV and Parquet files of `who_longer` and introduce the advantages of Parquet over CSV.
+
+### Advantage 1: Smaller file size than CSV
+
+As mentioned earlier, tidy data tends to have many rows, which makes it poorly suited for storage as CSV, and using Parquet is preferable.
+
+In fact, the file sizes of the CSV and Parquet versions of `who_longer` are 14.1 MB and 154 KB, respectively, showing that **Parquet takes up only about 1% of the file size of CSV**.
+
+This level of size reduction can't be expected in every case, but since **Parquet is column-oriented and compresses data**, it can be said to be **a data format well-suited for storing tidy data**, which is commonly used in R and elsewhere.
+
+```{r}
+#| label: size-data
+#| size: 100
+
+# CSV
+file_size("who_longer.csv")
+
+# Parquet
+file_size("who_longer.parquet")
+
+units::set_units(file_size("who_longer.parquet") / file_size("who_longer.csv")) |> 
+  units::set_units(`%`)
+```
+
+### Advantage 2: Easier to read than CSV
+
+Just as data can be written with `write_csv()`/`write_parquet()`, **CSV/Parquet data can be read with `read_csv()`/`read_parquet()`**.
+
+Since **CSV** is a text format, **you need to specify the type of each column with `col_types` when reading it** (by default, the types are guessed automatically).
+
+On the other hand, since **Parquet** stores the type information of each column at write time, **there is no need to specify types when reading it**.
+
+```{r}
+#| label: read-data
+#| results: hide
+
+# Read CSV
+read_csv("who_longer.csv",
+         col_types = cols(.default = "c",
+                          year = "i",
+                          count = "i"))
+
+# Read Parquet
+read_parquet("who_longer.parquet")
+```
+
+### Advantage 3: Better suited than CSV for reading and aggregating big data
+
+CSV is not well-suited for storing big data, and until now, it has been necessary to use something like SQL for storing big data instead.
+
+In R, packages such as dplyr (dbplyr) and DBI make it easy to use SQL, but since SQL requires connecting to and disconnecting from a database, it works differently from CSV and may be a hurdle for beginners.
+
+Also, since (most?) **SQL databases are row-oriented**, they are **well-suited for adding, updating, and deleting data**, but for **storing and aggregating data used in data analysis, the column-oriented Parquet seems better suited**.
+
+When aggregating big data using CSV files, you need to load all the data into memory at once. This can put pressure on memory during data loading.
+
+With Parquet, by setting **`as_data_frame = FALSE` when reading**, you can, just like with SQL, **filter and aggregate data without loading it into memory**.
+
+Here, let's calculate the number of patients in Japan by year and diagnosis. **You can efficiently build the query using dplyr functions such as `filter()`, `group_by()`, and `summarise()`**. **Finally, calling `collect()` outputs the result as a data frame**.
+
+```{r}
+#| label: summarise-data
+
+read_parquet("who_longer.parquet",
+             as_data_frame = FALSE) |> 
+  filter(country == "Japan",
+         !is.na(count)) |> 
+  group_by(country, year, diagnosis) |> 
+  summarise(count = sum(count),
+            .groups = "drop") |> 
+  collect()
+
+```
+
+### Advantage 4: Can handle datasets made up of multiple files
+
+Because Parquet is column-oriented, unlike row-oriented SQL, it is not well-suited for adding, updating, or deleting data. However, **Parquet makes it easy to read datasets made up of multiple files**, which easily resolves this disadvantage.
+
+Here, let's use the `"who_longer_byage"` folder, which contains Parquet files with `who_longer` split by age group, as a sample dataset.
+
+By using **`open_dataset("who_longer_byage")`**, we can **easily perform the same data aggregation as before**, even though the folder contains multiple Parquet files.
+
+```{r}
+#| label: sample-dataset
+#| code-fold: true
+
+dir_create("who_longer_byage")
+who_longer |> 
+  group_by(age) |> 
+  group_walk(~ .x |> 
+               write_parquet(str_glue("who_longer_byage/who_longer_{.y$age}.parquet")),
+  .keep = TRUE)
+
+```
+
+```{r}
+#| label: summarise-dataset
+
+open_dataset("who_longer_byage") |> 
+  filter(country == "Japan",
+         !is.na(count)) |> 
+  group_by(country, year, diagnosis) |> 
+  summarise(count = sum(count),
+            .groups = "drop") |> 
+  collect()
+```
+
+### Advantage 5: Well-suited for exchanging data between R and Python
+
+Since Python's pandas package supports reading and writing Parquet files, Parquet is also well-suited for exchanging data between R and Python.
+
+Let's try reading the `'who_longer.parquet'` file created in R with pandas.
+
+```{python}
+#| label: read-data-py
+import pandas as pd
+
+pd.read_parquet('who_longer.parquet')
+```
+
+## Summary
+
+So far, we've introduced the advantages of Parquet available in both R and Python. Parquet is well-suited for storing and aggregating tidy data, which has become widespread in data analysis in recent years.
+
+In addition, packages such as [sfarrow](https://wcjochem.github.io/sfarrow/), which can save data from the sf package (used for handling geographic data) as Parquet, have also recently appeared.
+
+By using Parquet instead of CSV, data analysis is expected to become even easier.
+
+```{r}
+#| label: delete-data
+#| include: false
+
+file_delete("who_longer.csv")
+file_delete("who_longer.parquet")
+dir_ls("who_longer_byage") |> 
+  file_delete()
+```

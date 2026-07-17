@@ -1,0 +1,132 @@
+---
+title: "Deriving the marginal distribution of a normal distribution whose mean follows a normal distribution"
+lang: en
+categories: [English, Statistics]
+date: 2024-03-23
+format:
+  html:
+    df-print: paged
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2024/03/normal-distribution-with-mean-following-a-normal-distribution.html).
+
+Suppose there is a random variable $Y$ that follows a normal distribution with mean $\theta$ and variance $\tau^2$, and that $\theta$ itself follows a normal distribution with mean $\mu$ and variance $\sigma^2$.
+
+$$
+\begin{align}
+Y \mid \theta \sim \mathcal{N} ( \theta, \tau^2 ) &\iff
+p( y \mid \theta ) = \frac{1}{\sqrt{2 \pi} \tau}
+\exp \left[
+{-\frac{1}{2}} \left(
+\frac{y - \theta}{\tau}
+\right) ^2
+\right] \\
+\theta \sim \mathcal{N} (\mu, \sigma^2) &\iff
+p( \theta ) = \frac{1}{\sqrt{2 \pi} \sigma}
+\exp \left[
+{-\frac{1}{2}} \left(
+\frac{\theta - \mu}{\sigma}
+\right) ^2
+\right]
+\end{align}
+$$
+
+In this case, it is known that the marginal distribution of $Y$ follows a normal distribution with mean $\mu$ and variance $\sigma^2 + \tau^2$. This article records the derivation of this property as a personal memo (there may actually be a smarter way to derive it).
+
+$$
+Y \sim \mathcal{N} \left( \mu, \sigma^2 + \tau^2 \right)
+$$
+
+The marginal probability density function $p(y)$ of $Y$ can be obtained from the following integral. By completing the square, the integrand $p( y \mid \theta ) p ( \theta )$ can be transformed as follows.
+
+$$
+\begin{align}
+p(y)
+&= \int_{-\infty}^{\infty}
+p( y, \theta )
+d\theta \\
+&= \int_{-\infty}^{\infty}
+p( y \mid \theta ) p ( \theta )
+d\theta \\
+\end{align}
+$$
+
+$$
+\begin{align}
+p( y \mid \theta ) p ( \theta )
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2}
+\frac{
+\sigma^2 \left( y - \theta \right)^2 +
+\tau^2 \left( \theta - \mu \right)^2
+}{\tau^2 \sigma^2}
+\right] \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2}
+\frac{
+\left( \sigma^2 + \tau^2 \right) \theta^2 -
+2 \left( \sigma^2 y + \tau^2 \mu \right) \theta +
+\left( \sigma^2 y^2 + \tau^2 \mu^2 \right)
+}{\tau^2 \sigma^2}
+\right] \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{\sqrt{\sigma^2 + \tau^2}}{\tau \sigma} \theta -
+\frac{\sigma^2 y + \tau^2 \mu}{\tau \sigma \sqrt{\sigma^2 + \tau^2}}
+\right)^2 -
+\frac{1}{2} \frac{\left( y - \mu \right)^2}{\sigma^2 + \tau^2}
+\right] \quad \left( \because \text{completing the square with respect to } \theta \right) \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right]
+\exp \left[
+-\frac{1}{2} \left(
+\frac{\theta - \frac{\sigma^2 y + \tau^2 \mu}{\sigma^2 + \tau^2}}{\frac{\tau \sigma}{\sqrt{\sigma^2 + \tau^2}}}
+\right)^2
+\right] \\
+\end{align}
+$$
+
+Integrating $p( y \mid \theta ) p ( \theta )$ with respect to $\theta$ yields the integral of the kernel of a normal distribution in $\theta$. This integral can therefore be replaced by the reciprocal of the normalizing constant. In the end, we derive that the marginal probability density function $p(y)$ of $Y$ follows a normal distribution with mean $\mu$ and variance $\sigma^2 + \tau^2$.
+
+$$
+\begin{align}
+p(y)
+&= \int_{-\infty}^{\infty}
+p( y \mid \theta ) p ( \theta )
+d\theta \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right]
+\int_{-\infty}^{\infty}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{\theta - \frac{\sigma^2 y + \tau^2 \mu}{\sigma^2 + \tau^2}}{\frac{\tau \sigma}{\sqrt{\sigma^2 + \tau^2}}}
+\right)^2
+\right]
+d\theta \\
+&= \frac{1}{2 \pi \tau \sigma}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right]
+\sqrt{2 \pi} \frac{\tau \sigma}{\sqrt{\sigma^2 + \tau^2}}
+\quad \left( \because \text{integral of the kernel of the normal distribution with variance } \frac{\tau^2 \sigma^2}{\sigma^2 + \tau^2} \right) \\
+&= \frac{1}{\sqrt{2 \pi} \sqrt{\sigma^2 + \tau^2}}
+\exp \left[
+-\frac{1}{2} \left(
+\frac{y - \mu}{\sqrt{\sigma^2 + \tau^2}}
+\right)^2
+\right] \iff Y \sim \mathcal{N} \left( \mu, \sigma^2 + \tau^2 \right)\\
+\end{align}
+$$

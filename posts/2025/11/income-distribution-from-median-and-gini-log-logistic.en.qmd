@@ -1,0 +1,170 @@
+---
+title: "Reconstructing an income distribution from the median and Gini coefficient using the log-logistic distribution"
+lang: en
+categories: [English]
+date: 2025-11-26
+df-print: paged
+message: false
+warning: false
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html).
+
+In this article, I introduce a simple method for estimating an income distribution using only two representative statistics: the median income[^1] and the Gini coefficient[^2].
+
+[^1]: The median income is widely used as a representative statistic for income distributions because, unlike the mean, it is less affected by high-income earners.
+
+[^2]: [The Gini coefficient](https://ja.wikipedia.org/wiki/%E3%82%B8%E3%83%8B%E4%BF%82%E6%95%B0) is a standard measure of the inequality of income distribution.
+
+In this article, I focus on the [log-logistic distribution](https://en.wikipedia.org/wiki/Log-logistic_distribution) as a probability distribution that can easily reproduce an income distribution from these two statistics.
+
+## Modeling the income distribution
+
+The log-logistic distribution is also known in economics as the Fisk distribution, and it is commonly used to represent income distributions. The advantage of this probability distribution is that its parameters can be easily estimated from the median income and the Gini coefficient.
+
+Specifically, this probability distribution has two parameters, a scale parameter $\alpha$ and a shape parameter $\beta$, and the following relationships are known to hold for these parameters. Using these relationships, we can easily set the parameters of the log-logistic distribution from the median income and the Gini coefficient.
+
+-   The scale parameter $\alpha$ equals the median income $m$ $$
+    \alpha = m
+    $$
+
+-   The shape parameter $\beta$ equals the reciprocal of the Gini coefficient $G$ $$
+    \beta = \frac{1}{G}
+    $$
+
+## Data used
+
+In this article, I use the following data published by the OECD in [Society at a Glance 2024: OECD Social Indicators](https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en.html).
+
+-   Median household income[^3]: [Annual median equivalised disposable income, in 2021, USD at PPP rates](https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/household-income_3ee61044.html#title-b344384343)
+-   Gini coefficient: [Gini coefficient of household disposable income and gap between richest and poorest 10%, in 2021](https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/income-and-wealth-inequalities_7ac4178f.html#title-dd39bc1fa5)
+
+[^3]: <https://ja.wikipedia.org/wiki/%E8%B3%BC%E8%B2%B7%E5%8A%9B%E5%B9%B3%E4%BE%A1%E8%AA%AC#OECD%E7%B5%B1%E8%A8%88%E3%81%AE%E7%9B%B8%E5%AF%BE%E7%9A%84%E7%89%A9%E4%BE%A1%E6%B0%B4%E6%BA%96>
+
+First, download the data with the following code.
+
+```{r}
+#| label: download-data
+#| code-fold: true
+
+library(fs)
+library(tidyverse)
+
+file_median_income <- "income-distribution-from-median-and-gini-log-logistic/median_income_oecd_2021.xlsx"
+if (!file_exists(file_median_income)) {
+ curl::curl_download("https://stat.link/1or2b8", file_median_income)
+}
+
+file_gini_coefficient <- "income-distribution-from-median-and-gini-log-logistic/gini_coefficient_oecd_2021.xlsx"
+if (!file_exists(file_gini_coefficient)) {
+ curl::curl_download("https://stat.link/3f18vc", file_gini_coefficient)
+}
+```
+
+## Visualizing the income distribution
+
+First, load the necessary data from the downloaded Excel files.
+
+```{r}
+#| label: load-data
+#| code-fold: true
+
+library(readxl)
+
+median_income <- read_excel(
+  file_median_income,
+  sheet = "Data4.1",
+  range = cell_limits(ul = c(12, 1), lr = c(NA, 3)),
+  col_names = c("country_name", "country_code", "median_income_usd_ppp"),
+  col_types = c(rep("text", 2), "numeric")
+) |>
+  drop_na(country_name) |>
+  arrange(country_name)
+
+gini_coefficient <- read_excel(
+  file_gini_coefficient,
+  sheet = "data",
+  range = cell_limits(ul = c(12, 4), lr = c(NA, 5)),
+  col_names = c("country_name", "gini_coefficient"),
+  col_types = c("text", "numeric")
+) |>
+  drop_na(country_name) |>
+  arrange(country_name)
+```
+
+The loaded data are as follows.
+
+```{r}
+#| label: load-data-print
+
+median_income
+gini_coefficient
+```
+
+Next, join the loaded data and compute the parameters of the log-logistic distribution.
+
+```{r}
+#| label: prepare-data
+
+income_distribution_params <- median_income |>
+  inner_join(gini_coefficient, by = join_by(country_name)) |>
+  mutate(
+    scale_param = median_income_usd_ppp,
+    shape_param = 1 / gini_coefficient,
+    .keep = "unused"
+  )
+income_distribution_params
+```
+
+Next, visualize the income distribution for each country. In the code below, I plot the income distribution of the G7 countries using the probability density function of the log-logistic distribution.
+
+```{r}
+#| label: plot-income-distribution
+
+data_income_distribution_params <- income_distribution_params |>
+  # G7
+  filter(
+    country_name %in%
+      c(
+        "Canada",
+        "France",
+        "Germany",
+        "Italy",
+        "Japan",
+        "United Kingdom",
+        "United States"
+      )
+  ) |>
+  expand_grid(
+    income = seq(0, 150000, by = 1000)
+  ) |>
+  mutate(
+    density = VGAM::dfisk(
+      income,
+      scale = scale_param,
+      shape1.a = shape_param
+    )
+  ) |>
+  select(!c(scale_param, shape_param))
+
+plot_income_distribution <- data_income_distribution_params |>
+  ggplot(aes(x = income, y = density, color = country_name)) +
+  geom_line() +
+  scale_x_continuous(labels = scales::dollar_format(prefix = "$", big.mark = ",", accuracy = 1)) +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 0.0001)) +
+  labs(
+    title = "Estimated income distribution of OECD countries (log-logistic distribution)",
+    x = "Income (USD PPP)",
+    y = "Probability density",
+    color = "Country"
+  ) +
+  theme_minimal()
+
+plotly::ggplotly(plot_income_distribution)
+```
+
+## Conclusion
+
+In this article, I introduced a method for reconstructing an income distribution from its median and Gini coefficient using the log-logistic distribution. By using the log-logistic distribution, we can capture the overall shape of an income distribution from just these two statistics: the median income and the Gini coefficient.
+
+Note that this method may differ from the actual income distribution. To estimate a more accurate income distribution, additional data and a more complex model would be required.

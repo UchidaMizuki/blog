@@ -1,0 +1,85 @@
+---
+title: "Why is Bayes' theorem important? A PCR testing example"
+lang: en
+categories: [Bayes, R, English]
+date: "2023-04-30"
+image: why-is-bayes-theorem-important/bayes-theorem.png
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important.html).
+
+## What is Bayes' theorem?
+
+In this article, I would like to explain the importance of Bayes' theorem, one of the most famous theorems in statistics, using the PCR testing that became widespread during the COVID-19 pandemic as an example.
+
+Bayes' theorem can be expressed as shown in @eq-bayes.
+
+$$
+P(A|B) \propto P(B|A) P(A)
+$$ {#eq-bayes}
+
+@eq-bayes shows the following:
+
+-   The probability $P(A|B)$ that an observed result $B$ was caused by $A$
+-   is proportional ($\propto$) to the product of the probability $P(A)$ that cause $A$ occurs and the probability $P(B|A)$ that result $B$ occurs given cause $A$
+
+Let's use a more familiar example. Suppose we define:
+
+-   Cause $A$: whether or not someone is infected with COVID-19
+-   Result $B$: the diagnostic result from a PCR test or similar test
+
+With this in mind, @eq-bayes can be rewritten as @eq-bayes-covid19.
+
+$$
+P(\text{infection status}|\text{diagnosis result}) \propto P(\text{diagnosis result}|\text{infection status}) P(\text{infection status})
+$$ {#eq-bayes-covid19}
+
+## Why is Bayes' theorem important?
+
+Let's think about the importance of Bayes' theorem based on @eq-bayes-covid19. In fact, all three probabilities that appear in the version of Bayes' theorem shown in @eq-bayes-covid19 correspond to very important indicators (see the table below). In other words, @eq-bayes-covid19 tells us that even if a test's accuracy (sensitivity and specificity) is high, the positive predictive value will be low if the pre-test probability is low.
+
++------------------------------------------------------------+--------------------------------------------------------------------------------------------------+
+| Probability                                                | **Corresponding indicator in the medical field**                                                 |
++============================================================+==================================================================================================+
+| $P(\text{diagnosis result}|\text{infection status})$       | **Post-test probability**: called the **posterior probability** in                               |
+|                                                            | statistics                                                                                       |
+|                                                            |                                                                                                  |
+|                                                            | -   **Positive predictive value (PPV)**: probability of actually                                 |
+|                                                            |     being infected when diagnosed positive                                                       |
+|                                                            | -   **Negative predictive value (NPV)**: probability of actually                                 |
+|                                                            |     being uninfected when diagnosed negative                                                     |
++------------------------------------------------------------+--------------------------------------------------------------------------------------------------+
+| $P(\text{diagnosis result}|\text{infection status})$       | -   **Sensitivity**: probability that an infected person is                                      |
+|                                                            |     diagnosed positive ↔ related to **false negatives**                                          |
+|                                                            | -   **Specificity**: probability that an uninfected person is                                    |
+|                                                            |     diagnosed negative ↔ related to **false positives**                                          |
++------------------------------------------------------------+--------------------------------------------------------------------------------------------------+
+| $P(\text{infection status})$                               | **Pre-test probability**: called the **prior probability** in                                    |
+|                                                            | statistics                                                                                       |
+|                                                            |                                                                                                  |
+|                                                            | -   The proportion of infected individuals among those tested                                    |
++------------------------------------------------------------+--------------------------------------------------------------------------------------------------+
+
+For example, let's consider the following situation:
+
+-   Both sensitivity and specificity are 99% (false negatives and false positives each occur with a 1% probability)
+-   The pre-test probability is 1% (1 out of every 100 people tested is infected, and the remaining 99 are uninfected)
+
+In this case, the probability of being infected given a positive diagnosis, $P(\text{infected}|\text{positive})$, and the probability of being uninfected given a positive diagnosis, $P(\text{uninfected}|\text{positive})$, are given by @eq-bayes-covid19-positive.
+
+$$
+\begin{align}
+  P(\text{infected}|\text{positive}) \propto P(\text{positive}|\text{infected})P(\text{infected}) &= 0.99 \times 0.01 = 0.0099 \\
+  P(\text{uninfected}|\text{positive}) \propto P(\text{positive}|\text{uninfected})P(\text{uninfected}) &= (1 - 0.99) \times (1 - 0.01) = 0.0099
+\end{align}
+$$ {#eq-bayes-covid19-positive}
+
+From @eq-bayes-covid19-positive, we can see that $P(\text{infected}|\text{positive})$ and $P(\text{uninfected}|\text{positive})$ are equal, meaning the positive predictive value is 50%. In other words, among the people tested who receive a positive diagnosis, only 1 in 2 is actually infected.
+
+In this way, using Bayes' theorem reveals an important relationship: even if a test's accuracy (sensitivity and specificity) is high, the positive predictive value will be low if the pre-test probability is low.
+
+## Summary
+
+Using the PCR testing that became widespread during the COVID-19 pandemic as an example, we explained the importance of Bayes' theorem.
+
+If you are interested in more realistic calculation examples, we also recommend reading [this column published by the Statistics Bureau](https://www.stat.go.jp/library/pdf/cgogai3102.pdf){target="_blank"} (in Japanese).

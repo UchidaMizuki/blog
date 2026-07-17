@@ -1,0 +1,88 @@
+---
+title: "Presented at TokyoR Using Quarto"
+lang: en
+categories: [e-Stat, LT, Tokyo.R, R, English]
+date: "2023-09-03"
+---
+
+Note: This article is translated from [my Japanese article](https://uchidamizuki.quarto.pub/blog/posts/2023/09/presented-at-tokyor-using-quarto.html).
+
+## Talk Overview
+
+At the LT (Lightning Talk) session of the [108th Tokyo.R Study Meetup (#TokyoR)](https://tokyor.connpass.com/event/292545/), I introduced the jpstat package, an R package for using the e-Stat API[^1].
+
+[^1]: It seems that the 108th Tokyo.R event had exactly 108 registered participants.
+
+LT stands for Lightning Talks, which are short presentations. At Tokyo.R, each speaker was given 5 minutes.
+
+The presentation slides from the day are available [here](https://uchidamizuki.github.io/slide-estat-with-r/).
+
+```{=html}
+<iframe class="slide-deck" src="https://uchidamizuki.github.io/slide-estat-with-r/"></iframe>
+```
+## About Creating the Slides
+
+I have used Quarto for things like GitHub READMEs and building websites, but this was my first time trying to create slides with it.
+
+Referring to the following pages, I tried making a trial slide deck to introduce my own jpstat package, and found that it was surprisingly easy to create slides, so I decided to go ahead and present it at the R study meetup.
+
+-   <https://quarto.org/docs/presentations/>
+
+-   <https://quarto.org/docs/presentations/revealjs/>
+
+The source code is available [here](https://github.com/UchidaMizuki/slide-estat-with-r). The Quarto content is written in [this](https://github.com/UchidaMizuki/slide-estat-with-r/blob/main/slide-estat-with-r.qmd) qmd (Quarto Markdown) file.
+
+Below, I'll introduce the features I found especially useful when creating slides with Quarto and reveal.js.
+
+### Useful Feature 1: [Code Line Highlighting](https://quarto.org/docs/presentations/revealjs/#line-highlighting)
+
+By specifying `code-line-numbers` as shown below, you can highlight specific lines of code.
+
+Here, `code-line-numbers: "2-3"` highlights lines 2 and 3. It also seems possible to transition the highlighted lines over time by separating values with `|`, as in `code-line-numbers: "1|2-3"`.
+
+This highlighting feature is very handy when you want to draw attention to just part of the code.
+
+```{{r}}
+#| echo: true
+#| code-line-numbers: "2-3"
+
+estat(statsDataId = "0003343671") |>
+  activate(cat01) |>
+  filter(str_detect(name, "チョコレート"))
+```
+
+### Useful Feature 2: [Auto-Animate](https://quarto.org/docs/presentations/revealjs/advanced.html#auto-animate) and Fade-In
+
+By adding `{auto-animate="true"}` next to a slide title that starts with `##`, Quarto automatically finds content shared with the next slide and animates the transition between them.
+
+When there is repeated content across consecutive slides, I felt that using the auto-animate feature makes the connection between them easier to follow.
+
+In addition, using `::: {.fragment .fade-in}` lets you reveal content partway through a slide. This is also useful when you want to draw attention to a specific piece of content.
+
+### Useful Feature 3: Title and Footer Settings
+
+The title slide and the footer common to all slides are automatically laid out by writing them at the top of the qmd file, as shown below.
+
+Here, besides the title, I also set the subtitle, author, and date, and it turned out I didn't need to separately specify things like font size for these.
+
+Also, while I used reveal.js's default theme this time, it's also possible to change the theme, as described [here](https://quarto.org/docs/presentations/revealjs/themes.html).
+
+```
+---
+title: "e-Stat🤝R"
+subtitle: "Tokyo.R #108"
+author: UchidaMizuki
+date: "2023-09-02"
+footer: <https://github.com/UchidaMizuki/jpstat>
+format:
+  revealjs
+---
+```
+
+## Summary
+
+I found that Quarto makes it easy to create presentation materials that are just the right fit for a Lightning Talk.
+
+By the way, I had already been publishing pages created with Quarto to GitHub Pages, and this time I was able to easily publish the reveal.js slides as well by using the [Publish Command](https://quarto.org/docs/publishing/github-pages.html#publish-command)[^2].
+
+[^2]: Automatic updates via GitHub Actions didn't work out, so this time I ran `quarto publish gh-pages` manually from RStudio's Terminal.

@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
 <link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r.html" />
 <link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/06/draw-a-map-of-japan-in-r.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>Rで日本地図を描いてみよう – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -57,24 +55,11 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -102,31 +87,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-
-<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-
-
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -138,7 +111,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/06/draw-a-map-of-japan-in-r.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -161,15 +137,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Rで日本地図を描いてみよう</h1>
                                 <div class="quarto-categories">
@@ -208,26 +180,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<p>Rでは，ggplot2などのパッケージを利用するだけで，都道府県別の日本地図を描くことができます．ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．</p>
-<section id="地図描画用のサンプルデータ" class="level2">
-<h2 class="anchored" data-anchor-id="地図描画用のサンプルデータ">地図描画用のサンプルデータ</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Rでは，ggplot2などのパッケージを利用するだけで，都道府県別の日本地図を描くことができます．ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．</p>
+<section id="地図描画用のサンプルデータ" class="level2"><h2 class="anchored" data-anchor-id="地図描画用のサンプルデータ">地図描画用のサンプルデータ</h2>
 <p>ここでは，<a href="https://www.e-stat.go.jp/dbview?sid=0000010201">こちら</a>からダウンロードできる社会・人口統計体系の2015年の都道府県別外国人人口比率データ（10万人あたり外国人人口）を地図描画用のサンプルデータとしました．</p>
 <div class="cell">
-<details class="code-fold">
-<summary>パッケージの読み込み</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold"><summary>パッケージの読み込み</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
-<details class="code-fold">
-<summary>データのダウンロード</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpstat)</span>
+<details class="code-fold"><summary>データのダウンロード</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpstat)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> <span class="fu">estat</span>(<span class="at">statsDataId =</span> <span class="st">"https://www.e-stat.go.jp/en/dbview?sid=0000010201"</span>,</span>
@@ -256,9 +217,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </details>
 </div>
 <div class="cell">
-<details class="code-fold">
-<summary>データの読み込み</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
+<details class="code-fold"><summary>データの読み込み</summary><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>foreigner_ratio_2015 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">"foreigner_ratio_2015.parquet"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pref_code =</span> pref_code <span class="sc">|&gt;</span> </span>
@@ -285,9 +244,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section>
-<section id="geom_map-で日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="geom_map-で日本地図を描く"><code>geom_map()</code> で日本地図を描く</h2>
+</section><section id="geom_map-で日本地図を描く" class="level2"><h2 class="anchored" data-anchor-id="geom_map-で日本地図を描く">
+<code>geom_map()</code> で日本地図を描く</h2>
 <p>ggplot2で<code>map_data()</code> や<code>geom_map()</code> を使って世界の国々の地図を描画することができます．これには，あらかじめmapsパッケージとmapdataパッケージをダウンロードしておく必要があります（mapdataパッケージに日本地図が格納されています）．</p>
 <p><code>map_data("japan")</code> とすることで，mapsパッケージの地図データがデータフレームに変換されます．このデータフレームの<code>region</code> 列が都道府県のIDとなるため，<code>aes(map_id = region)</code>を設定した上で，<code>geom_map()</code> することで，描画したいデータの<code>region</code> 列と都道府県ジオメトリがリンクします．</p>
 <p>ただし，<code>map_data("japan")</code> は，以下の点に注意が必要です．</p>
@@ -327,15 +285,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="draw-a-map-of-japan-in-r-ja_files/figure-html/geom_map-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="draw-a-map-of-japan-in-r-ja_files/figure-html/geom_map-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="sfパッケージで日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="sfパッケージで日本地図を描く">sfパッケージで日本地図を描く</h2>
+</section><section id="sfパッケージで日本地図を描く" class="level2"><h2 class="anchored" data-anchor-id="sfパッケージで日本地図を描く">sfパッケージで日本地図を描く</h2>
 <p>ggplot2の<code>geom_sf()</code>を使えばsfパッケージのジオメトリを簡単に描画できます．</p>
 <p>sfパッケージの<code>st_as_sf()</code> を使えば，maps・mapdataパッケージの提供する地図データをsfオブジェクトに変換することができます．日本地図データをsfに変換することで，先ほどのコードよりも直感的に地図を描くことができます．</p>
 <div class="cell">
@@ -359,14 +314,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">option =</span> <span class="st">"turbo"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="draw-a-map-of-japan-in-r-ja_files/figure-html/sf-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="draw-a-map-of-japan-in-r-ja_files/figure-html/sf-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<section id="さらに詳細な地図情報を入手可能なrnaturalearthについて" class="level3">
-<h3 class="anchored" data-anchor-id="さらに詳細な地図情報を入手可能なrnaturalearthについて">さらに詳細な地図情報を入手可能なrnaturalearthについて</h3>
+<section id="さらに詳細な地図情報を入手可能なrnaturalearthについて" class="level3"><h3 class="anchored" data-anchor-id="さらに詳細な地図情報を入手可能なrnaturalearthについて">さらに詳細な地図情報を入手可能なrnaturalearthについて</h3>
 <p>世界地図のデータを取得可能なパッケージにはrnaturalearthパッケージもあります．</p>
 <p>都道府県別地図を取得するにはrnaturalearthの<code>ne_states("japan")</code> を実行します．<code>ne_states("japan")</code> の出力には英語の都道府県名に加えて日本語の都道府県名も含まれており便利です．</p>
 <div class="cell">
@@ -384,22 +337,23 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="日本地図をレイアウトするためのjpmapパッケージ" class="level2">
-<h2 class="anchored" data-anchor-id="日本地図をレイアウトするためのjpmapパッケージ">日本地図をレイアウトするためのjpmapパッケージ</h2>
+</section></section><section id="日本地図をレイアウトするためのjpmapパッケージ" class="level2"><h2 class="anchored" data-anchor-id="日本地図をレイアウトするためのjpmapパッケージ">日本地図をレイアウトするためのjpmapパッケージ</h2>
 <p>日本地図の描画では，日本列島を大きく描画するために琉球諸島や小笠原諸島を地図上の左上や右下に配置したいケースがあります．ggplot2で作成した日本地図のレイアウトを簡単に行えるように<a href="https://github.com/UchidaMizuki/jpmap">jpmap</a>を作成しました．</p>
 <p>jpmapは，以下の機能を持っています．</p>
 <ul>
-<li><p>琉球諸島・小笠原諸島を再配置したレイアウトを可能にする<code>jpmap::layout_japan()</code></p>
+<li>
+<p>琉球諸島・小笠原諸島を再配置したレイアウトを可能にする<code>jpmap::layout_japan()</code></p>
 <ul>
 <li><p>ただし再配置される琉球諸島・小笠原諸島の縮尺は厳密ではありませんのでご注意ください</p></li>
 <li><p><code>ryukyu = FALSE</code>や<code>ogasawara = FALSE</code> を指定することで琉球諸島・小笠原諸島を非表示にすることが可能です</p></li>
-</ul></li>
-<li><p>日本語の都道府県名や都道府県コードが含む都道府県データを提供する<code>jpmap::prefecture</code>（rnaturalearthのデータがベースです）</p>
+</ul>
+</li>
+<li>
+<p>日本語の都道府県名や都道府県コードが含む都道府県データを提供する<code>jpmap::prefecture</code>（rnaturalearthのデータがベースです）</p>
 <ul>
 <li>ただし，英語の都道府県名（<code>pref_name</code>）がHokkaidoではなくHokkaidōといった表記なっているためご注意ください．</li>
-</ul></li>
+</ul>
+</li>
 </ul>
 <p><code>jpmap::layout_japan()</code> で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．</p>
 <div class="cell">
@@ -426,15 +380,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>jpmap<span class="sc">::</span><span class="fu">layout_japan</span>(plot)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="draw-a-map-of-japan-in-r-ja_files/figure-html/jpmap-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="draw-a-map-of-japan-in-r-ja_files/figure-html/jpmap-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>2015年の都道府県別外国人人口比率に関する日本地図から以下のことがわかりました．</p>
 <ul>
 <li><p>2015年では<strong>どの都道府県でも外国人人口比率が3％以下</strong>である</p></li>
@@ -444,10 +395,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <p>その結果，Rを使えば，自前でデータを整備しなくても，簡単に日本地図を描けることがわかりました．みなさんもぜひ，ggplot2を使って，色々な地図を使ってみてください！</p>
 
 
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -863,14 +811,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>
