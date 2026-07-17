@@ -1,83 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</loc>
-    <lastmod>2025-04-29T15:01:14.104Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</loc>
+    <lastmod>2025-11-04T15:15:22.845Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</loc>
-    <lastmod>2025-03-17T14:25:14.726Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html</loc>
+    <loc>https://uchidamizuki.quarto.pub/blog/en/posts/2024/01/relational-data-models-with-r-s-dm.html</loc>
     <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/03/normal-distribution-with-mean-following-a-normal-distribution.html</loc>
-    <lastmod>2025-04-13T02:56:39.468Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/en/AGENTS.html</loc>
+    <lastmod>2026-07-17T14:17:29.298Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html</loc>
+    <loc>https://uchidamizuki.quarto.pub/blog/en/about.html</loc>
+    <lastmod>2026-07-17T14:48:42.547Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/en/index.html</loc>
+    <lastmod>2026-07-17T14:48:38.911Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/en/posts/2024/02/scraping-dynamic-sites-with-rvest.html</loc>
     <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r-s-dm.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html</loc>
+    <lastmod>2025-11-26T14:40:55.931Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/09/presented-at-tokyor-using-quarto.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html</loc>
+    <lastmod>2025-04-13T02:56:49.867Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html</loc>
+    <lastmod>2025-06-01T00:10:40.383Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r-ja.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/index.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/about.html</loc>
-    <lastmod>2025-02-16T15:42:04.572Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r-ja.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv-ja.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r-s-dm-en.html</loc>
-    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
-  </url>
-  <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest-en.html</loc>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html</loc>
     <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
@@ -85,39 +45,79 @@
     <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html</loc>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r-s-dm.html</loc>
     <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html</loc>
-    <lastmod>2025-06-01T00:10:40.383Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html</loc>
-    <lastmod>2025-04-13T02:56:49.867Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/04/quantify-vote-disparity-between-generations.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/drafts/guiding-data-processing-with-adverbial-step_by_step-in-r.html</loc>
-    <lastmod>2025-05-25T09:38:48.427Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/drafts/guiding-data-processing-with-step_by_step-in-r-adverbial-package.html</loc>
-    <lastmod>2025-05-25T08:16:03.992Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</loc>
-    <lastmod>2025-11-04T15:15:22.845Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/11/income-distribution-from-gini-and-median-log-logistic-ja.html</loc>
-    <lastmod>2025-11-04T15:34:16.431Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/AGENTS.html</loc>
+    <lastmod>2026-07-17T14:17:29.298Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/11/income-distribution-from-median-and-gini-log-logistic-ja.html</loc>
-    <lastmod>2025-11-26T10:30:35.004Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/about.html</loc>
+    <lastmod>2025-02-16T15:42:04.572Z</lastmod>
   </url>
   <url>
-    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html</loc>
-    <lastmod>2025-11-26T14:40:55.931Z</lastmod>
+    <loc>https://uchidamizuki.quarto.pub/blog/index.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2023/09/presented-at-tokyor-using-quarto.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/02/scraping-dynamic-sites-with-rvest.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/03/normal-distribution-with-mean-following-a-normal-distribution.html</loc>
+    <lastmod>2025-04-13T02:56:39.468Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html</loc>
+    <lastmod>2025-02-16T15:42:04.705Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</loc>
+    <lastmod>2025-03-17T14:25:14.726Z</lastmod>
+  </url>
+  <url>
+    <loc>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</loc>
+    <lastmod>2025-04-29T15:01:14.104Z</lastmod>
   </url>
 </urlset>

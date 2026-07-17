@@ -32,3 +32,15 @@ comments:
 
 execute:
   freeze: auto
+
+babelquarto:
+  languagecodes:
+  - name: en
+    text: "English"
+  - name: ja
+    text: "日本語"
+  mainlanguage: 'ja'
+  languages: ['en']
+title-en: "UchidaMizuki"
+lang: ja
+

@@ -1,0 +1,36 @@
+---
+title: "About"
+image: profile.jpg
+about:
+  template: jolla
+  links:
+    - icon: mastodon
+      href: https://social.vivaldi.net/@UchidaMizuki
+    - icon: github
+      href: https://github.com/UchidaMizuki
+    - text: SoundCloud
+      href: https://soundcloud.com/UchidaMizuki
+    - text: Flickr
+      href: https://www.flickr.com/uchidamizuki
+comments: false
+---
+
+My name is Uchida Mizuki.
+
+I am a classical music lover.
+
+## Games
+
+### [MakeMultiples](https://uchidamizuki.github.io/make-multiples/)
+
+[![](https://raw.githubusercontent.com/UchidaMizuki/make-multiples/main/make-multiples-capture.png)](https://uchidamizuki.github.io/make-multiples/)
+
+### [AvoidCrowds](https://uchidamizuki.github.io/avoid-crowds/) (PC only)
+
+[![](https://raw.githubusercontent.com/UchidaMizuki/avoid-crowds/main/avoid-crowds-capture.png)](https://uchidamizuki.github.io/avoid-crowds/)
+
+## Apps
+
+### [Urayasu Accessibility App](https://uchidamizuki.shinyapps.io/urayasu-accessibility-app/) (in Japanese)
+
+### [jpgrid App](https://uchidamizuki.shinyapps.io/jpgrid-app/) (in Japanese)
