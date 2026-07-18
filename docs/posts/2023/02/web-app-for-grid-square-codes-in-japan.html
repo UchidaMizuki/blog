@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan.html" />
+<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid） – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,24 +55,11 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -100,27 +87,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -132,7 +110,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -155,15 +136,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid）</h1>
                                 <div class="quarto-categories">
@@ -194,14 +171,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<section id="このアプリについて" class="level2">
-<h2 class="anchored" data-anchor-id="このアプリについて">このアプリについて</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="このアプリについて" class="level2"><h2 class="anchored" data-anchor-id="このアプリについて">このアプリについて</h2>
 <p><a href="https://shiny.rstudio.com">R Shiny</a>を使って<a href="https://uchidamizuki.shinyapps.io/jpgrid-app/">地域メッシュデータを使うためのWEBアプリ</a>をつくってみました．</p>
 <p><a href="https://www.stat.go.jp/data/mesh/m_tuite.html">地域メッシュ</a>とは，経度・緯度にもとづいて（日本の）地域をほぼ正方形のメッシュに分割したもので，統計データの集計区分としてよく利用されています．</p>
 <p>今回つくったアプリは，Rパッケージの<a href="https://uchidamizuki.github.io/jpgrid/">jpgrid</a>パッケージの機能の一部を提供しています． このアプリの提供機能は以下の通りです．</p>
@@ -211,16 +181,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <li>経度・緯度を含む表データから地域メッシュデータ生成</li>
 </ol>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="../../..\posts/2023/02/images/about.png" class="img-fluid figure-img" alt="アプリの外観（クリックするとアプリが開きます）"></a></p>
-<figcaption>アプリの外観（クリックするとアプリが開きます）</figcaption>
-</figure>
+<figure class="figure"><p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="../../..\posts/2023/02/images/about.png" class="img-fluid figure-img" alt="アプリの外観（クリックするとアプリが開きます）"></a></p>
+<figcaption>アプリの外観（クリックするとアプリが開きます）</figcaption></figure>
 </div>
-</section>
-<section id="アプリの提供機能について" class="level2">
-<h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
-<section id="市区町村別の地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
+</section><section id="アプリの提供機能について" class="level2"><h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
+<section id="市区町村別の地域メッシュデータ生成" class="level3"><h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
 <p>総務省統計局の公開する<a href="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
 <p>以下のような手順で市区町村別のメッシュを生成・保存できます．</p>
 <ol type="1">
@@ -230,10 +195,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
 </ol>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/grid_city.png" class="img-fluid figure-img"></p>
-<figcaption>市区町村別メッシュの表示イメージ</figcaption>
-</figure>
+<figure class="figure"><p><img src="images/grid_city.png" class="img-fluid figure-img"></p>
+<figcaption>市区町村別メッシュの表示イメージ</figcaption></figure>
 </div>
 <p>jpgridパッケージでは，<code>grid_city_2020</code> データで市区町村別メッシュデータが提供されています．</p>
 <p>以下のように，市区町村別メッシュデータを図示することができます．</p>
@@ -251,15 +214,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="メッシュ文字列を含む表データから地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="メッシュ文字列を含む表データから地域メッシュデータ生成">メッシュ文字列を含む表データから地域メッシュデータ生成</h3>
+</section><section id="メッシュ文字列を含む表データから地域メッシュデータ生成" class="level3"><h3 class="anchored" data-anchor-id="メッシュ文字列を含む表データから地域メッシュデータ生成">メッシュ文字列を含む表データから地域メッシュデータ生成</h3>
 <p>以下のような手順でメッシュ文字列を含む表データから地域メッシュを生成・保存できます．</p>
 <ol type="1">
 <li>データを選択（CSVまたはExcel）</li>
@@ -268,9 +228,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </ol>
 <p>jpgridパッケージでは，<code>parse_grid()</code> で文字列から地域メッシュを生成することができます．</p>
 <p><img src="images/parse_grid.png" class="img-fluid"></p>
-</section>
-<section id="経度緯度を含む表データから地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="経度緯度を含む表データから地域メッシュデータ生成">経度・緯度を含む表データから地域メッシュデータ生成</h3>
+</section><section id="経度緯度を含む表データから地域メッシュデータ生成" class="level3"><h3 class="anchored" data-anchor-id="経度緯度を含む表データから地域メッシュデータ生成">経度・緯度を含む表データから地域メッシュデータ生成</h3>
 <p>同様に，以下の手順で経度・緯度を含む表データから地域メッシュを生成・保存できます．</p>
 <ol type="1">
 <li>データを選択（CSVまたはExcel）</li>
@@ -279,10 +237,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </ol>
 <p>jpgridパッケージでは，<code>coords_to_grid()</code> で文字列から地域メッシュを生成することができます．</p>
 <p><img src="images/coords_to_grid.png" class="img-fluid"></p>
-</section>
-</section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
+</section></section><section id="おわりに" class="level2"><h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
 <p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
 <p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
 <p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
@@ -309,18 +264,14 @@ Installing package into 'C:/Users/uchid/AppData/Local/R/win-library/4.6'
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"transparent"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 
 
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -736,14 +687,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>

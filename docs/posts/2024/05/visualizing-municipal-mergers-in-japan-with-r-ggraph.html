@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html" />
+<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>R ggraphで全国の市町村合併を可視化する – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,24 +55,11 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -100,27 +87,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -132,7 +110,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -155,15 +136,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">R ggraphで全国の市町村合併を可視化する</h1>
                                 <div class="quarto-categories">
@@ -194,32 +171,20 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<p>昨日，<a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">こちらの記事</a>でjpcityパッケージを紹介しました． jpcityパッケージでは，内部的に過去の全国の市町村合併（廃置分合）をネットワーク化することで，異なる時点間での市区町村コードの対応付けを行っています．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>昨日，<a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">こちらの記事</a>でjpcityパッケージを紹介しました． jpcityパッケージでは，内部的に過去の全国の市町村合併（廃置分合）をネットワーク化することで，異なる時点間での市区町村コードの対応付けを行っています．</p>
 <p>この記事では，jpcityパッケージが内部で使用する市町村合併ネットワークを以下の方針で可視化しみます．</p>
 <ul>
 <li>1970年4月1日～2024年4月1日にかけての市町村合併や市・町制施行を都道府県ごとに可視化</li>
 <li>並び替えにおいて時系列は考慮しない（位置を時点に合わせることも可能だが見えづらいため）</li>
 <li>区の分離・分割は対象外</li>
 </ul>
-<section id="参考記事" class="level3">
-<h3 class="anchored" data-anchor-id="参考記事">参考記事</h3>
+<section id="参考記事" class="level3"><h3 class="anchored" data-anchor-id="参考記事">参考記事</h3>
 <ul>
 <li><a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）</a></li>
-</ul>
-</section>
-<section id="都道府県別の市町村合併の可視化結果" class="level3">
-<h3 class="anchored" data-anchor-id="都道府県別の市町村合併の可視化結果">都道府県別の市町村合併の可視化結果</h3>
+</ul></section><section id="都道府県別の市町村合併の可視化結果" class="level3"><h3 class="anchored" data-anchor-id="都道府県別の市町村合併の可視化結果">都道府県別の市町村合併の可視化結果</h3>
 <p>以下に市町村合併の可視化結果を示します．データ上の不備等に気づかれた方はコメント等でお知らせいただければ幸いです． ラベルが重なって見づらい箇所があることをご了承ください．</p>
 <div class="cell">
-<details class="code-fold">
-<summary>コード</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidygraph)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggraph)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -271,343 +236,292 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(plot)</span>
 <span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
+</details><div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-2.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-3.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-4.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-4.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-5.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-5.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-6.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-6.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-7.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-7.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-8.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-8.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-9.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-9.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-10.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-10.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-11.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-11.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-12.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-12.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-13.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-13.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-14.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-14.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-15.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-15.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-16.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-16.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-17.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-17.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-18.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-18.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-19.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-19.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-20.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-20.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-21.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-21.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-22.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-22.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-23.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-23.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-24.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-24.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-25.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-25.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-26.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-26.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-27.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-27.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-28.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-28.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-29.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-29.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-30.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-30.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-31.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-31.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-32.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-32.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-33.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-33.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-34.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-34.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-35.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-35.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-36.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-36.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-37.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-37.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-38.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-38.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-39.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-39.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-40.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-40.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-41.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-41.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-42.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-42.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-43.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-43.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-44.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-44.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-45.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-45.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-46.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-46.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-47.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/%E5%B8%82%E7%94%BA%E6%9D%91%E5%90%88%E4%BD%B5%E3%81%AE%E5%8F%AF%E8%A6%96%E5%8C%96-47.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 
 
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -1023,14 +937,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>

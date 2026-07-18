@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r.html" />
+<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/05/ioanalysis-in-r.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="dcterms.date" content="2022-05-31">
+<title>Input-Output Analysis in R – UchidaMizuki</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
+<link href="../../../logo.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
+</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script><link rel="stylesheet" href="../../../styles.css">
+</head>
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">UchidaMizuki</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> English</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r.html" id="language-link-ja">日本語</a></li></ul>
+</div></li>
+<li class="nav-item compact">
+    <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/UchidaMizuki"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://soundcloud.com/UchidaMizuki"> 
+<span class="menu-text">SoundCloud</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://www.flickr.com/uchidamizuki"> 
+<span class="menu-text">Flickr</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+</div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Input-Output Analysis in R</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">ioanalysis</div>
+                <div class="quarto-category">dibble</div>
+                <div class="quarto-category">econio</div>
+                <div class="quarto-category">R</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 31, 2022</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r.html">my Japanese article</a>.</p>
+<p>Input-output analysis is a widely used analytical method for calculating economic ripple effects. In Japan, statistical data called input-output tables are compiled and published roughly once every five years by the national government and prefectures, and these tables serve as the basic data for input-output analysis.</p>
+<p>Until now, Excel and VBA have often been used for input-output analysis.</p>
+<p>On the other hand, in recent years, programming languages such as Python, R, and Julia have become increasingly widespread. These programming languages have the following characteristics.</p>
+<ul>
+<li>They can be used free of charge</li>
+<li>Reproducibility of work is improved, making mistakes easier to fix and easier for others to notice</li>
+<li>Advanced analytical methods can be used easily</li>
+</ul>
+<p>For these reasons, it seems likely that the use of these programming languages will spread further in input-output analysis going forward.</p>
+<p>Here, we will perform input-output analysis using R. In recent years, R has come to offer many packages, such as tidyverse, for modern data analysis, and I think it is a language that is easy to learn even for programming beginners.</p>
+<p>As the input-output table, we use Japan’s (national) 2013 13-sector input-output table, published in the e-Stat database. The data used here can be downloaded from <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">here</a>.</p>
+<section id="basics-of-input-output-analysis" class="level2"><h2 class="anchored" data-anchor-id="basics-of-input-output-analysis">Basics of input-output analysis</h2>
+<p>Input-output analysis is generally carried out according to the following flow.</p>
+<ol type="1">
+<li>Formatting the <strong>input-output table</strong>
+</li>
+<li>Calculating the <strong>input coefficient matrix</strong>
+</li>
+<li>Calculating the <strong>Leontief inverse matrix</strong>
+</li>
+<li>Calculating the <strong>economic ripple effect</strong>
+</li>
+</ol>
+<p>First, let’s explain the calculation methods for the input coefficient matrix, the Leontief inverse matrix, and the economic ripple effect, which are important in input-output analysis.</p>
+<section id="what-is-the-input-coefficient-matrix" class="level3"><h3 class="anchored" data-anchor-id="what-is-the-input-coefficient-matrix">What is the input coefficient matrix?</h3>
+<p>The input coefficient is often referred to as the industry’s “<strong>cooking recipe</strong>,” and it represents the amount of output of industry <span class="math inline">\(i\)</span> required to produce one unit of output of industry <span class="math inline">\(j\)</span>. Specifically, it can be calculated by dividing intermediate input <span class="math inline">\(x_{ij}\)</span> by output <span class="math inline">\(X_j\)</span> (production value), as shown below.</p>
+<p><span class="math display">\[
+a_{ij}=\frac{x_{ij}}{X_j}
+\]</span></p>
+<p>In input-output analysis, a system of simultaneous equations representing the balance of production values (in the row direction), based on the input coefficient <span class="math inline">\(a_{ij}\)</span> corresponding to the “cooking recipe,” is solved. To make this system of simultaneous equations easy to solve, a matrix called the <strong>input coefficient matrix</strong> (usually denoted <span class="math inline">\(A\)</span>) is constructed as follows.</p>
+<p><span class="math display">\[
+A = \begin{pmatrix}
+  a_{11} &amp; \cdots &amp; a_{1n} \\
+  \vdots &amp; \ddots &amp; \vdots \\
+  a_{n1} &amp; \cdots &amp; a_{nn} \\
+\end{pmatrix}
+\]</span></p>
+</section><section id="estimating-economic-ripple-effects-using-the-leontief-inverse-matrix" class="level3"><h3 class="anchored" data-anchor-id="estimating-economic-ripple-effects-using-the-leontief-inverse-matrix">Estimating economic ripple effects using the Leontief inverse matrix</h3>
+<p>The balance equation for production values (in the row direction) can be expressed using matrices as follows. The meanings of the variables are as shown in the table below.</p>
+<p><span class="math display">\[
+AX + F + E - M = X
+\]</span></p>
+<table class="caption-top table">
+<thead><tr class="header">
+<th style="text-align: center;">Variable</th>
+<th style="text-align: center;">Meaning</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(A\)</span></td>
+<td style="text-align: center;">Input coefficient matrix</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(X = (X_1, \cdots, X_n) ^ \top\)</span></td>
+<td style="text-align: center;">Production value vector</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(F = (F_1, \cdots, F_n) ^ \top\)</span></td>
+<td style="text-align: center;">Final demand vector</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(E = (E_1, \cdots, E_n) ^ \top\)</span></td>
+<td style="text-align: center;">Interregional exports vector</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(M = (M_1, \cdots, M_n) ^ \top\)</span></td>
+<td style="text-align: center;">Interregional imports vector</td>
+</tr>
+</tbody>
+</table>
+<p>In estimating economic ripple effects, we calculate <strong>the ripple effect that a change in final demand has on production value</strong>.</p>
+<p>In particular, when estimating economic ripple effects using Japanese input-output tables, <strong>care must be taken in how interregional imports</strong> <span class="math inline">\(M\)</span> <strong>are handled</strong> (this is because most Japanese tables adopt a format called the competitive-import type, in which the interregional import portion is included in the input coefficients).</p>
+<p>Economic ripple effects caused by final demand are thought to induce interregional imports from outside the region, in addition to production within the region. Ignoring this effect would lead to an overestimation of the economic ripple effect, so it is standard practice to <strong>subtract the portion corresponding to interregional imports from the input coefficients</strong>.</p>
+<p>Since interregional imports are thought to be roughly proportional to demand within the region, the interregional import coefficient <span class="math inline">\(\hat{M_i}\)</span> can be calculated as follows.</p>
+<p><span class="math display">\[
+\hat{M_i} = \frac{M_i}{\sum_{j}a_{ij}X_j + F_i}
+\]</span></p>
+<p>Furthermore, the interregional import coefficient matrix <span class="math inline">\(\hat{M}\)</span>, suited to matrix computation, is defined as follows.</p>
+<p><span class="math display">\[
+\hat{M} =
+\begin{pmatrix}
+  \hat{M_1} &amp; &amp; 0 \\
+  &amp; \ddots &amp; \\
+  0 &amp; &amp; \hat{M_n} \\
+\end{pmatrix}
+\]</span></p>
+<p>From the above, the balance equation for production values (in the row direction) can be transformed using the interregional import coefficient matrix <span class="math inline">\(\hat{M}\)</span> as follows, where <span class="math inline">\(I\)</span> is the identity matrix (a square matrix with 1s on the diagonal and 0s elsewhere).</p>
+<p><span class="math display">\[
+\begin{align}
+  AX + F + E - \hat{M} (AX + F) &amp;= X \\
+  (I - \hat{M}) (AX + F) + E &amp;= X
+\end{align}
+\]</span></p>
+<p>From the balance equation above, the formula for calculating the economic ripple effect is derived as follows, where <span class="math inline">\(\Delta X\)</span> and <span class="math inline">\(\Delta F\)</span> are the amount of change in production value and the amount of change in final demand, respectively.</p>
+<p><span class="math display">\[
+\begin{align}
+  X &amp;= (I - \hat{M}) (AX + F) + E \\
+  [I - (I - \hat{M}) A] X &amp;= (I - \hat{M}) F + E \\
+  X &amp;= [I - (I - \hat{M}) A] ^ {-1} [(I - \hat{M}) F + E] \\
+  \Delta X &amp;= [I - (I - \hat{M}) A] ^ {-1} (I - \hat{M}) \Delta F
+\end{align}
+\]</span></p>
+<p>On the right-hand side of the equation for the change in production value <span class="math inline">\(\Delta X\)</span>, <span class="math inline">\((I - \hat{M}) \Delta F\)</span> is the value obtained by multiplying the change in final demand by the self-sufficiency rate <span class="math inline">\(I - \hat{M}\)</span>.</p>
+<p>Also, <span class="math inline">\([I - (I - \hat{M}) A] ^ {-1}\)</span> is a matrix representing the direct and indirect ripple effects resulting from a change in final demand, and it is called the (open, or competitive-import type) <strong>Leontief inverse matrix</strong>.</p>
+<p>As described above, estimating the change in production value <span class="math inline">\(\Delta X\)</span> from the change in final demand <span class="math inline">\(\Delta F\)</span> is the most common method of input-output analysis.</p>
+</section></section><section id="input-output-analysis-in-r" class="level2"><h2 class="anchored" data-anchor-id="input-output-analysis-in-r">Input-output analysis in R</h2>
+<section id="formatting-the-input-output-table" class="level3"><h3 class="anchored" data-anchor-id="formatting-the-input-output-table">Formatting the input-output table</h3>
+<p>Here, we use the 2011 3-sector table for Japan (<code>iotable_3sector_2011_wider.csv</code>), which can be downloaded from <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">here</a>.</p>
+<p>This table is created from Japan’s 2011 13-sector table as follows, and <strong>the unit is “million yen”</strong>.</p>
+<ul>
+<li>The 13 industry sectors are <strong>aggregated into primary, secondary, and tertiary industries</strong> (Note: “unclassifiable” is categorized as tertiary industry)</li>
+<li>The value-added sectors are aggregated into a single sector</li>
+<li>The final demand sectors are aggregated into three sectors: final demand within the region (<code>finaldemand</code>), exports (<code>export</code>), and imports (<code>import</code>)</li>
+</ul>
+<p>Except for tables such as those provided in the e-Stat database, input-output table data is often provided in a “wide” format, with input sectors (<code>input</code>) in the rows and output sectors (<code>output</code>) in the columns.</p>
+<p>Here too, we first load the wide-format input-output table data as follows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>iotable_wider <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"iotable_3sector_2011_wider.csv"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert columns other than input to numeric</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">!</span>input, parse_number))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable_wider)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 18%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">input</th>
+<th style="text-align: right;">industry/01_primary</th>
+<th style="text-align: right;">industry/02_secondary</th>
+<th style="text-align: right;">industry/03_tertiary</th>
+<th style="text-align: right;">finaldemand/04_finaldemand</th>
+<th style="text-align: right;">export/05_export</th>
+<th style="text-align: right;">import/06_import</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">industry/01_primary</td>
+<td style="text-align: right;">1456611</td>
+<td style="text-align: right;">7850628</td>
+<td style="text-align: right;">1373767</td>
+<td style="text-align: right;">3869875</td>
+<td style="text-align: right;">47890</td>
+<td style="text-align: right;">-2562809</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry/02_secondary</td>
+<td style="text-align: right;">2715710</td>
+<td style="text-align: right;">161897553</td>
+<td style="text-align: right;">62841827</td>
+<td style="text-align: right;">132924323</td>
+<td style="text-align: right;">54473273</td>
+<td style="text-align: right;">-71673715</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry/03_tertiary</td>
+<td style="text-align: right;">2025270</td>
+<td style="text-align: right;">66811645</td>
+<td style="text-align: right;">155796589</td>
+<td style="text-align: right;">352324555</td>
+<td style="text-align: right;">16423417</td>
+<td style="text-align: right;">-8921553</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">valueadded/04_valueadded</td>
+<td style="text-align: right;">5838371</td>
+<td style="text-align: right;">106619145</td>
+<td style="text-align: right;">364447740</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>In data analysis, “long” data as shown below is often easier to work with than “wide” data. Here too, we convert the wide-format input-output table into “long” data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> iotable_wider <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split the input column into type and name</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(input, <span class="fu">c</span>(<span class="st">"input_type"</span>, <span class="st">"input_name"</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"/"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add type/name columns for output, as with input, to create long-format data</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">!</span><span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"output_type"</span>, <span class="st">"output_name"</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_sep =</span> <span class="st">"/"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"value_M"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove rows with no numeric value</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(value_M)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">input_type</th>
+<th style="text-align: left;">input_name</th>
+<th style="text-align: left;">output_type</th>
+<th style="text-align: left;">output_name</th>
+<th style="text-align: right;">value_M</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">1456611</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">7850628</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">1373767</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">3869875</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">47890</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-2562809</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">2715710</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">161897553</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">62841827</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">132924323</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">54473273</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-71673715</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">2025270</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">66811645</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">155796589</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">finaldemand</td>
+<td style="text-align: left;">04_finaldemand</td>
+<td style="text-align: right;">352324555</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">export</td>
+<td style="text-align: left;">05_export</td>
+<td style="text-align: right;">16423417</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: left;">import</td>
+<td style="text-align: left;">06_import</td>
+<td style="text-align: right;">-8921553</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">01_primary</td>
+<td style="text-align: right;">5838371</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">02_secondary</td>
+<td style="text-align: right;">106619145</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valueadded</td>
+<td style="text-align: left;">04_valueadded</td>
+<td style="text-align: left;">industry</td>
+<td style="text-align: left;">03_tertiary</td>
+<td style="text-align: right;">364447740</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The table data constructed above makes it easy to filter each row, but it is not well suited to the matrix computations used in input-output analysis.</p>
+<p>Therefore, we use the dibble package, which allows us to perform both basic table operations and matrix computations at the same time. As shown below, we convert the input-output table into a dibble.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/dibble")</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dibble)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dibble_by</span>(<span class="at">input =</span> <span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">output =</span> <span class="fu">c</span>(output_type, output_name),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Split column names on "_" to set the input/output axes</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>iotable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   24 x 1
+# Dimensions: input [4], output [6]
+# Measures:   value_M
+   input$type $name        output$type $name            value_M
+   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;              &lt;dbl&gt;
+ 1 industry   01_primary   industry    01_primary       1456611
+ 2 industry   01_primary   industry    02_secondary     7850628
+ 3 industry   01_primary   industry    03_tertiary      1373767
+ 4 industry   01_primary   finaldemand 04_finaldemand   3869875
+ 5 industry   01_primary   export      05_export          47890
+ 6 industry   01_primary   import      06_import       -2562809
+ 7 industry   02_secondary industry    01_primary       2715710
+ 8 industry   02_secondary industry    02_secondary   161897553
+ 9 industry   02_secondary industry    03_tertiary     62841827
+10 industry   02_secondary finaldemand 04_finaldemand 132924323
+# ℹ 14 more rows</code></pre>
+</div>
+</div>
+</section><section id="calculating-the-input-coefficient-matrix" class="level3"><h3 class="anchored" data-anchor-id="calculating-the-input-coefficient-matrix">Calculating the input coefficient matrix</h3>
+<p>We calculate the input coefficient matrix <span class="math inline">\(A\)</span>, known as the industry’s “cooking recipe,” by dividing intermediate input by production value, as follows.</p>
+<p>Note: In dibble, broadcasting is performed automatically, but for safety it is designed to issue a warning whenever broadcasting occurs. Therefore, you need to pass the axis names after broadcasting, <code>c("input", "output")</code>, to <code>broadcast()</code> to prevent the warning from being issued.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Production value</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>total_input <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"output"</span>, sum)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Intermediate input</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>interindustry <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Input coefficient</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>inputcoeff <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(interindustry <span class="sc">/</span> total_input,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>inputcoeff</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: input [3], output [3]
+  input$type $name        output$type $name              .
+  &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
+1 industry   01_primary   industry    01_primary   0.121  
+2 industry   01_primary   industry    02_secondary 0.0229 
+3 industry   01_primary   industry    03_tertiary  0.00235
+4 industry   02_secondary industry    01_primary   0.226  
+5 industry   02_secondary industry    02_secondary 0.472  
+6 industry   02_secondary industry    03_tertiary  0.108  
+7 industry   03_tertiary  industry    01_primary   0.168  
+8 industry   03_tertiary  industry    02_secondary 0.195  
+9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
+</div>
+</div>
+</section><section id="calculating-the-leontief-inverse-matrix" class="level3"><h3 class="anchored" data-anchor-id="calculating-the-leontief-inverse-matrix">Calculating the Leontief inverse matrix</h3>
+<p>The Leontief inverse matrix, which represents the economic ripple effect, can be calculated using the interregional import coefficient and the input coefficient, as follows.</p>
+<p>Note: Be careful, since calculating the inverse matrix with <code>solve()</code> swaps the axis names of the matrix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Demand within the region</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>localdemand <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>output<span class="sc">$</span>type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"export"</span>, <span class="st">"import"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (Interregional) imports</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> iotable <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(input<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"industry"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>         output<span class="sc">$</span>type <span class="sc">==</span> <span class="st">"import"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">apply</span>(<span class="st">"input"</span>, sum)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the sign positive</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>import <span class="ot">&lt;-</span> <span class="sc">-</span>import</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># (Interregional) import coefficient</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>importcoeff <span class="ot">&lt;-</span> import <span class="sc">/</span> localdemand</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">eye</span>(inputcoeff) <span class="co"># Identity matrix</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff     <span class="co"># Interregional import coefficient vector (does not need to be a matrix, since broadcasting is performed)</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> inputcoeff      <span class="co"># Input coefficient matrix</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Leontief inverse matrix</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>leontiefinv <span class="ot">&lt;-</span> <span class="fu">broadcast</span>(I <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> M) <span class="sc">*</span> A,</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">c</span>(<span class="st">"input"</span>, <span class="st">"output"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve</span>()</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>leontiefinv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   9
+# Dimensions: output [3], input [3]
+  output$type $name        input$type $name              .
+  &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 industry    01_primary   industry   01_primary   1.12   
+2 industry    01_primary   industry   02_secondary 0.0361 
+3 industry    01_primary   industry   03_tertiary  0.00716
+4 industry    02_secondary industry   01_primary   0.374  
+5 industry    02_secondary industry   02_secondary 1.68   
+6 industry    02_secondary industry   03_tertiary  0.197  
+7 industry    03_tertiary  industry   01_primary   0.348  
+8 industry    03_tertiary  industry   02_secondary 0.445  
+9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
+</div>
+</div>
+</section><section id="calculating-the-economic-ripple-effect" class="level3"><h3 class="anchored" data-anchor-id="calculating-the-economic-ripple-effect">Calculating the economic ripple effect</h3>
+<p>We calculate the economic ripple effect for the case (<code>finaldemand_change_3sector.csv</code>, which can be downloaded from <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">here</a>) in which final demand increases by one million yen in each sector.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Amount of change in final demand</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>finaldemand_change <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"finaldemand_change_3sector.csv"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">.default =</span> <span class="st">"c"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">value_M =</span> <span class="st">"n"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dibble_by</span>(<span class="at">input =</span> <span class="fu">c</span>(input_type, input_name),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>L <span class="ot">&lt;-</span> leontiefinv         <span class="co"># Leontief inverse matrix</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> importcoeff         <span class="co"># Interregional import coefficient</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>FD <span class="ot">&lt;-</span> finaldemand_change <span class="co"># Amount of change in final demand</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Economic ripple effect</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>spillover <span class="ot">&lt;-</span> L <span class="sc">%*%</span> ((<span class="dv">1</span> <span class="sc">-</span> M) <span class="sc">*</span> FD)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>spillover</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A dibble:   3
+# Dimensions: output [3]
+  output$type $name            .
+  &lt;chr&gt;       &lt;chr&gt;        &lt;dbl&gt;
+1 industry    01_primary   0.958
+2 industry    02_secondary 1.85 
+3 industry    03_tertiary  2.03 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_light</span>())</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>spillover <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">n =</span> <span class="st">"value_M"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unpack</span>(output, </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">names_sep =</span> <span class="st">"_"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(output_name, value_M,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> output_name)) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="ioanalysis-in-r_files/figure-html/plot-spillover-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</section></section><section id="summary" class="level2"><h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>We introduced a method for performing input-output analysis in R.</p>
+<p>The calculations shown here have been packaged as <a href="https://github.com/UchidaMizuki/econio">econio</a>. The <a href="https://github.com/UchidaMizuki/econiodatajp">econiodatajp</a> package also lets you fetch an input-output table directly, without having to download and reshape it from e-Stat yourself. As shown below, you can perform the same calculations as above using these packages (note: the jpio package used in an earlier version of this article is no longer maintained and has been replaced by econio/econiodatajp).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/econio")</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("UchidaMizuki/econiodatajp")</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(econio)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(econiodatajp)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Input-output table (2020, national, integrated large classification)</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>iotable <span class="ot">&lt;-</span> <span class="fu">io_table_get</span>(</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">region_type =</span> <span class="st">"regional"</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">region_class =</span> <span class="st">"nation"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">year =</span> <span class="dv">2020</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">sector_class =</span> <span class="st">"large"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">language =</span> <span class="st">"en"</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>iotable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Input-output table: regional
+# Dimensions:         input [43], output [47]
+# Input:              43 sectors
+# Output:             47 sectors
+# Import type:        competitive
+   input$sector                                   
+   &lt;sector&gt;                                       
+ 1 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 2 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 3 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 4 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 5 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 6 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 7 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 8 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 9 &lt;industry&gt; 01_Agriculture, forestry and fishery
+10 &lt;industry&gt; 01_Agriculture, forestry and fishery
+# ℹ 2,011 more rows
+# ℹ 2 more variables: output &lt;tibble[,1]&gt;, . &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Input coefficient</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">io_input_coef</span>(iotable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Assuming `open_economy = FALSE`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Input-output table: regional
+# Dimensions:         input [37], output [37]
+# Input:              37 sectors
+# Output:             37 sectors
+# Import type:        competitive
+   input$sector                                   
+   &lt;sector&gt;                                       
+ 1 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 2 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 3 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 4 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 5 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 6 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 7 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 8 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 9 &lt;industry&gt; 01_Agriculture, forestry and fishery
+10 &lt;industry&gt; 01_Agriculture, forestry and fishery
+# ℹ 1,359 more rows
+# ℹ 2 more variables: output &lt;tibble[,1]&gt;, . &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Leontief inverse matrix</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">io_leontief_inverse</span>(iotable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Assuming `open_economy = FALSE`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Input-output table: regional
+# Dimensions:         output [37], input [37]
+# Input:              37 sectors
+# Output:             37 sectors
+# Import type:        competitive
+   output$sector                                  
+   &lt;sector&gt;                                       
+ 1 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 2 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 3 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 4 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 5 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 6 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 7 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 8 &lt;industry&gt; 01_Agriculture, forestry and fishery
+ 9 &lt;industry&gt; 01_Agriculture, forestry and fishery
+10 &lt;industry&gt; 01_Agriculture, forestry and fishery
+# ℹ 1,359 more rows
+# ℹ 2 more variables: input &lt;tibble[,1]&gt;, . &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Skyline chart</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(iotable, <span class="at">type =</span> <span class="st">"skyline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure"><p><img src="ioanalysis-in-r_files/figure-html/econio-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>econio doesn’t provide a dedicated function for the economic ripple effect from a specific final demand change. As shown earlier, you can compute it directly by multiplying the Leontief inverse matrix by the final demand change vector.</p>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/uchidamizuki\.quarto\.pub\/blog\/en");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
+</div> <!-- /content -->
+
+
+
+
+</body>
+</html>

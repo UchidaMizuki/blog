@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2023/04/why-is-bayes-theorem-important.html" />
+<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/why-is-bayes-theorem-important.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>なぜベイズの定理が重要なのかーPCR検査を例にー – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -21,24 +21,11 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -66,21 +53,13 @@ ul.task-list li input[type="checkbox"] {
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
+</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -105,17 +84,12 @@ const typesetMath = (el) => {
 window.Quarto = {
   typesetMath
 };
-</script>
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -127,7 +101,10 @@ window.Quarto = {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/why-is-bayes-theorem-important.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -150,15 +127,11 @@ window.Quarto = {
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">なぜベイズの定理が重要なのかーPCR検査を例にー</h1>
                                 <div class="quarto-categories">
@@ -189,20 +162,13 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<section id="ベイズの定理とは" class="level2">
-<h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="ベイズの定理とは" class="level2"><h2 class="anchored" data-anchor-id="ベイズの定理とは">ベイズの定理とは？</h2>
 <p>この記事では，コロナ禍で普及したPCR検査を例に，統計学において最も有名な定理の一つであるベイズの定理の重要性について説明したいと思います．</p>
-<p>ベイズの定理は， <a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> のように表すことができます．</p>
+<p>ベイズの定理は， <a href="#eq-bayes" class="quarto-xref">式 1</a> のように表すことができます．</p>
 <p><span id="eq-bayes"><span class="math display">\[
 P(A|B) \propto P(B|A) P(A)
 \tag{1}\]</span></span></p>
-<p><a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> は，以下のことを示しています．</p>
+<p><a href="#eq-bayes" class="quarto-xref">式 1</a> は，以下のことを示しています．</p>
 <ul>
 <li>ある結果<span class="math inline">\(B\)</span>が生じた場合に，それが原因<span class="math inline">\(A\)</span>によるものである確率<span class="math inline">\(P(A|B)\)</span>は</li>
 <li>ある原因<span class="math inline">\(A\)</span>の生じる確率<span class="math inline">\(P(A)\)</span>とある原因<span class="math inline">\(A\)</span>のもとで結果<span class="math inline">\(B\)</span>が生じる確率<span class="math inline">\(P(B|A)\)</span>の掛け算に比例（<span class="math inline">\(\propto\)</span>）する</li>
@@ -212,47 +178,51 @@ P(A|B) \propto P(B|A) P(A)
 <li>原因<span class="math inline">\(A\)</span>：新型コロナへの感染の有無</li>
 <li>結果<span class="math inline">\(B\)</span>：PCR検査などでの診断結果</li>
 </ul>
-<p>と考えれば， <a href="#eq-bayes" class="quarto-xref">式&nbsp;1</a> を <a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> のように置き換えることができます．</p>
+<p>と考えれば， <a href="#eq-bayes" class="quarto-xref">式 1</a> を <a href="#eq-bayes-covid19" class="quarto-xref">式 2</a> のように置き換えることができます．</p>
 <p><span id="eq-bayes-covid19"><span class="math display">\[
 P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染の有無)
 \tag{2}\]</span></span></p>
-</section>
-<section id="なぜベイズの定理が重要なのか" class="level2">
-<h2 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h2>
-<p><a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> に基づき，ベイズの定理の重要性について考えてみましょう． 実は， <a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， <a href="#eq-bayes-covid19" class="quarto-xref">式&nbsp;2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．</p>
+</section><section id="なぜベイズの定理が重要なのか" class="level2"><h2 class="anchored" data-anchor-id="なぜベイズの定理が重要なのか">なぜベイズの定理が重要なのか？</h2>
+<p><a href="#eq-bayes-covid19" class="quarto-xref">式 2</a> に基づき，ベイズの定理の重要性について考えてみましょう． 実は， <a href="#eq-bayes-covid19" class="quarto-xref">式 2</a> に示したベイズの定理に出てくる3つの確率は，どれも非常に重要な指標と対応しています（下表参照）． つまり， <a href="#eq-bayes-covid19" class="quarto-xref">式 2</a> からは，検査の精度（感度・特異度）が高くても，検査前確率が低ければ陽性的中率が低くなることなどがわかります．</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 29%">
 <col style="width: 70%">
 </colgroup>
-<thead>
-<tr class="header">
+<thead><tr class="header">
 <th style="text-align: center;">確率</th>
 <th style="text-align: center;"><strong>医療分野で対応する指標</strong></th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
-<td style="text-align: center;"><p><strong>検査後確率</strong>：統計学では<strong>事後確率</strong>と呼ばれる</p>
+<td style="text-align: center;">
+<p><strong>検査後確率</strong>：統計学では<strong>事後確率</strong>と呼ばれる</p>
 <ul>
-<li><strong>陽性的中率</strong>：陽性と診断されたとき実際に感染</li>
-<li><strong>陰性的中率</strong>：陰性と診断されたとき実際に未感染</li>
-</ul></td>
+<li>
+<strong>陽性的中率</strong>：陽性と診断されたとき実際に感染</li>
+<li>
+<strong>陰性的中率</strong>：陰性と診断されたとき実際に未感染</li>
+</ul>
+</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;"><span class="math inline">\(P(診断結果|感染の有無)\)</span></td>
 <td style="text-align: center;"><ul>
-<li><strong>感度</strong>：感染者が陽性と診断される確率↔︎<strong>偽陰性</strong>に関連</li>
-<li><strong>特異度</strong>：未感染者が陰性と診断される確率↔︎<strong>偽陽性</strong>に関連</li>
+<li>
+<strong>感度</strong>：感染者が陽性と診断される確率↔︎<strong>偽陰性</strong>に関連</li>
+<li>
+<strong>特異度</strong>：未感染者が陰性と診断される確率↔︎<strong>偽陽性</strong>に関連</li>
 </ul></td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;"><span class="math inline">\(P(感染の有無)\)</span></td>
-<td style="text-align: center;"><p><strong>検査前確率</strong>：統計学では<strong>事前確率</strong>と呼ばれる</p>
+<td style="text-align: center;">
+<p><strong>検査前確率</strong>：統計学では<strong>事前確率</strong>と呼ばれる</p>
 <ul>
 <li>検査対象者のなかでの感染者の割合</li>
-</ul></td>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -261,26 +231,21 @@ P(感染の有無|診断結果) \propto P(診断結果|感染の有無) P(感染
 <li>感度・特異度はともに99 %（偽陰性・偽陽性がいずれも1 %の確率で生じる）</li>
 <li>検査前確率は1 %（感染者は100 人中1 人で残りの99 人は未感染者）</li>
 </ul>
-<p>この場合，陽性と診断された場合に感染者である確率<span class="math inline">\(P(感染|陽性)\)</span>と，陽性と診断された場合に未感染者である確率<span class="math inline">\(P(未感染|陽性)\)</span>は， それぞれ <a href="#eq-bayes-covid19-positive" class="quarto-xref">式&nbsp;3</a> となります．</p>
+<p>この場合，陽性と診断された場合に感染者である確率<span class="math inline">\(P(感染|陽性)\)</span>と，陽性と診断された場合に未感染者である確率<span class="math inline">\(P(未感染|陽性)\)</span>は， それぞれ <a href="#eq-bayes-covid19-positive" class="quarto-xref">式 3</a> となります．</p>
 <p><span id="eq-bayes-covid19-positive"><span class="math display">\[
 \begin{align}
   P(感染|陽性) \propto P(陽性|感染)P(感染) &amp;= 0.99 \times 0.01 = 0.0099 \\
   P(未感染|陽性) \propto P(陽性|未感染)P(未感染) &amp;= (1 - 0.99) \times (1 - 0.01) = 0.0099
 \end{align}
 \tag{3}\]</span></span></p>
-<p><a href="#eq-bayes-covid19-positive" class="quarto-xref">式&nbsp;3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %となります． つまり，陽性と診断された検査対象者のなかで，実際に，感染者である人は2人に1人しかいないことがわかります．</p>
+<p><a href="#eq-bayes-covid19-positive" class="quarto-xref">式 3</a> より，<span class="math inline">\(P(感染|陽性)\)</span>と<span class="math inline">\(P(未感染|陽性)\)</span>は等しいことがわかり， 陽性的中率は50 %となります． つまり，陽性と診断された検査対象者のなかで，実際に，感染者である人は2人に1人しかいないことがわかります．</p>
 <p>このように，ベイズの定理を用いることで 「検査の精度（感度・特異度）が高くても検査前確率が低ければ陽性的中率が低くなってしまう」といった 重要な関係性が明らかとなります．</p>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>コロナ禍で普及したPCR検査を例に，ベイズの定理の重要性について説明しました．</p>
 <p>現実に即した計算事例に興味がある場合は， <a href="https://www.stat.go.jp/library/pdf/cgogai3102.pdf" target="_blank">統計局の公開しているコラム</a>もご一読されることをおすすめします．</p>
 
 
-</section>
-
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -696,14 +661,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>

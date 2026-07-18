@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2024/01/relational-data-models-with-r-s-dm.html" />
+<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/01/relational-data-models-with-r-s-dm.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>Rのdmパッケージでデータ前処理の質を高めよう – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,24 +55,11 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -100,43 +87,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-<meta name="mermaid-theme" content="default">
-<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
-<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
-<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
-<script src="../../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-
-<script src="../../../site_libs/viz-1.8.2/viz.js"></script>
-
-<link href="../../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
-
-<script src="../../../site_libs/grViz-binding-1.0.10/grViz.js"></script>
-
-<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-
-<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
-
-
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><meta name="mermaid-theme" content="default">
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script><script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script><link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<script src="../../../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="../../../site_libs/viz-1.8.2/viz.js"></script><link href="../../../site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="../../../site_libs/grViz-binding-1.0.10/grViz.js"></script><link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -148,7 +114,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/01/relational-data-models-with-r-s-dm.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -171,15 +140,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Rのdmパッケージでデータ前処理の質を高めよう</h1>
                                 <div class="quarto-categories">
@@ -209,14 +174,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<section id="データ前処理の作業ミスをなくすために" class="level2">
-<h2 class="anchored" data-anchor-id="データ前処理の作業ミスをなくすために">データ前処理の作業ミスをなくすために</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="データ前処理の作業ミスをなくすために" class="level2"><h2 class="anchored" data-anchor-id="データ前処理の作業ミスをなくすために">データ前処理の作業ミスをなくすために</h2>
 <p>データ分析に要する時間のうち，8割は前処理に費やされているといわれています．前処理は，その後のデータ分析の質を左右しますから非常に重要な一方で，前処理に膨大な時間を要するということは，作業ミスが起こる確率もそれだけ高くなるということを意味しています．</p>
 <p>一般的な（データ構造に対する）前処理には，データフレームの”抽出”・”集約”・”結合”がありますが，なかでも”結合”は，コードが長くなりやすく，作業ミスが起こりやすい作業であると思われます．また，分析で必要となるデータフレームが1つにまとまっていることは稀ですから，データフレームの結合は特に頻出する処理でもあります．</p>
 <p>データフレームの”結合”で起こりがちな典型的なミスとして，以下のようなものがあります<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
@@ -226,9 +184,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </ul>
 <p>もしも，これまでデータフレームの結合において，何らかの作業ミスや”ヒヤリ・ハット”を経験したことがあるのであれば，それらを放置せず何らかのパッケージに頼るほうが得策かもしれません．また，仮に作業ミスがなかったとしても，私たちは過去の作業が正しかったかについて疑心暗鬼になりがちです<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>．</p>
 <p>この記事では，データフレームの”結合”における作業ミスや疑心暗鬼の解決策として有力なRのdmパッケージを紹介します．</p>
-</section>
-<section id="dmによるリレーショナルデータモデル" class="level2">
-<h2 class="anchored" data-anchor-id="dmによるリレーショナルデータモデル">dmによるリレーショナルデータモデル</h2>
+</section><section id="dmによるリレーショナルデータモデル" class="level2"><h2 class="anchored" data-anchor-id="dmによるリレーショナルデータモデル">dmによるリレーショナルデータモデル</h2>
 <p>dmの提供するリレーショナルデータモデルは，複数のデータ間の関係性を私たちの代わりに管理してくれます．</p>
 <p>この記事では，repurrrsiveパッケージで提供されているStar Warsのデータセットを通じて，dmの提供するリレーショナルデータモデルの使い方や利点について説明します．あらかじめ，tidyverse，dm，repurrrsiveの3つのパッケージを読み込んでおきます．</p>
 <div class="cell">
@@ -238,15 +194,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 <p>repurrrsiveで提供されているStar Warsのデータセットには，以下のようなものが含まれています<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>．</p>
 <div class="cell">
-<details class="code-fold">
-<summary>repurrrsiveで提供されているStar Warsのデータセット</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"repurrrsive"</span>) <span class="sc">|&gt;</span> </span>
+<details class="code-fold"><summary>repurrrsiveで提供されているStar Warsのデータセット</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="at">package =</span> <span class="st">"repurrrsive"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">chuck</span>(<span class="st">"results"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_starts</span>(Item, <span class="st">"sw_"</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Item)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
+</details><div class="cell-output cell-output-stdout">
 <pre><code>[1] "sw_films"     "sw_people"    "sw_planets"   "sw_species"   "sw_starships"
 [6] "sw_vehicles" </code></pre>
 </div>
@@ -256,8 +209,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <li>基礎編：dmでリレーショナルデータモデルを構築する</li>
 <li>応用編：dmでモデルを拡張したりキーを検証したりする</li>
 </ol>
-<section id="基礎編dmでリレーショナルデータモデルを構築する" class="level3">
-<h3 class="anchored" data-anchor-id="基礎編dmでリレーショナルデータモデルを構築する">1. 基礎編：dmでリレーショナルデータモデルを構築する</h3>
+<section id="基礎編dmでリレーショナルデータモデルを構築する" class="level3"><h3 class="anchored" data-anchor-id="基礎編dmでリレーショナルデータモデルを構築する">1. 基礎編：dmでリレーショナルデータモデルを構築する</h3>
 <p>基礎編として，Star Wars作品の登場人物の故郷の惑星の構成比を調べるためのリレーショナルデータモデルを構築してみしょう．この分析を行うために，以下のように3つのデータフレーム<code>films</code>・<code>people</code>・<code>planets</code>を準備しておきます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．ここでは，分析をシンプルにするため，必要なデータのみを<code>select</code>しました<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>films <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">film =</span> sw_films) <span class="sc">|&gt;</span> </span>
@@ -300,7 +252,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
-<p></p><figure class="figure"><p></p>
+<p></p>
+<figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart TB
   films.characters --&gt; people.url
@@ -329,7 +282,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
-<p></p><figure class="figure"><p></p>
+<p></p>
+<figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart TB
   films_x_characters.url --&gt; films.url
@@ -431,9 +385,7 @@ Foreign keys: 3</code></pre>
 <p>作成した<code>data_films_x_characters_1</code>を使うことで，以下のように，登場人物の故郷の惑星の構成比をグラフにすることができます． このグラフへの考察はひとまず措くとして，リレーショナルデータモデルを用いることでデータフレームの結合を自動化できることが確認できました．</p>
 <p>しかし，上のような分析であれば，<code>left_join()</code>を用いてデータフレームを結合することも簡単で， あまりリレーショナルデータモデルを用いるメリットが感じられないかもしれません． そこで応用編では，リレーショナルデータモデルが本領を発揮する，より込み入った状況を考えてみます．</p>
 <div class="cell">
-<details class="code-fold">
-<summary>登場人物の故郷の惑星の構成比のグラフ</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1 <span class="sc">|&gt;</span> </span>
+<details class="code-fold"><summary>登場人物の故郷の惑星の構成比のグラフ</summary><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data_films_x_characters_1 <span class="sc">|&gt;</span> </span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name.planets =</span> <span class="fu">fct_lump_n</span>(name.planets, <span class="dv">7</span>,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">ties.method =</span> <span class="st">"first"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_relevel</span>(<span class="st">"Other"</span>, </span>
@@ -459,18 +411,14 @@ Foreign keys: 3</code></pre>
 <span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
 <span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>,</span>
 <span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
+</details><div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-1-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-<section id="応用編dmでモデルを拡張したりキーを検証したりする" class="level3">
-<h3 class="anchored" data-anchor-id="応用編dmでモデルを拡張したりキーを検証したりする">2. 応用編：dmでモデルを拡張したりキーを検証したりする</h3>
+</section><section id="応用編dmでモデルを拡張したりキーを検証したりする" class="level3"><h3 class="anchored" data-anchor-id="応用編dmでモデルを拡張したりキーを検証したりする">2. 応用編：dmでモデルを拡張したりキーを検証したりする</h3>
 <p>応用編では，Star Wars作品の登場人物の種族の構成比を調べてみます． この分析の難易度は基礎編とさほど変わりませんが，通常，扱うデータが増えるとコードが煩雑化しやすいため，リレーショナルデータモデルを使うメリットが大きくなります． さらに，リレーショナルデータモデルのメリットには，以下のようなものもあります．</p>
 <ul>
 <li>既存のリレーショナルデータモデルに新たなデータを追加することが可能</li>
@@ -540,9 +488,7 @@ Foreign keys: 3</code></pre>
 </div>
 <p>以上のように，<code>dm()</code>でリレーショナルデータモデルに新たなデータを追加したり，<code>dm_examine_constraints()</code>で結合のためのキーの整合性を確認したりすることができることがわかりました． 最後に，作成したリレーショナルデータモデル<code>dm_starwars_2</code>を用いて，Star Wars作品の登場人物の種族の構成比をグラフ化したものが以下の図です．ここでも，考察は割愛します．</p>
 <div class="cell">
-<details class="code-fold">
-<summary>登場人物の種族の構成比のグラフ</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2 <span class="sc">|&gt;</span> </span>
+<details class="code-fold"><summary>登場人物の種族の構成比のグラフ</summary><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>dm_starwars_2 <span class="sc">|&gt;</span> </span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dm_flatten_to_tbl</span>(films_x_characters,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">.recursive =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name.species =</span> name.species <span class="sc">|&gt;</span> </span>
@@ -572,37 +518,26 @@ Foreign keys: 3</code></pre>
 <span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
 <span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>,</span>
 <span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
+</details><div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-2-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="relational-data-models-with-r-s-dm_files/figure-html/plot-starwars-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>この記事では，dmを使ってリレーショナルデータモデルを構築する方法を紹介しました． dmを使って，ひとたびリレーショナルデータモデルを構築してしまえば， データ間の関係を自ら管理する必要がなくなり，<code>dm_flatten_to_tbl()</code>でデータの結合を自動的に行うことができます． それ以外にも，dmでは，<code>dm()</code>によるモデル拡張や<code>dm_examine_constraints()</code>結合のためのキーの整合性の確認など， データ前処理の質を高めるための便利な機能が提供されています．</p>
-</section>
-<section id="参考文献" class="level2">
-<h2 class="anchored" data-anchor-id="参考文献">参考文献</h2>
+</section><section id="参考文献" class="level2"><h2 class="anchored" data-anchor-id="参考文献">参考文献</h2>
 <ul>
 <li><a href="https://dm.cynkra.com/index.html">dmパッケージのサイト</a></li>
 <li><a href="https://gihyo.jp/book/2018/978-4-7741-9647-3">前処理大全［データ分析のためのSQL/R/Python実践テクニック］</a></li>
-<li><a href="https://pkg.garrickadenbuie.com/starwarsdb/">starwarsdb</a>
+<li>
+<a href="https://pkg.garrickadenbuie.com/starwarsdb/">starwarsdb</a>
 <ul>
 <li>Star WarsのリレーショナルデータモデルがCRANからダウンロードできます</li>
-</ul></li>
 </ul>
-
-
-</section>
-
-
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+</li>
+</ul></section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
 
 <ol>
 <li id="fn1"><p>幸いなことに，最近のdplyrでは，結合先のデータの”ダブり”に対して警告が出るようになりました．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
@@ -615,9 +550,7 @@ Foreign keys: 3</code></pre>
 <li id="fn8"><p><code>films</code>・<code>people</code>・<code>planets</code>については，<code>url</code>列が主キーとなり，<code>films_x_characters</code>については，<code>url</code>・<code>characters</code>列の2列の組合せが主キーとなります．<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn9"><p>上のイメージの矢印に従って，<code>films_x_characters</code>の<code>url</code>・<code>characters</code>列を，それぞれ<code>films</code>・<code>people</code>の<code>url</code>列に対応付けます．さらに，<code>people</code>の<code>homeworld</code>列を<code>planets</code>の<code>url</code>列に対応付けます．<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn10"><p>dmでは，各データを”テーブル”と呼びます．<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section></div></main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -1033,14 +966,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2022/12/call-e-stat-api-in-r.html" />
+<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/12/call-e-stat-api-in-r.en.html" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
 <title>Rで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで） – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,24 +55,11 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -100,27 +87,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
-
-<script type="text/javascript">
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script>
-
-
-<link rel="stylesheet" href="../../../styles.css">
+</script><link rel="stylesheet" href="../../../styles.css">
 </head>
-
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -132,7 +110,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+<li class="nav-item"><div class="dropdown" id="languages-links-parent">
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/12/call-e-stat-api-in-r.html" id="language-link-en">English</a></li></ul>
+</div></li>
+<li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -155,15 +136,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-          </div> <!-- /navcollapse -->
+</div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
+    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Rで日本の統計データを効率的に取得しよう（e-Stat APIとjpstatパッケージで）</h1>
                                 <div class="quarto-categories">
@@ -194,52 +171,37 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
-
-
-
-
-
-<section id="この記事について" class="level2">
-<h2 class="anchored" data-anchor-id="この記事について">この記事について</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="この記事について" class="level2"><h2 class="anchored" data-anchor-id="この記事について">この記事について</h2>
 <p>この記事は「<a href="https://qiita.com/advent-calendar/2022/rlang"><strong>R Advent Calendar 2022</strong></a>」の12日目の記事です．</p>
 <p>昨年，日本で政府統計の整備が始まってから150年を迎えました（<a href="https://www.stat.go.jp/museum/toukei150/img/nenpyo/pdf/nenpyo_heisei_reiwa.pdf">平成・令和の統計年表</a>）．最近では，<a href="https://www.e-stat.go.jp">政府統計の総合窓口（e-Stat）</a>で，様々な政府統計データを閲覧・ダウンロードすることができるようになりました．</p>
 <p>e-Statには，便利な<a href="https://www.e-stat.go.jp/api/">API機能</a>も提供されています（利用ガイドは<a href="https://www.e-stat.go.jp/api/api-info/api-guide">こちら</a>．あらかじめ<a href="https://www.e-stat.go.jp/api/agreement/">利用規約</a>を確認してください．API機能を利用する際は，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister">ユーザ登録</a>を行ってください）．</p>
 <p>この記事では，Rの<a href="https://uchidamizuki.github.io/jpstat/"><strong>jpstat</strong></a><strong>パッケージを使って，e-Stat APIを効率的に用いる</strong>方法を紹介します．</p>
-</section>
-<section id="e-statについて" class="level2">
-<h2 class="anchored" data-anchor-id="e-statについて">e-Statについて</h2>
+</section><section id="e-statについて" class="level2"><h2 class="anchored" data-anchor-id="e-statについて">e-Statについて</h2>
 <p>e-Statには，様々な政府統計のデータベースが整理されていますが，ここでは，2015年国民健康・栄養調査の調査結果から<a href="https://www.e-stat.go.jp/dbview?sid=0003224282"><strong>睡眠時間に関するデータベース</strong></a>を見てみましょう．</p>
 <p>データベースを開くと以下のように統計表が表示され，右上の「<strong>ダウンロード</strong>」ボタンからデータをダウンロードすることができます．</p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/estat_1.png" class="img-fluid figure-img" style="width:75.0%"></p>
-<figcaption>e-Statデータベース：統計表表示画面</figcaption>
-</figure>
+<figure class="figure"><p><img src="images/estat_1.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<figcaption>e-Statデータベース：統計表表示画面</figcaption></figure>
 </div>
 <p>画面左上の「<strong>表示項目選択</strong>」ボタンをクリックすると，表示するデータの項目（年齢階級・性別など）を選択することができます．</p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/estat_2.png" class="img-fluid figure-img" style="width:75.0%"></p>
-<figcaption>e-Statデータベース：表示項目選択画面</figcaption>
-</figure>
+<figure class="figure"><p><img src="images/estat_2.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<figcaption>e-Statデータベース：表示項目選択画面</figcaption></figure>
 </div>
 <p>たとえば，年齢階級を選択したい場合は，年齢階級の「<strong>項目を選択</strong>」ボタンをクリックすると以下のような画面で年齢階級を選択することができます．</p>
 <div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="images/estat_3.png" class="img-fluid figure-img" style="width:75.0%"></p>
-<figcaption>e-Statデータベース：表示項目の設定画面</figcaption>
-</figure>
+<figure class="figure"><p><img src="images/estat_3.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<figcaption>e-Statデータベース：表示項目の設定画面</figcaption></figure>
 </div>
 <p>表示項目を選択した後に，「<strong>ダウンロード</strong>」ボタンをクリックすると，選択した項目のデータのみをダウンロードすることができます．</p>
 <p>このように，e-Statでは，簡単にデータを抽出・ダウンロードすることができます．しかし，<strong>データ取得作業の再現性</strong>を高めたり，<strong>プログラムを用いたデータ抽出・取得の効率化</strong>を行ったりしたい場合は，<strong>e-Stat API</strong>を用いるのがおすすめです．</p>
-</section>
-<section id="jpstatパッケージでe-stat-apiを使う" class="level2">
-<h2 class="anchored" data-anchor-id="jpstatパッケージでe-stat-apiを使う">jpstatパッケージでe-Stat APIを使う</h2>
+</section><section id="jpstatパッケージでe-stat-apiを使う" class="level2"><h2 class="anchored" data-anchor-id="jpstatパッケージでe-stat-apiを使う">jpstatパッケージでe-Stat APIを使う</h2>
 <p>上で説明したe-Statでのデータの抽出・ダウンロードをe-Stat APIで行うためには，以下のようなステップを踏む必要があります．</p>
 <ol type="1">
-<li><a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_2_2"><strong>メタ情報取得</strong></a>・パラメータ設定：表示項目データを取得・選択，選択項目に対応する<a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_3_4">APIパラメータ</a>を設定</li>
-<li><a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_2_3"><strong>統計データ取得</strong></a>：選択したデータを取得・表データに整形する</li>
+<li>
+<a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_2_2"><strong>メタ情報取得</strong></a>・パラメータ設定：表示項目データを取得・選択，選択項目に対応する<a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_3_4">APIパラメータ</a>を設定</li>
+<li>
+<a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0#api_2_3"><strong>統計データ取得</strong></a>：選択したデータを取得・表データに整形する</li>
 </ol>
 <p><a href="https://uchidamizuki.github.io/jpstat/">jpstat</a>パッケージは，これらの一連の作業をR上で効率的に行うため開発されたものです<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．jpstatパッケージは，CRANからインストールすることができます．</p>
 <p>ここでは，<strong>男女・年齢階級別の睡眠時間をグラフ化</strong>することを目標として，さきほど取り上げた<a href="https://www.e-stat.go.jp/dbview?sid=0003224282">睡眠時間に関するデータベース</a>（2015年）からデータを取得してみましょう．まず，必要なパッケージを読み込みます．</p>
@@ -250,8 +212,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpstat)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="ステップ1メタ情報表示項目を表示抽出する" class="level3">
-<h3 class="anchored" data-anchor-id="ステップ1メタ情報表示項目を表示抽出する">ステップ1：メタ情報（表示項目）を表示・抽出する</h3>
+<section id="ステップ1メタ情報表示項目を表示抽出する" class="level3"><h3 class="anchored" data-anchor-id="ステップ1メタ情報表示項目を表示抽出する">ステップ1：メタ情報（表示項目）を表示・抽出する</h3>
 <p>e-Stat APIを用いるためには，事前に<a href="https://www.e-stat.go.jp/mypage/user/preregister"><strong>ユーザ登録</strong></a>を行い，<strong><code>appId</code> と呼ばれるアプリケーションIDを取得</strong>する必要があります<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>．</p>
 <p><code>estat()</code> 関数に，<code>appId</code> とデータベースのURL（または統計表ID：<code>statsDataId</code>）を入力することでメタ情報（表示項目）を取得することができます<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>．</p>
 <p>はじめに，メタ情報のうち「年齢階級（<code>cat01</code>）」のデータを見てみましょう（<code>cat01</code>はAPI上での分類名です）．<code>activate()</code> 関数によりメタ情報を表示することができます．さらに，<code>filter()</code> 関数により項目を選択することができます．ここでは，年齢階級別データのみが必要であるため，「総数」データを削除します<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．</p>
@@ -306,9 +267,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">activate</span>(cat03) <span class="sc">|&gt;</span> </span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"男性"</span>, <span class="st">"女性"</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="ステップ2統計データを取得ダウンロードする" class="level3">
-<h3 class="anchored" data-anchor-id="ステップ2統計データを取得ダウンロードする">ステップ2：統計データを取得（ダウンロード）する</h3>
+</section><section id="ステップ2統計データを取得ダウンロードする" class="level3"><h3 class="anchored" data-anchor-id="ステップ2統計データを取得ダウンロードする">ステップ2：統計データを取得（ダウンロード）する</h3>
 <p>データの抽出後に<code>collect()</code> を適用することで統計データを取得することができます．また，<code>collect()</code>の<code>n</code>引数で，取得するデータの列を名付けることができます．ここでは，<code>"person"</code>と名付けます．</p>
 <p>取得したデータ<code>data_sleeptime_2015</code>を見ると，（たくさんの列が存在する）分析しづらいデータになっていることがわかります．<strong>ステップ2+α</strong>で，データ取得とデータ整形を同時に行う方法について説明します．</p>
 <div class="cell">
@@ -349,8 +308,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <col style="width: 3%">
 <col style="width: 2%">
 </colgroup>
-<thead>
-<tr class="header">
+<thead><tr class="header">
 <th style="text-align: left;">tab_code</th>
 <th style="text-align: left;">tab_name</th>
 <th style="text-align: left;">tab_level</th>
@@ -375,8 +333,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <th style="text-align: left;">time_name</th>
 <th style="text-align: left;">time_level</th>
 <th style="text-align: right;">person</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">100</td>
@@ -642,9 +599,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </table>
 </div>
 </div>
-</section>
-<section id="ステップ2αデータ取得とデータ整形を同時に行う" class="level3">
-<h3 class="anchored" data-anchor-id="ステップ2αデータ取得とデータ整形を同時に行う">ステップ2+α：データ取得とデータ整形を同時に行う</h3>
+</section><section id="ステップ2αデータ取得とデータ整形を同時に行う" class="level3"><h3 class="anchored" data-anchor-id="ステップ2αデータ取得とデータ整形を同時に行う">ステップ2+α：データ取得とデータ整形を同時に行う</h3>
 <p>jpstatでe-Statのデータを取得すると，パラメータ名（<code>cat01</code>など）と各項目の列名（<code>code</code>， <code>name</code>など）から列（<code>cat01_code</code>，<code>cat01_name</code>など）が作成されます．</p>
 <p>jpstatでは，<code>rekey()</code> 関数によりパラメータ名を変更したり，<code>select()</code> 関数で項目別に列を選択したりすることでデータを整理することができます<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>．以下のように書くことで，すっきりとしたデータを作成することができます．</p>
 <div class="cell">
@@ -682,14 +637,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(data_sleeptime_2015, <span class="dv">10</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
+<thead><tr class="header">
 <th style="text-align: left;">ageclass_name</th>
 <th style="text-align: left;">sex_name</th>
 <th style="text-align: left;">sleeptime_name</th>
 <th style="text-align: right;">person</th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">20歳-29歳</td>
@@ -755,9 +708,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </table>
 </div>
 </div>
-</section>
-<section id="おまけ取得したデータのグラフ化" class="level3">
-<h3 class="anchored" data-anchor-id="おまけ取得したデータのグラフ化">おまけ：取得したデータのグラフ化</h3>
+</section><section id="おまけ取得したデータのグラフ化" class="level3"><h3 class="anchored" data-anchor-id="おまけ取得したデータのグラフ化">おまけ：取得したデータのグラフ化</h3>
 <p>最後に，取得した<strong>2015年の男女・年齢階級別の睡眠時間</strong>データをグラフ化してみましょう．グラフより，男性と女性では年齢階級別の睡眠時間の傾向が異なることがわかります．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data_sleeptime_2015 <span class="sc">|&gt;</span> </span>
@@ -783,24 +734,17 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">x =</span> <span class="fu">guide_axis</span>(<span class="at">n.dodge =</span> <span class="dv">2</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure">
-<p><img src="call-e-stat-api-in-r_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="768"></p>
+<figure class="figure"><p><img src="call-e-stat-api-in-r_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="768"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>本記事では，e-Stat APIと<a href="https://uchidamizuki.github.io/jpstat/">jpstat</a>パッケージで日本の統計データを効率的に取得する方法について紹介しました．</p>
 <p>Rで統計データを取得することで，作業の再現性や効率性を高めることができます．また，jpstatパッケージを使うことで，データ取得とデータ整形を同時に行うことができるため便利です．みなさんもぜひ使ってみてください．</p>
 
 
-</section>
-
-
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+</section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
 
 <ol>
 <li id="fn1"><p>e-Stat APIでは，メタ情報取得・統計データ取得以外にも，様々な機能が提供されています（<a href="https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0">API仕様</a>）．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
@@ -808,9 +752,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <li id="fn3"><p>e-Statのページの右上の「<strong>API</strong>」ボタンを押すとAPIのクエリが表示されます．クエリ内の<code>statsDataId</code> を直接入力することでメタ情報を取得することもできます．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn4"><p>ただし，各パラメータの項目数には，100件という上限が設定されているため，フィルタリング後の項目数が多くなる場合には，フィルタリングを行わず，全ての項目を選択することをおすすめします．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn5"><p><code>select()</code> 関数である項目の列を全て削除することもできます．これは，「総数」のみを選択する場合など，分析に不要な項目を削除する場合に便利です．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section></div></main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
+</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -1226,14 +1168,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script>
-<input type="hidden" id="giscus-base-theme" value="light">
-<input type="hidden" id="giscus-alt-theme" value="dark">
+</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body></html>
+</body>
+</html>
