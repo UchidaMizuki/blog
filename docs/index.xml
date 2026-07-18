@@ -516,6 +516,426 @@ font-style: inherit;">ggplotly</span>(plot_income_distribution)</span></code></p
   <pubDate>Tue, 25 Nov 2025 15:00:00 GMT</pubDate>
 </item>
 <item>
+  <title>Rのadverbial::step_by_step()でデータ処理を導く</title>
+  <link>https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Note: この記事は<a href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html">英語で書いた記事</a>の日本語訳です．</p>
+<p>データ処理の知見を効率的に共有するには，適切な関数を実装することが欠かせません．しかし，使いやすさとカスタマイズ性のバランスを取るのは容易ではありません．</p>
+<p>このバランスを取るための一つのアプローチは，データ処理のフローを複数の関数に分割することです．このアプローチを効果的に機能させるには，ユーザーが全体のワークフローを明確に理解している必要があります．</p>
+<p>プログラミングの利点の一つは，これまで人間が正確に理解しておく必要があった暗黙知を明示化できることだと私は考えています．この考え方が，Rの adverbial パッケージにおけるステップバイステップのデータ処理関数の実装のきっかけとなりました．</p>
+<p>このパッケージが提供するステップバイステップのデータ処理機能は，主に次の3つの関数から構成されています．</p>
+<ol type="1">
+<li><code>step_by_step()</code> は，ステップバイステップのデータ処理ワークフローを定義します．</li>
+<li><code>as_step()</code> は，関数をワークフロー内で使用できるステップに変換します．</li>
+<li><code>end_step()</code> は，ワークフロー内のステップを終了します．</li>
+</ol>
+<p>これらの関数は，データ処理のための明確な枠組みを提供し，同様の構造を持つデータ分析タスクにおける知見の共有や共同作業を容易にします．</p>
+<section id="例" class="level2">
+<h2 class="anchored" data-anchor-id="例">例</h2>
+<p>次のデータ処理を，ステップバイステップのデータ処理に変換してみましょう．この処理では，<code>penguins</code> データを使って，島・種・年ごとのペンギンの平均体重を算出します．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(species, island, body_mass, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(body_mass)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb1-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># body_massをkgに変換</span></span>
+<span id="cb1-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">body_mass =</span> units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(body_mass, g) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-9">      units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kg"</span>)</span>
+<span id="cb1-10">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(</span>
+<span id="cb1-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean_body_mass =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(body_mass),</span>
+<span id="cb1-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(island, species, year)</span>
+<span id="cb1-14">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(island, species, year)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 15 × 4
+   island    species    year mean_body_mass
+   &lt;fct&gt;     &lt;fct&gt;     &lt;int&gt;           [kg]
+ 1 Biscoe    Adelie     2007           3.62
+ 2 Biscoe    Adelie     2008           3.63
+ 3 Biscoe    Adelie     2009           3.86
+ 4 Biscoe    Gentoo     2007           5.07
+ 5 Biscoe    Gentoo     2008           5.02
+ 6 Biscoe    Gentoo     2009           5.14
+ 7 Dream     Adelie     2007           3.67
+ 8 Dream     Adelie     2008           3.76
+ 9 Dream     Adelie     2009           3.65
+10 Dream     Chinstrap  2007           3.69
+11 Dream     Chinstrap  2008           3.8 
+12 Dream     Chinstrap  2009           3.72
+13 Torgersen Adelie     2007           3.76
+14 Torgersen Adelie     2008           3.86
+15 Torgersen Adelie     2009           3.49</code></pre>
+</div>
+</div>
+<section id="ステップバイステップのデータ処理ワークフローを定義する" class="level3">
+<h3 class="anchored" data-anchor-id="ステップバイステップのデータ処理ワークフローを定義する">ステップバイステップのデータ処理ワークフローを定義する</h3>
+<p>この処理は，次のステップに分解できます．</p>
+<ol type="1">
+<li><code>select()</code> でデータフレームから列を選択する．</li>
+<li><code>filter()</code> でデータフレームから行を絞り込む．</li>
+<li><code>mutate()</code> でデータフレームの列を変換する．</li>
+<li><code>summarise()</code> でデータフレームを集計する．</li>
+<li><code>arrange()</code> でデータフレームの行を並べ替える．</li>
+</ol>
+<p>このように，<code>adverbial</code> パッケージを使うと，以下のようにステップバイステップのデータ処理ワークフローを定義できます．これで <code>data_wrangler()</code> を使って，データをステップバイステップで処理できるようになります．データ処理に関わるステップがヘッダーに表示されるため，ワークフローの理解やカスタマイズが容易になります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(adverbial)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3">data_wrangler <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_by_step</span>(</span>
+<span id="cb3-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb3-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">select_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"データフレームから列を選択"</span>,</span>
+<span id="cb3-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filter_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"データフレームから行を絞り込み"</span>,</span>
+<span id="cb3-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mutate_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"データフレームの列を変換"</span>,</span>
+<span id="cb3-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">summarise_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"データフレームを集計"</span>,</span>
+<span id="cb3-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">arrange_step =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"データフレームの行を並べ替え"</span></span>
+<span id="cb3-10">  )</span>
+<span id="cb3-11">)</span>
+<span id="cb3-12"></span>
+<span id="cb3-13">select_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(select, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"select_step"</span>)</span>
+<span id="cb3-14">filter_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(filter, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"filter_step"</span>)</span>
+<span id="cb3-15">mutate_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(mutate, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mutate_step"</span>)</span>
+<span id="cb3-16">summarise_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(summarise, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"summarise_step"</span>)</span>
+<span id="cb3-17">arrange_step <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(arrange, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"arrange_step"</span>)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data_wrangler</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Steps:
+# ☐ 1. select_step:    データフレームから列を選択
+# ☐ 2. filter_step:    データフレームから行を絞り込み
+# ☐ 3. mutate_step:    データフレームの列を変換
+# ☐ 4. summarise_step: データフレームを集計
+# ☐ 5. arrange_step:   データフレームの行を並べ替え
+# ℹ Please call `select_step()` to continue.
+#
+# A tibble: 344 × 8
+   species island    bill_len bill_dep flipper_len body_mass sex     year
+ * &lt;fct&gt;   &lt;fct&gt;        &lt;dbl&gt;    &lt;dbl&gt;       &lt;int&gt;     &lt;int&gt; &lt;fct&gt;  &lt;int&gt;
+ 1 Adelie  Torgersen     39.1     18.7         181      3750 male    2007
+ 2 Adelie  Torgersen     39.5     17.4         186      3800 female  2007
+ 3 Adelie  Torgersen     40.3     18           195      3250 female  2007
+ 4 Adelie  Torgersen     NA       NA            NA        NA &lt;NA&gt;    2007
+ 5 Adelie  Torgersen     36.7     19.3         193      3450 female  2007
+ 6 Adelie  Torgersen     39.3     20.6         190      3650 male    2007
+ 7 Adelie  Torgersen     38.9     17.8         181      3625 female  2007
+ 8 Adelie  Torgersen     39.2     19.6         195      4675 male    2007
+ 9 Adelie  Torgersen     34.1     18.1         193      3475 &lt;NA&gt;    2007
+10 Adelie  Torgersen     42       20.2         190      4250 &lt;NA&gt;    2007
+# ℹ 334 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="データをステップバイステップで処理する" class="level3">
+<h3 class="anchored" data-anchor-id="データをステップバイステップで処理する">データをステップバイステップで処理する</h3>
+<p>次のように，データをステップバイステップで処理できます(ステップ3まで)．<code>as_step()</code> 関数を使えば，任意の関数をワークフロー内で使用できるステップに変換することもできます．誤ったステップ名を指定すると，エラーが発生します．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data_wrangler</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select_step</span>(species, island, body_mass, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter_step</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(body_mass)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate_step</span>(</span>
+<span id="cb6-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># body_massをkgに変換</span></span>
+<span id="cb6-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">body_mass =</span> units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(body_mass, g) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-7">      units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kg"</span>)</span>
+<span id="cb6-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb6-9">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ステップバイステップの処理中に別の関数を使うこともできます</span></span>
+<span id="cb6-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_step</span>(head)(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Steps:
+# ☒ 1. select_step:    データフレームから列を選択
+# ☒ 2. filter_step:    データフレームから行を絞り込み
+# ☒ 3. mutate_step:    データフレームの列を変換
+# ☐ 4. summarise_step: データフレームを集計
+# ☐ 5. arrange_step:   データフレームの行を並べ替え
+# ℹ Please call `summarise_step()` to continue.
+#
+# A tibble: 3 × 4
+  species island    body_mass  year
+* &lt;fct&gt;   &lt;fct&gt;          [kg] &lt;int&gt;
+1 Adelie  Torgersen      3.75  2007
+2 Adelie  Torgersen      3.8   2007
+3 Adelie  Torgersen      3.25  2007</code></pre>
+</div>
+</div>
+</section>
+<section id="データ処理を完了する" class="level3">
+<h3 class="anchored" data-anchor-id="データ処理を完了する">データ処理を完了する</h3>
+<p>残りのステップを追加し，<code>end_step()</code> でワークフローを終了することで，データ処理を完了できます．以下のコードは元のコードとほぼ同じ処理を行いますが，次に適用すべき関数を順次ユーザーに知らせる点だけが異なります．</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data_wrangler</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(penguins)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select_step</span>(species, island, body_mass, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter_step</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(body_mass)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate_step</span>(</span>
+<span id="cb8-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># body_massをkgに変換</span></span>
+<span id="cb8-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">body_mass =</span> units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(body_mass, g) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-7">      units<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_units</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kg"</span>)</span>
+<span id="cb8-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise_step</span>(</span>
+<span id="cb8-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean_body_mass =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(body_mass),</span>
+<span id="cb8-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(island, species, year)</span>
+<span id="cb8-12">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange_step</span>(island, species, year) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">end_step</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 15 × 4
+   island    species    year mean_body_mass
+ * &lt;fct&gt;     &lt;fct&gt;     &lt;int&gt;           [kg]
+ 1 Biscoe    Adelie     2007           3.62
+ 2 Biscoe    Adelie     2008           3.63
+ 3 Biscoe    Adelie     2009           3.86
+ 4 Biscoe    Gentoo     2007           5.07
+ 5 Biscoe    Gentoo     2008           5.02
+ 6 Biscoe    Gentoo     2009           5.14
+ 7 Dream     Adelie     2007           3.67
+ 8 Dream     Adelie     2008           3.76
+ 9 Dream     Adelie     2009           3.65
+10 Dream     Chinstrap  2007           3.69
+11 Dream     Chinstrap  2008           3.8 
+12 Dream     Chinstrap  2009           3.72
+13 Torgersen Adelie     2007           3.76
+14 Torgersen Adelie     2008           3.86
+15 Torgersen Adelie     2009           3.49</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>adverbial パッケージは，データ処理タスクをより小さく管理しやすいステップに分解する手段を提供します．このアプローチにより，ユーザーは全体のワークフローを理解し，自分のニーズに合わせて調整できるようになります．データ処理の各ステップを頭の中で覚えておくという，労力のかかる作業を作業者に強いる必要をなくすことが目的です．</p>
+
+
+</section>
+
+ ]]></description>
+  <category>adverbial</category>
+  <category>R</category>
+  <guid>https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</guid>
+  <pubDate>Sat, 24 May 2025 15:00:00 GMT</pubDate>
+</item>
+<item>
   <title>Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）</title>
   <link>https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</link>
   <description><![CDATA[ 
@@ -10378,682 +10798,6 @@ font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
   <category>Python</category>
   <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv.html</guid>
   <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Rで日本地図を描いてみよう</title>
-  <link>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r.html</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>Rでは，ggplot2などのパッケージを利用するだけで，都道府県別の日本地図を描くことができます．ここでは，日本地図をggplot2で描画する方法をいくつか紹介します．</p>
-<section id="地図描画用のサンプルデータ" class="level2">
-<h2 class="anchored" data-anchor-id="地図描画用のサンプルデータ">地図描画用のサンプルデータ</h2>
-<p>ここでは，<a href="https://www.e-stat.go.jp/dbview?sid=0000010201">こちら</a>からダウンロードできる社会・人口統計体系の2015年の都道府県別外国人人口比率データ（10万人あたり外国人人口）を地図描画用のサンプルデータとしました．</p>
-<div class="cell">
-<details class="code-fold">
-<summary>パッケージの読み込み</summary>
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>データのダウンロード</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(jpstat)</span>
-<span id="cb2-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(arrow)</span>
-<span id="cb2-3"></span>
-<span id="cb2-4">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"https://www.e-stat.go.jp/en/dbview?sid=0000010201"</span>,</span>
-<span id="cb2-5">                              <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">lang =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"E"</span>)</span>
-<span id="cb2-6">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(tab) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-9">  </span>
-<span id="cb2-10">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(cat01) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-11">  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Ratio of population of foreigners (per 100,000 persons)</span></span>
-<span id="cb2-12">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(code <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"#A01601"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-13">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-14">  </span>
-<span id="cb2-15">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(area) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-16">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"All Japan"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-17">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(code, name) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-18">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rekey</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"pref"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-19">  </span>
-<span id="cb2-20">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">activate</span>(time) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-21">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">filter</span>(name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2015"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-22">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>()</span>
-<span id="cb2-23">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-24">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">collect</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"foreigners_per_100K"</span>)</span>
-<span id="cb2-25"></span>
-<span id="cb2-26"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">write_parquet</span>(foreigner_ratio_2015, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"foreigner_ratio_2015.parquet"</span>)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>データの読み込み</summary>
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(arrow)</span>
-<span id="cb3-2"></span>
-<span id="cb3-3">foreigner_ratio_2015 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">read_parquet</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"foreigner_ratio_2015.parquet"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_code =</span> pref_code <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-5">           <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_extract</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"^</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">\\</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">d{2}"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-6">           <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">parse_integer</span>(),</span>
-<span id="cb3-7">         </span>
-<span id="cb3-8">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> pref_name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb3-9">           <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_remove</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"-.+$"</span>),</span>
-<span id="cb3-10">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">case_when</span>(pref_name <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Gumma"</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Gunma"</span>,</span>
-<span id="cb3-11">                               <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span> <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">~</span> pref_name),</span>
-<span id="cb3-12">         </span>
-<span id="cb3-13">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">foreigner_ratio =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">parse_number</span>(foreigners_per_100K) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1e5</span>,</span>
-<span id="cb3-14">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">.keep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"unused"</span>)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 地図描画用のサンプルデータ</span></span>
-<span id="cb4-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">head</span>(foreigner_ratio_2015)</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["pref_code"],"name":[1],"type":["int"],"align":["right"]},{"label":["pref_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["foreigner_ratio"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"Hokkaido","3":"0.004028"},{"1":"2","2":"Aomori","3":"0.002635"},{"1":"3","2":"Iwate","3":"0.003921"},{"1":"4","2":"Miyagi","3":"0.005994"},{"1":"5","2":"Akita","3":"0.002848"},{"1":"6","2":"Yamagata","3":"0.004896"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-</div>
-</section>
-<section id="geom_map-で日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="geom_map-で日本地図を描く"><code>geom_map()</code> で日本地図を描く</h2>
-<p>ggplot2で<code>map_data()</code> や<code>geom_map()</code> を使って世界の国々の地図を描画することができます．これには，あらかじめmapsパッケージとmapdataパッケージをダウンロードしておく必要があります（mapdataパッケージに日本地図が格納されています）．</p>
-<p><code>map_data("japan")</code> とすることで，mapsパッケージの地図データがデータフレームに変換されます．このデータフレームの<code>region</code> 列が都道府県のIDとなるため，<code>aes(map_id = region)</code>を設定した上で，<code>geom_map()</code> することで，描画したいデータの<code>region</code> 列と都道府県ジオメトリがリンクします．</p>
-<p>ただし，<code>map_data("japan")</code> は，以下の点に注意が必要です．</p>
-<ul>
-<li><p>あらかじめ<code>library(mapdata)</code> を実行してください（実行しないとデータが読み込めないようです）</p></li>
-<li><p><code>region</code> 列はすべてアルファベット表記である</p></li>
-<li><p>他の都道府県と異なり奈良県だけが<code>NARA</code> と大文字表記になっているなど元データにやや問題があるようです（今回は<code>str_to_title()</code>で修正しました）</p></li>
-</ul>
-<p>また，日本地図全体を表示するためには，<code>expand_limits()</code> などで軸を設定すること必要になります．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("maps")</span></span>
-<span id="cb5-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("mapdata")</span></span>
-<span id="cb5-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span>
-<span id="cb5-4"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(mapdata)</span>
-<span id="cb5-5"></span>
-<span id="cb5-6">map_data_japan <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">map_data</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"japan"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb5-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb5-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">region =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_to_title</span>(region))</span>
-<span id="cb5-9"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">head</span>(map_data_japan)</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["long"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["lat"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["group"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["order"],"name":[4],"type":["int"],"align":["right"]},{"label":["region"],"name":[5],"type":["chr"],"align":["left"]},{"label":["subregion"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"139.7707","2":"42.3018","3":"1","4":"1","5":"Hokkaido","6":"NA"},{"1":"139.7706","2":"42.3001","3":"1","4":"2","5":"Hokkaido","6":"NA"},{"1":"139.7773","2":"42.2956","3":"1","4":"3","5":"Hokkaido","6":"NA"},{"1":"139.7783","2":"42.2916","3":"1","4":"4","5":"Hokkaido","6":"NA"},{"1":"139.7829","2":"42.2838","3":"1","4":"5","5":"Hokkaido","6":"NA"},{"1":"139.7819","2":"42.2833","3":"1","4":"6","5":"Hokkaido","6":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-2">         <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">region =</span> pref_name),</span>
-<span id="cb6-3">       <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">map_id =</span> region)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb6-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_map</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> foreigner_ratio),</span>
-<span id="cb6-5">           <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">map =</span> map_data_japan) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb6-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">expand_limits</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> map_data_japan<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>long,</span>
-<span id="cb6-7">                <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> map_data_japan<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>lat) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb6-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"外国人人口比率"</span>,</span>
-<span id="cb6-9">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.03</span>),</span>
-<span id="cb6-10">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">label_percent</span>(),</span>
-<span id="cb6-11">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"turbo"</span>)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r_files/figure-html/geom_map-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="sfパッケージで日本地図を描く" class="level2">
-<h2 class="anchored" data-anchor-id="sfパッケージで日本地図を描く">sfパッケージで日本地図を描く</h2>
-<p>ggplot2の<code>geom_sf()</code>を使えばsfパッケージのジオメトリを簡単に描画できます．</p>
-<p>sfパッケージの<code>st_as_sf()</code> を使えば，maps・mapdataパッケージの提供する地図データをsfオブジェクトに変換することができます．日本地図データをsfに変換することで，先ほどのコードよりも直感的に地図を描くことができます．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(sf)</span>
-<span id="cb7-2"></span>
-<span id="cb7-3">map_japan <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> maps<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">map</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"japan"</span>, </span>
-<span id="cb7-4">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">plot =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>,</span>
-<span id="cb7-5">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> ID) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">pref_name =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">str_to_title</span>(pref_name))</span>
-<span id="cb7-9"></span>
-<span id="cb7-10">map_japan <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-11">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">left_join</span>(foreigner_ratio_2015,</span>
-<span id="cb7-12">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">join_by</span>(pref_name)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb7-13">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb7-14">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb7-15">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"外国人人口比率"</span>,</span>
-<span id="cb7-16">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.03</span>),</span>
-<span id="cb7-17">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">label_percent</span>(),</span>
-<span id="cb7-18">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"turbo"</span>)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r_files/figure-html/sf-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<section id="さらに詳細な地図情報を入手可能なrnaturalearthについて" class="level3">
-<h3 class="anchored" data-anchor-id="さらに詳細な地図情報を入手可能なrnaturalearthについて">さらに詳細な地図情報を入手可能なrnaturalearthについて</h3>
-<p>世界地図のデータを取得可能なパッケージにはrnaturalearthパッケージもあります．</p>
-<p>都道府県別地図を取得するにはrnaturalearthの<code>ne_states("japan")</code> を実行します．<code>ne_states("japan")</code> の出力には英語の都道府県名に加えて日本語の都道府県名も含まれており便利です．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">map_japan <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> rnaturalearth<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ne_states</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"japan"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">st_as_sf</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(iso_3166_2, name_ja, name_en) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb8-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">arrange</span>(iso_3166_2)</span>
-<span id="cb8-6"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">head</span>(map_japan)</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["iso_3166_2"],"name":[1],"type":["chr"],"align":["left"]},{"label":["name_ja"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name_en"],"name":[3],"type":["chr"],"align":["left"]},{"label":["geometry"],"name":[4],"type":["s_MULTIP"],"align":["right"]}],"data":[{"1":"JP-01","2":"北海道","3":"Hokkaidō","4":"<s_MULTIP>"},{"1":"JP-02","2":"青森県","3":"Aomori Prefecture","4":"<s_MULTIP>"},{"1":"JP-03","2":"岩手県","3":"Iwate Prefecture","4":"<s_MULTIP>"},{"1":"JP-04","2":"宮城県","3":"Miyagi Prefecture","4":"<s_MULTIP>"},{"1":"JP-05","2":"秋田県","3":"Akita Prefecture","4":"<s_MULTIP>"},{"1":"JP-06","2":"山形県","3":"Yamagata Prefecture","4":"<s_MULTIP>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="日本地図をレイアウトするためのjpmapパッケージ" class="level2">
-<h2 class="anchored" data-anchor-id="日本地図をレイアウトするためのjpmapパッケージ">日本地図をレイアウトするためのjpmapパッケージ</h2>
-<p>日本地図の描画では，日本列島を大きく描画するために琉球諸島や小笠原諸島を地図上の左上や右下に配置したいケースがあります．ggplot2で作成した日本地図のレイアウトを簡単に行えるように<a href="https://github.com/UchidaMizuki/jpmap">jpmap</a>を作成しました．</p>
-<p>jpmapは，以下の機能を持っています．</p>
-<ul>
-<li><p>琉球諸島・小笠原諸島を再配置したレイアウトを可能にする<code>jpmap::layout_japan()</code></p>
-<ul>
-<li><p>ただし再配置される琉球諸島・小笠原諸島の縮尺は厳密ではありませんのでご注意ください</p></li>
-<li><p><code>ryukyu = FALSE</code>や<code>ogasawara = FALSE</code> を指定することで琉球諸島・小笠原諸島を非表示にすることが可能です</p></li>
-</ul></li>
-<li><p>日本語の都道府県名や都道府県コードが含む都道府県データを提供する<code>jpmap::prefecture</code>（rnaturalearthのデータがベースです）</p>
-<ul>
-<li>ただし，英語の都道府県名（<code>pref_name</code>）がHokkaidoではなくHokkaidōといった表記なっているためご注意ください．</li>
-</ul></li>
-</ul>
-<p><code>jpmap::layout_japan()</code> で地図のレイアウトを変更することで，都道府県ごとの傾向がよりわかりやすくなります．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># pak::pak("UchidaMizuki/jpmap")</span></span>
-<span id="cb9-2">jpmap<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span>prefecture</span></code></pre></div>
-<div class="cell-output-display">
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["pref_code"],"name":[1],"type":["int"],"align":["right"]},{"label":["pref_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["pref_name_ja"],"name":[3],"type":["chr"],"align":["left"]},{"label":["geometry"],"name":[4],"type":["s_MULTIP"],"align":["right"]}],"data":[{"1":"1","2":"Hokkaidō","3":"北海道","4":"<s_MULTIP>"},{"1":"2","2":"Aomori","3":"青森県","4":"<s_MULTIP>"},{"1":"3","2":"Iwate","3":"岩手県","4":"<s_MULTIP>"},{"1":"4","2":"Miyagi","3":"宮城県","4":"<s_MULTIP>"},{"1":"5","2":"Akita","3":"秋田県","4":"<s_MULTIP>"},{"1":"6","2":"Yamagata","3":"山形県","4":"<s_MULTIP>"},{"1":"7","2":"Fukushima","3":"福島県","4":"<s_MULTIP>"},{"1":"8","2":"Ibaraki","3":"茨城県","4":"<s_MULTIP>"},{"1":"9","2":"Tochigi","3":"栃木県","4":"<s_MULTIP>"},{"1":"10","2":"Gunma","3":"群馬県","4":"<s_MULTIP>"},{"1":"11","2":"Saitama","3":"埼玉県","4":"<s_MULTIP>"},{"1":"12","2":"Chiba","3":"千葉県","4":"<s_MULTIP>"},{"1":"13","2":"Tokyo","3":"東京都","4":"<s_MULTIP>"},{"1":"14","2":"Kanagawa","3":"神奈川県","4":"<s_MULTIP>"},{"1":"15","2":"Niigata","3":"新潟県","4":"<s_MULTIP>"},{"1":"16","2":"Toyama","3":"富山県","4":"<s_MULTIP>"},{"1":"17","2":"Ishikawa","3":"石川県","4":"<s_MULTIP>"},{"1":"18","2":"Fukui","3":"福井県","4":"<s_MULTIP>"},{"1":"19","2":"Yamanashi","3":"山梨県","4":"<s_MULTIP>"},{"1":"20","2":"Nagano","3":"長野県","4":"<s_MULTIP>"},{"1":"21","2":"Gifu","3":"岐阜県","4":"<s_MULTIP>"},{"1":"22","2":"Shizuoka","3":"静岡県","4":"<s_MULTIP>"},{"1":"23","2":"Aichi","3":"愛知県","4":"<s_MULTIP>"},{"1":"24","2":"Mie","3":"三重県","4":"<s_MULTIP>"},{"1":"25","2":"Shiga","3":"滋賀県","4":"<s_MULTIP>"},{"1":"26","2":"Kyōto","3":"京都府","4":"<s_MULTIP>"},{"1":"27","2":"Ōsaka","3":"大阪府","4":"<s_MULTIP>"},{"1":"28","2":"Hyōgo","3":"兵庫県","4":"<s_MULTIP>"},{"1":"29","2":"Nara","3":"奈良県","4":"<s_MULTIP>"},{"1":"30","2":"Wakayama","3":"和歌山県","4":"<s_MULTIP>"},{"1":"31","2":"Tottori","3":"鳥取県","4":"<s_MULTIP>"},{"1":"32","2":"Shimane","3":"島根県","4":"<s_MULTIP>"},{"1":"33","2":"Okayama","3":"岡山県","4":"<s_MULTIP>"},{"1":"34","2":"Hiroshima","3":"広島県","4":"<s_MULTIP>"},{"1":"35","2":"Yamaguchi","3":"山口県","4":"<s_MULTIP>"},{"1":"36","2":"Tokushima","3":"徳島県","4":"<s_MULTIP>"},{"1":"37","2":"Kagawa","3":"香川県","4":"<s_MULTIP>"},{"1":"38","2":"Ehime","3":"愛媛県","4":"<s_MULTIP>"},{"1":"39","2":"Kōchi","3":"高知県","4":"<s_MULTIP>"},{"1":"40","2":"Fukuoka","3":"福岡県","4":"<s_MULTIP>"},{"1":"41","2":"Saga","3":"佐賀県","4":"<s_MULTIP>"},{"1":"42","2":"Nagasaki","3":"長崎県","4":"<s_MULTIP>"},{"1":"43","2":"Kumamoto","3":"熊本県","4":"<s_MULTIP>"},{"1":"44","2":"Ōita","3":"大分県","4":"<s_MULTIP>"},{"1":"45","2":"Miyazaki","3":"宮崎県","4":"<s_MULTIP>"},{"1":"46","2":"Kagoshima","3":"鹿児島県","4":"<s_MULTIP>"},{"1":"47","2":"Okinawa","3":"沖縄県","4":"<s_MULTIP>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-</div>
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">plot <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> jpmap<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span>prefecture <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb10-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">left_join</span>(foreigner_ratio_2015 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb10-3">              <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span>pref_name),</span>
-<span id="cb10-4">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">join_by</span>(pref_code)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb10-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fill =</span> foreigner_ratio)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb10-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"transparent"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb10-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">scale_fill_viridis_c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"外国人人口比率"</span>,</span>
-<span id="cb10-8">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.03</span>),</span>
-<span id="cb10-9">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">labels =</span> scales<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">label_percent</span>(),</span>
-<span id="cb10-10">                       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">option =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"turbo"</span>)</span>
-<span id="cb10-11"></span>
-<span id="cb10-12">jpmap<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">layout_japan</span>(plot)</span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r_files/figure-html/jpmap-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>2015年の都道府県別外国人人口比率に関する日本地図から以下のことがわかりました．</p>
-<ul>
-<li><p>2015年では<strong>どの都道府県でも外国人人口比率が3％以下</strong>である</p></li>
-<li><p><strong>東京都</strong>は外国人人口比率が最も多く，<strong>愛知県</strong>や<strong>群馬県</strong>なども外国人口比率が高い．</p></li>
-</ul>
-<p>ここまで，ggplot2などのパッケージを活用した日本地図の描画を試してみました．</p>
-<p>その結果，Rを使えば，自前でデータを整備しなくても，簡単に日本地図を描けることがわかりました．みなさんもぜひ，ggplot2を使って，色々な地図を使ってみてください！</p>
-
-
-</section>
-
- ]]></description>
-  <category>ggplot2</category>
-  <category>sf</category>
-  <category>jpmap</category>
-  <category>R</category>
-  <guid>https://uchidamizuki.quarto.pub/blog/posts/2022/06/draw-a-map-of-japan-in-r.html</guid>
-  <pubDate>Fri, 10 Jun 2022 15:00:00 GMT</pubDate>
-  <media:content url="https://uchidamizuki.quarto.pub/blog/posts/2022/06/foreigner_ratio_2015.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 </channel>
 </rss>

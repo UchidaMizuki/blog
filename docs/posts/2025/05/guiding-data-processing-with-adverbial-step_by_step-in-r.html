@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
 <link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html" />
 <link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.en.html" />
@@ -7,8 +7,7 @@
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<meta name="dcterms.date" content="2025-05-25">
-<title>Guiding data processing with adverbial::step_by_step() in R – UchidaMizuki</title>
+<title>Rのadverbial::step_by_step()でデータ処理を導く – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -76,17 +75,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   ],
   "show-item-context": false,
   "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
+    "search-no-results-text": "一致なし",
+    "search-matching-documents-text": "一致した文書",
+    "search-copy-link-title": "検索へのリンクをコピー",
+    "search-hide-matches-text": "追加の検索結果を非表示",
+    "search-more-match-text": "追加の検索結果",
+    "search-more-matches-text": "追加の検索結果",
+    "search-clear-button-title": "消去",
     "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "検索",
+    "search-label": "サーチ"
   }
 }</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
 
@@ -105,14 +104,14 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
     <span class="navbar-title">UchidaMizuki</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+            <div id="quarto-search" class="" title="サーチ"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="ナビゲーションを切り替える" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
 <li class="nav-item"><div class="dropdown" id="languages-links-parent">
-<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> English</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html" id="language-link-ja">日本語</a></li></ul>
+<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html" id="language-link-en">English</a></li></ul>
 </div></li>
 <li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
@@ -143,7 +142,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       </div> <!-- /container-fluid -->
     </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Guiding data processing with <code>adverbial::step_by_step()</code> in R</h1>
+      <h1 class="title">Rの<code>adverbial::step_by_step()</code>でデータ処理を導く</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">adverbial</div>
                 <div class="quarto-category">R</div>
@@ -156,9 +155,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 
       
       <div>
-      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-heading">公開</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">May 25, 2025</p>
+        <p class="date">2025年5月25日</p>
       </div>
     </div>
     
@@ -171,21 +170,22 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Implementing the right functions is essential for efficiently sharing data processing knowledge. However, finding the right balance between usability and customization can be challenging.</p>
-<p>One approach to achieving this balance is to break the data processing flow into multiple functions. To ensure the effectiveness of this approach, users must have a clear understanding of the overall workflow.</p>
-<p>One of the advantages of programming, as I see it, is that it allows me to make explicit implicit knowledge that previously had to be accurately understood by humans. This principle inspired the implementation of step-by-step data processing functions in the R adverbial package.</p>
-<p>The step-by-step data processing functionality provided by this package consists mainly of the following three functions.</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Note: この記事は<a href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html">英語で書いた記事</a>の日本語訳です．</p>
+<p>データ処理の知見を効率的に共有するには，適切な関数を実装することが欠かせません．しかし，使いやすさとカスタマイズ性のバランスを取るのは容易ではありません．</p>
+<p>このバランスを取るための一つのアプローチは，データ処理のフローを複数の関数に分割することです．このアプローチを効果的に機能させるには，ユーザーが全体のワークフローを明確に理解している必要があります．</p>
+<p>プログラミングの利点の一つは，これまで人間が正確に理解しておく必要があった暗黙知を明示化できることだと私は考えています．この考え方が，Rの adverbial パッケージにおけるステップバイステップのデータ処理関数の実装のきっかけとなりました．</p>
+<p>このパッケージが提供するステップバイステップのデータ処理機能は，主に次の3つの関数から構成されています．</p>
 <ol type="1">
 <li>
-<code>step_by_step()</code> defines a step-by-step data processing workflow.</li>
+<code>step_by_step()</code> は，ステップバイステップのデータ処理ワークフローを定義します．</li>
 <li>
-<code>as_step()</code> converts a function into a step that can be used in the workflow.</li>
+<code>as_step()</code> は，関数をワークフロー内で使用できるステップに変換します．</li>
 <li>
-<code>end_step()</code> ends a step in the workflow.</li>
+<code>end_step()</code> は，ワークフロー内のステップを終了します．</li>
 </ol>
-<p>These functions provide a clear framework for data processing, making it easier to share knowledge and collaborate on similarly structured data analysis tasks.</p>
-<section id="example" class="level2"><h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>Let’s turn the following data process into a step-by-step data process. This process uses the <code>penguins</code> data to calculate the average weight of penguins by island, species and year.</p>
+<p>これらの関数は，データ処理のための明確な枠組みを提供し，同様の構造を持つデータ分析タスクにおける知見の共有や共同作業を容易にします．</p>
+<section id="例" class="level2"><h2 class="anchored" data-anchor-id="例">例</h2>
+<p>次のデータ処理を，ステップバイステップのデータ処理に変換してみましょう．この処理では，<code>penguins</code> データを使って，島・種・年ごとのペンギンの平均体重を算出します．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -193,15 +193,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(species, island, body_mass, year) <span class="sc">|&gt;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(body_mass)) <span class="sc">|&gt;</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert body_mass to kg</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># body_massをkgに変換</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">body_mass =</span> units<span class="sc">::</span><span class="fu">set_units</span>(body_mass, g) <span class="sc">|&gt;</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      units<span class="sc">::</span><span class="fu">set_units</span>(<span class="st">"kg"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_body_mass =</span> <span class="fu">mean</span>(body_mass),</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(island, species, year)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(island, species, year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(island, species, year)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 15 × 4
    island    species    year mean_body_mass
@@ -223,26 +223,31 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 15 Torgersen Adelie     2009           3.49</code></pre>
 </div>
 </div>
-<section id="defining-a-step-by-step-data-processing-workflow" class="level3"><h3 class="anchored" data-anchor-id="defining-a-step-by-step-data-processing-workflow">Defining a step-by-step data processing workflow</h3>
-<p>This process can be broken down into the following steps:</p>
+<section id="ステップバイステップのデータ処理ワークフローを定義する" class="level3"><h3 class="anchored" data-anchor-id="ステップバイステップのデータ処理ワークフローを定義する">ステップバイステップのデータ処理ワークフローを定義する</h3>
+<p>この処理は，次のステップに分解できます．</p>
 <ol type="1">
-<li>Select columns from the data frame with <code>select()</code>.</li>
-<li>Filter rows from data frames with <code>filter()</code>.</li>
-<li>Mutate columns in the data frame with <code>mutate()</code>.</li>
-<li>Summarise the data frame with <code>summarise()</code>.</li>
-<li>Order rows in the data frame with <code>arrange()</code>.</li>
+<li>
+<code>select()</code> でデータフレームから列を選択する．</li>
+<li>
+<code>filter()</code> でデータフレームから行を絞り込む．</li>
+<li>
+<code>mutate()</code> でデータフレームの列を変換する．</li>
+<li>
+<code>summarise()</code> でデータフレームを集計する．</li>
+<li>
+<code>arrange()</code> でデータフレームの行を並べ替える．</li>
 </ol>
-<p>Thus, we can define a step-by-step data processing workflow using the <code>adverbial</code> package as follows. Now we can use the <code>data_wrangler()</code> to process the data step by step. It shows the steps involved in processing data in the header, making it easier to understand and customise workflows.</p>
+<p>このように，<code>adverbial</code> パッケージを使うと，以下のようにステップバイステップのデータ処理ワークフローを定義できます．これで <code>data_wrangler()</code> を使って，データをステップバイステップで処理できるようになります．データ処理に関わるステップがヘッダーに表示されるため，ワークフローの理解やカスタマイズが容易になります．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(adverbial)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data_wrangler <span class="ot">&lt;-</span> <span class="fu">step_by_step</span>(</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">select_step =</span> <span class="st">"Select columns from the data frame"</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">filter_step =</span> <span class="st">"Filter rows from data frames"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mutate_step =</span> <span class="st">"Mutate columns in the data frame"</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">summarise_step =</span> <span class="st">"Summarise the data frame"</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">arrange_step =</span> <span class="st">"Order rows in the data frame"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">select_step =</span> <span class="st">"データフレームから列を選択"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">filter_step =</span> <span class="st">"データフレームから行を絞り込み"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mutate_step =</span> <span class="st">"データフレームの列を変換"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">summarise_step =</span> <span class="st">"データフレームを集計"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">arrange_step =</span> <span class="st">"データフレームの行を並べ替え"</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
@@ -250,17 +255,17 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>filter_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(filter, <span class="st">"filter_step"</span>)</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>mutate_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(mutate, <span class="st">"mutate_step"</span>)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>summarise_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(summarise, <span class="st">"summarise_step"</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>arrange_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(arrange, <span class="st">"arrange_step"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>arrange_step <span class="ot">&lt;-</span> <span class="fu">as_step</span>(arrange, <span class="st">"arrange_step"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data_wrangler</span>(<span class="fu">as_tibble</span>(penguins))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data_wrangler</span>(<span class="fu">as_tibble</span>(penguins))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Steps:
-# ☒ 1. select_step:    Select columns from the data frame
-# ☐ 2. filter_step:    Filter rows from data frames
-# ☐ 3. mutate_step:    Mutate columns in the data frame
-# ☐ 4. summarise_step: Summarise the data frame
-# ☐ 5. arrange_step:   Order rows in the data frame
+# ☐ 1. select_step:    データフレームから列を選択
+# ☐ 2. filter_step:    データフレームから行を絞り込み
+# ☐ 3. mutate_step:    データフレームの列を変換
+# ☐ 4. summarise_step: データフレームを集計
+# ☐ 5. arrange_step:   データフレームの行を並べ替え
 # ℹ Please call `select_step()` to continue.
 #
 # A tibble: 344 × 8
@@ -279,26 +284,26 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 # ℹ 334 more rows</code></pre>
 </div>
 </div>
-</section><section id="processing-data-step-by-step" class="level3"><h3 class="anchored" data-anchor-id="processing-data-step-by-step">Processing data step by step</h3>
-<p>You can process the data step by step as follows (up to step 3). You can also use the <code>as_step()</code> function to convert any function into a step that can be used in the workflow. If you specify incorrect step names, an error will occur.</p>
+</section><section id="データをステップバイステップで処理する" class="level3"><h3 class="anchored" data-anchor-id="データをステップバイステップで処理する">データをステップバイステップで処理する</h3>
+<p>次のように，データをステップバイステップで処理できます(ステップ3まで)．<code>as_step()</code> 関数を使えば，任意の関数をワークフロー内で使用できるステップに変換することもできます．誤ったステップ名を指定すると，エラーが発生します．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data_wrangler</span>(<span class="fu">as_tibble</span>(penguins)) <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data_wrangler</span>(<span class="fu">as_tibble</span>(penguins)) <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_step</span>(species, island, body_mass, year) <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_step</span>(<span class="sc">!</span><span class="fu">is.na</span>(body_mass)) <span class="sc">|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_step</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert body_mass to kg</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># body_massをkgに変換</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">body_mass =</span> units<span class="sc">::</span><span class="fu">set_units</span>(body_mass, g) <span class="sc">|&gt;</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      units<span class="sc">::</span><span class="fu">set_units</span>(<span class="st">"kg"</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># You can use another function during the step-by-step process.</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_step</span>(head)(<span class="at">n =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ステップバイステップの処理中に別の関数を使うこともできます</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_step</span>(head)(<span class="at">n =</span> <span class="dv">3</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Steps:
-# ☒ 1. select_step:    Select columns from the data frame
-# ☒ 2. filter_step:    Filter rows from data frames
-# ☒ 3. mutate_step:    Mutate columns in the data frame
-# ☐ 4. summarise_step: Summarise the data frame
-# ☐ 5. arrange_step:   Order rows in the data frame
+# ☒ 1. select_step:    データフレームから列を選択
+# ☒ 2. filter_step:    データフレームから行を絞り込み
+# ☒ 3. mutate_step:    データフレームの列を変換
+# ☐ 4. summarise_step: データフレームを集計
+# ☐ 5. arrange_step:   データフレームの行を並べ替え
 # ℹ Please call `summarise_step()` to continue.
 #
 # A tibble: 3 × 4
@@ -309,23 +314,23 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 3 Adelie  Torgersen      3.25  2007</code></pre>
 </div>
 </div>
-</section><section id="completing-the-data-processing" class="level3"><h3 class="anchored" data-anchor-id="completing-the-data-processing">Completing the data processing</h3>
-<p>You can complete the data processing by adding the remaining steps and ending the workflow with <code>end_step()</code>. The following code performs almost the same processing as the original code, the only difference being that it successively informs the user which function to apply next.</p>
+</section><section id="データ処理を完了する" class="level3"><h3 class="anchored" data-anchor-id="データ処理を完了する">データ処理を完了する</h3>
+<p>残りのステップを追加し，<code>end_step()</code> でワークフローを終了することで，データ処理を完了できます．以下のコードは元のコードとほぼ同じ処理を行いますが，次に適用すべき関数を順次ユーザーに知らせる点だけが異なります．</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data_wrangler</span>(<span class="fu">as_tibble</span>(penguins)) <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data_wrangler</span>(<span class="fu">as_tibble</span>(penguins)) <span class="sc">|&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_step</span>(species, island, body_mass, year) <span class="sc">|&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter_step</span>(<span class="sc">!</span><span class="fu">is.na</span>(body_mass)) <span class="sc">|&gt;</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_step</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert body_mass to kg</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># body_massをkgに変換</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">body_mass =</span> units<span class="sc">::</span><span class="fu">set_units</span>(body_mass, g) <span class="sc">|&gt;</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      units<span class="sc">::</span><span class="fu">set_units</span>(<span class="st">"kg"</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_step</span>(</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_body_mass =</span> <span class="fu">mean</span>(body_mass),</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> <span class="fu">c</span>(island, species, year)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange_step</span>(island, species, year) <span class="sc">|&gt;</span> </span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">end_step</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange_step</span>(island, species, year) <span class="sc">|&gt;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">end_step</span>()</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 15 × 4
    island    species    year mean_body_mass
@@ -347,8 +352,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 15 Torgersen Adelie     2009           3.49</code></pre>
 </div>
 </div>
-</section></section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>adverbial package provides a way of breaking down data processing tasks into smaller, more manageable steps. This approach allows users to understand the overall workflow and adapt it to their needs. The aim is to eliminate the need for workers to remember each mentally demanding step of data processing.</p>
+</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+<p>adverbial パッケージは，データ処理タスクをより小さく管理しやすいステップに分解する手段を提供します．このアプローチにより，ユーザーは全体のワークフローを理解し，自分のニーズに合わせて調整できるようになります．データ処理の各ステップを頭の中で覚えておくという，労力のかかる作業を作業者に強いる必要をなくすことが目的です．</p>
 
 
 </section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
@@ -394,12 +399,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
+    button.setAttribute("title", "コピーしました");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
+      button.setAttribute("data-bs-title", "コピーしました");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",
@@ -441,7 +446,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/uchidamizuki\.quarto\.pub\/blog\/en");
+      var filterRegex = new RegExp("https:\/\/uchidamizuki\.quarto\.pub\/blog");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

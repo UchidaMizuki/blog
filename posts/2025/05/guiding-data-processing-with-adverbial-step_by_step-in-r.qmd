@@ -1,0 +1,134 @@
+---
+title: "Rの`adverbial::step_by_step()`でデータ処理を導く"
+lang: ja
+categories: [adverbial, R]
+date: 2025-05-25
+---
+
+Note: この記事は[英語で書いた記事](https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html)の日本語訳です．
+
+データ処理の知見を効率的に共有するには，適切な関数を実装することが欠かせません．しかし，使いやすさとカスタマイズ性のバランスを取るのは容易ではありません．
+
+このバランスを取るための一つのアプローチは，データ処理のフローを複数の関数に分割することです．このアプローチを効果的に機能させるには，ユーザーが全体のワークフローを明確に理解している必要があります．
+
+プログラミングの利点の一つは，これまで人間が正確に理解しておく必要があった暗黙知を明示化できることだと私は考えています．この考え方が，Rの adverbial パッケージにおけるステップバイステップのデータ処理関数の実装のきっかけとなりました．
+
+このパッケージが提供するステップバイステップのデータ処理機能は，主に次の3つの関数から構成されています．
+
+1.  `step_by_step()` は，ステップバイステップのデータ処理ワークフローを定義します．
+2.  `as_step()` は，関数をワークフロー内で使用できるステップに変換します．
+3.  `end_step()` は，ワークフロー内のステップを終了します．
+
+これらの関数は，データ処理のための明確な枠組みを提供し，同様の構造を持つデータ分析タスクにおける知見の共有や共同作業を容易にします．
+
+## 例
+
+次のデータ処理を，ステップバイステップのデータ処理に変換してみましょう．この処理では，`penguins` データを使って，島・種・年ごとのペンギンの平均体重を算出します．
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+
+as_tibble(penguins) |>
+  select(species, island, body_mass, year) |>
+  filter(!is.na(body_mass)) |>
+  mutate(
+    # body_massをkgに変換
+    body_mass = units::set_units(body_mass, g) |>
+      units::set_units("kg")
+  ) |>
+  summarise(
+    mean_body_mass = mean(body_mass),
+    .by = c(island, species, year)
+  ) |>
+  arrange(island, species, year)
+
+```
+
+### ステップバイステップのデータ処理ワークフローを定義する
+
+この処理は，次のステップに分解できます．
+
+1.  `select()` でデータフレームから列を選択する．
+2.  `filter()` でデータフレームから行を絞り込む．
+3.  `mutate()` でデータフレームの列を変換する．
+4.  `summarise()` でデータフレームを集計する．
+5.  `arrange()` でデータフレームの行を並べ替える．
+
+このように，`adverbial` パッケージを使うと，以下のようにステップバイステップのデータ処理ワークフローを定義できます．これで `data_wrangler()` を使って，データをステップバイステップで処理できるようになります．データ処理に関わるステップがヘッダーに表示されるため，ワークフローの理解やカスタマイズが容易になります．
+
+```{r}
+
+library(adverbial)
+
+data_wrangler <- step_by_step(
+  c(
+    select_step = "データフレームから列を選択",
+    filter_step = "データフレームから行を絞り込み",
+    mutate_step = "データフレームの列を変換",
+    summarise_step = "データフレームを集計",
+    arrange_step = "データフレームの行を並べ替え"
+  )
+)
+
+select_step <- as_step(select, "select_step")
+filter_step <- as_step(filter, "filter_step")
+mutate_step <- as_step(mutate, "mutate_step")
+summarise_step <- as_step(summarise, "summarise_step")
+arrange_step <- as_step(arrange, "arrange_step")
+
+```
+
+```{r}
+
+data_wrangler(as_tibble(penguins))
+
+```
+
+### データをステップバイステップで処理する
+
+次のように，データをステップバイステップで処理できます(ステップ3まで)．`as_step()` 関数を使えば，任意の関数をワークフロー内で使用できるステップに変換することもできます．誤ったステップ名を指定すると，エラーが発生します．
+
+```{r}
+
+data_wrangler(as_tibble(penguins)) |>
+  select_step(species, island, body_mass, year) |>
+  filter_step(!is.na(body_mass)) |>
+  mutate_step(
+    # body_massをkgに変換
+    body_mass = units::set_units(body_mass, g) |>
+      units::set_units("kg")
+  ) |>
+  # ステップバイステップの処理中に別の関数を使うこともできます
+  as_step(head)(n = 3)
+
+```
+
+### データ処理を完了する
+
+残りのステップを追加し，`end_step()` でワークフローを終了することで，データ処理を完了できます．以下のコードは元のコードとほぼ同じ処理を行いますが，次に適用すべき関数を順次ユーザーに知らせる点だけが異なります．
+
+```{r}
+
+data_wrangler(as_tibble(penguins)) |>
+  select_step(species, island, body_mass, year) |>
+  filter_step(!is.na(body_mass)) |>
+  mutate_step(
+    # body_massをkgに変換
+    body_mass = units::set_units(body_mass, g) |>
+      units::set_units("kg")
+  ) |>
+  summarise_step(
+    mean_body_mass = mean(body_mass),
+    .by = c(island, species, year)
+  ) |>
+  arrange_step(island, species, year) |>
+  end_step()
+
+```
+
+## まとめ
+
+adverbial パッケージは，データ処理タスクをより小さく管理しやすいステップに分解する手段を提供します．このアプローチにより，ユーザーは全体のワークフローを理解し，自分のニーズに合わせて調整できるようになります．データ処理の各ステップを頭の中で覚えておくという，労力のかかる作業を作業者に強いる必要をなくすことが目的です．
