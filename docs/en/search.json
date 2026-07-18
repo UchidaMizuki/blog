@@ -371,34 +371,6 @@
     "text": "Apps\n\nUrayasu Accessibility App (in Japanese)\n\n\njpgrid App (in Japanese)"
   },
   {
-    "objectID": "AGENTS.html#package-development",
-    "href": "AGENTS.html#package-development",
-    "title": "UchidaMizuki",
-    "section": "Package development",
-    "text": "Package development\n\nKey commands\n(All these functions have been optimized for agentic use, so they can be called directly without other arguments.)\n# Executing code\ndevtools::load_all()\ncode\n\n# Tests\ndevtools::test() # all tests\ndevtools::test(filter = \"^{name}\") # tests for files starting with {name}\ndevtools::test_active_file(\"R/{name}.R\") # tests for R/{name}.R\ndevtools::test_active_file(\"R/{name}.R\", desc = 'blah') # single test with exact description \"blah\" (no regexp)\n\n# Test coverage\ndevtools::test_coverage() # all files\ndevtools::test_coverage_active_file(\"R/{name}.R\") # coverage for R/{name}.R from tests in tests/testthat/test-{name}.R\n\n# Documentation\ndevtools::document() # redocument package\npkgdown::check_pkgdown() # check website\n\n# Run complete R CMD check\ndevtools::check()\n\n\nRunning R\nThere are three possible ways to run code, listed in rough order of desirability:\n\nIf you’re running inside Posit Assistant or otherwise have an executeCode() tool available, use it to run code in a session that the user can also interact with.\nOtherwise, if an R REPL (e.g. mcp__r__repl or btw::run_r) is available, use that. Note that mcp__r__repl uses a sandbox that blocks network requests and reads/writes outside of the current directory.\nOtherwise, use Rscript -e \"code\".\n\n\n\nCode style\n\nFollow the tidyverse style guide\nAlways run air format . after generating code.\nUse the base pipe operator (|&gt;), not the magrittr pipe (%&gt;%).\nUse \\() ... for single-line anonymous functions. For all other cases, use function() {...}.\n\n\n\nTest style\n\nTests for R/{name}.R go in tests/testthat/test-{name}.R.\nAll new code should have an accompanying test.\nIf there are existing tests, place new tests next to similar existing tests.\nStrive to keep your tests minimal with few comments.\nNever put code in a test-{name}.R file outside of a test_that() block. Instead, use tests/testthat/helper.R or tests/testthat/helper-{name}.R.\nAvoid expect_true() and expect_false() in favor of a specific expectation with a better failure message. A few expectations in newer releases that you might not know about are expect_all_true(), expect_all_equal(), and expect_r6_class().\nWhen testing errors and warnings:\n\nOnly use expect_error() or expect_warning() if the error or warning has a known class.\nGenerally, prefer expect_snapshot(error = TRUE) for errors and expect_snapshot() for warnings because these allow the user to review the full text of the output.\n\nAvoid the .package argument to local_mocked_bindings(); this modifies the namespace of another package, which is not good practice. Instead create a mockable version of the function in the current package. See ?local_mocked_bindings for more details.\n\n\n\nDocumentation\n\nEvery user-facing function should be exported and have roxygen2 documentation.\nInternal functions should not have roxygen documentation.\nWrap roxygen2 comments to 80 characters.\nWhenever you add a new (non-internal) documentation topic, also add the topic to _pkgdown.yml.\nAlways re-document the package after changing a roxygen2 comment.\nUse pkgdown::check_pkgdown() to check that all topics are included in the reference index.\n\n\n\nNEWS.md\n\nEvery user-facing change should be given a bullet in NEWS.md.\nChanges that shouldn’t get a bullet:\n\nSmall documentation changes.\nInternal refactorings.\nFixes to bugs introduced in the current dev version.\n\nEach bullet should briefly describe the change to the end user and mention the related issue in parentheses.\nA bullet can consist of multiple sentences but should not contain any newlines (i.e. DO NOT line wrap).\nIf the change is related to a function, put the name of the function early in the bullet.\nIf the change is related to an issue, include the issue number in parentheses.\nOnly include a GitHub username if the PR was created by someone who isn’t an author.\nOrder bullets alphabetically by function name. Put all bullets that don’t mention function names at the beginning."
-  },
-  {
-    "objectID": "AGENTS.html#specialized-skills",
-    "href": "AGENTS.html#specialized-skills",
-    "title": "UchidaMizuki",
-    "section": "Specialized skills",
-    "text": "Specialized skills\n\nDo you need to deprecate a function or argument? Read the output of usethis::learn_tidy_skill(\"deprecate\").\nAre you adding input checking to an existing function or writing a new exported function? Read the output of usethis::learn_tidy_skill(\"arg-checking\")."
-  },
-  {
-    "objectID": "AGENTS.html#git",
-    "href": "AGENTS.html#git",
-    "title": "UchidaMizuki",
-    "section": "Git",
-    "text": "Git\n\nIf the user asks you to commit, use markdown in the commit message, and don’t line wrap.\nIf the commit fixes an issue, include Fixes #num. on its own line.\nOnly push when the user explicitly requests it."
-  },
-  {
-    "objectID": "AGENTS.html#writing",
-    "href": "AGENTS.html#writing",
-    "title": "UchidaMizuki",
-    "section": "Writing",
-    "text": "Writing\n\nUse sentence case for headings.\nUse US English.\n\n\nProofreading\nIf the user asks you to proofread a file, act as an expert proofreader and editor with a deep understanding of clear, engaging, and well-structured writing.\nWork paragraph by paragraph, always starting by making a TODO list that includes individual items for each top-level section.\nFix spelling, grammar, and other minor problems without asking the user. Label any unclear, confusing, or ambiguous sentences with a FIXME comment.\nOnly report what you have changed."
-  },
-  {
     "objectID": "posts/2022/05/ioanalysis-in-r.html",
     "href": "posts/2022/05/ioanalysis-in-r.html",
     "title": "Input-Output Analysis in R",
