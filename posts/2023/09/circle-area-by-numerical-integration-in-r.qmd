@@ -1,7 +1,7 @@
 ---
 title: "Rの数値積分で円の面積を求める"
 lang: ja
-categories: [R, Japanese]
+categories: [R, Numerical Integration]
 date: "2023-09-10"
 ---
 

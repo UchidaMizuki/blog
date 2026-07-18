@@ -2,7 +2,7 @@
 title: "Rで産業連関分析"
 lang: ja
 date: "2022-05-31"
-categories: [ioanalysis, dibble, R, Japanese]
+categories: [ioanalysis, dibble, econio, R]
 image: skyline_chart.png
 ---
 

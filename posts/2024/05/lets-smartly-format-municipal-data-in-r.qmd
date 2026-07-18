@@ -1,7 +1,7 @@
 ---
 title: "Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）"
 lang: ja
-categories: [Japanese, jpcity]
+categories: [jpcity, R]
 date: 2024-05-25
 format: html
 image: https://raw.githubusercontent.com/UchidaMizuki/jpcity/main/man/figures/logo.png?raw=true

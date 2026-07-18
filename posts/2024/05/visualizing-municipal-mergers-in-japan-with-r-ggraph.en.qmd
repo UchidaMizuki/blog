@@ -1,7 +1,7 @@
 ---
 title: "Visualizing Municipal Mergers in Japan with R's ggraph"
 lang: en
-categories: [English, jpcity]
+categories: [jpcity, R, ggraph]
 date: 2024-05-26
 format: html
 ---

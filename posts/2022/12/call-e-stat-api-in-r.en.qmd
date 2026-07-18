@@ -2,7 +2,7 @@
 title: "Efficiently retrieve Japanese statistical data in R (with the e-Stat API and the jpstat package)"
 lang: en
 date: "2022-12-12"
-categories: [e-Stat, jpstat, R, English]
+categories: [e-Stat, jpstat, R]
 out-width: 100%
 image: https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true
 ---

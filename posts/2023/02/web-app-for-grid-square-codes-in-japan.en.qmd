@@ -2,7 +2,7 @@
 title: "I built a web app for Japanese grid square codes (R Shiny & jpgrid)"
 lang: en
 date: "2023-02-16"
-categories: [Shiny, jpgrid, R, English]
+categories: [Shiny, jpgrid, R]
 image: images/grid_city.png
 ---
 

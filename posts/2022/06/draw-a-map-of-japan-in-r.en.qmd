@@ -3,7 +3,7 @@ title: "Drawing a map of Japan in R"
 lang: en
 date: "2022-06-11"
 date-modified: "2024-04-27"
-categories: [ggplot2, sf, jpmap, R, English]
+categories: [ggplot2, sf, jpmap, R]
 fig-align: center
 out-width: 100%
 image: foreigner_ratio_2015.png

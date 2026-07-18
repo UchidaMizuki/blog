@@ -1,7 +1,7 @@
 ---
 title: "Reconstructing an income distribution from the median and Gini coefficient using the log-logistic distribution"
 lang: en
-categories: [English]
+categories: [Statistics, R]
 date: 2025-11-26
 df-print: paged
 message: false

@@ -1,7 +1,7 @@
 ---
 title: "Why is Bayes' theorem important? A PCR testing example"
 lang: en
-categories: [Bayes, R, English]
+categories: [Bayes, R, Statistics]
 date: "2023-04-30"
 image: why-is-bayes-theorem-important/bayes-theorem.png
 ---

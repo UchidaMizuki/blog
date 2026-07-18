@@ -1,7 +1,7 @@
 ---
 title: "R ggraphで全国の市町村合併を可視化する"
 lang: ja
-categories: [Japanese, jpcity]
+categories: [jpcity, R, ggraph]
 date: 2024-05-26
 format: html
 ---

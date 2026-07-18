@@ -1,7 +1,7 @@
 ---
 title: "Rのdmパッケージでデータ前処理の質を高めよう"
 lang: ja
-categories: [dm, R, Japanese]
+categories: [dm, R]
 date: "2024-01-28"
 format:
   html:

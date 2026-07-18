@@ -2,7 +2,7 @@
 title: "世代間の「1票の格差」を定量化してみる"
 lang: ja
 date: "2023-04-23"
-categories: [Politics, R, Japanese]
+categories: [Politics, e-Stat, jpstat, R]
 image: quantify-vote-disparity-between-generations/plot_vote_disparity.png
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "rvestで動的サイトをスクレイピングする（Seleniumを使わずに）"
 lang: ja
-categories: [rvest, R, Japanese]
+categories: [rvest, R]
 date: "2024-02-15"
 format:
   html:

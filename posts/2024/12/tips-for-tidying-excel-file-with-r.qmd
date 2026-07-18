@@ -1,7 +1,7 @@
 ---
 title: "RでExcelファイルを整形する際のTips"
 lang: ja
-categories: [Japanese, R, Excel, Tidy Data, Data Wrangling]
+categories: [R, Excel, Tidy Data, Data Wrangling]
 date: 2024-12-23
 last-modified: 2025-06-01
 format:

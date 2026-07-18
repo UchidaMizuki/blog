@@ -2,7 +2,7 @@
 title: "Let's try using Parquet instead of CSV"
 lang: en
 date: "2022-06-12"
-categories: [parquet, arrow, R, Python, English]
+categories: [parquet, arrow, R, Python]
 fig-align: center
 # image: https://www.apache.org/logos/res/parquet/parquet.png
 ---

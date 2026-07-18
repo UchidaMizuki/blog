@@ -2,7 +2,7 @@
 title: "Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）"
 engine: julia
 lang: ja
-categories: [JuMP, Julia, Japanese]
+categories: [JuMP, Julia]
 date: "2025-04-30"
 ---
 

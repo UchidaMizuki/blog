@@ -2,7 +2,7 @@
 title: "Quantifying the Generational 'Vote-Value Disparity'"
 lang: en
 date: "2023-04-23"
-categories: [Politics, R, English]
+categories: [Politics, e-Stat, jpstat, R]
 image: quantify-vote-disparity-between-generations/plot_vote_disparity.png
 ---
 

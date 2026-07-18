@@ -1,7 +1,7 @@
 ---
 title: "Improve the quality of data preprocessing with R's dm package"
 lang: en
-categories: [dm, R, English]
+categories: [dm, R]
 date: "2024-01-28"
 format:
   html:

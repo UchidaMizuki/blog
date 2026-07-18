@@ -2,7 +2,7 @@
 title: "Julia JuMPで効用最大化問題を解いてみた（簡易的な事例紹介）"
 engine: julia
 lang: ja
-categories: [JuMP, Julia, Japanese]
+categories: [JuMP, Julia]
 date: "2025-02-17"
 ---
 

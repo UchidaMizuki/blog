@@ -2,7 +2,7 @@
 title: "Solving Utility Maximisation Problems with Julia's JuMP (A Simple Example)"
 engine: julia
 lang: en
-categories: [JuMP, Julia, English]
+categories: [JuMP, Julia]
 date: "2025-02-17"
 ---
 

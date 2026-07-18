@@ -1,7 +1,7 @@
 ---
 title: "なぜベイズの定理が重要なのかーPCR検査を例にー"
 lang: ja
-categories: [Bayes, R, Japanese]
+categories: [Bayes, R, Statistics]
 date: "2023-04-30"
 image: why-is-bayes-theorem-important/bayes-theorem.png
 ---

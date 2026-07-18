@@ -1,7 +1,7 @@
 ---
 title: "対数ロジスティック分布を用いて所得の中央値とジニ係数から所得分布を再現する"
 lang: ja
-categories: [Japanese]
+categories: [Statistics, R]
 date: 2025-11-26
 df-print: paged
 message: false

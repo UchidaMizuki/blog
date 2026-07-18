@@ -2,7 +2,7 @@
 title: "地域メッシュデータのためのWEBアプリをつくりました（R Shiny&jpgrid）"
 lang: ja
 date: "2023-02-16"
-categories: [Shiny, jpgrid, R, Japanese]
+categories: [Shiny, jpgrid, R]
 image: images/grid_city.png
 ---
 

@@ -2,7 +2,7 @@
 title: "Create an animation of a population pyramid in R"
 lang: en
 date: "2023-01-01"
-categories: [ggplot2, gganimate, e-Stat, jpstat, R, English]
+categories: [ggplot2, gganimate, e-Stat, jpstat, R]
 out-width: 100%
 image: poppyramid.gif
 ---

@@ -511,7 +511,8 @@ font-style: inherit;">ggplotly</span>(plot_income_distribution)</span></code></p
 <li id="fn3"><p><a href="https://ja.wikipedia.org/wiki/%E8%B3%BC%E8%B2%B7%E5%8A%9B%E5%B9%B3%E4%BE%A1%E8%AA%AC#OECD%E7%B5%B1%E8%A8%88%E3%81%AE%E7%9B%B8%E5%AF%BE%E7%9A%84%E7%89%A9%E4%BE%A1%E6%B0%B4%E6%BA%96" class="uri">https://ja.wikipedia.org/wiki/%E8%B3%BC%E8%B2%B7%E5%8A%9B%E5%B9%B3%E4%BE%A1%E8%AA%AC#OECD%E7%B5%B1%E8%A8%88%E3%81%AE%E7%9B%B8%E5%AF%BE%E7%9A%84%E7%89%A9%E4%BE%A1%E6%B0%B4%E6%BA%96</a>↩︎</p></li>
 </ol>
 </section></div> ]]></description>
-  <category>English</category>
+  <category>Statistics</category>
+  <category>R</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2025/11/income-distribution-from-median-and-gini-log-logistic.html</guid>
   <pubDate>Tue, 25 Nov 2025 15:00:00 GMT</pubDate>
 </item>
@@ -930,7 +931,7 @@ font-style: inherit;">end_step</span>()</span></code></pre></div>
 
  ]]></description>
   <category>adverbial</category>
-  <category>English</category>
+  <category>R</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2025/05/guiding-data-processing-with-adverbial-step_by_step-in-r.html</guid>
   <pubDate>Sat, 24 May 2025 15:00:00 GMT</pubDate>
 </item>
@@ -1493,7 +1494,6 @@ font-style: inherit;">100</span>.</span>
 </section></div> ]]></description>
   <category>JuMP</category>
   <category>Julia</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html</guid>
   <pubDate>Tue, 29 Apr 2025 15:00:00 GMT</pubDate>
 </item>
@@ -2026,8 +2026,9 @@ font-style: inherit;">coord_obs_pred</span>()</span></code></pre></div>
 </section>
 
  ]]></description>
-  <category>English</category>
   <category>Statistics</category>
+  <category>R</category>
+  <category>Bayes</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.html</guid>
   <pubDate>Sat, 12 Apr 2025 15:00:00 GMT</pubDate>
 </item>
@@ -2361,7 +2362,6 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 </section></div> ]]></description>
   <category>JuMP</category>
   <category>Julia</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html</guid>
   <pubDate>Sun, 16 Feb 2025 15:00:00 GMT</pubDate>
 </item>
@@ -3517,7 +3517,6 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 <li id="fn4"><p>By using <a href="https://readxl.tidyverse.org/reference/cell-specification.html">cellranger</a>, you can also specify cell ranges in detail.↩︎</p></li>
 </ol>
 </section></div> ]]></description>
-  <category>English</category>
   <category>R</category>
   <category>Excel</category>
   <category>Tidy Data</category>
@@ -4160,8 +4159,9 @@ font-style: inherit;">print</span>(plot)</span>
 </section>
 
  ]]></description>
-  <category>English</category>
   <category>jpcity</category>
+  <category>R</category>
+  <category>ggraph</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html</guid>
   <pubDate>Sat, 25 May 2024 15:00:00 GMT</pubDate>
 </item>
@@ -4681,8 +4681,8 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 <li id="fn5"><p>Joetsu City was newly established on April 29, 1971 through the merger of Takada City and Naoetsu City, and later, on January 1, 2005, 13 towns and villages were merged into Joetsu City.↩︎</p></li>
 </ol>
 </section></div> ]]></description>
-  <category>English</category>
   <category>jpcity</category>
+  <category>R</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/lets-smartly-format-municipal-data-in-r.html</guid>
   <pubDate>Fri, 24 May 2024 15:00:00 GMT</pubDate>
   <media:content url="https://raw.githubusercontent.com/UchidaMizuki/jpcity/main/man/figures/logo.png?raw=true" medium="image"/>
@@ -4710,8 +4710,8 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 
 
  ]]></description>
-  <category>English</category>
   <category>Statistics</category>
+  <category>Bayes</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2024/03/normal-distribution-with-mean-following-a-normal-distribution.html</guid>
   <pubDate>Fri, 22 Mar 2024 15:00:00 GMT</pubDate>
 </item>
@@ -5149,7 +5149,9 @@ font-style: inherit;">'dag_lingam_nonlinear_power.mmd'</span>))</span></code></p
 
  ]]></description>
   <category>R</category>
-  <category>English</category>
+  <category>Python</category>
+  <category>Causal Inference</category>
+  <category>LiNGAM</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2024/03/be-careful-with-function-forms-in-lingam.html</guid>
   <pubDate>Sat, 09 Mar 2024 15:00:00 GMT</pubDate>
 </item>
@@ -5411,7 +5413,6 @@ font-style: inherit;">""</span>)</span></code></pre></div>
  ]]></description>
   <category>rvest</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2024/02/scraping-dynamic-sites-with-rvest.html</guid>
   <pubDate>Wed, 14 Feb 2024 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2024/02/scraping-dynamic-sites-with-rvest/html-view.png" medium="image" type="image/png" height="94" width="144"/>
@@ -6382,7 +6383,6 @@ font-style: inherit;">TRUE</span>))</span></code></pre></div>
 </section></div> ]]></description>
   <category>dm</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2024/01/relational-data-models-with-r-s-dm.html</guid>
   <pubDate>Sat, 27 Jan 2024 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2024/01/relational-data-models-with-r-s-dm/mermaid-figure-2.png" medium="image" type="image/png" height="118" width="144"/>
@@ -6705,7 +6705,7 @@ font-style: inherit;">1e6</span>)</span></code></pre></div>
 </ol>
 </section></div> ]]></description>
   <category>R</category>
-  <category>English</category>
+  <category>Numerical Integration</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2023/09/circle-area-by-numerical-integration-in-r.html</guid>
   <pubDate>Sat, 09 Sep 2023 15:00:00 GMT</pubDate>
 </item>
@@ -6806,7 +6806,6 @@ format:
   <category>LT</category>
   <category>Tokyo.R</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2023/09/presented-at-tokyor-using-quarto.html</guid>
   <pubDate>Sat, 02 Sep 2023 15:00:00 GMT</pubDate>
 </item>
@@ -6898,7 +6897,7 @@ format:
  ]]></description>
   <category>Bayes</category>
   <category>R</category>
-  <category>English</category>
+  <category>Statistics</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/why-is-bayes-theorem-important.html</guid>
   <pubDate>Sat, 29 Apr 2023 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/why-is-bayes-theorem-important/bayes-theorem.png" medium="image" type="image/png" height="14" width="144"/>
@@ -7978,8 +7977,9 @@ font-style: inherit;">2</span>))</span></code></pre></div>
 </ol>
 </section></div> ]]></description>
   <category>Politics</category>
+  <category>e-Stat</category>
+  <category>jpstat</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/quantify-vote-disparity-between-generations.html</guid>
   <pubDate>Sat, 22 Apr 2023 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/quantify-vote-disparity-between-generations/plot_vote_disparity.png" medium="image" type="image/png" height="103" width="144"/>
@@ -8221,7 +8221,6 @@ font-style: inherit;">"transparent"</span>)</span></code></pre></div>
   <category>Shiny</category>
   <category>jpgrid</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</guid>
   <pubDate>Wed, 15 Feb 2023 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/images/grid_city.png" medium="image" type="image/png" height="74" width="144"/>
@@ -8940,7 +8939,6 @@ font-style: inherit;">gifski_renderer</span>())</span></code></pre></div>
   <category>e-Stat</category>
   <category>jpstat</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2023/01/create-an-animation-of-a-population-pyramid-in-r.html</guid>
   <pubDate>Sat, 31 Dec 2022 15:00:00 GMT</pubDate>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2023/01/poppyramid.gif" medium="image" type="image/gif"/>
@@ -9955,7 +9953,6 @@ font-style: inherit;">2</span>))</span></code></pre></div>
   <category>e-Stat</category>
   <category>jpstat</category>
   <category>R</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2022/12/call-e-stat-api-in-r.html</guid>
   <pubDate>Sun, 11 Dec 2022 15:00:00 GMT</pubDate>
   <media:content url="https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true" medium="image"/>
@@ -10516,7 +10513,6 @@ font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
   <category>arrow</category>
   <category>R</category>
   <category>Python</category>
-  <category>English</category>
   <guid>https://uchidamizuki.quarto.pub/blog/en/posts/2022/06/use-parquet-instead-of-csv.html</guid>
   <pubDate>Sat, 11 Jun 2022 15:00:00 GMT</pubDate>
 </item>

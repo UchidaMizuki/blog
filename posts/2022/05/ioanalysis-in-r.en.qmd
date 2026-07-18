@@ -2,7 +2,7 @@
 title: "Input-Output Analysis in R"
 lang: en
 date: "2022-05-31"
-categories: [ioanalysis, dibble, R, English]
+categories: [ioanalysis, dibble, econio, R]
 image: skyline_chart.png
 ---
 
