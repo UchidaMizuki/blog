@@ -9975,7 +9975,7 @@ font-style: inherit;">2</span>))</span></code></pre></div>
   <media:content url="https://github.com/UchidaMizuki/jpstat/blob/main/man/figures/logo.png?raw=true" medium="image"/>
 </item>
 <item>
-  <title>CSVの代わりにParquetを使ってみよう</title>
+  <title>Let’s try using Parquet instead of CSV</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2022/06/use-parquet-instead-of-csv.html</link>
   <description><![CDATA[ 
 
@@ -9983,38 +9983,30 @@ font-style: inherit;">2</span>))</span></code></pre></div>
 
 
 
-<p>本記事では，<strong>CSVの代替として有望かつビッグデータ分析にも適している<a href="https://parquet.apache.org">Parquet</a></strong>を紹介します．</p>
-<p>さて，<strong>データフレーム</strong>（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．<strong>Rの<a href="https://tibble.tidyverse.org">tibble</a>・<a href="https://dplyr.tidyverse.org">dplyr</a></strong>や<strong>Pythonの<a href="https://pandas.pydata.org">pandas</a></strong>などのデータフレーム操作のためのパッケージを使えば，これまで<strong>Excelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行う</strong>ことができます．</p>
-<p>このようにデータ分析ツールが充実している一方で，データの保存には<strong>Excelなどとの互換性が高いCSV</strong>が未だに広く使われています．しかし，CSVは，必ずしもデータ分析に適したファイル形式とは言えません．そこで，<strong>CSVの代替</strong>として使われることが多くなっているParquetをCSVと比較してみましょう．</p>
-<section id="サンプルデータの準備" class="level2">
-<h2 class="anchored" data-anchor-id="サンプルデータの準備">サンプルデータの準備</h2>
-<p>CSVとParquetを比較するため，まずは，データ分析にありがちなサンプルデータを用意しましょう．今回は，tidyrパッケージで提供されている<code>who</code> （<a href="https://www.who.int/teams/global-tuberculosis-programme/data">世界保健機関（WHO）結核データ</a>）からサンプルデータをつくります．</p>
-<p>近年，データ分析では，<strong>整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）</strong>の概念が普及しています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．</p>
-<p>それでは，<code>who</code>は，tidy dataと言えるでしょうか？<code>who</code>には，<code>"new_sp_m014"</code> ～<code>"newrel_f65"</code> といったたくさんの列が存在しますが，これらには，1列ごとに，診断結果（<code>sp</code>や<code>sel</code>）・性別（<code>m</code>と<code>f</code>）・年齢階級（<code>014</code>や<code>65</code>）といった複数の変数が含まれています．そのため，<strong><code>who</code> は，tidy dataでない</strong>といえます．そこで，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従って<strong>tidy dataである<code>who_longer</code>に変形</strong>します．</p>
-<p>データ分析では，<code>who</code> よりtidy dataである<code>who_longer</code> のほうを分析が行いやすい一方で，行数は<code>who</code>（約7,000行）より<code>who_longer</code> （約400,000行）のほうが約50倍多いことがわかります．そのため，tidy dataである<code>who_longer</code>のようなデータをテキストファイルであるCSVで保存すると容量が増大してしまいます．</p>
-<p>このように，<strong>tidy dataはデータ分析に適している一方で，CSVのようなテキストファイルでの保存に適していない</strong>ことがわかります．しかし，このような<strong>データ保存上の課題はParquetを使えば解決する</strong>ことができます．</p>
-<p>ここで，tidy dataでない<code>who</code> とtidy dataである<code>who_longer</code> を見比べてみましょう．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv.html">my Japanese article</a>.</p>
+<p>In this article, I introduce <strong><a href="https://parquet.apache.org">Parquet</a>, a promising alternative to CSV that is also well-suited for big data analysis</strong>.</p>
+<p>Now, <strong>data frames</strong> are one of the most fundamental data structures in data analysis. By using packages for manipulating data frames, such as <strong><a href="https://tibble.tidyverse.org">tibble</a>/<a href="https://dplyr.tidyverse.org">dplyr</a> in R</strong> and <strong><a href="https://pandas.pydata.org">pandas</a> in Python</strong>, we can <strong>carry out data analysis that used to be done with spreadsheet software like Excel even more efficiently</strong>.</p>
+<p>While data analysis tools have become this well-developed, <strong>CSV, which has high compatibility with software like Excel,</strong> is still widely used for storing data. However, CSV is not necessarily a file format well-suited for data analysis. So, let’s compare Parquet, which is increasingly being used <strong>as an alternative to CSV</strong>, with CSV.</p>
+<section id="preparing-sample-data" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-sample-data">Preparing sample data</h2>
+<p>To compare CSV and Parquet, let’s first prepare sample data typical of data analysis. This time, we’ll create sample data from <code>who</code> (<a href="https://www.who.int/teams/global-tuberculosis-programme/data">World Health Organization (WHO) tuberculosis data</a>) provided by the tidyr package.</p>
+<p>In recent years, the concept of <strong><a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a></strong> has become widespread in data analysis. Tidy data is data in which each variable forms a single column, and each observation (value) forms a single row.</p>
+<p>So, can <code>who</code> be considered tidy data? <code>who</code> has many columns such as <code>"new_sp_m014"</code> through <code>"newrel_f65"</code>, but each of these columns actually contains multiple variables, such as the diagnosis result (<code>sp</code> or <code>sel</code>), gender (<code>m</code> or <code>f</code>), and age group (<code>014</code> or <code>65</code>). Therefore, <strong><code>who</code> is not tidy data</strong>. So, following <a href="https://tidyr.tidyverse.org/articles/pivot.html">this article</a>, we’ll <strong>transform it into <code>who_longer</code>, which is tidy data</strong>.</p>
+<p>In data analysis, <code>who_longer</code>, being tidy data, is easier to work with than <code>who</code>. However, we can see that <code>who_longer</code> (about 400,000 rows) has roughly 50 times more rows than <code>who</code> (about 7,000 rows). Therefore, storing data like <code>who_longer</code>, which is tidy data, as a text file such as CSV results in a large increase in file size.</p>
+<p>In this way, we can see that <strong>while tidy data is well-suited for data analysis, it is not well-suited for storage as a text file like CSV</strong>. However, <strong>this data storage problem can be solved by using Parquet</strong>.</p>
+<p>Here, let’s compare <code>who</code>, which is not tidy data, with <code>who_longer</code>, which is tidy data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.2.3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'tibble' was built under R version 4.2.3</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'dplyr' was built under R version 4.2.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(fs)</span></code></pre></div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">levels_gender <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">levels_gender <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10023,7 +10015,7 @@ background-color: null;
 font-style: inherit;">"f"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"m"</span>)</span>
-<span id="cb6-2">levels_age <span class="ot" style="color: #003B4F;
+<span id="cb2-2">levels_age <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10042,20 +10034,20 @@ background-color: null;
 font-style: inherit;">"5564"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"65"</span>)</span>
-<span id="cb6-3"></span>
-<span id="cb6-4">who_longer <span class="ot" style="color: #003B4F;
+<span id="cb2-3"></span>
+<span id="cb2-4">who_longer <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> who <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-5">  <span class="fu" style="color: #4758AB;
+<span id="cb2-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">pivot_longer</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">cols =</span> new_sp_m014<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span>newrel_f65,</span>
-<span id="cb6-6">               <span class="at" style="color: #657422;
+<span id="cb2-6">               <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">names_to =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10066,12 +10058,12 @@ background-color: null;
 font-style: inherit;">"gender"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"age"</span>), </span>
-<span id="cb6-7">               <span class="at" style="color: #657422;
+<span id="cb2-7">               <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">names_pattern =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"new_?(.*)_(.)(.*)"</span>,</span>
-<span id="cb6-8">               <span class="at" style="color: #657422;
+<span id="cb2-8">               <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">names_transform =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10082,33 +10074,33 @@ background-color: null;
 font-style: inherit;">~</span> .x <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-9">                                        readr<span class="sc" style="color: #5E5E5E;
+<span id="cb2-9">                                        readr<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">parse_factor</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">levels =</span> levels_gender),</span>
-<span id="cb6-10">                                      <span class="at" style="color: #657422;
+<span id="cb2-10">                                      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">age =</span> <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> .x <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-11">                                        readr<span class="sc" style="color: #5E5E5E;
+<span id="cb2-11">                                        readr<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">parse_factor</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">levels =</span> levels_age,</span>
-<span id="cb6-12">                                                            <span class="at" style="color: #657422;
+<span id="cb2-12">                                                            <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">ordered =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">TRUE</span>)),</span>
-<span id="cb6-13">               <span class="at" style="color: #657422;
+<span id="cb2-13">               <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
 background-color: null;
@@ -10116,10 +10108,10 @@ font-style: inherit;">"count"</span>)</span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># データ整形前</span></span>
-<span id="cb7-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;"># Before tidying</span></span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(who, <span class="at" style="color: #657422;
 background-color: null;
@@ -10143,10 +10135,10 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 #   new_sn_m1524 &lt;dbl&gt;, new_sn_m2534 &lt;dbl&gt;, new_sn_m3544 &lt;dbl&gt;,
 #   new_sn_m4554 &lt;dbl&gt;, new_sn_m5564 &lt;dbl&gt;, new_sn_m65 &lt;dbl&gt;, …</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># データ整形後</span></span>
-<span id="cb9-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;"># After tidying</span></span>
+<span id="cb5-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(who_longer, <span class="at" style="color: #657422;
 background-color: null;
@@ -10166,49 +10158,47 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="csvparquetの保存方法" class="level2">
-<h2 class="anchored" data-anchor-id="csvparquetの保存方法">CSV・Parquetの保存方法</h2>
-<p>Rでは，<code>write_csv()</code> でCSVを保存できます．同様に，arrowパッケージの<code>write_parquet()</code> でParquetを保存することができます．<code>who_longer</code>をCSVとParquetで保存してみましょう．</p>
-<p>CSVとParquetでは，どちらも簡単にデータ保存ができることがわかります．</p>
+<section id="saving-csv-and-parquet-files" class="level2">
+<h2 class="anchored" data-anchor-id="saving-csv-and-parquet-files">Saving CSV and Parquet files</h2>
+<p>In R, you can save CSV files with <code>write_csv()</code>. Similarly, you can save Parquet files with <code>write_parquet()</code> from the arrow package. Let’s try saving <code>who_longer</code> as both CSV and Parquet.</p>
+<p>As you can see, both CSV and Parquet make it easy to save data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(arrow)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'arrow' was built under R version 4.2.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+font-style: inherit;">library</span>(arrow)</span>
+<span id="cb7-2"></span>
+<span id="cb7-3"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># CSVを保存</span></span>
-<span id="cb13-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;"># Save as CSV</span></span>
+<span id="cb7-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">write_csv</span>(who_longer, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer.csv"</span>)</span>
-<span id="cb13-3"></span>
-<span id="cb13-4"><span class="co" style="color: #5E5E5E;
+<span id="cb7-5"></span>
+<span id="cb7-6"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Parquetを保存</span></span>
-<span id="cb13-5"><span class="fu" style="color: #4758AB;
+font-style: inherit;"># Save as Parquet</span></span>
+<span id="cb7-7"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">write_parquet</span>(who_longer, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer.parquet"</span>)</span></code></pre></div>
 </div>
 </section>
-<section id="parquetのメリットcsvとの比較" class="level2">
-<h2 class="anchored" data-anchor-id="parquetのメリットcsvとの比較">Parquetのメリット・CSVとの比較</h2>
-<p>ここからは，保存した<code>who_longer</code> のCSV・Parquetファイルを比較して，CSVに対するParquetのメリットを紹介していきます．</p>
-<section id="メリット1csvよりデータ容量が軽い" class="level3">
-<h3 class="anchored" data-anchor-id="メリット1csvよりデータ容量が軽い">メリット1：CSVよりデータ容量が軽い</h3>
-<p>tidy dataは行数が多くなるため，CSVでの保存に適しておらず，Parquetを使ったほうがよいことを既に述べました．</p>
-<p>実際に，<code>who_longer</code> のCSV・Parquetのデータ容量は，それぞれ，14.1 MBと154 KBとなり，<strong>ParquetはCSVの約1 %のデータ容量</strong>しかないことがわかります．</p>
-<p>どのようなケースでもこのようなデータ容量の削減が見込めるわけではありませんが，<strong>Parquetは列指向でデータ圧縮</strong>を行うため，Rなどでよく用いられる<strong>tidy dataの保存に適したデータ形式</strong>であるといえます．</p>
+<section id="advantages-of-parquet-compared-to-csv" class="level2">
+<h2 class="anchored" data-anchor-id="advantages-of-parquet-compared-to-csv">Advantages of Parquet compared to CSV</h2>
+<p>From here, we’ll compare the saved CSV and Parquet files of <code>who_longer</code> and introduce the advantages of Parquet over CSV.</p>
+<section id="advantage-1-smaller-file-size-than-csv" class="level3">
+<h3 class="anchored" data-anchor-id="advantage-1-smaller-file-size-than-csv">Advantage 1: Smaller file size than CSV</h3>
+<p>As mentioned earlier, tidy data tends to have many rows, which makes it poorly suited for storage as CSV, and using Parquet is preferable.</p>
+<p>In fact, the file sizes of the CSV and Parquet versions of <code>who_longer</code> are 14.1 MB and 154 KB, respectively, showing that <strong>Parquet takes up only about 1% of the file size of CSV</strong>.</p>
+<p>This level of size reduction can’t be expected in every case, but since <strong>Parquet is column-oriented and compresses data</strong>, it can be said to be <strong>a data format well-suited for storing tidy data</strong>, which is commonly used in R and elsewhere.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># CSV</span></span>
-<span id="cb14-2"><span class="fu" style="color: #4758AB;
+<span id="cb8-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">file_size</span>(<span class="st" style="color: #20794D;
 background-color: null;
@@ -10216,18 +10206,18 @@ font-style: inherit;">"who_longer.csv"</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>14.1M</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Parquet</span></span>
-<span id="cb16-2"><span class="fu" style="color: #4758AB;
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">file_size</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer.parquet"</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>156K</code></pre>
+<pre><code>161K</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">units<span class="sc" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">units<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10244,7 +10234,7 @@ background-color: null;
 font-style: inherit;">"who_longer.csv"</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb18-2">  units<span class="sc" style="color: #5E5E5E;
+<span id="cb12-2">  units<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10256,25 +10246,25 @@ font-style: inherit;">%</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">`</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>1.080502 [%]</code></pre>
+<pre><code>1.116534 [%]</code></pre>
 </div>
 </div>
 </section>
-<section id="メリット2csvより読み込みが簡単" class="level3">
-<h3 class="anchored" data-anchor-id="メリット2csvより読み込みが簡単">メリット2：CSVより読み込みが簡単</h3>
-<p><code>write_csv()</code>・<code>write_parquet()</code> でデータを書き込めるのと同様に，<strong><code>read_csv()</code>・<code>read_parquet()</code> でCSV・Parquetデータを読み込む</strong>ことができます．</p>
-<p><strong>CSV</strong>はテキスト形式であるため，<strong>読み込み時に<code>col_types</code>で各列の型を指定する必要</strong>があります（デフォルトでは自動で型を推測）．</p>
-<p>一方，<strong>Parquet</strong>は，書き込み時に各列の型情報も保存されているため読み込み時に<strong>型を指定する必要がありません</strong>．</p>
+<section id="advantage-2-easier-to-read-than-csv" class="level3">
+<h3 class="anchored" data-anchor-id="advantage-2-easier-to-read-than-csv">Advantage 2: Easier to read than CSV</h3>
+<p>Just as data can be written with <code>write_csv()</code>/<code>write_parquet()</code>, <strong>CSV/Parquet data can be read with <code>read_csv()</code>/<code>read_parquet()</code></strong>.</p>
+<p>Since <strong>CSV</strong> is a text format, <strong>you need to specify the type of each column with <code>col_types</code> when reading it</strong> (by default, the types are guessed automatically).</p>
+<p>On the other hand, since <strong>Parquet</strong> stores the type information of each column at write time, <strong>there is no need to specify types when reading it</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># CSVの読み込み</span></span>
-<span id="cb20-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;"># Read CSV</span></span>
+<span id="cb14-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer.csv"</span>,</span>
-<span id="cb20-3">         <span class="at" style="color: #657422;
+<span id="cb14-3">         <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">col_types =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -10283,82 +10273,82 @@ background-color: null;
 font-style: inherit;">.default =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"c"</span>,</span>
-<span id="cb20-4">                          <span class="at" style="color: #657422;
+<span id="cb14-4">                          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">year =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"i"</span>,</span>
-<span id="cb20-5">                          <span class="at" style="color: #657422;
+<span id="cb14-5">                          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">count =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"i"</span>))</span>
-<span id="cb20-6"></span>
-<span id="cb20-7"><span class="co" style="color: #5E5E5E;
+<span id="cb14-6"></span>
+<span id="cb14-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Parquetの読み込み</span></span>
-<span id="cb20-8"><span class="fu" style="color: #4758AB;
+font-style: inherit;"># Read Parquet</span></span>
+<span id="cb14-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">read_parquet</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer.parquet"</span>)</span></code></pre></div>
 </div>
 </section>
-<section id="メリット3csvよりビッグデータの読み込み集計に適している" class="level3">
-<h3 class="anchored" data-anchor-id="メリット3csvよりビッグデータの読み込み集計に適している">メリット3：CSVよりビッグデータの読み込み・集計に適している</h3>
-<p>CSVはビッグデータの保存に適しておらず，これまでは，ビッグデータの保存にはSQLを用いるなどの使い分けが必要でした．</p>
-<p>Rでは，dplyr（dbplyr）・DBIなどのパッケージで簡単にSQLが使えますが，データベースへの接続・切断などが必要なSQLは，CSVと使い勝手が異なり，初学者にとってはハードルがあるかもしれません．</p>
-<p>また，（ほとんどの？）<strong>SQLは行指向</strong>であるため，<strong>データの追加・更新・削除などに適しています</strong>が，データ分析に用いられる<strong>データの保存・集計には列指向であるParquetのほうが適している</strong>と思われます．</p>
-<p>CSVファイルを用いてビッグデータを集計する場合には，一度，全データをメモリに移す必要があります．そのため，データの読み込みでメモリが逼迫するおそれがあります．</p>
-<p>Parquetでは，<strong>読み込み時に<code>as_data_frame = FALSE</code></strong>とすることで，SQLと同様に<strong>メモリにデータを移すことなくデータのフィルタリング・集計などが可能</strong>です．</p>
-<p>ここでは，日本の年・症例別の患者数を計算してみましょう．<strong>dplyrの<code>filter()</code> ・<code>group_by()</code> ・<code>summarise()</code> などを使って効率的にクエリを作成</strong>することができます．<strong>最後に<code>collect()</code> を行えばデータフレームを出力</strong>することができます．</p>
+<section id="advantage-3-better-suited-than-csv-for-reading-and-aggregating-big-data" class="level3">
+<h3 class="anchored" data-anchor-id="advantage-3-better-suited-than-csv-for-reading-and-aggregating-big-data">Advantage 3: Better suited than CSV for reading and aggregating big data</h3>
+<p>CSV is not well-suited for storing big data, and until now, it has been necessary to use something like SQL for storing big data instead.</p>
+<p>In R, packages such as dplyr (dbplyr) and DBI make it easy to use SQL, but since SQL requires connecting to and disconnecting from a database, it works differently from CSV and may be a hurdle for beginners.</p>
+<p>Also, since (most?) <strong>SQL databases are row-oriented</strong>, they are <strong>well-suited for adding, updating, and deleting data</strong>, but for <strong>storing and aggregating data used in data analysis, the column-oriented Parquet seems better suited</strong>.</p>
+<p>When aggregating big data using CSV files, you need to load all the data into memory at once. This can put pressure on memory during data loading.</p>
+<p>With Parquet, by setting <strong><code>as_data_frame = FALSE</code> when reading</strong>, you can, just like with SQL, <strong>filter and aggregate data without loading it into memory</strong>.</p>
+<p>Here, let’s calculate the number of patients in Japan by year and diagnosis. <strong>You can efficiently build the query using dplyr functions such as <code>filter()</code>, <code>group_by()</code>, and <code>summarise()</code></strong>. <strong>Finally, calling <code>collect()</code> outputs the result as a data frame</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">read_parquet</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer.parquet"</span>,</span>
-<span id="cb21-2">             <span class="at" style="color: #657422;
+<span id="cb15-2">             <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">as_data_frame =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-3">  <span class="fu" style="color: #4758AB;
+<span id="cb15-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(country <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Japan"</span>,</span>
-<span id="cb21-4">         <span class="sc" style="color: #5E5E5E;
+<span id="cb15-4">         <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-5">  <span class="fu" style="color: #4758AB;
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-6">  <span class="fu" style="color: #4758AB;
+<span id="cb15-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">count =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sum</span>(count),</span>
-<span id="cb21-7">            <span class="at" style="color: #657422;
+<span id="cb15-7">            <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb21-8">  <span class="fu" style="color: #4758AB;
+<span id="cb15-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">collect</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -10379,42 +10369,42 @@ font-style: inherit;">collect</span>()</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="メリット4複数のデータからなるデータセットを扱える" class="level3">
-<h3 class="anchored" data-anchor-id="メリット4複数のデータからなるデータセットを扱える">メリット4：複数のデータからなるデータセットを扱える</h3>
-<p>Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，<strong>Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える</strong>ため，このようなデメリットを簡単に解決することができます．</p>
-<p>ここでは，<code>who_longer</code>を年齢階級別に分割したParquetファイルを格納した<code>"who_longer_byage"</code> フォルダをデータセットのサンプルとして用いましょう．</p>
-<p><strong><code>open_dataset("who_longer_byage")</code></strong> とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の<strong>データ集計を簡単に行うことができます</strong>．</p>
+<section id="advantage-4-can-handle-datasets-made-up-of-multiple-files" class="level3">
+<h3 class="anchored" data-anchor-id="advantage-4-can-handle-datasets-made-up-of-multiple-files">Advantage 4: Can handle datasets made up of multiple files</h3>
+<p>Because Parquet is column-oriented, unlike row-oriented SQL, it is not well-suited for adding, updating, or deleting data. However, <strong>Parquet makes it easy to read datasets made up of multiple files</strong>, which easily resolves this disadvantage.</p>
+<p>Here, let’s use the <code>"who_longer_byage"</code> folder, which contains Parquet files with <code>who_longer</code> split by age group, as a sample dataset.</p>
+<p>By using <strong><code>open_dataset("who_longer_byage")</code></strong>, we can <strong>easily perform the same data aggregation as before</strong>, even though the folder contains multiple Parquet files.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">dir_create</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer_byage"</span>)</span>
-<span id="cb23-2">who_longer <span class="sc" style="color: #5E5E5E;
+<span id="cb17-2">who_longer <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb23-3">  <span class="fu" style="color: #4758AB;
+<span id="cb17-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_by</span>(age) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb23-4">  <span class="fu" style="color: #4758AB;
+<span id="cb17-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_walk</span>(<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> .x <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb23-5">               <span class="fu" style="color: #4758AB;
+<span id="cb17-5">               <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">write_parquet</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">str_glue</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer_byage/who_longer_{.y$age}.parquet"</span>)),</span>
-<span id="cb23-6">  <span class="at" style="color: #657422;
+<span id="cb17-6">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">.keep =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
@@ -10422,47 +10412,47 @@ font-style: inherit;">TRUE</span>)</span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">open_dataset</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"who_longer_byage"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-2">  <span class="fu" style="color: #4758AB;
+<span id="cb18-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(country <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Japan"</span>,</span>
-<span id="cb24-3">         <span class="sc" style="color: #5E5E5E;
+<span id="cb18-3">         <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">is.na</span>(count)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-4">  <span class="fu" style="color: #4758AB;
+<span id="cb18-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_by</span>(country, year, diagnosis) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-5">  <span class="fu" style="color: #4758AB;
+<span id="cb18-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">count =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sum</span>(count),</span>
-<span id="cb24-6">            <span class="at" style="color: #657422;
+<span id="cb18-6">            <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb24-7">  <span class="fu" style="color: #4758AB;
+<span id="cb18-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">collect</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -10483,20 +10473,20 @@ font-style: inherit;">collect</span>()</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="メリット5rpython間でのデータのやり取りに適している" class="level3">
-<h3 class="anchored" data-anchor-id="メリット5rpython間でのデータのやり取りに適している">メリット5：R・Python間でのデータのやり取りに適している</h3>
-<p>PythonのpandasパッケージはParquetの読み書きに対応しているため，Parquetは，R・Python間でのデータのやり取りにも適しています．</p>
-<p>Rで作成した<code>'who_longer.parquet'</code> をpandasで読み込んでみましょう．</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="im" style="color: #00769E;
+<section id="advantage-5-well-suited-for-exchanging-data-between-r-and-python" class="level3">
+<h3 class="anchored" data-anchor-id="advantage-5-well-suited-for-exchanging-data-between-r-and-python">Advantage 5: Well-suited for exchanging data between R and Python</h3>
+<p>Since Python’s pandas package supports reading and writing Parquet files, Parquet is also well-suited for exchanging data between R and Python.</p>
+<p>Let’s try reading the <code>'who_longer.parquet'</code> file created in R with pandas.</p>
+<div class="sourceCode" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">as</span> pd</span>
-<span id="cb26-2"></span>
-<span id="cb26-3">pd.read_parquet(<span class="st" style="color: #20794D;
+<span id="cb20-2"></span>
+<span id="cb20-3">pd.read_parquet(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>            country iso2 iso3    year diagnosis gender   age   count
 0       Afghanistan   AF  AFG  1980.0        sp      m   014     NaN
@@ -10516,11 +10506,11 @@ font-style: inherit;">'who_longer.parquet'</span>)</span></code></pre></div>
 </div>
 </section>
 </section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．</p>
-<p>また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる<a href="https://wcjochem.github.io/sfarrow/">sfarrow</a>なども登場しています．</p>
-<p>CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>So far, we’ve introduced the advantages of Parquet available in both R and Python. Parquet is well-suited for storing and aggregating tidy data, which has become widespread in data analysis in recent years.</p>
+<p>In addition, packages such as <a href="https://wcjochem.github.io/sfarrow/">sfarrow</a>, which can save data from the sf package (used for handling geographic data) as Parquet, have also recently appeared.</p>
+<p>By using Parquet instead of CSV, data analysis is expected to become even easier.</p>
 
 
 </section>

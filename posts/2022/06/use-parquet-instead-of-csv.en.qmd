@@ -199,11 +199,27 @@ Since Python's pandas package supports reading and writing Parquet files, Parque
 
 Let's try reading the `'who_longer.parquet'` file created in R with pandas.
 
-```{python}
-#| label: read-data-py
+```python
 import pandas as pd
 
 pd.read_parquet('who_longer.parquet')
+```
+
+```{r}
+#| label: read-data-py
+#| echo: false
+#| message: false
+
+# R's arrow and Python's pyarrow can't both load their compiled libraries in
+# the same process on Windows (apache/arrow#40073), so this runs in an
+# isolated subprocess via callr instead of a native {python} chunk.
+cat(callr::r(function() {
+  reticulate::use_python("D:/uchid/Documents/.virtualenvs/r-reticulate/Scripts/python.exe", required = TRUE)
+  builtins <- reticulate::import_builtins(convert = FALSE)
+  pd <- reticulate::import("pandas", convert = FALSE)
+  df <- pd$read_parquet("who_longer.parquet")
+  as.character(builtins$repr(df))
+}))
 ```
 
 ## Summary
