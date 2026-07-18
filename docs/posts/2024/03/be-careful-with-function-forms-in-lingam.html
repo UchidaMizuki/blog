@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
-<head>
-<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2024/03/be-careful-with-function-forms-in-lingam.html" />
-<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/03/be-careful-with-function-forms-in-lingam.en.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
 <title>LiNGAMによる因果探索では関数形に注意しよう – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,11 +55,24 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -87,20 +100,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script><meta name="mermaid-theme" content="default">
-<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script><script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script><link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+</script>
+<meta name="mermaid-theme" content="default">
+<script src="../../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
 <link rel="stylesheet" href="../../../styles.css">
 </head>
+
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -112,10 +136,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-<li class="nav-item"><div class="dropdown" id="languages-links-parent">
-<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/03/be-careful-with-function-forms-in-lingam.html" id="language-link-en">English</a></li></ul>
-</div></li>
-<li class="nav-item compact">
+  <li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -138,11 +159,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-</div> <!-- /navcollapse -->
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">LiNGAMによる因果探索では関数形に注意しよう</h1>
                                 <div class="quarto-categories">
@@ -174,15 +199,21 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="lingamによる因果探索" class="level2"><h2 class="anchored" data-anchor-id="lingamによる因果探索">LiNGAMによる因果探索</h2>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="lingamによる因果探索" class="level2">
+<h2 class="anchored" data-anchor-id="lingamによる因果探索">LiNGAMによる因果探索</h2>
 <p>LiNGAM（Linear Non-Gaussian Acyclic Model）は代表的な因果探索手法の一つで，近年は市販のソフトウェア等にも実装されるなど実務での活用が進んでいるようです．LiNGAMは，その名の通り，関数形が線形かつ誤差項がガウス分布（正規分布）以外に従う場合に，データから因果関係を明らかにすることができる手法です．</p>
 <p>LiNGAMは，PythonのlingamパッケージやRのpcalgパッケージで利用することができ，これらのパッケージで提供される関数にデータフレームを入力すれば，簡単に因果グラフを推定することができます．因果グラフとは，観測変数をノード，因果関係を矢印に見立てて構築されるネットワーク構造のことです．特に，因果探索では，因果グラフとしてDAG（Directed Acyclic Graph）と呼ばれる有向非巡回グラフを推定することが一般的です．</p>
 <p>因果グラフの例として，以下にレストラン経営に関する因果グラフを作成してみました．実務においては，曜日・天気・出店地域などの様々な要因によって利益が 変動すると考えられ，さらに複雑な因果関係が分析対象となることが想定されます．</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
-<p></p>
-<figure class="figure"><p></p>
+<p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
   食材の質 --&gt; 料理の美味しさ
@@ -204,15 +235,16 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section><section id="関数形がlingamの推定に与える影響について" class="level2"><h2 class="anchored" data-anchor-id="関数形がlingamの推定に与える影響について">関数形がLiNGAMの推定に与える影響について</h2>
+</section>
+<section id="関数形がlingamの推定に与える影響について" class="level2">
+<h2 class="anchored" data-anchor-id="関数形がlingamの推定に与える影響について">関数形がLiNGAMの推定に与える影響について</h2>
 <p>LiNGAMは，関数形が線形かつ誤差項がガウス分布以外に従うという前提のもとで因果関係を推定する手法です．そのため，関数形が線形でない（線形近似が難しい）場合には，誤った因果関係が推定される可能性があります．パッケージや市販のソフトウェアを使えばLiNGAMを簡単に実行することができてしまいますが，利用者はこうした前提があることを理解してLiNGAMを使う必要があると思われます．</p>
 <p>ここでは，上に挙げた因果グラフよりも簡単な以下のような因果関係をもつデータに対してLiNGAMを適用してみましょう．具体的には， 以下のフローチャートの<code>fun</code>に，非線形な関数が入ったときにLiNGAMの結果がどのように変わるかを確認します．</p>
 <p>ただし，この記事では最も一般的なLiNGAMであるDirect LiNGAM，誤差項として非ガウス分布の一様分布を用いています． また，係数の絶対値が0.001未満の因果関係は無視するものとしました．</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
-<p></p>
-<figure class="figure"><p></p>
+<p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
   x11 --&gt; add1(+)
@@ -230,7 +262,9 @@ style fun2 stroke:red,color:red
 </div>
 <p>因果グラフの推定に先立って<code>x11</code>・<code>x12</code>・<code>x22</code>列をもつ1,000行のデータフレームおよび因果探索用の関数を用意しておきましょう．</p>
 <div id="bbad07ff" class="cell" data-execution_count="1">
-<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> lingam</span>
@@ -275,7 +309,8 @@ style fun2 stroke:red,color:red
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  os.makedirs(<span class="bu">dir</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="因果グラフに掛け算が含まれるケースfunが" class="level3"><h3 class="anchored" data-anchor-id="因果グラフに掛け算が含まれるケースfunが">因果グラフに掛け算が含まれるケース（<code>fun</code>が<code>*</code>）</h3>
+<section id="因果グラフに掛け算が含まれるケースfunが" class="level3">
+<h3 class="anchored" data-anchor-id="因果グラフに掛け算が含まれるケースfunが">因果グラフに掛け算が含まれるケース（<code>fun</code>が<code>*</code>）</h3>
 <p><code>fun</code>が掛け算（<code>*</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと同等の構造をもっており，今回のケースでは，因果グラフが正しく推定されていることがわかります． このように，足し算（線形）でなく掛け算のケースでも因果関係の推定がうまくいくケースがあるようです． ただし，観測変数の数やデータ数によっては状況が大きく異なるかもしれません．</p>
 <div id="d8e74b08" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data_nonlinear_prod <span class="op">=</span> data<span class="op">\</span></span>
@@ -295,14 +330,15 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 <div id="27f1f988" class="cell" data-execution_count="3">
-<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_prod, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_prod.mmd'</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_prod, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_prod.mmd'</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell" data-file="be-careful-with-function-forms-in-lingam/dag_lingam_nonlinear_prod.mmd" data-layout-align="default">
 <div class="cell-output-display">
 <div>
-<p></p>
-<figure class="figure"><p></p>
+<p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
   x11--&gt;|0.976|x21
@@ -315,7 +351,9 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 </div>
-</section><section id="因果グラフにべき乗が含まれるケースfunが" class="level3"><h3 class="anchored" data-anchor-id="因果グラフにべき乗が含まれるケースfunが">因果グラフにべき乗が含まれるケース（<code>fun</code>が<code>**</code>）</h3>
+</section>
+<section id="因果グラフにべき乗が含まれるケースfunが" class="level3">
+<h3 class="anchored" data-anchor-id="因果グラフにべき乗が含まれるケースfunが">因果グラフにべき乗が含まれるケース（<code>fun</code>が<code>**</code>）</h3>
 <p>次に，<code>fun</code>がべき乗（<code>**</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと異なる構造をもっており，もともと因果関係が存在しない上流の観測変数間にも誤った因果関係が推定されていることがわかります．このように，Direct LiNGAMに非線形な関数が含まれる場合には，その関数と直接関係しない観測変数間においても，誤った因果関係が推定されてしまうリスクがあることがわかります．</p>
 <div id="62827ab5" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_nonlinear_power <span class="op">=</span> data<span class="op">\</span></span>
@@ -336,14 +374,15 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 <div id="3fa4e5b0" class="cell" data-execution_count="5">
-<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_power, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_power.mmd'</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_power, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_power.mmd'</span>))</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell" data-file="be-careful-with-function-forms-in-lingam/dag_lingam_nonlinear_power.mmd" data-layout-align="default">
 <div class="cell-output-display">
 <div>
-<p></p>
-<figure class="figure"><p></p>
+<p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
   x11--&gt;|-0.148|x12
@@ -357,12 +396,18 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 </div>
-</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>この記事では，非線形な関数をもつデータに対してLiNGAMを適用すると，誤った因果関係が推定される可能性があることを示しました． そのため，LiNGAMの適用にあたっては，因果関係が線形で表せることを確認することが重要です．</p>
 <p>一方で，因果関係がわからない状況なのに，因果関係が線形で表せることがわかるという状況はまれであると思われます． そのため，事後的な線形性の確認や実験などを通じて，慎重に因果関係を特定することが求められます．</p>
 
 
-</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -778,12 +823,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body>
-</html>
+</body></html>

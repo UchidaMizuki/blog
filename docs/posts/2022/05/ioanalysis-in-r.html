@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
-<head>
-<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2022/05/ioanalysis-in-r.html" />
-<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/05/ioanalysis-in-r.en.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
 <title>Rで産業連関分析 – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,11 +55,24 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -87,13 +100,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -118,12 +139,17 @@ const typesetMath = (el) => {
 window.Quarto = {
   typesetMath
 };
-</script><link rel="stylesheet" href="../../../styles.css">
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
 </head>
+
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -135,10 +161,7 @@ window.Quarto = {
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-<li class="nav-item"><div class="dropdown" id="languages-links-parent">
-<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/05/ioanalysis-in-r.html" id="language-link-en">English</a></li></ul>
-</div></li>
-<li class="nav-item compact">
+  <li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -161,11 +184,15 @@ window.Quarto = {
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-</div> <!-- /navcollapse -->
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Rで産業連関分析</h1>
                                 <div class="quarto-categories">
@@ -197,7 +224,13 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p>産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>産業連関分析は，経済波及効果の算出に広く用いられている分析手法です． 日本では，国や都道府県によって，約5年に1度，産業連関表と呼ばれる統計データが 作成・公開されており，産業連関分析における基礎データとなっています．</p>
 <p>これまで，産業連関分析では，Excel・VBAが用いられることが多かったようです．</p>
 <p>一方で，近年は，Python・R・Juliaなどのプログラミング言語の普及が進んでいます． これらのプログラミング言語は以下のような特長を持っています．</p>
 <ul>
@@ -208,20 +241,18 @@ window.Quarto = {
 <p>そのため今後は，産業連関分析においても，これらのプログラミング言語の利用が 進むのではないかと思われます．</p>
 <p>ここでは，Rを用いて産業連関分析を行います． Rでは近年，tidyverseなどモダンなデータ分析を行うためのパッケージが 多く提供されており，プログラミング初心者でも習得しやすい言語であると思います．</p>
 <p>産業連関表として，e-Statのデータベースで公開されている日本（国）の 2013年・13部門産業連関表を用います． ここで使用するデータは， <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできます．</p>
-<section id="産業連関分析の基礎" class="level2"><h2 class="anchored" data-anchor-id="産業連関分析の基礎">産業連関分析の基礎</h2>
+<section id="産業連関分析の基礎" class="level2">
+<h2 class="anchored" data-anchor-id="産業連関分析の基礎">産業連関分析の基礎</h2>
 <p>産業連関分析は一般的に以下の流れに従って行われます．</p>
 <ol type="1">
-<li>
-<strong>産業連関表</strong>の整形</li>
-<li>
-<strong>投入係数行列</strong>の算出</li>
-<li>
-<strong>レオンチェフ逆行列</strong>の算出</li>
-<li>
-<strong>経済波及効果</strong>の算出</li>
+<li><strong>産業連関表</strong>の整形</li>
+<li><strong>投入係数行列</strong>の算出</li>
+<li><strong>レオンチェフ逆行列</strong>の算出</li>
+<li><strong>経済波及効果</strong>の算出</li>
 </ol>
 <p>まず，産業連関分析において重要な投入係数行列・レオンチェフ逆行列・経済波及効果の算出方法について解説します．</p>
-<section id="投入係数行列とは" class="level3"><h3 class="anchored" data-anchor-id="投入係数行列とは">投入係数行列とは</h3>
+<section id="投入係数行列とは" class="level3">
+<h3 class="anchored" data-anchor-id="投入係数行列とは">投入係数行列とは</h3>
 <p>投入係数は，産業の「<strong>クッキングレシピ</strong>」として呼ばれており，産業<span class="math inline">\(j\)</span>の生産物を1単位生産するのに必要な産業<span class="math inline">\(i\)</span>の生産物の量を表すものです．具体的には，以下のように中間投入<span class="math inline">\(x_{ij}\)</span>を生産額<span class="math inline">\(X_j\)</span>（産出額）で割ることで算出できます．</p>
 <p><span class="math display">\[
 a_{ij}=\frac{x_{ij}}{X_j}
@@ -234,16 +265,20 @@ A = \begin{pmatrix}
   a_{n1} &amp; \cdots &amp; a_{nn} \\
 \end{pmatrix}
 \]</span></p>
-</section><section id="レオンチェフ逆行列による経済波及効果の推計について" class="level3"><h3 class="anchored" data-anchor-id="レオンチェフ逆行列による経済波及効果の推計について">レオンチェフ逆行列による経済波及効果の推計について</h3>
+</section>
+<section id="レオンチェフ逆行列による経済波及効果の推計について" class="level3">
+<h3 class="anchored" data-anchor-id="レオンチェフ逆行列による経済波及効果の推計について">レオンチェフ逆行列による経済波及効果の推計について</h3>
 <p>生産額のバランス式（行方向）は，行列を用いて以下のように表せます．変数の意味は以下の表の通りです．</p>
 <p><span class="math display">\[
 AX + F + E - M = X
 \]</span></p>
 <table class="caption-top table">
-<thead><tr class="header">
+<thead>
+<tr class="header">
 <th style="text-align: center;">変数</th>
 <th style="text-align: center;">意味</th>
-</tr></thead>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: center;"><span class="math inline">\(A\)</span></td>
@@ -302,8 +337,12 @@ AX + F + E - M = X
 <p>生産額の変化量<span class="math inline">\(\Delta X\)</span>の式の右辺の<span class="math inline">\((I - \hat{M}) \Delta F\)</span>は，最終需要の変化量に自給率<span class="math inline">\(I - \hat{M}\)</span>を掛けた値となっています．</p>
 <p>また，<span class="math inline">\([I - (I - \hat{M}) A] ^ {-1}\)</span>は，最終需要の変化による直接・間接の波及効果を表す行列であり（開放型または競争移輸入型の）<strong>レオンチェフ逆行列</strong>と呼ばれています．</p>
 <p>以上のように，最終需要の変化量<span class="math inline">\(\Delta F\)</span>から生産額の変化量<span class="math inline">\(\Delta X\)</span>を推計するというのが，最も一般的な産業連関分析の方法となっています．</p>
-</section></section><section id="rによる産業連関分析" class="level2"><h2 class="anchored" data-anchor-id="rによる産業連関分析">Rによる産業連関分析</h2>
-<section id="産業連関表の整形" class="level3"><h3 class="anchored" data-anchor-id="産業連関表の整形">産業連関表の整形</h3>
+</section>
+</section>
+<section id="rによる産業連関分析" class="level2">
+<h2 class="anchored" data-anchor-id="rによる産業連関分析">Rによる産業連関分析</h2>
+<section id="産業連関表の整形" class="level3">
+<h3 class="anchored" data-anchor-id="産業連関表の整形">産業連関表の整形</h3>
 <p>ここでは， <a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる日本の2011年の3部門表（<code>iotable_3sector_2011_wider.csv</code>）を使用します．</p>
 <p>こちらの表は，以下のように，日本の2011年の13部門表より作成したもので，<strong>単位は「百万円」</strong>です．</p>
 <ul>
@@ -334,7 +373,8 @@ AX + F + E - M = X
 <col style="width: 11%">
 <col style="width: 11%">
 </colgroup>
-<thead><tr class="header">
+<thead>
+<tr class="header">
 <th style="text-align: left;">input</th>
 <th style="text-align: right;">industry/01_primary</th>
 <th style="text-align: right;">industry/02_secondary</th>
@@ -342,7 +382,8 @@ AX + F + E - M = X
 <th style="text-align: right;">finaldemand/04_finaldemand</th>
 <th style="text-align: right;">export/05_export</th>
 <th style="text-align: right;">import/06_import</th>
-</tr></thead>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">industry/01_primary</td>
@@ -404,13 +445,15 @@ AX + F + E - M = X
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(iotable)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<thead><tr class="header">
+<thead>
+<tr class="header">
 <th style="text-align: left;">input_type</th>
 <th style="text-align: left;">input_name</th>
 <th style="text-align: left;">output_type</th>
 <th style="text-align: left;">output_name</th>
 <th style="text-align: right;">value_M</th>
-</tr></thead>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">industry</td>
@@ -596,7 +639,9 @@ AX + F + E - M = X
 # ℹ 14 more rows</code></pre>
 </div>
 </div>
-</section><section id="投入係数行列の算出" class="level3"><h3 class="anchored" data-anchor-id="投入係数行列の算出">投入係数行列の算出</h3>
+</section>
+<section id="投入係数行列の算出" class="level3">
+<h3 class="anchored" data-anchor-id="投入係数行列の算出">投入係数行列の算出</h3>
 <p>産業の「クッキングレシピ」と呼ばれる投入係数行列<span class="math inline">\(A\)</span>を以下のように中間投入を生産額で割って算出します．</p>
 <p>注：dibbleではブロードキャストが自動で行われますが，安全のため，ブロードキャストを行う際に，警告を発するように設計されています．そのため，<code>broadcast()</code>でブロードキャスト後の軸名<code>c("input", "output")</code>を与えて警告が出ないようにする必要があります．</p>
 <div class="cell">
@@ -631,7 +676,9 @@ AX + F + E - M = X
 9 industry   03_tertiary  industry    03_tertiary  0.267  </code></pre>
 </div>
 </div>
-</section><section id="レオンチェフ逆行列の算出" class="level3"><h3 class="anchored" data-anchor-id="レオンチェフ逆行列の算出">レオンチェフ逆行列の算出</h3>
+</section>
+<section id="レオンチェフ逆行列の算出" class="level3">
+<h3 class="anchored" data-anchor-id="レオンチェフ逆行列の算出">レオンチェフ逆行列の算出</h3>
 <p>経済波及効果を表すレオンチェフ逆行列は以下のように，移輸入係数と投入係数を用いて算出できます．</p>
 <p>注：<code>solve()</code>で逆行列を算出すると行列の軸名が入れ替わるため注意してください．</p>
 <div class="cell">
@@ -678,7 +725,9 @@ AX + F + E - M = X
 9 industry    03_tertiary  industry   03_tertiary  1.41   </code></pre>
 </div>
 </div>
-</section><section id="経済波及効果の算出" class="level3"><h3 class="anchored" data-anchor-id="経済波及効果の算出">経済波及効果の算出</h3>
+</section>
+<section id="経済波及効果の算出" class="level3">
+<h3 class="anchored" data-anchor-id="経済波及効果の算出">経済波及効果の算出</h3>
 <p><a href="https://github.com/UchidaMizuki/blog-ioanalysis-in-r">こちら</a> からダウンロードできる最終需要がそれぞれ百万円ずつ増加する（<code>finaldemand_change_3sector.csv</code>）ケースで経済波及効果を算出しています．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 最終需要変化量</span></span>
@@ -719,12 +768,16 @@ AX + F + E - M = X
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="ioanalysis-in-r_files/figure-html/plot-spillover-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figure class="figure">
+<p><img src="ioanalysis-in-r_files/figure-html/plot-spillover-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
 </div>
-</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>Rを用いた産業連関分析の方法について紹介しました．</p>
 <p>ここまでの計算は，<a href="https://github.com/UchidaMizuki/econio">econio</a>パッケージにまとめられています．また，<a href="https://github.com/UchidaMizuki/econiodatajp">econiodatajp</a>パッケージを使うと，e-Statから産業連関表をダウンロード・整形する手間なく，そのまま産業連関表を取得できます．以下のように，ここまでの計算と同様の計算を行うことができます（なお，jpioパッケージは現在使用しておらず，econio・econiodatajpに置き換わっています）．</p>
 <div class="cell">
@@ -818,7 +871,8 @@ AX + F + E - M = X
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(iotable, <span class="at">type =</span> <span class="st">"skyline"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="ioanalysis-in-r_files/figure-html/econio-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure">
+<p><img src="ioanalysis-in-r_files/figure-html/econio-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -826,7 +880,10 @@ AX + F + E - M = X
 <p>特定の最終需要変化に対する経済波及効果は，econioには専用の関数は用意されていないため，上記で紹介したように，レオンチェフ逆行列に最終需要の変化量を掛け合わせることで算出します．</p>
 
 
-</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -1242,12 +1299,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body>
-</html>
+</body></html>

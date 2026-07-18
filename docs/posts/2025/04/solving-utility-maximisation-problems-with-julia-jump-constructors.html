@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
-<head>
-<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html" />
-<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.en.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
 <title>Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って） – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,11 +55,24 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -87,18 +100,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script><link rel="stylesheet" href="../../../styles.css">
+</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
 </head>
+
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -110,10 +132,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-<li class="nav-item"><div class="dropdown" id="languages-links-parent">
-<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/solving-utility-maximisation-problems-with-julia-jump-constructors.html" id="language-link-en">English</a></li></ul>
-</div></li>
-<li class="nav-item compact">
+  <li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -136,11 +155,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-</div> <!-- /navcollapse -->
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Julia JuMPで効用最大化問題を解いてみた（コンストラクタを使って）</h1>
                                 <div class="quarto-categories">
@@ -170,10 +193,17 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で，Juliaの数理最適化ライブラリのJuMPを使って効用最大化問題を解く方法を紹介しました．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で，Juliaの数理最適化ライブラリのJuMPを使って効用最大化問題を解く方法を紹介しました．</p>
 <p>過去の記事では，簡単な事例紹介としてコブ・ダグラス型効用関数を使った効用最大化問題を解く方法を紹介しましたが， 経済モデルでは，コブ・ダグラス型効用関数以外にも，CES型効用関数などの様々な効用関数が使われます． しかし，過去の記事で用いた実装方法では，効用関数を変更するたびに最適化問題の実装を変更する必要がありました．</p>
 <p>そこで，この記事では，Juliaのコンストラクタを使って， 同一のコードで異なる効用関数に対する効用最大化問題を解く方法を紹介します．</p>
-<section id="コブダグラス型効用関数の実装" class="level2"><h2 class="anchored" data-anchor-id="コブダグラス型効用関数の実装">コブ・ダグラス型効用関数の実装</h2>
+<section id="コブダグラス型効用関数の実装" class="level2">
+<h2 class="anchored" data-anchor-id="コブダグラス型効用関数の実装">コブ・ダグラス型効用関数の実装</h2>
 <p>効用関数は，消費量ベクトルを引数として受け取り，効用（スカラー値）を返す関数と捉えることができます． 一方で，効用関数を設定する際には，消費量ベクトル以外に弾力性パラメータ等のパラメータを事前に設定する必要があります．</p>
 <p>パラメータは効用関数によって異なるため，効用関数を抽象型<code>AbstractEconomicUtility</code>として定義し，そのサブタイプとしてコブ・ダグラス型効用関数<code>CobbDouglasUtility</code>の型を定義します． <code>CobbDouglasUtility</code>は，弾力性パラメータ<code>weights</code>を持つ型として定義します．</p>
 <div id="2" class="cell" data-execution_count="1">
@@ -227,7 +257,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
  10.0</code></pre>
 </div>
 </div>
-</section><section id="効用最大化問題の数値的な解" class="level2"><h2 class="anchored" data-anchor-id="効用最大化問題の数値的な解">効用最大化問題の数値的な解</h2>
+</section>
+<section id="効用最大化問題の数値的な解" class="level2">
+<h2 class="anchored" data-anchor-id="効用最大化問題の数値的な解">効用最大化問題の数値的な解</h2>
 <p><a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>のコードを少し変更することで，効用最大化問題を数値的に解くことができます．</p>
 <p>過去の記事では，コブ・ダグラス型効用関数専用のコードを定義していましたが， 以下の関数<code>demand_marshallian_numerical</code>は，抽象型<code>AbstractEconomicUtility</code>を引数に取ることで， 様々な効用関数に対して同一のコードを使うことができます．</p>
 <div id="12" class="cell" data-execution_count="0">
@@ -280,7 +312,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
  10.0</code></pre>
 </div>
 </div>
-</section><section id="ces型効用関数の実装" class="level2"><h2 class="anchored" data-anchor-id="ces型効用関数の実装">CES型効用関数の実装</h2>
+</section>
+<section id="ces型効用関数の実装" class="level2">
+<h2 class="anchored" data-anchor-id="ces型効用関数の実装">CES型効用関数の実装</h2>
 <p>コンストラクタを使うメリットを実感するために， コブ・ダグラス型効用関数以外の効用関数を実装してみます．</p>
 <p>以下では，CES型効用関数を実装してみましょう． CES型効用関数は，コブ・ダグラス型効用関数の一般化であり，代替性の程度を表すパラメータ<code>substitution</code>を持ちます． コブ・ダグラス型効用関数と同様に，CES型効用関数は，以下のように定義することができます．</p>
 <p>マーシャルの需要関数の導出は割愛しますが引数の型<code>f::CESUtility</code>を指定することで， 効用関数に応じて<code>demand_marshallian()</code>の結果を変化させることができます． このような仕組みは多重ディスパッチと呼ばれています．</p>
@@ -342,16 +376,23 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
   4.999999999999999</code></pre>
 </div>
 </div>
-</section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>この記事では，<a href="https://uchidamizuki.quarto.pub/blog/posts/2025/02/solving-utility-maximisation-problems-with-julia-jump.html">過去の記事</a>で紹介した効用最大化問題をJuliaのコンストラクタを用いて拡張することで，様々な効用関数に対して同一のコードを使うことができることを示しました．</p>
 <p>このような仕組みを活用することで効用関数を実装した際に， 自動的に最適化問題の解析的な解と数値的な解の整合性を確認することができ， 効用関数に対するテストを実装するのが容易になることが期待されます<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
 
 
-</section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
 
 <ol>
 <li id="fn1"><p>ただし，別で検討したレオンチェフ型効用関数ではうまく数値的な解を求めることができませんでした．特殊な効用関数では，数値的な解を求めることが難しい可能性があるため，別途，テストを実装する必要があるかもしれません．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -767,12 +808,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body>
-</html>
+</body></html>

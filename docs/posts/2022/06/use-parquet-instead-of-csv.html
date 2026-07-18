@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
-<head>
-<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2022/06/use-parquet-instead-of-csv.html" />
-<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/06/use-parquet-instead-of-csv.en.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
 <title>CSVの代わりにParquetを使ってみよう – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,11 +55,24 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -87,18 +100,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script><link rel="stylesheet" href="../../../styles.css">
+</script>
+
+
+<link rel="stylesheet" href="../../../styles.css">
 </head>
+
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -110,10 +132,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-<li class="nav-item"><div class="dropdown" id="languages-links-parent">
-<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2022/06/use-parquet-instead-of-csv.html" id="language-link-en">English</a></li></ul>
-</div></li>
-<li class="nav-item compact">
+  <li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -136,11 +155,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-</div> <!-- /navcollapse -->
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">CSVの代わりにParquetを使ってみよう</h1>
                                 <div class="quarto-categories">
@@ -172,10 +195,17 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p>本記事では，<strong>CSVの代替として有望かつビッグデータ分析にも適している<a href="https://parquet.apache.org">Parquet</a></strong>を紹介します．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>本記事では，<strong>CSVの代替として有望かつビッグデータ分析にも適している<a href="https://parquet.apache.org">Parquet</a></strong>を紹介します．</p>
 <p>さて，<strong>データフレーム</strong>（Data Frames）は，データ分析において最も基本的なデータ構造の1つです．<strong>Rの<a href="https://tibble.tidyverse.org">tibble</a>・<a href="https://dplyr.tidyverse.org">dplyr</a></strong>や<strong>Pythonの<a href="https://pandas.pydata.org">pandas</a></strong>などのデータフレーム操作のためのパッケージを使えば，これまで<strong>Excelなどの表計算ソフトで行っていたデータ分析をさらに効率的に行う</strong>ことができます．</p>
 <p>このようにデータ分析ツールが充実している一方で，データの保存には<strong>Excelなどとの互換性が高いCSV</strong>が未だに広く使われています．しかし，CSVは，必ずしもデータ分析に適したファイル形式とは言えません．そこで，<strong>CSVの代替</strong>として使われることが多くなっているParquetをCSVと比較してみましょう．</p>
-<section id="サンプルデータの準備" class="level2"><h2 class="anchored" data-anchor-id="サンプルデータの準備">サンプルデータの準備</h2>
+<section id="サンプルデータの準備" class="level2">
+<h2 class="anchored" data-anchor-id="サンプルデータの準備">サンプルデータの準備</h2>
 <p>CSVとParquetを比較するため，まずは，データ分析にありがちなサンプルデータを用意しましょう．今回は，tidyrパッケージで提供されている<code>who</code> （<a href="https://www.who.int/teams/global-tuberculosis-programme/data">世界保健機関（WHO）結核データ</a>）からサンプルデータをつくります．</p>
 <p>近年，データ分析では，<strong>整然データ（<a href="https://ja.wikipedia.org/wiki/Tidy_data">tidy data</a>）</strong>の概念が普及しています．tidy dataは，個々の変数が1つの列をなし，個々の観測（値）が1つの行をなすようなデータです．</p>
 <p>それでは，<code>who</code>は，tidy dataと言えるでしょうか？<code>who</code>には，<code>"new_sp_m014"</code> ～<code>"newrel_f65"</code> といったたくさんの列が存在しますが，これらには，1列ごとに，診断結果（<code>sp</code>や<code>sel</code>）・性別（<code>m</code>と<code>f</code>）・年齢階級（<code>014</code>や<code>65</code>）といった複数の変数が含まれています．そのため，<strong><code>who</code> は，tidy dataでない</strong>といえます．そこで，<a href="https://tidyr.tidyverse.org/articles/pivot.html">こちら</a>に従って<strong>tidy dataである<code>who_longer</code>に変形</strong>します．</p>
@@ -196,7 +226,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>levels_gender <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"f"</span>, <span class="st">"m"</span>)</span>
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>levels_gender <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"f"</span>, <span class="st">"m"</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>levels_age <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"014"</span>, <span class="st">"1524"</span>, <span class="st">"2534"</span>, <span class="st">"3544"</span>, <span class="st">"4554"</span>, <span class="st">"5564"</span>, <span class="st">"65"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>who_longer <span class="ot">&lt;-</span> who <span class="sc">|&gt;</span> </span>
@@ -245,7 +277,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 # ℹ 405,435 more rows</code></pre>
 </div>
 </div>
-</section><section id="csvparquetの保存方法" class="level2"><h2 class="anchored" data-anchor-id="csvparquetの保存方法">CSV・Parquetの保存方法</h2>
+</section>
+<section id="csvparquetの保存方法" class="level2">
+<h2 class="anchored" data-anchor-id="csvparquetの保存方法">CSV・Parquetの保存方法</h2>
 <p>Rでは，<code>write_csv()</code> でCSVを保存できます．同様に，arrowパッケージの<code>write_parquet()</code> でParquetを保存することができます．<code>who_longer</code>をCSVとParquetで保存してみましょう．</p>
 <p>CSVとParquetでは，どちらも簡単にデータ保存ができることがわかります．</p>
 <div class="cell">
@@ -259,9 +293,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Parquetを保存</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_parquet</span>(who_longer, <span class="st">"who_longer.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section><section id="parquetのメリットcsvとの比較" class="level2"><h2 class="anchored" data-anchor-id="parquetのメリットcsvとの比較">Parquetのメリット・CSVとの比較</h2>
+</section>
+<section id="parquetのメリットcsvとの比較" class="level2">
+<h2 class="anchored" data-anchor-id="parquetのメリットcsvとの比較">Parquetのメリット・CSVとの比較</h2>
 <p>ここからは，保存した<code>who_longer</code> のCSV・Parquetファイルを比較して，CSVに対するParquetのメリットを紹介していきます．</p>
-<section id="メリット1csvよりデータ容量が軽い" class="level3"><h3 class="anchored" data-anchor-id="メリット1csvよりデータ容量が軽い">メリット1：CSVよりデータ容量が軽い</h3>
+<section id="メリット1csvよりデータ容量が軽い" class="level3">
+<h3 class="anchored" data-anchor-id="メリット1csvよりデータ容量が軽い">メリット1：CSVよりデータ容量が軽い</h3>
 <p>tidy dataは行数が多くなるため，CSVでの保存に適しておらず，Parquetを使ったほうがよいことを既に述べました．</p>
 <p>実際に，<code>who_longer</code> のCSV・Parquetのデータ容量は，それぞれ，14.1 MBと154 KBとなり，<strong>ParquetはCSVの約1 %のデータ容量</strong>しかないことがわかります．</p>
 <p>どのようなケースでもこのようなデータ容量の削減が見込めるわけではありませんが，<strong>Parquetは列指向でデータ圧縮</strong>を行うため，Rなどでよく用いられる<strong>tidy dataの保存に適したデータ形式</strong>であるといえます．</p>
@@ -282,7 +319,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <pre><code>1.080502 [%]</code></pre>
 </div>
 </div>
-</section><section id="メリット2csvより読み込みが簡単" class="level3"><h3 class="anchored" data-anchor-id="メリット2csvより読み込みが簡単">メリット2：CSVより読み込みが簡単</h3>
+</section>
+<section id="メリット2csvより読み込みが簡単" class="level3">
+<h3 class="anchored" data-anchor-id="メリット2csvより読み込みが簡単">メリット2：CSVより読み込みが簡単</h3>
 <p><code>write_csv()</code>・<code>write_parquet()</code> でデータを書き込めるのと同様に，<strong><code>read_csv()</code>・<code>read_parquet()</code> でCSV・Parquetデータを読み込む</strong>ことができます．</p>
 <p><strong>CSV</strong>はテキスト形式であるため，<strong>読み込み時に<code>col_types</code>で各列の型を指定する必要</strong>があります（デフォルトでは自動で型を推測）．</p>
 <p>一方，<strong>Parquet</strong>は，書き込み時に各列の型情報も保存されているため読み込み時に<strong>型を指定する必要がありません</strong>．</p>
@@ -296,7 +335,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Parquetの読み込み</span></span>
 <span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">read_parquet</span>(<span class="st">"who_longer.parquet"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section><section id="メリット3csvよりビッグデータの読み込み集計に適している" class="level3"><h3 class="anchored" data-anchor-id="メリット3csvよりビッグデータの読み込み集計に適している">メリット3：CSVよりビッグデータの読み込み・集計に適している</h3>
+</section>
+<section id="メリット3csvよりビッグデータの読み込み集計に適している" class="level3">
+<h3 class="anchored" data-anchor-id="メリット3csvよりビッグデータの読み込み集計に適している">メリット3：CSVよりビッグデータの読み込み・集計に適している</h3>
 <p>CSVはビッグデータの保存に適しておらず，これまでは，ビッグデータの保存にはSQLを用いるなどの使い分けが必要でした．</p>
 <p>Rでは，dplyr（dbplyr）・DBIなどのパッケージで簡単にSQLが使えますが，データベースへの接続・切断などが必要なSQLは，CSVと使い勝手が異なり，初学者にとってはハードルがあるかもしれません．</p>
 <p>また，（ほとんどの？）<strong>SQLは行指向</strong>であるため，<strong>データの追加・更新・削除などに適しています</strong>が，データ分析に用いられる<strong>データの保存・集計には列指向であるParquetのほうが適している</strong>と思われます．</p>
@@ -329,12 +370,16 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 # ℹ 23 more rows</code></pre>
 </div>
 </div>
-</section><section id="メリット4複数のデータからなるデータセットを扱える" class="level3"><h3 class="anchored" data-anchor-id="メリット4複数のデータからなるデータセットを扱える">メリット4：複数のデータからなるデータセットを扱える</h3>
+</section>
+<section id="メリット4複数のデータからなるデータセットを扱える" class="level3">
+<h3 class="anchored" data-anchor-id="メリット4複数のデータからなるデータセットを扱える">メリット4：複数のデータからなるデータセットを扱える</h3>
 <p>Parquetは列指向であるため，行指向であるSQLと違い，データの追加・更新・削除などに適していません．しかし，<strong>Parquetでは，複数のデータからなるデータセットの読み込みが簡単に行える</strong>ため，このようなデメリットを簡単に解決することができます．</p>
 <p>ここでは，<code>who_longer</code>を年齢階級別に分割したParquetファイルを格納した<code>"who_longer_byage"</code> フォルダをデータセットのサンプルとして用いましょう．</p>
 <p><strong><code>open_dataset("who_longer_byage")</code></strong> とすることで，複数のParquetファイルを含むにもかかわらず，さきほどと同様の<strong>データ集計を簡単に行うことができます</strong>．</p>
 <div class="cell">
-<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir_create</span>(<span class="st">"who_longer_byage"</span>)</span>
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir_create</span>(<span class="st">"who_longer_byage"</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>who_longer <span class="sc">|&gt;</span> </span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(age) <span class="sc">|&gt;</span> </span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_walk</span>(<span class="sc">~</span> .x <span class="sc">|&gt;</span> </span>
@@ -367,7 +412,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 # ℹ 23 more rows</code></pre>
 </div>
 </div>
-</section><section id="メリット5rpython間でのデータのやり取りに適している" class="level3"><h3 class="anchored" data-anchor-id="メリット5rpython間でのデータのやり取りに適している">メリット5：R・Python間でのデータのやり取りに適している</h3>
+</section>
+<section id="メリット5rpython間でのデータのやり取りに適している" class="level3">
+<h3 class="anchored" data-anchor-id="メリット5rpython間でのデータのやり取りに適している">メリット5：R・Python間でのデータのやり取りに適している</h3>
 <p>PythonのpandasパッケージはParquetの読み書きに対応しているため，Parquetは，R・Python間でのデータのやり取りにも適しています．</p>
 <p>Rで作成した<code>'who_longer.parquet'</code> をpandasで読み込んでみましょう．</p>
 <div class="cell">
@@ -391,13 +438,19 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 [405440 rows x 8 columns]</code></pre>
 </div>
 </div>
-</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>ここまで，R・Pythonで利用可能なParquetのメリットを紹介しました．Parquetは，近年，データ分析で普及しているtidy dataの保存・集計に適しています．</p>
 <p>また，最近では，地理データを扱えるsfパッケージのデータをparquetとして保存できる<a href="https://wcjochem.github.io/sfarrow/">sfarrow</a>なども登場しています．</p>
 <p>CSVの代わりにParquetを用いることでデータ分析がさらに簡単になることが期待されます．</p>
 
 
-</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -813,12 +866,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body>
-</html>
+</body></html>

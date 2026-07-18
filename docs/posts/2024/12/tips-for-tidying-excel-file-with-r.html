@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
-<head>
-<link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2024/12/tips-for-tidying-excel-file-with-r.html" />
-<link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/12/tips-for-tidying-excel-file-with-r.en.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja"><head>
+
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.6.40">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
 <title>RでExcelファイルを整形する際のTips – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
@@ -55,11 +55,24 @@ div.sourceCode
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script><script src="../../../site_libs/quarto-nav/headroom.min.js"></script><script src="../../../site_libs/clipboard/clipboard.min.js"></script><script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script><script src="../../../site_libs/quarto-search/fuse.min.js"></script><script src="../../../site_libs/quarto-search/quarto-search.js"></script><meta name="quarto:offset" content="../../../">
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
 <link href="../../../logo.png" rel="icon" type="image/png">
-<script src="../../../site_libs/quarto-html/quarto.js"></script><script src="../../../site_libs/quarto-html/popper.min.js"></script><script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script><script src="../../../site_libs/quarto-html/anchor.min.js"></script><link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script><link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../../site_libs/bootstrap/bootstrap-f33991cf3c59b7de71e019b8ce5d8602.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
@@ -87,19 +100,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "検索",
     "search-label": "サーチ"
   }
-}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script><script type="text/javascript">
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-3NGKDDYEYX"></script>
+
+<script type="text/javascript">
 
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
-</script><link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
-<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script><link rel="stylesheet" href="../../../styles.css">
+</script>
+<link href="../../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+<script src="../../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+
+<link rel="stylesheet" href="../../../styles.css">
 </head>
+
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">UchidaMizuki</span>
@@ -111,10 +136,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-<li class="nav-item"><div class="dropdown" id="languages-links-parent">
-<button class="btn btn-primary dropdown-toggle babelquarto-languages-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="languages-button"><i class="bi bi-globe2"></i> 日本語</button><ul class="dropdown-menu" id="languages-links"><li><a class="dropdown-item" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/12/tips-for-tidying-excel-file-with-r.html" id="language-link-en">English</a></li></ul>
-</div></li>
-<li class="nav-item compact">
+  <li class="nav-item compact">
     <a class="nav-link" href="https://social.vivaldi.net/@UchidaMizuki"> <i class="bi bi-mastodon" role="img">
 </i> 
 <span class="menu-text"></span></a>
@@ -137,11 +159,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
-</div> <!-- /navcollapse -->
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
-    </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">RでExcelファイルを整形する際のTips</h1>
                                 <div class="quarto-categories">
@@ -173,25 +199,32 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p>この記事は<a href="https://qiita.com/advent-calendar/2024/rlang">R言語 Advent Calendar 2024</a>の23日目の記事です．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>この記事は<a href="https://qiita.com/advent-calendar/2024/rlang">R言語 Advent Calendar 2024</a>の23日目の記事です．</p>
 <p>データ分析において, 避けて通れないのがデータの前処理です．最近では, 機械判読しやすいデータの作成が重要視されるようになっていますが, 人と機械の両方にとって読みやすいデータ形式を整えるのは簡単ではありません．</p>
 <p>そこで，この記事では，人が見ることを前提に作成されることの多いExcelファイルを Rで整形する際のTipsを紹介します．この記事では，主にExcelファイル向けのTipsを紹介しますが，CSVファイル等のデータ形式にも応用できると思います．</p>
 <p>Excelファイルの整形には, 主に以下の2つのアプローチがあります．この記事では, まずExcelファイルのテーブル構造の読み解き方を説明し, その後, 以下の方法を用いたデータ整形の手法を紹介します．</p>
 <ol type="1">
-<li>
-<a href="https://readxl.tidyverse.org">readxl</a>パッケージを使う方法</li>
-<li>
-<a href="https://nacnudus.github.io/tidyxl/">tidyxl</a>パッケージと<a href="https://nacnudus.github.io/unpivotr/">unpivotr</a>パッケージを使う方法</li>
+<li><a href="https://readxl.tidyverse.org">readxl</a>パッケージを使う方法</li>
+<li><a href="https://nacnudus.github.io/tidyxl/">tidyxl</a>パッケージと<a href="https://nacnudus.github.io/unpivotr/">unpivotr</a>パッケージを使う方法</li>
 </ol>
 <p>また, Excelファイルのデータ整形については, すでにいくつかの日本語記事が公開されているため, 以下の記事も参考になると思います．</p>
 <ul>
 <li><a href="https://bunseki-data.com/r-onlinecourse/2023/11/09/%E7%A5%9Eexcel%E3%82%92r%E3%81%A7tidy%E5%8C%96%E3%81%97%E3%81%A6%E3%81%BF%E3%82%88%E3%81%86/">神ExcelをRでtidy化してみよう</a></li>
 <li><a href="https://y-mattu.hatenablog.com/entry/read_dark-excel">闇のExcelに対する防衛術</a></li>
 </ul>
-<section id="excelファイルを整形する前に" class="level2"><h2 class="anchored" data-anchor-id="excelファイルを整形する前に">Excelファイルを整形する前に</h2>
+<section id="excelファイルを整形する前に" class="level2">
+<h2 class="anchored" data-anchor-id="excelファイルを整形する前に">Excelファイルを整形する前に</h2>
 <p>本題に入る前に, 一点注意しておきたいことがあります．それは, 分析に使用したいデータが, より機械判読に適した形式で提供されていないかを確認することです．</p>
 <p>Excelファイルはデータの閲覧には便利ですが, 機械判読しにくいことが少なくありません．そのため, より適切な形式で提供されているデータがないか, 事前に確認するのが望ましいでしょう．たとえば, 政府統計の総合窓口であるe-Statでは, API機能を利用して, 一般的なExcelファイルよりも機械判読しやすいデータを取得できる場合があります．</p>
-</section><section id="データ形式を巡る人と機械の溝" class="level2"><h2 class="anchored" data-anchor-id="データ形式を巡る人と機械の溝">データ形式を巡る「人と機械の溝」</h2>
+</section>
+<section id="データ形式を巡る人と機械の溝" class="level2">
+<h2 class="anchored" data-anchor-id="データ形式を巡る人と機械の溝">データ形式を巡る「人と機械の溝」</h2>
 <p>私たちにとって読みやすいデータが, 機械にとっても読みやすいとは限りません．その典型例として, 週間天気予報のデータが挙げられます<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
 <p>たとえば, 以下のようなダミーの週間天気予報データがあるとしましょう．人間がこのデータを見れば, すぐに「地域・日付別の天気」であることを理解できます．しかし, 機械的に以下の情報を把握するのは意外に難しいかもしれません．</p>
 <ul>
@@ -199,7 +232,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <li>2列目以降の列の値が天気を表していること</li>
 </ul>
 <div class="cell">
-<details class="code-fold"><summary>コード</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<details class="code-fold">
+<summary>コード</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>region <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"札幌"</span>, <span class="st">"東京"</span>, <span class="st">"名古屋"</span>, <span class="st">"大阪"</span>, <span class="st">"福岡"</span>, <span class="st">"那覇"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>date <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">ymd</span>(<span class="st">"2024-12-20"</span>), <span class="fu">ymd</span>(<span class="st">"2024-12-26"</span>), <span class="at">by =</span> <span class="st">"day"</span>) <span class="sc">|&gt;</span></span>
@@ -213,7 +248,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>weather_forecast_wider <span class="ot">&lt;-</span> weather_forecast <span class="sc">|&gt;</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> date, <span class="at">values_from =</span> weather)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>weather_forecast_wider</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details><div class="cell-output-display">
+</details>
+<div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
 {"columns":[{"label":["region"],"name":[1],"type":["chr"],"align":["left"]},{"label":["12/20"],"name":[2],"type":["chr"],"align":["left"]},{"label":["12/21"],"name":[3],"type":["chr"],"align":["left"]},{"label":["12/22"],"name":[4],"type":["chr"],"align":["left"]},{"label":["12/23"],"name":[5],"type":["chr"],"align":["left"]},{"label":["12/24"],"name":[6],"type":["chr"],"align":["left"]},{"label":["12/25"],"name":[7],"type":["chr"],"align":["left"]},{"label":["12/26"],"name":[8],"type":["chr"],"align":["left"]}],"data":[{"1":"札幌","2":"⛅","3":"⛅","4":"🌞","5":"☔","6":"🌞","7":"🌞","8":"⛅"},{"1":"東京","2":"⛅","3":"☔","4":"⛅","5":"⛅","6":"⛅","7":"☔","8":"⛅"},{"1":"名古屋","2":"⛅","3":"⛅","4":"⛅","5":"🌞","6":"☔","7":"☔","8":"☔"},{"1":"大阪","2":"🌞","3":"⛅","4":"🌞","5":"⛅","6":"⛅","7":"☔","8":"☔"},{"1":"福岡","2":"☔","3":"☔","4":"🌞","5":"☔","6":"⛅","7":"⛅","8":"☔"},{"1":"那覇","2":"⛅","3":"🌞","4":"☔","5":"⛅","6":"🌞","7":"⛅","8":"☔"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -242,12 +278,15 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">limits =</span> rev)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="tips-for-tidying-excel-file-with-r_files/figure-html/weather-forecast-plot-1.png" class="img-fluid figure-img" width="4000"></p>
+<figure class="figure">
+<p><img src="tips-for-tidying-excel-file-with-r_files/figure-html/weather-forecast-plot-1.png" class="img-fluid figure-img" width="4000"></p>
 </figure>
 </div>
 </div>
 </div>
-</section><section id="excelファイルのテーブル構造を読み解く" class="level2"><h2 class="anchored" data-anchor-id="excelファイルのテーブル構造を読み解く">Excelファイルのテーブル構造を読み解く</h2>
+</section>
+<section id="excelファイルのテーブル構造を読み解く" class="level2">
+<h2 class="anchored" data-anchor-id="excelファイルのテーブル構造を読み解く">Excelファイルのテーブル構造を読み解く</h2>
 <p>このような「人と機械の溝」を踏まえて，実際のExcelファイルのテーブル構造を読み解いてみましょう．</p>
 <p>このような「人と機械の溝」を踏まえ, 実際のExcelファイルのテーブル構造を読み解いてみましょう． 「地域・日付別の天気」のようなシンプルなデータであれば, テーブル構造はそれほど複雑ではありません．しかし, 例えば「西暦・地域・性別・年齢別の人口」のようなデータの場合はどうでしょうか？ 実際に, e-Statに公開されている<a href="https://www.e-stat.go.jp/stat-search/files?page=1&amp;layout=datalist&amp;toukei=00200521&amp;tstat=000001011777&amp;cycle=0&amp;tclass1=000001011778&amp;stat_infid=000001085927&amp;tclass2val=0">こちらのExcelファイル</a>を見てみましょう．以下の画像は, Excelファイルの上部を一部抜粋したものです．</p>
 <p><img src="tips-tidying-excel-file-with-r/population_by_year_sex_age_class.png" class="img-fluid"></p>
@@ -258,15 +297,17 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <ul>
 <li>1・3行目に，それぞれ西暦・性別の軸（次元）の情報が格納されている</li>
 <li>2・4行目は，それぞれ人口・人口割合・人口性比の観測値の種別と単位が記載されている</li>
-</ul>
-</li>
+</ul></li>
 </ul>
 <p><img src="tips-tidying-excel-file-with-r/population_by_year_sex_age_class_colored.png" class="img-fluid"></p>
 <p>Excelファイルを整形する際には, 以下の点を意識する必要があります．</p>
 <ul>
 <li>列名が複数行にわたる場合, 各行の情報が軸（次元）に対応するのか, それとも観測値なのかを事前に整理しておく必要がある</li>
 <li>列名の重複を避けるため, 一部の列名が省略されている, またはセルが結合されていることが多い</li>
-</ul></section><section id="readxlでexcelファイルを整形してみよう" class="level2"><h2 class="anchored" data-anchor-id="readxlでexcelファイルを整形してみよう">readxlでExcelファイルを整形してみよう</h2>
+</ul>
+</section>
+<section id="readxlでexcelファイルを整形してみよう" class="level2">
+<h2 class="anchored" data-anchor-id="readxlでexcelファイルを整形してみよう">readxlでExcelファイルを整形してみよう</h2>
 <p>それでは，実際にExcelファイルを整形してみましょう．以下では，上で紹介した「西暦・地域・性別・年齢別の人口」のExcelファイルを整形するためのコードを示します．</p>
 <p>Excelファイルを読み込むのに役立つパッケージとして，<a href="https://readxl.tidyverse.org">readxl</a>パッケージがあります<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>． ここでは，readxlパッケージを使ってExcelファイルを整形するため， 事前に，readxlパッケージとtidyverseパッケージをロードしておきます．</p>
 <div class="cell">
@@ -279,7 +320,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<details class="code-fold"><summary>データダウンロード時の使用コードはこちら</summary><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span>
+<details class="code-fold">
+<summary>データダウンロード時の使用コードはこちら</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>exdir <span class="ot">&lt;-</span> <span class="st">"tips-tidying-excel-data-with-r"</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dir_create</span>(exdir)</span>
@@ -293,7 +336,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="列名の読み込み結合セル等の処理" class="level3"><h3 class="anchored" data-anchor-id="列名の読み込み結合セル等の処理">①列名の読み込み・結合セル等の処理</h3>
+<section id="列名の読み込み結合セル等の処理" class="level3">
+<h3 class="anchored" data-anchor-id="列名の読み込み結合セル等の処理">①列名の読み込み・結合セル等の処理</h3>
 <p>Excelファイルを読み込む際の最初のステップとして, まず列名を取得します． 通常, CSVファイルなどのテーブルデータでは, 1行目に列名が記載されます．</p>
 <p>しかし, 上で示したExcelファイルでは, 3列目以降に複数行にわたって列名が記載されているため, これらをデータフレームの列名として適切に設定するには工夫が必要です．</p>
 <p>そこで, まずreadxlパッケージの<code>read_excel()</code>関数を使って列名を読み込みます．<code>read_excel()</code>関数は, <code>col_types</code>引数の指定方法などに違いはあるものの, 基本的にはreadrの<code>read_csv()</code>関数と似た形式でExcelファイルを読み込むことができます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．</p>
@@ -333,15 +377,12 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 <p><code>data_col_names</code>を見ると，以下のことがわかります．</p>
 <ul>
-<li>
-<code>year</code>列には，西暦と和暦が混在している</li>
-<li>
-<code>year</code>・<code>value_type</code>列では，列名の重複を避けるため一部の列名が省略され<code>NA</code>となっている</li>
+<li><code>year</code>列には，西暦と和暦が混在している</li>
+<li><code>year</code>・<code>value_type</code>列では，列名の重複を避けるため一部の列名が省略され<code>NA</code>となっている</li>
 </ul>
 <p>そこで，以下のコードでは主に以下のような処理を行っています．</p>
 <ul>
-<li>
-<code>year</code>列から西暦の年数のみを抽出</li>
+<li><code>year</code>列から西暦の年数のみを抽出</li>
 <li>tidyrの<code>fill()</code>関数を用いて<code>year</code>・<code>value_type</code>列の<code>NA</code>を埋める</li>
 </ul>
 <p>以上の作業により列名を作成するための準備が整いました．</p>
@@ -369,7 +410,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section><section id="列名の作成データの読み込み" class="level3"><h3 class="anchored" data-anchor-id="列名の作成データの読み込み">②列名の作成・データの読み込み</h3>
+</section>
+<section id="列名の作成データの読み込み" class="level3">
+<h3 class="anchored" data-anchor-id="列名の作成データの読み込み">②列名の作成・データの読み込み</h3>
 <p>それでは，<code>data_col_names</code>を使って列名を作成しましょう． ここでは，以下のような手順で列名を作成しました．</p>
 <ul>
 <li>まず，<code>value_type</code>・<code>value_unit</code>列を結合し，<code>value_type</code>列を作成</li>
@@ -416,7 +459,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section><section id="tidy-dataへの変換" class="level3"><h3 class="anchored" data-anchor-id="tidy-dataへの変換">③tidy dataへの変換</h3>
+</section>
+<section id="tidy-dataへの変換" class="level3">
+<h3 class="anchored" data-anchor-id="tidy-dataへの変換">③tidy dataへの変換</h3>
 <p>最後に，データを整形し，tidy data（整然データ）に変換しましょう． tidy dataは通常，縦長のデータになることが多いため，tidyrの<code>pivot_longer()</code>関数が便利です． <code>pivot_longer()</code>関数では，<code>names_sep</code>引数を用いることで，列名に含まれる複数の情報を列方向に展開することができます．</p>
 <p>今回のExcelファイルでは，軸（次元）にあたる地域・年齢階級以外の西暦・性別が列名に含まれているため，<code>names_sep = "/"</code>引数を使ってこれらを展開します． さらに，西暦・性別は，それぞれ<code>"/"</code>で区切られた部分の1・2番目に格納されているため，<code>names_to</code>引数の1・2番目にそれぞれ<code>"year"</code>・<code>"sex"</code>を指定します．</p>
 <p>さらに，<code>"/"</code>で区切られた部分の3番目にあたる<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>・<code>人口性比</code>は観測値にあたるため， 今回のケースでは，これらを列方向に展開せず列名として残しておきたいです． これは，<code>pivot_longer()</code>関数の<code>names_to</code>引数の3番目に<code>".value"</code>を指定することで実現できます．</p>
@@ -475,7 +520,10 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section></section><section id="tidyxlとunpivotrでexcelファイルを整形してみよう" class="level2"><h2 class="anchored" data-anchor-id="tidyxlとunpivotrでexcelファイルを整形してみよう">tidyxlとunpivotrでExcelファイルを整形してみよう</h2>
+</section>
+</section>
+<section id="tidyxlとunpivotrでexcelファイルを整形してみよう" class="level2">
+<h2 class="anchored" data-anchor-id="tidyxlとunpivotrでexcelファイルを整形してみよう">tidyxlとunpivotrでExcelファイルを整形してみよう</h2>
 <p>次に，<a href="https://nacnudus.github.io/tidyxl/">tidyxl</a>パッケージと<a href="https://nacnudus.github.io/unpivotr/">unpivotr</a>パッケージを使ってExcelファイルを整形する方法を紹介します．</p>
 <p>readxlパッケージでは，列名の作成・データの読み込み・tidy dataへの変換という多くのステップを踏む必要がありました． tidyxlパッケージとunpivotrパッケージでは，Excelファイルのテーブルを「行・列別の値」に展開した縦長データを用いることで， readxlよりも柔軟かつ効率的にデータ整形を行うことができます．</p>
 <p>まずは，必要となるパッケージをロードしておきましょう．</p>
@@ -490,7 +538,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(unpivotr)</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="excelファイルの読み込み" class="level3"><h3 class="anchored" data-anchor-id="excelファイルの読み込み">①Excelファイルの読み込み</h3>
+<section id="excelファイルの読み込み" class="level3">
+<h3 class="anchored" data-anchor-id="excelファイルの読み込み">①Excelファイルの読み込み</h3>
 <p>tidyxlパッケージの<code>xlsx_cells()</code>関数を使ってExcelファイルを読み込みます． この関数により，Excelファイルのセル情報を行・列別に取得することができます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>cells <span class="ot">&lt;-</span> <span class="fu">xlsx_cells</span>(file, <span class="at">sheets =</span> sheet)</span>
@@ -546,7 +595,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section><section id="tidy-dataへの変換-1" class="level3"><h3 class="anchored" data-anchor-id="tidy-dataへの変換-1">②tidy dataへの変換</h3>
+</section>
+<section id="tidy-dataへの変換-1" class="level3">
+<h3 class="anchored" data-anchor-id="tidy-dataへの変換-1">②tidy dataへの変換</h3>
 <p>新たに作成した<code>data2</code>は縦長データではあるものの，値の種別<code>value_type</code>（人口，年齢・男女別割合や人口性比）が列方向に展開されており，必ずしもデータ分析に適した形式とは言えません．</p>
 <p>そこで，tidyrの<code>pivot_wider()</code>関数を使って，値の種別<code>value_type</code>を行方向に展開します． 以下のコードでは，<code>value_type</code>列と<code>value_unit</code>列を結合したのち横長データに変換しています． これによりreadxlを使って作成した<code>data</code>とほぼ同等のデータが得られました．</p>
 <p>繰り返しになるため割愛しますが，readxlを使った場合と同様に，<code>人口（人）</code>・<code>年齢，男女別割合（％）</code>を含むデータと人口性比を含むデータに分割すれば，データ整形は完了です．</p>
@@ -571,19 +622,27 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
+</section>
+</section>
+<section id="まとめ" class="level2">
+<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
 <p>この記事では，Excelファイルを整形する際のTipsを紹介しました． データ整形のアプローチとして，readxlパッケージを使う方法とtidyxlパッケージとunpivotrパッケージを使う方法を紹介しましたが， いずれの場合でも，データのテーブル構造を読み解くことが重要です．</p>
 <p>この記事で紹介したデータ整形の流れについて改善点・追加すべき内容・ご質問等があれば，コメント等をいただけると幸いです．</p>
 
 
-</section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">脚注</h2>
 
 <ol>
 <li id="fn1"><p>この事例は，Wikipedia日本語版の<a href="https://ja.wikipedia.org/wiki/Tidy_data">Tidy data</a>のページでも用いられています．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>週間天気予報を確認するのに縦長のテレビが必要になってしまいますね．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3"><p><a href="https://docs.ropensci.org/writexl/">writexl</a>パッケージも便利です．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn4"><p><a href="https://readxl.tidyverse.org/reference/cell-specification.html">cellranger</a>を使うことで，セルの範囲を詳細に指定することもできます．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -999,12 +1058,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark">
+</script>
+<script src="https://giscus.app/client.js" data-repo="UchidaMizuki/blog" data-repo-id="R_kgDOHbRYbQ" data-category="General" data-category-id="DIC_kwDOHbRYbc4CPiS7" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
 </div> <!-- /content -->
 
 
 
 
-</body>
-</html>
+</body></html>
