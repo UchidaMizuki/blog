@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: docs
+  render:
+    - "**/*.qmd"
+    - "!AGENTS.md"
 
 website:
   title: "UchidaMizuki"
