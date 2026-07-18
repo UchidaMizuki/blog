@@ -231,7 +231,7 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 <p>Before estimating the causal graph, let’s prepare a data frame with 1,000 rows and columns <code>x11</code>, <code>x12</code>, and <code>x22</code>, along with functions for causal discovery.</p>
-<div id="b141f486" class="cell" data-execution_count="1">
+<div id="9b0af418" class="cell" data-execution_count="1">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -279,7 +279,7 @@ style fun2 stroke:red,color:red
 </div>
 <section id="case-where-the-causal-graph-includes-multiplication-fun-is" class="level3"><h3 class="anchored" data-anchor-id="case-where-the-causal-graph-includes-multiplication-fun-is">Case where the causal graph includes multiplication (<code>fun</code> is <code>*</code>)</h3>
 <p>Let’s see what the Direct LiNGAM estimation results look like when <code>fun</code> is multiplication (<code>*</code>). The estimated causal graph has the same structure as the true causal graph, so in this case we can see that the causal graph was estimated correctly. This suggests that causal relationship estimation can work well even for multiplication rather than addition (linear) cases. However, the situation may differ significantly depending on the number of observed variables and the amount of data.</p>
-<div id="98ce5418" class="cell" data-execution_count="2">
+<div id="158f7b51" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data_nonlinear_prod <span class="op">=</span> data<span class="op">\</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a> .assign(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    x21<span class="op">=</span><span class="kw">lambda</span> df: df.x11 <span class="op">+</span> df.x12 <span class="op">+</span> rng.random(n),</span>
@@ -296,7 +296,7 @@ style fun2 stroke:red,color:red
 19       x21     x31  3.477884</code></pre>
 </div>
 </div>
-<div id="e0073462" class="cell" data-execution_count="3">
+<div id="abf0de02" class="cell" data-execution_count="3">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_prod, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_prod.mmd'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
@@ -319,7 +319,7 @@ style fun2 stroke:red,color:red
 </div>
 </section><section id="case-where-the-causal-graph-includes-exponentiation-fun-is" class="level3"><h3 class="anchored" data-anchor-id="case-where-the-causal-graph-includes-exponentiation-fun-is">Case where the causal graph includes exponentiation (<code>fun</code> is <code>**</code>)</h3>
 <p>Next, let’s see what the Direct LiNGAM estimation results look like when <code>fun</code> is exponentiation (<code>**</code>). The estimated causal graph has a different structure from the true causal graph, and we can see that incorrect causal relationships are also estimated between upstream observed variables that originally had no causal relationship. This shows that when Direct LiNGAM involves a nonlinear function, there is a risk that incorrect causal relationships will be estimated even between observed variables that are not directly related to that function.</p>
-<div id="8933c933" class="cell" data-execution_count="4">
+<div id="46ce3dcf" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_nonlinear_power <span class="op">=</span> data<span class="op">\</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a> .assign(</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    x21<span class="op">=</span><span class="kw">lambda</span> df: df.x11 <span class="op">+</span> df.x12 <span class="op">+</span> rng.random(n),</span>
@@ -337,7 +337,7 @@ style fun2 stroke:red,color:red
 22       x31     x22  0.002306</code></pre>
 </div>
 </div>
-<div id="a9e31dd8" class="cell" data-execution_count="5">
+<div id="c66c8917" class="cell" data-execution_count="5">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>write_mermaid(causality_nonlinear_power, os.path.join(<span class="bu">dir</span>, <span class="st">'dag_lingam_nonlinear_power.mmd'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
