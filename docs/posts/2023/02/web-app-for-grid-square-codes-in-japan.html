@@ -187,7 +187,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </section><section id="アプリの提供機能について" class="level2"><h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
 <section id="市区町村別の地域メッシュデータ生成" class="level3"><h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
-<p>総務省統計局の公開する<a href="%E5%B8%82%E5%8C%BA%E7%94%BA%E6%9D%91%E5%88%A5%E3%83%A1%E3%83%83%E3%82%B7%E3%83%A5%E3%83%BB%E3%82%B3%E3%83%BC%E3%83%89%E4%B8%80%E8%A6%A7" title="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
+<p>総務省統計局の公開する<a href="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
 <p>以下のような手順で市区町村別のメッシュを生成・保存できます．</p>
 <ol type="1">
 <li>都道府県を選択（複数選択可）</li>
@@ -199,7 +199,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <figure class="figure"><p><img src="images/grid_city.png" class="img-fluid figure-img"></p>
 <figcaption>市区町村別メッシュの表示イメージ</figcaption></figure>
 </div>
-<p>jpgridパッケージでは，<code>grid_city</code> データで市区町村別メッシュデータが提供されています．</p>
+<p>jpgridパッケージでは，<code>grid_city_2020</code> データで市区町村別メッシュデータが提供されています．</p>
 <p>以下のように，市区町村別メッシュデータを図示することができます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpgrid)</span>
@@ -207,8 +207,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>JGD2011 <span class="ot">&lt;-</span> <span class="dv">6668</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>grid_city <span class="sc">|&gt;</span> </span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(city_name_ja <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"千葉市中央区"</span>, <span class="st">"千葉市花見川区"</span>, <span class="st">"千葉市稲毛区"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>grid_city_2020 <span class="sc">|&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(city_name_ja <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"千葉市中央区"</span>, <span class="st">"千葉市花見川区"</span>, <span class="st">"千葉市稲毛区"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_as_sf</span>(<span class="at">crs =</span> <span class="dv">6668</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> city_name_ja)) <span class="sc">+</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
@@ -240,23 +240,29 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <p><img src="images/coords_to_grid.png" class="img-fluid"></p>
 </section></section><section id="おわりに" class="level2"><h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
 <p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
-<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="%E3%81%93%E3%81%A1%E3%82%89" title="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
+<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
 <p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
 <p>ぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>japan <span class="ot">&lt;-</span> rnaturalearth<span class="sc">::</span><span class="fu">ne_countries</span>(<span class="at">country =</span> <span class="st">"japan"</span>,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">scale =</span> <span class="st">"medium"</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">returnclass =</span> <span class="st">"sf"</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>grid_japan <span class="ot">&lt;-</span> japan <span class="sc">|&gt;</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geometry_to_grid</span>(<span class="st">"80km"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">first</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_as_sf</span>(<span class="at">crs =</span> sf<span class="sc">::</span><span class="fu">st_crs</span>(japan))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>japan <span class="sc">|&gt;</span> </span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> grid_japan,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"transparent"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">returnclass =</span> <span class="st">"sf"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The rnaturalearthdata package needs to be installed.
+Installing the rnaturalearthdata package.
+Installing package into 'C:/Users/uchid/AppData/Local/R/win-library/4.6'
+(as 'lib' is unspecified)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>grid_japan <span class="ot">&lt;-</span> japan <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geometry_to_grid</span>(<span class="st">"80km"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">first</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid_as_sf</span>(<span class="at">crs =</span> sf<span class="sc">::</span><span class="fu">st_crs</span>(japan))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>japan <span class="sc">|&gt;</span> </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> grid_japan,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"transparent"</span>)</span></code><button title="コピー" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><img src="web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>

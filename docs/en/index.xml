@@ -1498,7 +1498,7 @@ font-style: inherit;">100</span>.</span>
   <pubDate>Tue, 29 Apr 2025 15:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>割合データ（割り算値）から観測ノイズを除去する</title>
+  <title>Removing observation noise from proportion data</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.html</link>
   <description><![CDATA[ 
 
@@ -1506,66 +1506,73 @@ font-style: inherit;">100</span>.</span>
 
 
 
-<p>この記事では，以下のような割合データ（割り算値）を扱うときにしばしば生じる少数問題への対処法について説明します．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html">my Japanese article</a>.</p>
+<p>This article explains how to deal with the small number problem that often arises when working with proportion data (values obtained by division), such as the following.</p>
 <ul>
-<li>地域別の感染症の罹患率</li>
-<li>店舗別の一定時間あたりの来店客数</li>
-<li>学校別の難関校合格率</li>
+<li>Infection rates of a disease by region</li>
+<li>Number of visitors per unit time by store</li>
+<li>Acceptance rate for prestigious schools, by school</li>
 </ul>
-<p>少数問題（small number problem）とは，観測値が小さい場合に割合データのばらつきが大きくなることを指します． 以下では，カウントデータが従うことが多いとされるポアソン分布を対象に少数問題の対処法を考えます（二項分布でも同様の議論を展開することができます）． 分母にあたる人口等が<img src="https://latex.codecogs.com/png.latex?N">，割合の真値が<img src="https://latex.codecogs.com/png.latex?%5Ctheta">のとき，分子にあたるカウントデータ（感染者数等）<img src="https://latex.codecogs.com/png.latex?n">は以下のようなポアソン分布に従うと考えられます．</p>
+<p>The small number problem refers to the phenomenon where the variability of proportion data becomes large when the observed values are small. Below, we consider how to deal with the small number problem for the Poisson distribution, which count data often follow (a similar argument can be developed for the binomial distribution). When the denominator, such as a population, is <img src="https://latex.codecogs.com/png.latex?N"> and the true value of the proportion is <img src="https://latex.codecogs.com/png.latex?%5Ctheta">, the numerator count data (e.g., the number of infected people) <img src="https://latex.codecogs.com/png.latex?n"> is considered to follow the Poisson distribution below.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0An%20%5Csim%20%5Ctext%7BPoisson%7D(N%20%5Ctheta)%0A"></p>
-<p>さらに，このポアソン分布の分散は以下のように表されます．</p>
+<p>Furthermore, the variance of this Poisson distribution is expressed as follows.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BVar%7D%5Bn%5D%20=%20N%20%5Ctheta%0A"></p>
-<p>割合（真値）を推定するための素朴な方法として，<img src="https://latex.codecogs.com/png.latex?n">を<img src="https://latex.codecogs.com/png.latex?N">で割ることが考えられます． しかし，この方法で得られる割合の分散は以下のように，<img src="https://latex.codecogs.com/png.latex?N">が小さいときに分散が大きくなるという性質を持っています． こうした性質は，ポアソン分布や二項分布のように分散（観測ノイズ）が期待値と比例する分布に共通するものです．</p>
+<p>As a naive method for estimating the (true) proportion, we can consider dividing <img src="https://latex.codecogs.com/png.latex?n"> by <img src="https://latex.codecogs.com/png.latex?N">. However, as shown below, the variance of the proportion obtained by this method has the property that it becomes large when <img src="https://latex.codecogs.com/png.latex?N"> is small. This property is common to distributions such as the Poisson and binomial distributions, in which the variance (observation noise) is proportional to the expected value.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BVar%7D%5Cleft%5B%5Cfrac%7Bn%7D%7BN%7D%5Cright%5D%20=%20%5Cfrac%7B%5Ctheta%7D%7BN%7D%0A"></p>
-<p>こうした観測ノイズの性質は，たとえば難関校合格率の学校別ランキング等を考えた場合に問題となる可能性があります． 総受験者数が大きく異なる以下のような学校Aと学校Bを比べてみましょう．</p>
+<p>This property of observation noise can become a problem when, for example, considering a ranking of schools by acceptance rate for prestigious schools. Let’s compare School A and School B below, whose total numbers of examinees differ greatly.</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 31%">
+<col style="width: 38%">
+<col style="width: 20%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>学校</th>
-<th>総受験者数</th>
-<th>難関校合格者数</th>
-<th>難関校合格率</th>
+<th>School</th>
+<th>Total number of examinees</th>
+<th>Number of successful examinees</th>
+<th>Acceptance rate</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>学校A</td>
+<td>School A</td>
 <td>100</td>
 <td>30</td>
 <td>30 %</td>
 </tr>
 <tr class="even">
-<td>学校B</td>
+<td>School B</td>
 <td>5</td>
 <td>2</td>
 <td>40 %</td>
 </tr>
 </tbody>
 </table>
-<p>この場合，学校Bでは，合格者数が少し変動しただけで難関校合格率が大きく変化してしまうため，学校Aの難関校合格率と比べて精度が低いと考えられます． このような状況で，難関校合格率ランキングを作ると，難関校合格率の真値は必ずしも高くないがたまたま合格者数が多かった総受験者数の少ない学校等が上位に順位付けされることとなります． こうした現象は，今後の難関校合格率を予想する場合等に問題となりえます．</p>
-<p>以下では，こうした複数地域・店舗・学校等のデータの観測値のみを用いて割合データの平滑化を行う方法について説明します．</p>
-<section id="ベイズの定理を用いた平滑化" class="level2">
-<h2 class="anchored" data-anchor-id="ベイズの定理を用いた平滑化">ベイズの定理を用いた平滑化</h2>
-<p>カウントデータがポアソン分布，割合の真値がポアソン分布の共役事前分布であるガンマ分布に従うと仮定します．</p>
+<p>In this case, for School B, even a small change in the number of successful examinees causes a large change in the acceptance rate, so its acceptance rate can be considered less precise than that of School A. In a situation like this, if we build a ranking of acceptance rates, schools with a small total number of examinees that happened to have many successful examinees — even though their true acceptance rate is not necessarily high — will tend to be ranked highly. This phenomenon can be problematic when, for example, predicting future acceptance rates.</p>
+<p>Below, we describe a method for smoothing proportion data using only the observed values from data on multiple regions, stores, schools, and so on.</p>
+<section id="smoothing-using-bayes-theorem" class="level2">
+<h2 class="anchored" data-anchor-id="smoothing-using-bayes-theorem">Smoothing using Bayes’ theorem</h2>
+<p>Assume that the count data follows a Poisson distribution, and that the true value of the proportion follows a Gamma distribution, which is the conjugate prior of the Poisson distribution.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20%5Ctheta%20&amp;%5Csim%20%5Ctext%7BGamma%7D(%5Calpha,%20%5Cbeta)%20%5C%5C%0A%20%20n%20%5Cmid%20%5Ctheta%20&amp;%5Csim%20%5Ctext%7BPoisson%7D(N%20%5Ctheta)%0A%5Cend%7Balign%7D%0A"></p>
-<p>すると，ベイズの定理を用いて，<img src="https://latex.codecogs.com/png.latex?%5Ctheta">の事後分布，すなわち観測値<img src="https://latex.codecogs.com/png.latex?n">が与えられたときの<img src="https://latex.codecogs.com/png.latex?%5Ctheta">の分布は以下のようになります．</p>
+<p>Then, using Bayes’ theorem, the posterior distribution of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> — that is, the distribution of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> given the observed value <img src="https://latex.codecogs.com/png.latex?n"> — is as follows.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20P(%5Ctheta%20%5Cmid%20n)%20&amp;%5Cpropto%20P(n%20%5Cmid%20%5Ctheta)%20P(%5Ctheta)%20%5C%5C%0A%20%20&amp;%5Cpropto%20(N%20%5Ctheta)%5En%20%5Cexp(-N%20%5Ctheta)%20%5Ccdot%20%5Ctheta%5E%7B%5Calpha%20-%201%7D%20%5Cexp(-%5Cbeta%5Ctheta)%20%5C%5C%0A%20%20&amp;%5Cpropto%20%5Ctheta%5E%7Bn%20+%20%5Calpha%20-%201%7D%20%5Cexp%5B-(N%20+%20%5Cbeta)%5Ctheta%5D%20%5C%5C%0A%20%20%5Ctheta%20%5Cmid%20n%20&amp;%5Csim%20%5Ctext%7BGamma%7D(n%20+%20%5Calpha,%20N%20+%20%5Cbeta)%0A%5Cend%7Balign%7D%0A"></p>
-<p>そのため，<img src="https://latex.codecogs.com/png.latex?%5Ctheta">の事後分布の期待値は以下のような簡単な式で表され，この式を用いることで，観測ノイズを除去（平滑化）することができます．</p>
+<p>Therefore, the expected value of the posterior distribution of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> can be expressed by the following simple formula, and by using this formula we can remove the observation noise (i.e., smooth the data).</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BE%7D%5B%5Ctheta%20%5Cmid%20n%5D%20=%20%5Cfrac%7Bn%20+%20%5Calpha%7D%7BN%20+%20%5Cbeta%7D%0A"></p>
-<p>一方で，こうした平滑化を行うためには，<img src="https://latex.codecogs.com/png.latex?%5Calpha">と<img src="https://latex.codecogs.com/png.latex?%5Cbeta">の値を決める必要があります． 以下では，事前分布のパラメータ<img src="https://latex.codecogs.com/png.latex?%5Calpha">と<img src="https://latex.codecogs.com/png.latex?%5Cbeta">を観測値から推定する方法について説明します．</p>
+<p>On the other hand, to perform this kind of smoothing, we need to determine the values of <img src="https://latex.codecogs.com/png.latex?%5Calpha"> and <img src="https://latex.codecogs.com/png.latex?%5Cbeta">. Below, we describe a method for estimating the prior distribution parameters <img src="https://latex.codecogs.com/png.latex?%5Calpha"> and <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> from the observed values.</p>
 </section>
-<section id="経験ベイズ法による事前分布のパラメータ推定" class="level2">
-<h2 class="anchored" data-anchor-id="経験ベイズ法による事前分布のパラメータ推定">経験ベイズ法による事前分布のパラメータ推定</h2>
-<p>経験ベイズ法は，観測値から事前分布のパラメータを（経験的に）推定する方法です． 経験ベイズ法における事前分布のパラメータの推定方法として，モーメント法や最尤法を用いる方法が考えられますが，以下では，最尤法を用いた方法について説明します．</p>
-<p>最尤法を行うにあたって，事前に<img src="https://latex.codecogs.com/png.latex?n">が従う分布を確かめておきましょう． <img src="https://latex.codecogs.com/png.latex?n">は，以下のようなガンマ分布とポアソン分布の混合分布に従うと考えられます． 通常，混合分布を求めるには積分計算が必要となってしまいますが，ガンマ分布とポアソン分布の混合分布は，負の二項分布に従うことが知られています． そのため，あらかじめ以下のように<img src="https://latex.codecogs.com/png.latex?n">の確率分布を求めておきます．</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20P(n)%20&amp;=%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P(n%20%5Cmid%20%5Ctheta)%20P(%5Ctheta)%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20%5Cfrac%7B1%7D%7Bn!%7D%20(N%20%5Ctheta)%5En%20%5Cexp(-N%20%5Ctheta)%20%5Ccdot%20%5Cfrac%7B%5Cbeta%5E%7B%5Calpha%7D%7D%7B%5CGamma(%5Calpha)%7D%20%5Ctheta%5E%7B%5Calpha%20-%201%7D%20%5Cexp(-%5Cbeta%5Ctheta)%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7BN%5En%20%5Cbeta%5E%7B%5Calpha%7D%7D%7Bn!%20%5CGamma(%5Calpha)%7D%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20%5Ctheta%5E%7Bn%20+%20%5Calpha%20-%201%7D%20%5Cexp%5B-(N%20+%20%5Cbeta)%5Ctheta%5D%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7BN%5En%20%5Cbeta%5E%7B%5Calpha%7D%7D%7Bn!%20%5CGamma(%5Calpha)%7D%20%5Ccdot%20%5Cfrac%7B%5CGamma(n%20+%20%5Calpha)%7D%7B(N%20+%20%5Cbeta)%5E%7Bn%20+%20%5Calpha%7D%7D%20%5Cquad%20%5Ctext%7B(%E3%82%AC%E3%83%B3%E3%83%9E%E5%88%86%E5%B8%83%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%81%AE%E7%A9%8D%E5%88%86%E3%81%AF%E6%AD%A3%E8%A6%8F%E5%8C%96%E5%AE%9A%E6%95%B0%E3%81%AE%E9%80%86%E6%95%B0%E3%81%AB%E7%AD%89%E3%81%97%E3%81%84)%7D%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7B%5CGamma(n%20+%20%5Calpha)%7D%7B%5CGamma(n%20+%201)%20%5CGamma(%5Calpha)%7D%20%5Cleft(%20%5Cfrac%7BN%7D%7BN%20+%20%5Cbeta%7D%20%5Cright)%5E%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Cbeta%7D%7BN%20+%20%5Cbeta%7D%20%5Cright)%5E%5Calpha%20%5C%5C%0A%20%20&amp;=%20%5Cbinom%7Bn%20+%20%5Calpha%20-%201%7D%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%7D%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%20+%20%5Calpha%7D%20%5Cright)%5E%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Calpha%7D%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%20+%20%5Calpha%7D%20%5Cright)%5E%7B%5Calpha%7D%20%5C%5C%0A%5Cend%7Balign%7D%0A"></p>
-<p>以上の式より，<img src="https://latex.codecogs.com/png.latex?n">は以下のような負の二項分布に従うことがわかります． ただし，負の二項分布にはいくつかのパラメータ設定方法があるため注意が必要です． ここでのパラメータ設定方法は，<a href="https://mc-stan.org/docs/functions-reference/unbounded_discrete_distributions.html#nbalt">stanのNegBinomial2</a>と同様です．</p>
+<section id="estimating-prior-distribution-parameters-with-empirical-bayes" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-prior-distribution-parameters-with-empirical-bayes">Estimating prior distribution parameters with empirical Bayes</h2>
+<p>Empirical Bayes is a method for estimating the parameters of the prior distribution (empirically) from the observed values. Possible approaches for estimating the prior distribution parameters with empirical Bayes include the method of moments and maximum likelihood estimation; below, we describe the approach using maximum likelihood estimation.</p>
+<p>Before performing maximum likelihood estimation, let’s first check the distribution that <img src="https://latex.codecogs.com/png.latex?n"> follows. <img src="https://latex.codecogs.com/png.latex?n"> is considered to follow a mixture of the Gamma and Poisson distributions, as shown below. Normally, computing a mixture distribution requires integral calculus, but it is known that the mixture of the Gamma and Poisson distributions follows a negative binomial distribution. Therefore, we derive the probability distribution of <img src="https://latex.codecogs.com/png.latex?n"> in advance, as follows.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20P(n)%20&amp;=%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P(n%20%5Cmid%20%5Ctheta)%20P(%5Ctheta)%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20%5Cfrac%7B1%7D%7Bn!%7D%20(N%20%5Ctheta)%5En%20%5Cexp(-N%20%5Ctheta)%20%5Ccdot%20%5Cfrac%7B%5Cbeta%5E%7B%5Calpha%7D%7D%7B%5CGamma(%5Calpha)%7D%20%5Ctheta%5E%7B%5Calpha%20-%201%7D%20%5Cexp(-%5Cbeta%5Ctheta)%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7BN%5En%20%5Cbeta%5E%7B%5Calpha%7D%7D%7Bn!%20%5CGamma(%5Calpha)%7D%20%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20%5Ctheta%5E%7Bn%20+%20%5Calpha%20-%201%7D%20%5Cexp%5B-(N%20+%20%5Cbeta)%5Ctheta%5D%20d%5Ctheta%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7BN%5En%20%5Cbeta%5E%7B%5Calpha%7D%7D%7Bn!%20%5CGamma(%5Calpha)%7D%20%5Ccdot%20%5Cfrac%7B%5CGamma(n%20+%20%5Calpha)%7D%7B(N%20+%20%5Cbeta)%5E%7Bn%20+%20%5Calpha%7D%7D%20%5Cquad%20%5Ctext%7B(the%20integral%20of%20the%20Gamma%20distribution%20kernel%20equals%20the%20reciprocal%20of%20the%20normalizing%20constant)%7D%20%5C%5C%0A%20%20&amp;=%20%5Cfrac%7B%5CGamma(n%20+%20%5Calpha)%7D%7B%5CGamma(n%20+%201)%20%5CGamma(%5Calpha)%7D%20%5Cleft(%20%5Cfrac%7BN%7D%7BN%20+%20%5Cbeta%7D%20%5Cright)%5E%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Cbeta%7D%7BN%20+%20%5Cbeta%7D%20%5Cright)%5E%5Calpha%20%5C%5C%0A%20%20&amp;=%20%5Cbinom%7Bn%20+%20%5Calpha%20-%201%7D%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%7D%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%20+%20%5Calpha%7D%20%5Cright)%5E%7Bn%7D%20%5Cleft(%20%5Cfrac%7B%5Calpha%7D%7B%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%20+%20%5Calpha%7D%20%5Cright)%5E%7B%5Calpha%7D%20%5C%5C%0A%5Cend%7Balign%7D%0A"></p>
+<p>From the formula above, we can see that <img src="https://latex.codecogs.com/png.latex?n"> follows a negative binomial distribution as shown below. Note, however, that there are several ways to parameterize the negative binomial distribution, so some care is needed. The parameterization used here is the same as <a href="https://mc-stan.org/docs/functions-reference/unbounded_discrete_distributions.html#nbalt">Stan’s NegBinomial2</a>.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0An%20%5Csim%20%5Ctext%7BNegBinomial2%7D(%5Cmu,%20%5Calpha),%20%5Cquad%20%5Cmu%20=%20%5Cfrac%7B%5Calpha%7D%7B%5Cbeta%7D%20N%0A"></p>
-<p>このように，<img src="https://latex.codecogs.com/png.latex?n">は，負の二項分布と呼ばれる一般的な確率分布に従うことがわかるため，Rで提供されている既存の関数を用いて最尤法を行うことができます． 以下では，実験的に作成したテストデータを対象に，R MASSパッケージの<code>glm.nb()</code>関数を用いて最尤法を行い，割合データの平滑化を行ってみます．</p>
+<p>In this way, we find that <img src="https://latex.codecogs.com/png.latex?n"> follows a common probability distribution called the negative binomial distribution, which means we can perform maximum likelihood estimation using existing functions provided in R. Below, using experimentally created test data, we perform maximum likelihood estimation with the <code>glm.nb()</code> function from R’s MASS package, and use it to smooth the proportion data.</p>
 </section>
-<section id="平滑化の実例" class="level2">
-<h2 class="anchored" data-anchor-id="平滑化の実例">平滑化の実例</h2>
+<section id="a-worked-example-of-smoothing" class="level2">
+<h2 class="anchored" data-anchor-id="a-worked-example-of-smoothing">A worked example of smoothing</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1577,9 +1584,9 @@ font-style: inherit;">theme_set</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme_bw</span>())</span></code></pre></div>
 </div>
-<section id="テストデータの作成" class="level3">
-<h3 class="anchored" data-anchor-id="テストデータの作成">テストデータの作成</h3>
-<p>まず，サンプルサイズを10,000とし，割合の真値を<img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%205,%20%5Cbeta%20=%2050">のガンマ分布からランダムに生成します．</p>
+<section id="creating-test-data" class="level3">
+<h3 class="anchored" data-anchor-id="creating-test-data">Creating test data</h3>
+<p>First, we set the sample size to 10,000 and randomly generate the true values of the proportion from a Gamma distribution with <img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%205,%20%5Cbeta%20=%2050">.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1589,7 +1596,7 @@ font-style: inherit;">1234</span>)</span>
 <span id="cb2-2"></span>
 <span id="cb2-3"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># サンプルサイズ</span></span>
+font-style: inherit;"># Sample size</span></span>
 <span id="cb2-4">n <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
@@ -1598,7 +1605,7 @@ font-style: inherit;">1e4</span></span>
 <span id="cb2-5"></span>
 <span id="cb2-6"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 割合 (真値)</span></span>
+font-style: inherit;"># Proportion (true value)</span></span>
 <span id="cb2-7">alpha_true <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
@@ -1619,7 +1626,7 @@ font-style: inherit;">shape =</span> alpha_true, <span class="at" style="color: 
 background-color: null;
 font-style: inherit;">rate =</span> beta_true)</span></code></pre></div>
 </div>
-<p>割合の真値<code>rate_true</code>は以下のような分布を持ちます．</p>
+<p>The true value of the proportion, <code>rate_true</code>, has the following distribution.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1627,7 +1634,7 @@ font-style: inherit;">tibble</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">rate_true =</span> rate_true) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb3-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
@@ -1645,16 +1652,16 @@ font-style: inherit;">1e-2</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>次に，人口（分母）<code>population</code>を1から100までの整数からランダムに選びます． さらに，割合の真値<code>rate_true</code>に基づき，ポアソン分布からカウントデータ（分子）<code>count</code>を生成し，これらの結果をデータフレーム<code>data</code>にまとめます．</p>
+<p>Next, we randomly select the population (denominator), <code>population</code>, from integers between 1 and 100. Then, based on the true value of the proportion, <code>rate_true</code>, we generate the count data (numerator), <code>count</code>, from a Poisson distribution, and combine these results into the data frame <code>data</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 人口 (分母)</span></span>
+font-style: inherit;"># Population (denominator)</span></span>
 <span id="cb4-2">x <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
@@ -1676,7 +1683,7 @@ font-style: inherit;">TRUE</span>)</span>
 <span id="cb4-4"></span>
 <span id="cb4-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># カウントデータ (分子)</span></span>
+font-style: inherit;"># Count data (numerator)</span></span>
 <span id="cb4-6">count <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
@@ -1716,15 +1723,15 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="少数問題の確認" class="level3">
-<h3 class="anchored" data-anchor-id="少数問題の確認">少数問題の確認</h3>
-<p>それでは，テストデータを用いて，少数問題が発生しているかを確認してみましょう． まずは，割り算を用いた割合の推定値<code>rate_crude</code>を計算し，<code>population</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画します． すると，以下のように，<code>population</code>が小さい場合に，<code>rate_crude</code>が大きくなる傾向がみられることがわかります． もし，手元のデータでも同様の傾向がみられる場合，少数問題が発生している可能性があります．</p>
+<section id="checking-for-the-small-number-problem" class="level3">
+<h3 class="anchored" data-anchor-id="checking-for-the-small-number-problem">Checking for the small number problem</h3>
+<p>Now, let’s use the test data to check whether the small number problem is occurring. First, we compute the naive proportion estimate, <code>rate_crude</code>, using division, and draw a scatter plot with <code>population</code> on the x-axis and <code>rate_crude</code> on the y-axis. As shown below, we can see a tendency for <code>rate_crude</code> to become large when <code>population</code> is small. If a similar tendency is seen in your own data, the small number problem may be occurring there as well.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">data_crude <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb5-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(</span>
@@ -1750,7 +1757,7 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 </div>
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">data_crude <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb6-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
@@ -1764,16 +1771,16 @@ font-style: inherit;">geom_point</span>()</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>通常のデータでは割合の真値<code>rate_true</code>はわかりませんが，ここでは<code>rate_true</code>と<code>rate_crude</code>の関係も確認することができます． 以下のように，<code>rate_true</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画すると，<code>population</code>が小さい場合に，<code>rate_crude</code>が45度線から大きく外れる傾向がみられることがわかります． 以上の結果より，テストデータで少数問題が発生していることが確認できました．</p>
+<p>With ordinary data, the true value of the proportion, <code>rate_true</code>, is unknown, but here we can also check the relationship between <code>rate_true</code> and <code>rate_crude</code>. As shown below, drawing a scatter plot with <code>rate_true</code> on the x-axis and <code>rate_crude</code> on the y-axis shows that <code>rate_crude</code> tends to deviate greatly from the 45-degree line when <code>population</code> is small. From these results, we have confirmed that the small number problem is occurring in the test data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">data_crude <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb7-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
@@ -1814,17 +1821,17 @@ font-style: inherit;">coord_obs_pred</span>()</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
 </section>
-<section id="負の二項分布を用いた平滑化" class="level2">
-<h2 class="anchored" data-anchor-id="負の二項分布を用いた平滑化">負の二項分布を用いた平滑化</h2>
-<p>それでは，負の二項分布を用いて平滑化を行ってみましょう． ここでは，Rで簡単に利用可能なMASSパッケージの<code>glm.nb()</code>関数を用いて，最尤法を行います． <code>glm.nb()</code>により，目的変数が負の二項分布に従うような一般化線形モデルを推定することができます．</p>
-<p>以下のような簡単なコードで負の二項分布のパラメータ推定ができます． ここでは，期待値が<code>population</code>に比例するよう，<code>log(population)</code>をオフセット項に指定しています．</p>
+<section id="smoothing-using-the-negative-binomial-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="smoothing-using-the-negative-binomial-distribution">Smoothing using the negative binomial distribution</h2>
+<p>Now, let’s perform smoothing using the negative binomial distribution. Here, we perform maximum likelihood estimation using the <code>glm.nb()</code> function from R’s MASS package, which is readily available. <code>glm.nb()</code> lets us estimate a generalized linear model in which the response variable follows a negative binomial distribution.</p>
+<p>The parameters of the negative binomial distribution can be estimated with simple code like the following. Here, we specify <code>log(population)</code> as an offset term so that the expected value is proportional to <code>population</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">model <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -1845,7 +1852,7 @@ background-color: null;
 font-style: inherit;">data =</span> data</span>
 <span id="cb8-4">)</span></code></pre></div>
 </div>
-<p>次に，<code>glm.nb()</code>の出力値を格納した<code>model</code>からガンマ分布のパラメータを取得します． ガンマ分布の<img src="https://latex.codecogs.com/png.latex?%5Calpha">は，<code>model$theta</code>で取得できます． <img src="https://latex.codecogs.com/png.latex?%5Calpha">の推定値<code>alpha_estimated</code>は，真値の<code>alpha_true</code>とおおよそ一致することがわかります．</p>
+<p>Next, we obtain the parameters of the Gamma distribution from <code>model</code>, which stores the output of <code>glm.nb()</code>. The Gamma distribution’s <img src="https://latex.codecogs.com/png.latex?%5Calpha"> can be obtained from <code>model$theta</code>. We can see that the estimated value of <img src="https://latex.codecogs.com/png.latex?%5Calpha">, <code>alpha_estimated</code>, roughly matches the true value, <code>alpha_true</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">alpha_estimated <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -1862,7 +1869,7 @@ font-style: inherit;">$</span>theta</span>
 <pre><code>[1] 5.014545</code></pre>
 </div>
 </div>
-<p>また，ガンマ分布の<img src="https://latex.codecogs.com/png.latex?%5Cbeta">は，上に示した<img src="https://latex.codecogs.com/png.latex?%5Cmu">の関係式より以下で求められます． <img src="https://latex.codecogs.com/png.latex?%5Cmu">はサンプルサイズの数だけ出力されますが，<img src="https://latex.codecogs.com/png.latex?%5Cbeta">の推定値<code>beta_estimated</code>が全てほぼ同等の値をもち，さらに，真値の<code>beta_true</code>とおおよそ一致することがわかります．</p>
+<p>Also, the Gamma distribution’s <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> can be obtained from the relationship for <img src="https://latex.codecogs.com/png.latex?%5Cmu"> shown above, as follows. Although <img src="https://latex.codecogs.com/png.latex?%5Cmu"> is output once for each sample, we can see that the estimated values of <img src="https://latex.codecogs.com/png.latex?%5Cbeta">, <code>beta_estimated</code>, are all nearly identical, and that they roughly match the true value, <code>beta_true</code>.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbeta%20=%20%5Cfrac%7Ba%20N%7D%7B%5Cmu%7D%0A"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">mu <span class="ot" style="color: #003B4F;
@@ -1904,14 +1911,14 @@ font-style: inherit;">head</span>(beta_estimated)</span></code></pre></div>
 50.07359 50.07359 50.07359 50.07359 50.07359 50.07359 </code></pre>
 </div>
 </div>
-<p>それでは，最後に求められたガンマ分布の<img src="https://latex.codecogs.com/png.latex?%5Calpha">と<img src="https://latex.codecogs.com/png.latex?%5Cbeta">を使って割合の平滑化を行ってみましょう． 以下に，平滑化に使用する式を再掲します． この式に従って平滑化した割合<code>rate_smoothed</code>を対象に，先ほどと同様のグラフを描画してみます． すると，<code>population</code>が小さい場合であっても，割合が過大・過小になる傾向がみられないことがわかり，少数問題が解消されていることが確認できました．</p>
+<p>Finally, let’s use the estimated Gamma distribution parameters <img src="https://latex.codecogs.com/png.latex?%5Calpha"> and <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> to smooth the proportion. We reproduce the smoothing formula below for reference. We compute the smoothed proportion, <code>rate_smoothed</code>, following this formula, and draw the same kind of plots as before. As a result, we can see that there is no tendency for the proportion to be over- or under-estimated even when <code>population</code> is small, confirming that the small number problem has been resolved.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7Bn%20+%20%5Calpha%7D%7BN%20+%20%5Cbeta%7D%0A"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">data_smoothed <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> data <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb19-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(</span>
@@ -1955,13 +1962,13 @@ font-style: inherit;">geom_point</span>()</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1">data_smoothed <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb21-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
@@ -2002,17 +2009,17 @@ font-style: inherit;">coord_obs_pred</span>()</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p>この記事では，割合データにおける少数問題への対処法として，経験ベイズ法を用いた平滑化手法について説明しました． 分母の人口等が小さい場合に割合データのばらつきが大きくなる現象は，実務でもしばしば問題になると思われます． そうした場合には，何らかのしきい値で分母の小さいデータを除外する方法も考えられますが， この記事で説明した方法を使うと全てのデータを活用できるという利点もあります．</p>
-<p>この記事で用いたMASSパッケージの<code>glm.nb()</code>は，一般化線形モデル用の関数であるため，分母にあたる<code>offset(log(population))</code>以外の項も説明変数として含むことが可能です． これにより，地域特性等によって<img src="https://latex.codecogs.com/png.latex?%5Cbeta">が異なる状況を再現できる可能性があります．</p>
-<p>また，汎用性の高いと思われるポアソン分布を対象としましたが，二項分布でも同様の枠組みが利用できます． 二項分布の場合，事前分布としてベータ分布を用いると，平滑化の式は以下のようになります． また，混合分布はベータ・二項分布となるため，既存のRパッケージ（例：bbmle）等を用いれば，比較的簡単にパラメータ推定が可能だと思われます．</p>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In this article, we explained a smoothing method using empirical Bayes as an approach for dealing with the small number problem in proportion data. The phenomenon where the variability of proportion data becomes large when the denominator, such as the population, is small is likely to be a problem in practice as well. In such cases, one option is to exclude data with a small denominator based on some threshold, but the method described in this article has the advantage of allowing us to make use of all the data.</p>
+<p>The <code>glm.nb()</code> function from the MASS package used in this article is a function for generalized linear models, so it is possible to include terms other than the denominator term, <code>offset(log(population))</code>, as explanatory variables. This makes it possible to reproduce situations in which <img src="https://latex.codecogs.com/png.latex?%5Cbeta"> varies depending on factors such as regional characteristics.</p>
+<p>Also, although we focused on the Poisson distribution, which we consider to be highly versatile, the same framework can also be applied to the binomial distribution. In the case of the binomial distribution, if we use a Beta distribution as the prior, the smoothing formula becomes as follows. In addition, since the mixture distribution in this case is the Beta-binomial distribution, parameter estimation should be relatively straightforward using existing R packages (e.g., bbmle).</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7Bn%20+%20%5Calpha%7D%7BN%20+%20%5Calpha%20+%20%5Cbeta%7D%0A"></p>
 
 
@@ -3519,7 +3526,7 @@ font-style: inherit;">10</span>)</span></code></pre></div>
   <pubDate>Sun, 22 Dec 2024 15:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>R ggraphで全国の市町村合併を可視化する</title>
+  <title>Visualizing Municipal Mergers in Japan with R’s ggraph</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html</link>
   <description><![CDATA[ 
 
@@ -3527,22 +3534,23 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 
 
 
-<p>昨日，<a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">こちらの記事</a>でjpcityパッケージを紹介しました． jpcityパッケージでは，内部的に過去の全国の市町村合併（廃置分合）をネットワーク化することで，異なる時点間での市区町村コードの対応付けを行っています．</p>
-<p>この記事では，jpcityパッケージが内部で使用する市町村合併ネットワークを以下の方針で可視化しみます．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.html">my Japanese article</a>.</p>
+<p>Yesterday, I introduced the jpcity package in <a href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">this article</a>. Internally, the jpcity package builds a network of Japan’s past municipal mergers (formally called <em>haichi bungō</em>, i.e., the establishment, abolition, and merger of municipalities) in order to map municipality codes across different points in time.</p>
+<p>In this article, I’ll visualize the municipal merger network used internally by the jpcity package, following these guidelines:</p>
 <ul>
-<li>1970年4月1日～2024年4月1日にかけての市町村合併や市・町制施行を都道府県ごとに可視化</li>
-<li>並び替えにおいて時系列は考慮しない（位置を時点に合わせることも可能だが見えづらいため）</li>
-<li>区の分離・分割は対象外</li>
+<li>Visualize municipal mergers and city/town incorporations from April 1, 1970 to April 1, 2024, by prefecture</li>
+<li>Node ordering does not take chronology into account (it’s possible to align positions with time, but this makes the graph harder to read)</li>
+<li>Ward separations/splits are excluded</li>
 </ul>
-<section id="参考記事" class="level3">
-<h3 class="anchored" data-anchor-id="参考記事">参考記事</h3>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
 <ul>
-<li><a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）</a></li>
+<li><a href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">Let’s Smartly Format Municipal Data in R (aggregating municipal mergers, designated cities, etc.)</a></li>
 </ul>
 </section>
-<section id="都道府県別の市町村合併の可視化結果" class="level3">
-<h3 class="anchored" data-anchor-id="都道府県別の市町村合併の可視化結果">都道府県別の市町村合併の可視化結果</h3>
-<p>以下に市町村合併の可視化結果を示します．データ上の不備等に気づかれた方はコメント等でお知らせいただければ幸いです． ラベルが重なって見づらい箇所があることをご了承ください．</p>
+<section id="visualization-results-of-municipal-mergers-by-prefecture" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-results-of-municipal-mergers-by-prefecture">Visualization results of municipal mergers by prefecture</h3>
+<p>Below are the visualization results of municipal mergers. If you notice any issues with the data, I’d appreciate it if you could let me know in the comments. Please note that in some places the labels overlap and are hard to read.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -3572,13 +3580,13 @@ font-style: inherit;">:::</span>graph_city<span class="sc" style="color: #5E5E5E
 background-color: null;
 font-style: inherit;">$</span>graph_city <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb1-8">  </span>
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-8"></span>
 <span id="cb1-9">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">activate</span>(nodes) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-10">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
@@ -3596,7 +3604,7 @@ font-style: inherit;">int_end</span>(interval) <span class="sc" style="color: #5
 background-color: null;
 font-style: inherit;">&lt;=</span> date_end) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-12">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">arrange</span>(<span class="fu" style="color: #4758AB;
@@ -3604,7 +3612,7 @@ background-color: null;
 font-style: inherit;">desc</span>(interval)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb1-13">  </span>
+<span id="cb1-13"></span>
 <span id="cb1-14">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">replace_na</span>(<span class="fu" style="color: #4758AB;
@@ -3636,8 +3644,8 @@ font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span>city_desig_name) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb1-18">  </span>
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-18"></span>
 <span id="cb1-19">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
@@ -3646,8 +3654,8 @@ font-style: inherit;">group =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_components</span>()) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb1-20">  </span>
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-20"></span>
 <span id="cb1-21">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">activate</span>(edges) <span class="sc" style="color: #5E5E5E;
@@ -3679,7 +3687,7 @@ font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">47</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-25">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">walk</span>(\(pref) {</span>
@@ -3690,17 +3698,17 @@ background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">pref_name</span>(pref)</span>
-<span id="cb1-27">    </span>
+<span id="cb1-27"></span>
 <span id="cb1-28">    plot <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> graph_city <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-29">      <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">activate</span>(nodes) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-30">      <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(pref_name <span class="sc" style="color: #5E5E5E;
@@ -3709,8 +3717,8 @@ font-style: inherit;">==</span> .env<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>pref_name) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
-<span id="cb1-31">      </span>
+font-style: inherit;">|&gt;</span></span>
+<span id="cb1-31"></span>
 <span id="cb1-32">      <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">create_layout</span>(<span class="st" style="color: #20794D;
@@ -3718,14 +3726,14 @@ background-color: null;
 font-style: inherit;">"fabric"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb1-33">      </span>
+<span id="cb1-33"></span>
 <span id="cb1-34">      <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># ラベル位置を時系列に合わせることも可能だが見えづらいため省略</span></span>
+font-style: inherit;"># It's possible to align label positions with chronology, but this is omitted since it makes the graph harder to read</span></span>
 <span id="cb1-35">      <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># mutate(y = int_start(interval)) |&gt;</span></span>
-<span id="cb1-36">      </span>
+<span id="cb1-36"></span>
 <span id="cb1-37">      <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggraph</span>() <span class="sc" style="color: #5E5E5E;
@@ -3750,7 +3758,7 @@ font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'mm'</span>)), </span>
+font-style: inherit;">'mm'</span>)),</span>
 <span id="cb1-40">                         <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">end_cap =</span> <span class="fu" style="color: #4758AB;
@@ -3800,7 +3808,7 @@ background-color: null;
 font-style: inherit;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb1-47">      </span>
+<span id="cb1-47"></span>
 <span id="cb1-48">      <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
@@ -3811,7 +3819,7 @@ font-style: inherit;">+</span></span>
 <span id="cb1-49">      <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme_void</span>()</span>
-<span id="cb1-50">    </span>
+<span id="cb1-50"></span>
 <span id="cb1-51">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(plot)</span>
@@ -3820,329 +3828,329 @@ font-style: inherit;">print</span>(plot)</span>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-4.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-4.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-5.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-5.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-6.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-6.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-7.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-7.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-8.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-8.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-9.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-9.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-10.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-10.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-11.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-11.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-12.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-12.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-13.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-13.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-14.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-14.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-15.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-15.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-16.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-16.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-17.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-17.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-18.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-18.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-19.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-19.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-20.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-20.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-21.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-21.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-22.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-22.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-23.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-23.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-24.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-24.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-25.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-25.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-26.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-26.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-27.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-27.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-28.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-28.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-29.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-29.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-30.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-30.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-31.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-31.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-32.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-32.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-33.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-33.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-34.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-34.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-35.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-35.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-36.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-36.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-37.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-37.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-38.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-38.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-39.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-39.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-40.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-40.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-41.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-41.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-42.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-42.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-43.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-43.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-44.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-44.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-45.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-45.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-46.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-46.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph_files/figure-html/市町村合併の可視化-47.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/visualizing-municipal-mergers-in-japan-with-r-ggraph.en_files/figure-html/市町村合併の可視化-47.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -4158,7 +4166,7 @@ font-style: inherit;">print</span>(plot)</span>
   <pubDate>Sat, 25 May 2024 15:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）</title>
+  <title>Let’s Smartly Format Municipal Data in R (Municipal Mergers, Designated-City Data Aggregation, and More)</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/lets-smartly-format-municipal-data-in-r.html</link>
   <description><![CDATA[ 
 
@@ -4166,18 +4174,19 @@ font-style: inherit;">print</span>(plot)</span>
 
 
 
-<p>この記事は，はじめに市区町村データの分析で注意すべき点について説明し， 次に，Rのjpcityパッケージを用いて市区町村データをスマートに整形する方法について紹介します．</p>
-<section id="市区町村データの分析で注意すべきことは" class="level2">
-<h2 class="anchored" data-anchor-id="市区町村データの分析で注意すべきことは">市区町村データの分析で注意すべきことは？</h2>
-<p>市区町村別の統計データを分析する際には，どのようなことに気をつけるべきでしょうか． 以下では，主な注意点を3つに絞って紹介します．</p>
-<section id="市区町村名の重複に注意する" class="level3">
-<h3 class="anchored" data-anchor-id="市区町村名の重複に注意する">①市区町村名の重複に注意する</h3>
-<p>まず気をつけるべきことは，同じ名称をもつ市区町村名が複数存在する場合があることです． 実際に，2020年1月1日時点で漢字表記が重複する市町村は，以下のように60市町村弱存在します<sup>1</sup>．</p>
-<p>ここで，表の一番左列<code>city_code</code>に記載されている5桁の数字は， 市区町村コード（全国地方公共団体コード）と呼ばれるもので市区町村を一意に識別するための番号です． そのため，市区町村データを分析する際には，市区町村名ではなく市区町村コードを用いて市区町村を識別することが望ましいと言えるでしょう．</p>
-<p>ちなみに，市区町村コードの上2桁の数字は都道府県の識別番号であり，都道府県コードと呼ばれます．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">my Japanese article</a>.</p>
+<p>This article first explains points to watch out for when analyzing municipal data, and then introduces how to smartly format municipal data in R using the jpcity package.</p>
+<section id="what-should-you-watch-out-for-when-analyzing-municipal-data" class="level2">
+<h2 class="anchored" data-anchor-id="what-should-you-watch-out-for-when-analyzing-municipal-data">What should you watch out for when analyzing municipal data?</h2>
+<p>What should you be careful about when analyzing statistical data broken down by municipality? Below, I’ll introduce three main points to watch out for.</p>
+<section id="watch-out-for-duplicate-municipality-names" class="level3">
+<h3 class="anchored" data-anchor-id="watch-out-for-duplicate-municipality-names">1. Watch out for duplicate municipality names</h3>
+<p>The first thing to watch out for is that there can be multiple municipalities with the same name. In fact, as of January 1, 2020, there are just under 60 municipalities whose kanji notation overlaps with another, as shown below<sup>1</sup>.</p>
+<p>Here, the 5-digit number in the leftmost column of the table, <code>city_code</code>, is called the municipality code (the National Local Government Code), a number used to uniquely identify each municipality. For this reason, when analyzing municipal data, it’s preferable to identify municipalities by their municipality code rather than by name.</p>
+<p>Incidentally, the first two digits of the municipality code are the identification number for the prefecture, known as the prefecture code.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>市区町村名の重複箇所の抽出</summary>
+<summary>Extracting duplicate municipality names</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(tidyverse)</span>
@@ -4257,15 +4266,15 @@ font-style: inherit;">paged_table</span>()</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="市町村合併廃置分合による市区町村コードの変更に注意する" class="level3">
-<h3 class="anchored" data-anchor-id="市町村合併廃置分合による市区町村コードの変更に注意する">②市町村合併（廃置分合）による市区町村コードの変更に注意する</h3>
-<p>市区町村コードを使ってさえいれば問題ないのでしょうか？ 残念ながら，市区町村コードによる分析にはもう一つの落とし穴があります． それは，市町村合併（廃置分合）によって市区町村コードが変更されることがあるという点です．</p>
-<p>市区町村コードは1970年4月1日に利用が開始されましたが，その後の平成の大合併（1999年～2010年）などによって市区町村数は大きく減少しました． そのため，特に1999年～2010年ごろの市区町村データを分析する際には，別途，面倒な集計・按分処理（いわゆる廃置分合処理）が必要となることがあります．</p>
-<p>例として，1970年4月1日から2020年1月1日にかけて最も多くの市区町村が合併してできた市区町村を抽出してみましょう． 抽出の結果（下表），これまでに最も多くの市町村合併を経た市区町村は15市町村が合併してできた新潟県上越市であることがわかりました．</p>
-<p>また，市町村合併だけでなく町制変更や市制施行などによって市区町村コードが変更されることもあります． そのため，市区町村データを分析する際には，こうした市区町村コードの変更事由や変更時期を考慮したデータ整形が必要となることがあります．</p>
+<section id="watch-out-for-municipality-code-changes-due-to-municipal-mergers-haichi-bungō" class="level3">
+<h3 class="anchored" data-anchor-id="watch-out-for-municipality-code-changes-due-to-municipal-mergers-haichi-bungō">2. Watch out for municipality code changes due to municipal mergers (haichi-bungō)</h3>
+<p>Does that mean everything is fine as long as you use municipality codes? Unfortunately, there is another pitfall in analysis based on municipality codes: municipality codes can change due to municipal mergers (haichi-bungō, i.e., the abolition, establishment, division, and merger of municipalities).</p>
+<p>Municipality codes came into use on April 1, 1970, but the number of municipalities subsequently decreased significantly due to the Great Heisei Mergers (1999-2010) and other consolidations. Because of this, analyzing municipal data from around 1999-2010 in particular can require separate, tedious aggregation and apportionment processing (so-called haichi-bungō processing).</p>
+<p>As an example, let’s extract the municipality formed from the largest number of merged municipalities between April 1, 1970 and January 1, 2020. The results (table below) show that the municipality that has undergone the most municipal mergers is Joetsu City in Niigata Prefecture, formed from the merger of 15 municipalities.</p>
+<p>Municipality codes can also change due to reasons other than mergers, such as a village being reclassified as a town or a town being reclassified as a city. For this reason, when analyzing municipal data, it can be necessary to format the data while taking into account the reason for and timing of these municipality code changes.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>最も多くの市区町村が合併してできた市区町村の抽出</summary>
+<summary>Extracting the municipality formed from the most merged municipalities</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">tibble</span>(<span class="at" style="color: #657422;
@@ -4360,21 +4369,21 @@ font-style: inherit;">paged_table</span>()</span></code></pre></div>
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["city_code_before"],"name":[1],"type":["chr"],"align":["left"]},{"label":["city_name_before"],"name":[2],"type":["chr"],"align":["left"]},{"label":["city_code_after"],"name":[3],"type":["chr"],"align":["left"]},{"label":["city_name_after"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"15203","2":"高田市","3":"15222","4":"上越市"},{"1":"15214","2":"直江津市","3":"15222","4":"上越市"},{"1":"15521","2":"安塚町","3":"15222","4":"上越市"},{"1":"15522","2":"浦川原村","3":"15222","4":"上越市"},{"1":"15525","2":"大島村","3":"15222","4":"上越市"},{"1":"15526","2":"牧村","3":"15222","4":"上越市"},{"1":"15541","2":"柿崎町","3":"15222","4":"上越市"},{"1":"15542","2":"大潟町","3":"15222","4":"上越市"},{"1":"15543","2":"頸城村","3":"15222","4":"上越市"},{"1":"15544","2":"吉川町","3":"15222","4":"上越市"},{"1":"15546","2":"中郷村","3":"15222","4":"上越市"},{"1":"15548","2":"板倉町","3":"15222","4":"上越市"},{"1":"15549","2":"清里村","3":"15222","4":"上越市"},{"1":"15550","2":"三和村","3":"15222","4":"上越市"},{"1":"15561","2":"名立町","3":"15222","4":"上越市"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[20],"max":[20]},"pages":{}}}
+{"columns":[{"label":["city_code_before"],"name":[1],"type":["chr"],"align":["left"]},{"label":["city_name_before"],"name":[2],"type":["chr"],"align":["left"]},{"label":["city_code_after"],"name":[3],"type":["chr"],"align":["left"]},{"label":["city_name_after"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"15201","2":"新潟市","3":"15100","4":"新潟市"},{"1":"15207","2":"新津市","3":"15100","4":"新潟市"},{"1":"15220","2":"白根市","3":"15100","4":"新潟市"},{"1":"15305","2":"豊栄町","3":"15100","4":"新潟市"},{"1":"15321","2":"小須戸町","3":"15100","4":"新潟市"},{"1":"15323","2":"横越村","3":"15100","4":"新潟市"},{"1":"15324","2":"亀田町","3":"15100","4":"新潟市"},{"1":"15341","2":"岩室村","3":"15100","4":"新潟市"},{"1":"15345","2":"巻町","3":"15100","4":"新潟市"},{"1":"15346","2":"西川町","3":"15100","4":"新潟市"},{"1":"15347","2":"黒埼村","3":"15100","4":"新潟市"},{"1":"15348","2":"味方村","3":"15100","4":"新潟市"},{"1":"15349","2":"潟東村","3":"15100","4":"新潟市"},{"1":"15350","2":"月潟村","3":"15100","4":"新潟市"},{"1":"15351","2":"中之口村","3":"15100","4":"新潟市"},{"1":"15203","2":"高田市","3":"15222","4":"上越市"},{"1":"15214","2":"直江津市","3":"15222","4":"上越市"},{"1":"15521","2":"安塚町","3":"15222","4":"上越市"},{"1":"15522","2":"浦川原村","3":"15222","4":"上越市"},{"1":"15525","2":"大島村","3":"15222","4":"上越市"},{"1":"15526","2":"牧村","3":"15222","4":"上越市"},{"1":"15541","2":"柿崎町","3":"15222","4":"上越市"},{"1":"15542","2":"大潟町","3":"15222","4":"上越市"},{"1":"15543","2":"頸城村","3":"15222","4":"上越市"},{"1":"15544","2":"吉川町","3":"15222","4":"上越市"},{"1":"15546","2":"中郷村","3":"15222","4":"上越市"},{"1":"15548","2":"板倉町","3":"15222","4":"上越市"},{"1":"15549","2":"清里村","3":"15222","4":"上越市"},{"1":"15550","2":"三和村","3":"15222","4":"上越市"},{"1":"15561","2":"名立町","3":"15222","4":"上越市"},{"1":"33201","2":"岡山市","3":"33100","4":"岡山市"},{"1":"33301","2":"御津町","3":"33100","4":"岡山市"},{"1":"33302","2":"一宮町","3":"33100","4":"岡山市"},{"1":"33303","2":"建部町","3":"33100","4":"岡山市"},{"1":"33304","2":"津高町","3":"33100","4":"岡山市"},{"1":"33321","2":"瀬戸町","3":"33100","4":"岡山市"},{"1":"33381","2":"上道町","3":"33100","4":"岡山市"},{"1":"33401","2":"灘崎町","3":"33100","4":"岡山市"},{"1":"33402","2":"興除村","3":"33100","4":"岡山市"},{"1":"33403","2":"藤田村","3":"33100","4":"岡山市"},{"1":"33421","2":"吉備町","3":"33100","4":"岡山市"},{"1":"33424","2":"妹尾町","3":"33100","4":"岡山市"},{"1":"33426","2":"福田村","3":"33100","4":"岡山市"},{"1":"33501","2":"高松町","3":"33100","4":"岡山市"},{"1":"33502","2":"足守町","3":"33100","4":"岡山市"},{"1":"34201","2":"広島市","3":"34100","4":"広島市"},{"1":"34301","2":"安芸町","3":"34100","4":"広島市"},{"1":"34303","2":"船越町","3":"34100","4":"広島市"},{"1":"34305","2":"瀬野川町","3":"34100","4":"広島市"},{"1":"34306","2":"熊野跡村","3":"34100","4":"広島市"},{"1":"34308","2":"矢野町","3":"34100","4":"広島市"},{"1":"34321","2":"五日市町","3":"34100","4":"広島市"},{"1":"34341","2":"祇園町","3":"34100","4":"広島市"},{"1":"34342","2":"安古市町","3":"34100","4":"広島市"},{"1":"34343","2":"佐東町","3":"34100","4":"広島市"},{"1":"34344","2":"沼田町","3":"34100","4":"広島市"},{"1":"34345","2":"安佐町","3":"34100","4":"広島市"},{"1":"34346","2":"可部町","3":"34100","4":"広島市"},{"1":"34347","2":"高陽町","3":"34100","4":"広島市"},{"1":"34387","2":"白木町","3":"34100","4":"広島市"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[20],"max":[20]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
 </section>
-<section id="政令指定都市の市区の扱いに注意する" class="level3">
-<h3 class="anchored" data-anchor-id="政令指定都市の市区の扱いに注意する">③政令指定都市の市区の扱いに注意する</h3>
-<p>上記の注意点を押さえれば，市区町村データの整形の山場を乗り越えたと言えるでしょう． 最後に，細かい点ではありますが，政令指定都市の市区の扱いについて取り上げておきます．</p>
-<p>統計データによっては，政令指定都市の区レベルのデータが入手可能な市区町村データではなく， 市レベルで集計した市町村データしか入手できないことがあります．</p>
-<p>政令指定都市の市と区には，それぞれに異なる市区町村コードが割り振られているため， こうした地域区分の異なるデータを統合する際には，市区町村コードの対応付けが必要となります．</p>
-<p>例として，横浜市における市と区の対応付けを下表に示します．</p>
+<section id="watch-out-for-how-wards-of-designated-cities-seirei-shitei-toshi-are-handled" class="level3">
+<h3 class="anchored" data-anchor-id="watch-out-for-how-wards-of-designated-cities-seirei-shitei-toshi-are-handled">3. Watch out for how wards of designated cities (seirei shitei toshi) are handled</h3>
+<p>Once you’ve grasped the points above, you can say you’ve cleared the biggest hurdle in formatting municipal data. Finally, though it’s a minor point, let’s look at how wards of designated cities are handled.</p>
+<p>Depending on the statistical data, you may only be able to obtain municipal data aggregated at the city level, rather than municipal data available at the ward level for designated cities.</p>
+<p>Since the city and its wards in a designated city are each assigned different municipality codes, mapping between municipality codes is necessary when integrating data with these different regional breakdowns.</p>
+<p>As an example, the table below shows the mapping between the city and its wards for Yokohama City.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>政令指定都市の市と区の対応付け</summary>
+<summary>Mapping between the city and wards of a designated city</summary>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">tibble</span>(<span class="at" style="color: #657422;
@@ -4458,11 +4467,11 @@ font-style: inherit;">paged_table</span>()</span></code></pre></div>
 </div>
 </section>
 </section>
-<section id="rで市区町村データをスマートに整形する" class="level2">
-<h2 class="anchored" data-anchor-id="rで市区町村データをスマートに整形する">Rで市区町村データをスマートに整形する</h2>
-<p>ここまでの注意点を踏まえて，Rを用いて市区町村データをスマートに整形する方法を紹介します． 実は，上に示した事例は，いずれもe-Statの 「<a href="https://www.e-stat.go.jp/municipalities/cities/areacode">市区町村を探す</a>」と 「<a href="https://www.e-stat.go.jp/municipalities/cities/absorption-separation-of-municipalities">廃置分合等情報を探す</a>」で 公開されている情報に基づいています．</p>
-<p>しかし，「廃置分合等情報を探す」では，市町村合併等による市区町村コードの変更内容がテキスト形式で記載されているため， そのままではデータ整形に利用しにくいという問題があります．</p>
-<p>そこで，こうした複雑なデータ整形を行うことなく，簡単に廃置分合処理や政令指定都市の市区の対応付けを行うために， 新たに，<a href="https://uchidamizuki.github.io/jpcity/">jpcity</a>パッケージを作成しました<sup>2</sup>． ちなみに，上に示した表はすべてjpcityパッケージを用いて作成したものです． jpcityは，CRANに登録済みであるため，以下のコードを実行することでインストールすることができます． ここからは，jpcityの使い方について簡単に説明していきます．</p>
+<section id="smartly-formatting-municipal-data-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="smartly-formatting-municipal-data-in-r">Smartly formatting municipal data in R</h2>
+<p>With the points above in mind, let’s introduce how to smartly format municipal data using R. In fact, all of the examples shown above are based on information published by e-Stat in <a href="https://www.e-stat.go.jp/municipalities/cities/areacode">“Search Municipalities”</a> and <a href="https://www.e-stat.go.jp/municipalities/cities/absorption-separation-of-municipalities">“Search Municipal Merger Information”</a>.</p>
+<p>However, “Search Municipal Merger Information” describes changes to municipality codes due to mergers and other events in text form, which makes it difficult to use directly for data formatting.</p>
+<p>So, to make it easy to perform haichi-bungō processing and map between the cities and wards of designated cities without having to do this kind of complex data formatting, I created a new package called <a href="https://uchidamizuki.github.io/jpcity/">jpcity</a><sup>2</sup>. Incidentally, all of the tables shown above were created using the jpcity package. Since jpcity is registered on CRAN, it can be installed by running the code below. From here, I’ll briefly explain how to use jpcity.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -4470,10 +4479,10 @@ font-style: inherit;">install.packages</span>(<span class="st" style="color: #20
 background-color: null;
 font-style: inherit;">"jpcity"</span>)</span></code></pre></div>
 </div>
-<section id="市区町村コードや市区町村名の読込み" class="level3">
-<h3 class="anchored" data-anchor-id="市区町村コードや市区町村名の読込み">①市区町村コードや市区町村名の読込み</h3>
-<p>jpcityでは，<code>parse_city()</code>関数を用いて市区町村コードから市区町村オブジェクトを構築することができます<sup>3</sup>． また，<code>find_city()</code>関数を用いて市区町村名から市区町村オブジェクトを構築することができます． ただし，<code>find_city()</code>は市区町村名が重複する場合にすべての市区町村が返されてしまうため，基本的には<code>parse_city()</code>を用いることが推奨されます． さらに，<code>parse_city()</code>・<code>find_city()</code>は，ともに第2引数<code>when</code>に日付を指定することで， その時点での市区町村を取得することができます<sup>4</sup>．</p>
-<p>また，市区町村オブジェクトの市区町村コードや市区町村名への（文字列）変換には，<code>city_code()</code>関数や<code>city_name()</code>関数を用いることができます．</p>
+<section id="reading-in-municipality-codes-and-names" class="level3">
+<h3 class="anchored" data-anchor-id="reading-in-municipality-codes-and-names">1. Reading in municipality codes and names</h3>
+<p>In jpcity, you can build a municipality object from a municipality code using the <code>parse_city()</code> function<sup>3</sup>. You can also build a municipality object from a municipality name using the <code>find_city()</code> function. However, since <code>find_city()</code> returns all matching municipalities when the name is a duplicate, it’s generally recommended to use <code>parse_city()</code>. Furthermore, both <code>parse_city()</code> and <code>find_city()</code> let you specify a date as the second argument, <code>when</code>, to retrieve the municipality as of that point in time<sup>4</sup>.</p>
+<p>You can also use the <code>city_code()</code> and <code>city_name()</code> functions to convert a municipality object to a (character) municipality code or municipality name, respectively.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -4514,9 +4523,9 @@ font-style: inherit;">"2020-01-01"</span>))</span>
 </div>
 </div>
 </section>
-<section id="市町村合併廃置分合処理" class="level3">
-<h3 class="anchored" data-anchor-id="市町村合併廃置分合処理">②市町村合併（廃置分合）処理</h3>
-<p><code>city_convert()</code>関数を用いて市区町村合併（廃置分合）処理を行うことができます． ここでは，さきほど読み込んだ上越市を例に，2000年1月1日時点での市区町村に変換してみましょう<sup>5</sup>． <code>city_convert()</code>の第2引数<code>from</code>は変換前の日付<code>"2020-01-01"</code>，第3引数<code>to</code>は変換後の日付<code>"2000-01-01"</code>を指定します．</p>
+<section id="municipal-merger-haichi-bungō-processing" class="level3">
+<h3 class="anchored" data-anchor-id="municipal-merger-haichi-bungō-processing">2. Municipal merger (haichi-bungō) processing</h3>
+<p>You can perform municipal merger (haichi-bungō) processing using the <code>city_convert()</code> function. Here, let’s take the Joetsu City we read in earlier as an example and convert it to the municipality as of January 1, 2000<sup>5</sup>. For <code>city_convert()</code>, specify the pre-conversion date <code>"2020-01-01"</code> as the second argument, <code>from</code>, and the post-conversion date <code>"2000-01-01"</code> as the third argument, <code>to</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">city <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -4566,14 +4575,14 @@ font-style: inherit;">unnest</span>(city_converted)</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="政令指定都市の市区の対応付け" class="level3">
-<h3 class="anchored" data-anchor-id="政令指定都市の市区の対応付け">③政令指定都市の市区の対応付け</h3>
-<p><code>city_desig_split()</code>関数や<code>city_desig_merge()</code>関数を用いて政令指定都市の市区の対応付けを行うことができます． ここでは，さきほど事例として挙げた横浜市を対象に，市区の対応付けを行ってみましょう．</p>
-<p><code>city_desig_split()</code>関数は，政令指定都市の市を区に分割する関数です．<code>city_desig_split()</code>により，横浜市に14の区が存在することがわかります． <code>city_desig_merge()</code>関数は，政令指定都市の区を市に統合する関数です．<code>city_desig_merge()</code>により，さきほど分割した横浜市の区を市に戻すことができます．</p>
+<section id="mapping-between-the-city-and-wards-of-a-designated-city" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-between-the-city-and-wards-of-a-designated-city">3. Mapping between the city and wards of a designated city</h3>
+<p>You can map between the city and wards of a designated city using the <code>city_desig_split()</code> and <code>city_desig_merge()</code> functions. Here, let’s perform this mapping for Yokohama City, the example we used earlier.</p>
+<p>The <code>city_desig_split()</code> function splits a designated city into its wards. Using <code>city_desig_split()</code>, we can see that Yokohama City has 14 wards. The <code>city_desig_merge()</code> function merges the wards of a designated city back into the city. Using <code>city_desig_merge()</code>, we can convert the wards of Yokohama City we just split back into the city.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 政令指定都市の市を区に分割</span></span>
+font-style: inherit;"># Split the designated city into its wards</span></span>
 <span id="cb9-2">city_desig <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
@@ -4619,7 +4628,7 @@ font-style: inherit;">unnest</span>(city_desig)</span>
 </div>
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 政令指定都市の区を市に統合 (最初の数行だけ表示)</span></span>
+font-style: inherit;"># Merge the wards of the designated city back into the city (showing only the first few rows)</span></span>
 <span id="cb11-2">city_desig <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
@@ -4654,9 +4663,9 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 </div>
 </section>
 </section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>この記事では，市区町村データの分析で注意すべき点と，Rのjpcityパッケージを用いて市区町村データをスマートに整形する方法について紹介しました． jpcityパッケージに対する要望・バグ報告や質問などがあれば，<a href="https://github.com/uchidaMizuki/jpcity">GitHub</a>か以下のコメント欄からお気軽にご意見をお寄せください．</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this article, I introduced points to watch out for when analyzing municipal data, and how to smartly format municipal data in R using the jpcity package. If you have any requests, bug reports, or questions about the jpcity package, feel free to reach out via <a href="https://github.com/uchidaMizuki/jpcity">GitHub</a> or the comment section below.</p>
 
 
 </section>
@@ -4665,11 +4674,11 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>ここでは，ひらがな表記（読み方）が異なっていても漢字表記が同じであれば「重複」としてカウントしています．また，政令指定都市の区名は重複が多いので対象外としています．↩︎</p></li>
-<li id="fn2"><p>jpcityは，e-Statの公開に公開されている「市区町村を探す」と「廃置分合等情報を探す」のデータに基づいて構築されています．↩︎</p></li>
-<li id="fn3"><p><code>parse_city()</code>は，チェックデジット付きの6桁の市区町村コードにも対応しています．↩︎</p></li>
-<li id="fn4"><p><code>when</code> 引数を指定しない場合には，いつの期間の市区町村かを推測して読込みを行います．また，期間が整合しない市区町村が含まれる場合には，読込みエラーとなります．↩︎</p></li>
-<li id="fn5"><p>上越市は，1971年4月29日に高田市と直江津市が合併して新設され，その後，2005年1月1日に13町村が上越市に合併されました．↩︎</p></li>
+<li id="fn1"><p>Here, municipalities are counted as “duplicates” if their kanji notation is the same, even if the hiragana reading differs. Also, ward names of designated cities (seirei shitei toshi) are excluded, since there are many overlaps among them.↩︎</p></li>
+<li id="fn2"><p>jpcity is built on data published by e-Stat in “Search Municipalities” and “Search Municipal Merger Information”.↩︎</p></li>
+<li id="fn3"><p><code>parse_city()</code> also supports 6-digit municipality codes that include a check digit.↩︎</p></li>
+<li id="fn4"><p>If the <code>when</code> argument isn’t specified, jpcity infers which period the municipality belongs to and reads it in accordingly. If municipalities with inconsistent periods are included, a read error will occur.↩︎</p></li>
+<li id="fn5"><p>Joetsu City was newly established on April 29, 1971 through the merger of Takada City and Naoetsu City, and later, on January 1, 2005, 13 towns and villages were merged into Joetsu City.↩︎</p></li>
 </ol>
 </section></div> ]]></description>
   <category>English</category>
@@ -4707,7 +4716,7 @@ font-style: inherit;">head</span>()</span></code></pre></div>
   <pubDate>Fri, 22 Mar 2024 15:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>LiNGAMによる因果探索では関数形に注意しよう</title>
+  <title>Be careful with function forms in causal discovery with LiNGAM</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2024/03/be-careful-with-function-forms-in-lingam.html</link>
   <description><![CDATA[ 
 
@@ -4715,30 +4724,31 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 
 
 
-<section id="lingamによる因果探索" class="level2">
-<h2 class="anchored" data-anchor-id="lingamによる因果探索">LiNGAMによる因果探索</h2>
-<p>LiNGAM（Linear Non-Gaussian Acyclic Model）は代表的な因果探索手法の一つで，近年は市販のソフトウェア等にも実装されるなど実務での活用が進んでいるようです．LiNGAMは，その名の通り，関数形が線形かつ誤差項がガウス分布（正規分布）以外に従う場合に，データから因果関係を明らかにすることができる手法です．</p>
-<p>LiNGAMは，PythonのlingamパッケージやRのpcalgパッケージで利用することができ，これらのパッケージで提供される関数にデータフレームを入力すれば，簡単に因果グラフを推定することができます．因果グラフとは，観測変数をノード，因果関係を矢印に見立てて構築されるネットワーク構造のことです．特に，因果探索では，因果グラフとしてDAG（Directed Acyclic Graph）と呼ばれる有向非巡回グラフを推定することが一般的です．</p>
-<p>因果グラフの例として，以下にレストラン経営に関する因果グラフを作成してみました．実務においては，曜日・天気・出店地域などの様々な要因によって利益が 変動すると考えられ，さらに複雑な因果関係が分析対象となることが想定されます．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/03/be-careful-with-function-forms-in-lingam.html">my Japanese article</a>.</p>
+<section id="causal-discovery-with-lingam" class="level2">
+<h2 class="anchored" data-anchor-id="causal-discovery-with-lingam">Causal discovery with LiNGAM</h2>
+<p>LiNGAM (Linear Non-Gaussian Acyclic Model) is one of the representative causal discovery methods, and it seems to be increasingly used in practice in recent years, being implemented in commercial software and other tools. As its name suggests, LiNGAM is a method that can reveal causal relationships from data when the functional form is linear and the error terms follow a non-Gaussian (non-normal) distribution.</p>
+<p>LiNGAM can be used via the Python lingam package or the R pcalg package, and simply feeding a data frame into the functions provided by these packages lets you easily estimate a causal graph. A causal graph is a network structure built by treating observed variables as nodes and causal relationships as arrows. In particular, causal discovery typically estimates a causal graph in the form of a DAG (Directed Acyclic Graph).</p>
+<p>As an example of a causal graph, I created the following causal graph related to running a restaurant business. In practice, profit is likely to fluctuate due to various factors such as the day of the week, weather, and the location of the store, so it is expected that even more complex causal relationships would be the subject of analysis.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
-  食材の質 --&gt; 料理の美味しさ
-  食材の質 --&gt; 原価
-  料理人の腕 --&gt; 料理の美味しさ
-  料理人の腕 --&gt; 給与
-  料理の美味しさ --&gt; 来客数
-  料理の美味しさ --&gt; 客単価
-  来客数 --&gt; 売上
-  客単価 --&gt; 売上
-  売上 --&gt; 利益
-  原価 --&gt; 費用
-  給与 --&gt; 費用
-  固定費用 --&gt; 費用
-  費用 --&gt; 利益
+  ingredient-quality --&gt; food-deliciousness
+  ingredient-quality --&gt; cost
+  chef-skill --&gt; food-deliciousness
+  chef-skill --&gt; wages
+  food-deliciousness --&gt; customer-count
+  food-deliciousness --&gt; spend-per-customer
+  customer-count --&gt; revenue
+  spend-per-customer --&gt; revenue
+  revenue --&gt; profit
+  cost --&gt; expenses
+  wages --&gt; expenses
+  fixed-costs --&gt; expenses
+  expenses --&gt; profit
 </pre>
 </div>
 <p></p></figure><p></p>
@@ -4746,11 +4756,11 @@ font-style: inherit;">head</span>()</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="関数形がlingamの推定に与える影響について" class="level2">
-<h2 class="anchored" data-anchor-id="関数形がlingamの推定に与える影響について">関数形がLiNGAMの推定に与える影響について</h2>
-<p>LiNGAMは，関数形が線形かつ誤差項がガウス分布以外に従うという前提のもとで因果関係を推定する手法です．そのため，関数形が線形でない（線形近似が難しい）場合には，誤った因果関係が推定される可能性があります．パッケージや市販のソフトウェアを使えばLiNGAMを簡単に実行することができてしまいますが，利用者はこうした前提があることを理解してLiNGAMを使う必要があると思われます．</p>
-<p>ここでは，上に挙げた因果グラフよりも簡単な以下のような因果関係をもつデータに対してLiNGAMを適用してみましょう．具体的には， 以下のフローチャートの<code>fun</code>に，非線形な関数が入ったときにLiNGAMの結果がどのように変わるかを確認します．</p>
-<p>ただし，この記事では最も一般的なLiNGAMであるDirect LiNGAM，誤差項として非ガウス分布の一様分布を用いています． また，係数の絶対値が0.001未満の因果関係は無視するものとしました．</p>
+<section id="the-effect-of-functional-form-on-lingam-estimation" class="level2">
+<h2 class="anchored" data-anchor-id="the-effect-of-functional-form-on-lingam-estimation">The effect of functional form on LiNGAM estimation</h2>
+<p>LiNGAM is a method that estimates causal relationships under the assumption that the functional form is linear and the error terms follow a non-Gaussian distribution. Therefore, if the functional form is not linear (or is difficult to approximate linearly), incorrect causal relationships may be estimated. Packages and commercial software make it easy to run LiNGAM, but users need to understand that these assumptions exist before using LiNGAM.</p>
+<p>Here, let’s apply LiNGAM to data with a simpler causal relationship than the causal graph shown above. Specifically, we will check how the results of LiNGAM change when a nonlinear function is placed in <code>fun</code> in the flowchart below.</p>
+<p>Note that in this article, we use Direct LiNGAM, the most common variant of LiNGAM, with a uniform distribution (a non-Gaussian distribution) for the error terms. We also ignore any causal relationships whose coefficient has an absolute value less than 0.001.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -4770,8 +4780,8 @@ style fun2 stroke:red,color:red
 </div>
 </div>
 </div>
-<p>因果グラフの推定に先立って<code>x11</code>・<code>x12</code>・<code>x22</code>列をもつ1,000行のデータフレームおよび因果探索用の関数を用意しておきましょう．</p>
-<div id="bbad07ff" class="cell" data-execution_count="1">
+<p>Before estimating the causal graph, let’s prepare a data frame with 1,000 rows and columns <code>x11</code>, <code>x12</code>, and <code>x22</code>, along with functions for causal discovery.</p>
+<div id="b141f486" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -4830,7 +4840,7 @@ font-style: inherit;">+</span> rng.random(n)</span>
 <span id="cb1-14"></span>
 <span id="cb1-15"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># DirectLiNGAMの結果をデータフレームとして返す関数</span></span>
+font-style: inherit;"># Function that returns the DirectLiNGAM result as a data frame</span></span>
 <span id="cb1-16"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
@@ -4903,7 +4913,7 @@ font-style: inherit;">'value'</span>])</span>
 <span id="cb1-32"></span>
 <span id="cb1-33"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># mermaidファイルを出力する関数</span></span>
+font-style: inherit;"># Function that writes a mermaid file</span></span>
 <span id="cb1-34"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
@@ -4958,7 +4968,7 @@ font-style: inherit;">format</span>(row.node_from, row.value, row.node_to))</spa
 <span id="cb1-39"></span>
 <span id="cb1-40"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 出力先のフォルダ</span></span>
+font-style: inherit;"># Output folder</span></span>
 <span id="cb1-41"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">dir</span> <span class="op" style="color: #5E5E5E;
@@ -4980,10 +4990,10 @@ background-color: null;
 font-style: inherit;">dir</span>)</span></code></pre></div>
 </details>
 </div>
-<section id="因果グラフに掛け算が含まれるケースfunが" class="level3">
-<h3 class="anchored" data-anchor-id="因果グラフに掛け算が含まれるケースfunが">因果グラフに掛け算が含まれるケース（<code>fun</code>が<code>*</code>）</h3>
-<p><code>fun</code>が掛け算（<code>*</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと同等の構造をもっており，今回のケースでは，因果グラフが正しく推定されていることがわかります． このように，足し算（線形）でなく掛け算のケースでも因果関係の推定がうまくいくケースがあるようです． ただし，観測変数の数やデータ数によっては状況が大きく異なるかもしれません．</p>
-<div id="d8e74b08" class="cell" data-execution_count="2">
+<section id="case-where-the-causal-graph-includes-multiplication-fun-is" class="level3">
+<h3 class="anchored" data-anchor-id="case-where-the-causal-graph-includes-multiplication-fun-is">Case where the causal graph includes multiplication (<code>fun</code> is <code>*</code>)</h3>
+<p>Let’s see what the Direct LiNGAM estimation results look like when <code>fun</code> is multiplication (<code>*</code>). The estimated causal graph has the same structure as the true causal graph, so in this case we can see that the causal graph was estimated correctly. This suggests that causal relationship estimation can work well even for multiplication rather than addition (linear) cases. However, the situation may differ significantly depending on the number of observed variables and the amount of data.</p>
+<div id="98ce5418" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">data_nonlinear_prod <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> data<span class="op" style="color: #5E5E5E;
@@ -5026,7 +5036,7 @@ font-style: inherit;">print</span>(causality_nonlinear_prod)</span></code></pre>
 19       x21     x31  3.477884</code></pre>
 </div>
 </div>
-<div id="27f1f988" class="cell" data-execution_count="3">
+<div id="e0073462" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">write_mermaid(causality_nonlinear_prod, os.path.join(<span class="bu" style="color: null;
@@ -5053,10 +5063,10 @@ font-style: inherit;">'dag_lingam_nonlinear_prod.mmd'</span>))</span></code></pr
 </div>
 </div>
 </section>
-<section id="因果グラフにべき乗が含まれるケースfunが" class="level3">
-<h3 class="anchored" data-anchor-id="因果グラフにべき乗が含まれるケースfunが">因果グラフにべき乗が含まれるケース（<code>fun</code>が<code>**</code>）</h3>
-<p>次に，<code>fun</code>がべき乗（<code>**</code>）のときにDirect LiNGAMの推定結果がどのようになるかを見てみましょう． 推定された因果グラフは真の因果グラフと異なる構造をもっており，もともと因果関係が存在しない上流の観測変数間にも誤った因果関係が推定されていることがわかります．このように，Direct LiNGAMに非線形な関数が含まれる場合には，その関数と直接関係しない観測変数間においても，誤った因果関係が推定されてしまうリスクがあることがわかります．</p>
-<div id="62827ab5" class="cell" data-execution_count="4">
+<section id="case-where-the-causal-graph-includes-exponentiation-fun-is" class="level3">
+<h3 class="anchored" data-anchor-id="case-where-the-causal-graph-includes-exponentiation-fun-is">Case where the causal graph includes exponentiation (<code>fun</code> is <code>**</code>)</h3>
+<p>Next, let’s see what the Direct LiNGAM estimation results look like when <code>fun</code> is exponentiation (<code>**</code>). The estimated causal graph has a different structure from the true causal graph, and we can see that incorrect causal relationships are also estimated between upstream observed variables that originally had no causal relationship. This shows that when Direct LiNGAM involves a nonlinear function, there is a risk that incorrect causal relationships will be estimated even between observed variables that are not directly related to that function.</p>
+<div id="8933c933" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">data_nonlinear_power <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> data<span class="op" style="color: #5E5E5E;
@@ -5100,7 +5110,7 @@ font-style: inherit;">print</span>(causality_nonlinear_power)</span></code></pre
 22       x31     x22  0.002306</code></pre>
 </div>
 </div>
-<div id="3fa4e5b0" class="cell" data-execution_count="5">
+<div id="a9e31dd8" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">write_mermaid(causality_nonlinear_power, os.path.join(<span class="bu" style="color: null;
@@ -5129,10 +5139,10 @@ font-style: inherit;">'dag_lingam_nonlinear_power.mmd'</span>))</span></code></p
 </div>
 </section>
 </section>
-<section id="まとめ" class="level2">
-<h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>この記事では，非線形な関数をもつデータに対してLiNGAMを適用すると，誤った因果関係が推定される可能性があることを示しました． そのため，LiNGAMの適用にあたっては，因果関係が線形で表せることを確認することが重要です．</p>
-<p>一方で，因果関係がわからない状況なのに，因果関係が線形で表せることがわかるという状況はまれであると思われます． そのため，事後的な線形性の確認や実験などを通じて，慎重に因果関係を特定することが求められます．</p>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this article, we showed that applying LiNGAM to data with nonlinear functions can result in incorrect causal relationships being estimated. Therefore, when applying LiNGAM, it is important to confirm that the causal relationships can be expressed linearly.</p>
+<p>On the other hand, it seems rare to be in a situation where causal relationships are unknown, yet it is known that they can be expressed linearly. Therefore, careful identification of causal relationships is required, through means such as verifying linearity after the fact or conducting experiments.</p>
 
 
 </section>
@@ -6378,7 +6388,7 @@ font-style: inherit;">TRUE</span>))</span></code></pre></div>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2024/01/relational-data-models-with-r-s-dm/mermaid-figure-2.png" medium="image" type="image/png" height="118" width="144"/>
 </item>
 <item>
-  <title>Rの数値積分で円の面積を求める</title>
+  <title>Calculating the Area of a Circle Using Numerical Integration in R</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2023/09/circle-area-by-numerical-integration-in-r.html</link>
   <description><![CDATA[ 
 
@@ -6386,13 +6396,14 @@ font-style: inherit;">TRUE</span>))</span></code></pre></div>
 
 
 
-<section id="はじめに" class="level2">
-<h2 class="anchored" data-anchor-id="はじめに">はじめに</h2>
-<p>最近，R statsパッケージ<sup>1</sup>の<code>integrate()</code> 関数で一次元関数の数値積分ができることを知りました．そこで，この記事では，<a href="https://mathwords.net/enmensekibun">こちらの記事</a>を参考に積分で円の面積を計算してみました．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html">my Japanese article</a>.</p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>I recently learned that the <code>integrate()</code> function in R’s stats package<sup>1</sup> can perform numerical integration of one-dimensional functions. So in this article, referring to <a href="https://mathwords.net/enmensekibun">this article</a>, I tried calculating the area of a circle using integration.</p>
 </section>
-<section id="半円を描く関数" class="level2">
-<h2 class="anchored" data-anchor-id="半円を描く関数">半円を描く関数</h2>
-<p>半径<img src="https://latex.codecogs.com/png.latex?r">の半円を描く関数は Equation&nbsp;1 と表せます．Rで書くと<code>semicircle()</code> 関数のようになります．</p>
+<section id="a-function-to-draw-a-semicircle" class="level2">
+<h2 class="anchored" data-anchor-id="a-function-to-draw-a-semicircle">A function to draw a semicircle</h2>
+<p>A function that draws a semicircle of radius <img src="https://latex.codecogs.com/png.latex?r"> can be expressed as Equation&nbsp;1. Written in R, this becomes the <code>semicircle()</code> function.</p>
 <p><span id="eq-semicircle"><img src="https://latex.codecogs.com/png.latex?%0Ay%20=%20%5Csqrt%7Br%5E2%20-%20x%5E2%7D%20%5Cqquad%20(-r%20%5Cle%20x%20%5Cle%20r)%0A%5Ctag%7B1%7D"></span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">semicircle <span class="ot" style="color: #003B4F;
@@ -6416,7 +6427,7 @@ background-color: null;
 font-style: inherit;">2</span>)</span>
 <span id="cb1-3">}</span></code></pre></div>
 </div>
-<p>実装した<code>semicircle()</code> 関数で半径<img src="https://latex.codecogs.com/png.latex?r%20=%205">の半円を描いてみましょう．</p>
+<p>Let’s use the <code>semicircle()</code> function we implemented to draw a semicircle with radius <img src="https://latex.codecogs.com/png.latex?r%20=%205">.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">radius <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -6436,23 +6447,23 @@ font-style: inherit;">asp =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>) <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># アスペクト比を1:1にする</span></span></code></pre></div>
+font-style: inherit;"># Set the aspect ratio to 1:1</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/09/circle-area-by-numerical-integration-in-r_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/09/circle-area-by-numerical-integration-in-r.en_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="数値積分で円の面積を求める" class="level2">
-<h2 class="anchored" data-anchor-id="数値積分で円の面積を求める">数値積分で円の面積を求める</h2>
-<p>次に，<code>stats::integrate()</code> 関数を用いて，さきほど書いた<code>semicircle()</code> を数値積分してみましょう．半径<img src="https://latex.codecogs.com/png.latex?r%20=%205">の場合，積分すると半円の面積<img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7B2%7D%5Cpi%20r%5E2">とほぼ等しくなることが確認できます．</p>
+<section id="calculating-the-area-of-a-circle-with-numerical-integration" class="level2">
+<h2 class="anchored" data-anchor-id="calculating-the-area-of-a-circle-with-numerical-integration">Calculating the area of a circle with numerical integration</h2>
+<p>Next, let’s use the <code>stats::integrate()</code> function to numerically integrate the <code>semicircle()</code> function we just wrote. For radius <img src="https://latex.codecogs.com/png.latex?r%20=%205">, we can confirm that the integral is approximately equal to the area of a semicircle, <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7B2%7D%5Cpi%20r%5E2">.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># 半径を5とする</span></span>
+font-style: inherit;"># Set the radius to 5</span></span>
 <span id="cb3-2">radius <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
@@ -6464,7 +6475,7 @@ font-style: inherit;">integrate</span>(semicircle, <span class="sc" style="color
 background-color: null;
 font-style: inherit;">-</span>radius, radius, <span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># -radiusからradiusまでの範囲で積分する</span></span>
+font-style: inherit;"># Integrate over the range from -radius to radius</span></span>
 <span id="cb3-4">          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">radius =</span> radius)</span></code></pre></div>
@@ -6488,7 +6499,7 @@ font-style: inherit;">2</span></span></code></pre></div>
 <pre><code>[1] 39.26991</code></pre>
 </div>
 </div>
-<p>そのため，円の面積を近似的に求める<code>circle_area_approx()</code>が以下のように書けます（数値積分の結果は，<code>stats::integrate()</code> 関数の戻り値の<code>value</code> に格納されています）．</p>
+<p>Therefore, we can write <code>circle_area_approx()</code>, which approximately computes the area of a circle, as follows (the result of the numerical integration is stored in the <code>value</code> element of the return value of <code>stats::integrate()</code>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">circle_area_approx <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -6524,8 +6535,8 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <pre><code>[1] 78.53982</code></pre>
 </div>
 </div>
-<p>最後に，半径<img src="https://latex.codecogs.com/png.latex?1%20%5Cle%20r%20%5Cle%2010">の範囲で近似値<code>circle_area_approx()</code>と理論値<code>circle_area_true()</code>（<img src="https://latex.codecogs.com/png.latex?%5Cpi%20r%5E2">）を比較してみましょう．</p>
-<p>計算の結果，近似値と理論値で円の面積がほぼ等しいことが確認できました．</p>
+<p>Finally, let’s compare the approximate values from <code>circle_area_approx()</code> with the theoretical values from <code>circle_area_true()</code> (<img src="https://latex.codecogs.com/png.latex?%5Cpi%20r%5E2">) over the range <img src="https://latex.codecogs.com/png.latex?1%20%5Cle%20r%20%5Cle%2010">.</p>
+<p>The calculation confirms that the approximate and theoretical circle areas are nearly equal.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">circle_area_true <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -6643,12 +6654,12 @@ font-style: inherit;">kable</span>(data)</span></code></pre></div>
 </div>
 </div>
 </section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p><code>stats::integrate()</code> 関数を使えば，簡単に一次元関数の数値積分ができることがわかりました．</p>
-<section id="注意点" class="level3">
-<h3 class="anchored" data-anchor-id="注意点">注意点</h3>
-<p><code>stats::integrate()</code> 関数では，<img src="https://latex.codecogs.com/png.latex?-%5Cinfty%20%5Cle%20x%20%5Cle%20%5Cinfty">の範囲での数値積分も可能ですが，<img src="https://latex.codecogs.com/png.latex?10%5E%7B-6%7D%20%5Cle%20x%20%5Cle%2010%5E6">のような大きな値を代入すると数値積分が適切に行われませんのでご注意ください．</p>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>We have seen that the <code>stats::integrate()</code> function makes it easy to perform numerical integration of one-dimensional functions.</p>
+<section id="a-note-of-caution" class="level3">
+<h3 class="anchored" data-anchor-id="a-note-of-caution">A note of caution</h3>
+<p>The <code>stats::integrate()</code> function can also perform numerical integration over the range <img src="https://latex.codecogs.com/png.latex?-%5Cinfty%20%5Cle%20x%20%5Cle%20%5Cinfty">, but be aware that it may not integrate correctly when given large values such as <img src="https://latex.codecogs.com/png.latex?10%5E%7B-6%7D%20%5Cle%20x%20%5Cle%2010%5E6">.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -6667,7 +6678,7 @@ font-style: inherit;">Inf</span>)</span></code></pre></div>
 </div>
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># NG</span></span>
+font-style: inherit;"># Not OK</span></span>
 <span id="cb12-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">integrate</span>(dnorm, <span class="sc" style="color: #5E5E5E;
@@ -6690,7 +6701,7 @@ font-style: inherit;">1e6</span>)</span></code></pre></div>
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>statsパッケージは，Rにデフォルトで入っているパッケージの一つです．↩︎</p></li>
+<li id="fn1"><p>The stats package is one of the packages that comes with R by default.↩︎</p></li>
 </ol>
 </section></div> ]]></description>
   <category>R</category>
@@ -7049,18 +7060,16 @@ font-style: inherit;">"quantify-vote-disparity-between-generations/pop_2020.parq
 <span id="cb2-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Note: the jpstat package requires an API key because it uses the e-Stat API</span></span>
-<span id="cb2-4">  census_2020 <span class="ot" style="color: #003B4F;
+<span id="cb2-4">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Run Sys.setenv(ESTAT_API_KEY = "your appId") beforehand</span></span>
+<span id="cb2-5">  census_2020 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">estat</span>(keyring<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">key_get</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"estat-api"</span>),</span>
-<span id="cb2-5">                       <span class="st" style="color: #20794D;
+font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"https://www.e-stat.go.jp/dbview?sid=0003445139"</span>)</span>
 <span id="cb2-6"></span>
@@ -7976,7 +7985,7 @@ font-style: inherit;">2</span>))</span></code></pre></div>
   <media:content url="https://uchidamizuki.quarto.pub/blog/en/posts/2023/04/quantify-vote-disparity-between-generations/plot_vote_disparity.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
-  <title>地域メッシュデータのためのWEBアプリをつくりました（R Shiny&amp;jpgrid）</title>
+  <title>I built a web app for Japanese grid square codes (R Shiny &amp; jpgrid)</title>
   <link>https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan.html</link>
   <description><![CDATA[ 
 
@@ -7984,43 +7993,44 @@ font-style: inherit;">2</span>))</span></code></pre></div>
 
 
 
-<section id="このアプリについて" class="level2">
-<h2 class="anchored" data-anchor-id="このアプリについて">このアプリについて</h2>
-<p><a href="https://shiny.rstudio.com">R Shiny</a>を使って<a href="https://uchidamizuki.shinyapps.io/jpgrid-app/">地域メッシュデータを使うためのWEBアプリ</a>をつくってみました．</p>
-<p><a href="https://www.stat.go.jp/data/mesh/m_tuite.html">地域メッシュ</a>とは，経度・緯度にもとづいて（日本の）地域をほぼ正方形のメッシュに分割したもので，統計データの集計区分としてよく利用されています．</p>
-<p>今回つくったアプリは，Rパッケージの<a href="https://uchidamizuki.github.io/jpgrid/">jpgrid</a>パッケージの機能の一部を提供しています． このアプリの提供機能は以下の通りです．</p>
+<p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2023/02/web-app-for-grid-square-codes-in-japan.html">my Japanese article</a>.</p>
+<section id="about-this-app" class="level2">
+<h2 class="anchored" data-anchor-id="about-this-app">About this app</h2>
+<p>I built a <a href="https://uchidamizuki.shinyapps.io/jpgrid-app/">web app for working with Japanese grid square (mesh) data</a> using <a href="https://shiny.rstudio.com">R Shiny</a>.</p>
+<p>A <a href="https://www.stat.go.jp/data/mesh/m_tuite.html">grid square</a> is a division of (Japanese) regions into roughly square cells based on longitude and latitude, and it is commonly used as an aggregation unit for statistical data.</p>
+<p>The app I built provides some of the functionality of the R package <a href="https://uchidamizuki.github.io/jpgrid/">jpgrid</a>. The app offers the following features:</p>
 <ol type="1">
-<li>市区町村別の地域メッシュデータ生成</li>
-<li>メッシュ文字列を含む表データから地域メッシュデータ生成</li>
-<li>経度・緯度を含む表データから地域メッシュデータ生成</li>
+<li>Generate grid square data by municipality</li>
+<li>Generate grid square data from tabular data containing grid code strings</li>
+<li>Generate grid square data from tabular data containing longitude/latitude</li>
 </ol>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/images/about.png" class="img-fluid figure-img" alt="アプリの外観（クリックするとアプリが開きます）"></a></p>
-<figcaption>アプリの外観（クリックするとアプリが開きます）</figcaption>
+<p><a href="https://uchidamizuki.shinyapps.io/jpgrid-app/"><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/images/about.png" class="img-fluid figure-img" alt="App screenshot (click to open the app)"></a></p>
+<figcaption>App screenshot (click to open the app)</figcaption>
 </figure>
 </div>
 </section>
-<section id="アプリの提供機能について" class="level2">
-<h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
-<section id="市区町村別の地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
-<p>総務省統計局の公開する<a href="市区町村別メッシュ・コード一覧" title="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
-<p>以下のような手順で市区町村別のメッシュを生成・保存できます．</p>
+<section id="app-features" class="level2">
+<h2 class="anchored" data-anchor-id="app-features">App features</h2>
+<section id="generate-grid-square-data-by-municipality" class="level3">
+<h3 class="anchored" data-anchor-id="generate-grid-square-data-by-municipality">Generate grid square data by municipality</h3>
+<p>It retrieves grid squares by municipality from the <a href="https://www.stat.go.jp/data/mesh/m_itiran.html">List of grid square codes by municipality</a> published by the Statistics Bureau of Japan.</p>
+<p>You can generate and save grid squares by municipality using the following steps:</p>
 <ol type="1">
-<li>都道府県を選択（複数選択可）</li>
-<li>市区町村を選択（複数選択可）</li>
-<li>メッシュサイズ（1 km／10 km／80 kmのいずれか）を選択し「メッシュ表示」を押す</li>
-<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
+<li>Select prefecture(s) (multiple selection allowed)</li>
+<li>Select municipality(ies) (multiple selection allowed)</li>
+<li>Select a grid size (1 km, 10 km, or 80 km) and click “Show grid”</li>
+<li>Select a data format (GeoPackage or CSV) and click “Download”</li>
 </ol>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/images/grid_city.png" class="img-fluid figure-img"></p>
-<figcaption>市区町村別メッシュの表示イメージ</figcaption>
+<figcaption>Example display of grid squares by municipality</figcaption>
 </figure>
 </div>
-<p>jpgridパッケージでは，<code>grid_city</code> データで市区町村別メッシュデータが提供されています．</p>
-<p>以下のように，市区町村別メッシュデータを図示することができます．</p>
+<p>The jpgrid package provides grid square data by municipality via the <code>grid_city_2020</code> dataset.</p>
+<p>You can visualize grid square data by municipality as follows.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -8035,9 +8045,9 @@ font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">6668</span></span>
 <span id="cb1-5"></span>
-<span id="cb1-6">grid_city <span class="sc" style="color: #5E5E5E;
+<span id="cb1-6">grid_city_2020 <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(city_name_ja <span class="sc" style="color: #5E5E5E;
@@ -8052,7 +8062,7 @@ font-style: inherit;">"千葉市花見川区"</span>, <span class="st" style="co
 background-color: null;
 font-style: inherit;">"千葉市稲毛区"</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">grid_as_sf</span>(<span class="at" style="color: #657422;
@@ -8086,41 +8096,41 @@ font-style: inherit;">"Set2"</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan.en_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="メッシュ文字列を含む表データから地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="メッシュ文字列を含む表データから地域メッシュデータ生成">メッシュ文字列を含む表データから地域メッシュデータ生成</h3>
-<p>以下のような手順でメッシュ文字列を含む表データから地域メッシュを生成・保存できます．</p>
+<section id="generate-grid-square-data-from-tabular-data-containing-grid-code-strings" class="level3">
+<h3 class="anchored" data-anchor-id="generate-grid-square-data-from-tabular-data-containing-grid-code-strings">Generate grid square data from tabular data containing grid code strings</h3>
+<p>You can generate and save grid squares from tabular data containing grid code strings using the following steps:</p>
 <ol type="1">
-<li>データを選択（CSVまたはExcel）</li>
-<li>メッシュ文字列の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す</li>
-<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
+<li>Select data (CSV or Excel)</li>
+<li>Specify the column name containing the grid code strings (a point ID can also be specified) and click “Show grid”</li>
+<li>Select a data format (GeoPackage or CSV) and click “Download”</li>
 </ol>
-<p>jpgridパッケージでは，<code>parse_grid()</code> で文字列から地域メッシュを生成することができます．</p>
+<p>In the jpgrid package, <code>parse_grid()</code> can be used to generate grid squares from strings.</p>
 <p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/images/parse_grid.png" class="img-fluid"></p>
 </section>
-<section id="経度緯度を含む表データから地域メッシュデータ生成" class="level3">
-<h3 class="anchored" data-anchor-id="経度緯度を含む表データから地域メッシュデータ生成">経度・緯度を含む表データから地域メッシュデータ生成</h3>
-<p>同様に，以下の手順で経度・緯度を含む表データから地域メッシュを生成・保存できます．</p>
+<section id="generate-grid-square-data-from-tabular-data-containing-longitudelatitude" class="level3">
+<h3 class="anchored" data-anchor-id="generate-grid-square-data-from-tabular-data-containing-longitudelatitude">Generate grid square data from tabular data containing longitude/latitude</h3>
+<p>Similarly, you can generate and save grid squares from tabular data containing longitude/latitude using the following steps:</p>
 <ol type="1">
-<li>データを選択（CSVまたはExcel）</li>
-<li>経度（X）・緯度（Y）の列名を指定（地点IDも指定可能）し「メッシュ表示」を押す</li>
-<li>データ形式（GeoPackageまたはCSV）を選択し「ダウンロード」を押す</li>
+<li>Select data (CSV or Excel)</li>
+<li>Specify the column names for longitude (X) and latitude (Y) (a point ID can also be specified) and click “Show grid”</li>
+<li>Select a data format (GeoPackage or CSV) and click “Download”</li>
 </ol>
-<p>jpgridパッケージでは，<code>coords_to_grid()</code> で文字列から地域メッシュを生成することができます．</p>
+<p>In the jpgrid package, <code>coords_to_grid()</code> can be used to generate grid squares from strings.</p>
 <p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/images/coords_to_grid.png" class="img-fluid"></p>
 </section>
 </section>
-<section id="おわりに" class="level2">
-<h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
-<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="こちら" title="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
-<p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
-<p>ぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．</p>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>I introduced a web app for grid square data built with R Shiny.</p>
+<p>The jpgrid package used to build this app provides many other features not included in the app. For details, please see <a href="https://uchidamizuki.github.io/jpgrid/">here</a>.</p>
+<p>For example, there is <code>geometry_to_grid()</code>, which converts geometries into grid squares.</p>
+<p>I encourage you to try using the jpgrid package for your grid square data analysis as well.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">japan <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -8198,7 +8208,7 @@ font-style: inherit;">"transparent"</span>)</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://uchidamizuki.quarto.pub/blog/en/posts/2023/02/web-app-for-grid-square-codes-in-japan.en_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

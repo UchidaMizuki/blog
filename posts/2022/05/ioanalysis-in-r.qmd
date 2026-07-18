@@ -302,37 +302,39 @@ spillover |>
 
 Rを用いた産業連関分析の方法について紹介しました．
 
-ここまでの計算を，[jpio](https://github.com/UchidaMizuki/jpio)にパッケージ形式でまとめました．以下のように，ここまでの計算と同様の計算を行うことができます．
+ここまでの計算は，[econio](https://github.com/UchidaMizuki/econio)パッケージにまとめられています．また，[econiodatajp](https://github.com/UchidaMizuki/econiodatajp)パッケージを使うと，e-Statから産業連関表をダウンロード・整形する手間なく，そのまま産業連関表を取得できます．以下のように，ここまでの計算と同様の計算を行うことができます（なお，jpioパッケージは現在使用しておらず，econio・econiodatajpに置き換わっています）．
 
 ```{r}
-#| label: jpio
+#| label: econio
 
-# pak::pak("UchidaMizuki/jpio")
+# pak::pak("UchidaMizuki/econio")
+# pak::pak("UchidaMizuki/econiodatajp")
 
-# 産業連関表
-iotable <- read_csv("iotable_3sector_2011.csv",
-                    col_types = cols(.default = "c",
-                                     value_M = "n")) |> 
-  jpio::as_iotable()
+library(econio)
+library(econiodatajp)
+
+# 産業連関表（2020年，全国，統合大分類）の取得
+iotable <- io_table_get(
+  region_type = "regional",
+  region_class = "nation",
+  year = 2020,
+  sector_class = "large",
+  language = "ja"
+)
 
 iotable
 
 # 投入係数
-jpio::input_coef(iotable)
+io_input_coef(iotable)
 
 # レオンチェフ逆行列
-jpio::leontief_inv(iotable)
-
-# 経済波及効果
-jpio::spillover_effect(iotable,
-                       list(`01_primary` = 1,
-                            `02_secondary` = 1,
-                            `03_tertiary` = 1))
+io_leontief_inverse(iotable)
 
 # スカイラインチャート
-jpio::skyline_chart(iotable, 
-                    ylim = c(-0.5, NA))
+autoplot(iotable, type = "skyline")
 ```
+
+特定の最終需要変化に対する経済波及効果は，econioには専用の関数は用意されていないため，上記で紹介したように，レオンチェフ逆行列に最終需要の変化量を掛け合わせることで算出します．
 
 ```{r}
 #| label: save-plot-spillover

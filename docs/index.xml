@@ -6482,9 +6482,9 @@ format:
 <p>現在，日本の都市部と地方は以下の表のような関係にあるとされ，「1票の格差」が「地方で新幹線が整備される一方で東京の通勤ラッシュが解消されない」といった経済効率性の低下などを引き起こすことが問題視されています<sup>3</sup>．</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 15%">
-<col style="width: 50%">
-<col style="width: 33%">
+<col style="width: 10%">
+<col style="width: 52%">
+<col style="width: 35%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -6516,9 +6516,9 @@ format:
 <p>さきほど示した都市・地方部の関係と同様に，若年層と高齢者層は，以下の表のような関係にあると考えられます．地方における人口減少・人手不足が深刻となった最近になってようやく，国は，少子化対策を国の最重要課題に位置づけましたが，これまで，こうした若年層向けの政策が十分に行われなかった<sup>6</sup>のは世代間の「1票の格差」の影響によるものかもしれません．</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 49%">
-<col style="width: 32%">
+<col style="width: 12%">
+<col style="width: 51%">
+<col style="width: 34%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -6628,18 +6628,16 @@ font-style: inherit;">"quantify-vote-disparity-between-generations/pop_2020.parq
 <span id="cb2-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># 注意: jpstatパッケージはe-Stat APIを利用するためAPIキーが必要です</span></span>
-<span id="cb2-4">  census_2020 <span class="ot" style="color: #003B4F;
+<span id="cb2-4">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># あらかじめ Sys.setenv(ESTAT_API_KEY = "取得したappId") を実行しておいてください</span></span>
+<span id="cb2-5">  census_2020 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">estat</span>(keyring<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">estat</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">key_get</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"estat-api"</span>),</span>
-<span id="cb2-5">                       <span class="st" style="color: #20794D;
+font-style: inherit;">statsDataId =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"https://www.e-stat.go.jp/dbview?sid=0003445139"</span>)</span>
 <span id="cb2-6"></span>
@@ -7877,7 +7875,7 @@ font-style: inherit;">plot =</span> plot_vote_disparity)</span>
 <h2 class="anchored" data-anchor-id="アプリの提供機能について">アプリの提供機能について</h2>
 <section id="市区町村別の地域メッシュデータ生成" class="level3">
 <h3 class="anchored" data-anchor-id="市区町村別の地域メッシュデータ生成">市区町村別の地域メッシュデータ生成</h3>
-<p>総務省統計局の公開する<a href="市区町村別メッシュ・コード一覧" title="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
+<p>総務省統計局の公開する<a href="https://www.stat.go.jp/data/mesh/m_itiran.html">市区町村別メッシュ・コード一覧</a>から市区町村別のメッシュを取得します．</p>
 <p>以下のような手順で市区町村別のメッシュを生成・保存できます．</p>
 <ol type="1">
 <li>都道府県を選択（複数選択可）</li>
@@ -7891,7 +7889,7 @@ font-style: inherit;">plot =</span> plot_vote_disparity)</span>
 <figcaption>市区町村別メッシュの表示イメージ</figcaption>
 </figure>
 </div>
-<p>jpgridパッケージでは，<code>grid_city</code> データで市区町村別メッシュデータが提供されています．</p>
+<p>jpgridパッケージでは，<code>grid_city_2020</code> データで市区町村別メッシュデータが提供されています．</p>
 <p>以下のように，市区町村別メッシュデータを図示することができます．</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
@@ -7907,9 +7905,9 @@ font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">6668</span></span>
 <span id="cb1-5"></span>
-<span id="cb1-6">grid_city <span class="sc" style="color: #5E5E5E;
+<span id="cb1-6">grid_city_2020 <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">filter</span>(city_name_ja <span class="sc" style="color: #5E5E5E;
@@ -7924,7 +7922,7 @@ font-style: inherit;">"千葉市花見川区"</span>, <span class="st" style="co
 background-color: null;
 font-style: inherit;">"千葉市稲毛区"</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span> </span>
+font-style: inherit;">|&gt;</span></span>
 <span id="cb1-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">grid_as_sf</span>(<span class="at" style="color: #657422;
@@ -7990,7 +7988,7 @@ font-style: inherit;">"Set2"</span>)</span></code></pre></div>
 <section id="おわりに" class="level2">
 <h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
 <p>R Shinyで作成した地域メッシュデータのためのWEBアプリについて紹介しました．</p>
-<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="こちら" title="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
+<p>WEBアプリの作成に利用したjpgridパッケージでは，このアプリで提供していない様々な機能が提供されています．詳しくは，<a href="https://uchidamizuki.github.io/jpgrid/">こちら</a>をご覧ください．</p>
 <p>例として，ジオメトリをメッシュに変換する<code>geometry_to_grid()</code> などがあります．</p>
 <p>ぜひ地域メッシュデータの分析にjpgridパッケージも活用してみてください．</p>
 <div class="cell">
@@ -8014,27 +8012,33 @@ font-style: inherit;">"medium"</span>,</span>
 background-color: null;
 font-style: inherit;">returnclass =</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"sf"</span>)</span>
-<span id="cb2-4">grid_japan <span class="ot" style="color: #003B4F;
+font-style: inherit;">"sf"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The rnaturalearthdata package needs to be installed.
+Installing the rnaturalearthdata package.
+Installing package into 'C:/Users/uchid/AppData/Local/R/win-library/4.6'
+(as 'lib' is unspecified)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">grid_japan <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> japan <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-5">  <span class="fu" style="color: #4758AB;
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geometry_to_grid</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"80km"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-6">  dplyr<span class="sc" style="color: #5E5E5E;
+<span id="cb4-3">  dplyr<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">first</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-7">  <span class="fu" style="color: #4758AB;
+<span id="cb4-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">grid_as_sf</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -8043,26 +8047,26 @@ background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">st_crs</span>(japan))</span>
-<span id="cb2-8"></span>
-<span id="cb2-9">japan <span class="sc" style="color: #5E5E5E;
+<span id="cb4-5"></span>
+<span id="cb4-6">japan <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb2-10">  <span class="fu" style="color: #4758AB;
+<span id="cb4-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-11">  <span class="fu" style="color: #4758AB;
+<span id="cb4-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb2-12">  <span class="fu" style="color: #4758AB;
+<span id="cb4-9">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> grid_japan,</span>
-<span id="cb2-13">          <span class="at" style="color: #657422;
+<span id="cb4-10">          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
 background-color: null;
@@ -8538,7 +8542,7 @@ font-style: inherit;">head</span>(pop))</span></code></pre></div>
 background-color: null;
 font-style: inherit;">library</span>(gganimate)</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'gganimate' was built under R version 4.3.1</code></pre>
+<pre><code>Warning: package 'gganimate' was built under R version 4.6.1</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -8757,7 +8761,7 @@ background-color: null;
 font-style: inherit;"># 幅・高さを変更</span></span>
 <span id="cb8-38"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">animate</span>(poppyramid, </span>
+font-style: inherit;">animate</span>(poppyramid,</span>
 <span id="cb8-39">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">width =</span> <span class="dv" style="color: #AD0000;
@@ -8770,10 +8774,15 @@ background-color: null;
 font-style: inherit;">600</span>,</span>
 <span id="cb8-41">        <span class="at" style="color: #657422;
 background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"px"</span>,</span>
+<span id="cb8-42">        <span class="at" style="color: #657422;
+background-color: null;
 font-style: inherit;">res =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">150</span>,</span>
-<span id="cb8-42">        <span class="at" style="color: #657422;
+<span id="cb8-43">        <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">renderer =</span> <span class="fu" style="color: #4758AB;
 background-color: null;

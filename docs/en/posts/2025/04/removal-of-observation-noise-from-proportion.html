@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html" />
 <link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2025/04/removal-of-observation-noise-from-proportion.en.html" />
@@ -8,7 +8,7 @@
 <meta name="generator" content="quarto-1.6.40">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="dcterms.date" content="2025-04-13">
-<title>割合データ（割り算値）から観測ノイズを除去する – UchidaMizuki</title>
+<title>Removing observation noise from proportion data – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -169,7 +169,7 @@ window.Quarto = {
       </div> <!-- /container-fluid -->
     </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">割合データ（割り算値）から観測ノイズを除去する</h1>
+      <h1 class="title">Removing observation noise from proportion data</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">English</div>
                 <div class="quarto-category">Statistics</div>
@@ -197,58 +197,65 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p>この記事では，以下のような割合データ（割り算値）を扱うときにしばしば生じる少数問題への対処法について説明します．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2025/04/removal-of-observation-noise-from-proportion.html">my Japanese article</a>.</p>
+<p>This article explains how to deal with the small number problem that often arises when working with proportion data (values obtained by division), such as the following.</p>
 <ul>
-<li>地域別の感染症の罹患率</li>
-<li>店舗別の一定時間あたりの来店客数</li>
-<li>学校別の難関校合格率</li>
+<li>Infection rates of a disease by region</li>
+<li>Number of visitors per unit time by store</li>
+<li>Acceptance rate for prestigious schools, by school</li>
 </ul>
-<p>少数問題（small number problem）とは，観測値が小さい場合に割合データのばらつきが大きくなることを指します． 以下では，カウントデータが従うことが多いとされるポアソン分布を対象に少数問題の対処法を考えます（二項分布でも同様の議論を展開することができます）． 分母にあたる人口等が<span class="math inline">\(N\)</span>，割合の真値が<span class="math inline">\(\theta\)</span>のとき，分子にあたるカウントデータ（感染者数等）<span class="math inline">\(n\)</span>は以下のようなポアソン分布に従うと考えられます．</p>
+<p>The small number problem refers to the phenomenon where the variability of proportion data becomes large when the observed values are small. Below, we consider how to deal with the small number problem for the Poisson distribution, which count data often follow (a similar argument can be developed for the binomial distribution). When the denominator, such as a population, is <span class="math inline">\(N\)</span> and the true value of the proportion is <span class="math inline">\(\theta\)</span>, the numerator count data (e.g., the number of infected people) <span class="math inline">\(n\)</span> is considered to follow the Poisson distribution below.</p>
 <p><span class="math display">\[
 n \sim \text{Poisson}(N \theta)
 \]</span></p>
-<p>さらに，このポアソン分布の分散は以下のように表されます．</p>
+<p>Furthermore, the variance of this Poisson distribution is expressed as follows.</p>
 <p><span class="math display">\[
 \text{Var}[n] = N \theta
 \]</span></p>
-<p>割合（真値）を推定するための素朴な方法として，<span class="math inline">\(n\)</span>を<span class="math inline">\(N\)</span>で割ることが考えられます． しかし，この方法で得られる割合の分散は以下のように，<span class="math inline">\(N\)</span>が小さいときに分散が大きくなるという性質を持っています． こうした性質は，ポアソン分布や二項分布のように分散（観測ノイズ）が期待値と比例する分布に共通するものです．</p>
+<p>As a naive method for estimating the (true) proportion, we can consider dividing <span class="math inline">\(n\)</span> by <span class="math inline">\(N\)</span>. However, as shown below, the variance of the proportion obtained by this method has the property that it becomes large when <span class="math inline">\(N\)</span> is small. This property is common to distributions such as the Poisson and binomial distributions, in which the variance (observation noise) is proportional to the expected value.</p>
 <p><span class="math display">\[
 \text{Var}\left[\frac{n}{N}\right] = \frac{\theta}{N}
 \]</span></p>
-<p>こうした観測ノイズの性質は，たとえば難関校合格率の学校別ランキング等を考えた場合に問題となる可能性があります． 総受験者数が大きく異なる以下のような学校Aと学校Bを比べてみましょう．</p>
+<p>This property of observation noise can become a problem when, for example, considering a ranking of schools by acceptance rate for prestigious schools. Let’s compare School A and School B below, whose total numbers of examinees differ greatly.</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 31%">
+<col style="width: 38%">
+<col style="width: 20%">
+</colgroup>
 <thead><tr class="header">
-<th>学校</th>
-<th>総受験者数</th>
-<th>難関校合格者数</th>
-<th>難関校合格率</th>
+<th>School</th>
+<th>Total number of examinees</th>
+<th>Number of successful examinees</th>
+<th>Acceptance rate</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>学校A</td>
+<td>School A</td>
 <td>100</td>
 <td>30</td>
 <td>30 %</td>
 </tr>
 <tr class="even">
-<td>学校B</td>
+<td>School B</td>
 <td>5</td>
 <td>2</td>
 <td>40 %</td>
 </tr>
 </tbody>
 </table>
-<p>この場合，学校Bでは，合格者数が少し変動しただけで難関校合格率が大きく変化してしまうため，学校Aの難関校合格率と比べて精度が低いと考えられます． このような状況で，難関校合格率ランキングを作ると，難関校合格率の真値は必ずしも高くないがたまたま合格者数が多かった総受験者数の少ない学校等が上位に順位付けされることとなります． こうした現象は，今後の難関校合格率を予想する場合等に問題となりえます．</p>
-<p>以下では，こうした複数地域・店舗・学校等のデータの観測値のみを用いて割合データの平滑化を行う方法について説明します．</p>
-<section id="ベイズの定理を用いた平滑化" class="level2"><h2 class="anchored" data-anchor-id="ベイズの定理を用いた平滑化">ベイズの定理を用いた平滑化</h2>
-<p>カウントデータがポアソン分布，割合の真値がポアソン分布の共役事前分布であるガンマ分布に従うと仮定します．</p>
+<p>In this case, for School B, even a small change in the number of successful examinees causes a large change in the acceptance rate, so its acceptance rate can be considered less precise than that of School A. In a situation like this, if we build a ranking of acceptance rates, schools with a small total number of examinees that happened to have many successful examinees — even though their true acceptance rate is not necessarily high — will tend to be ranked highly. This phenomenon can be problematic when, for example, predicting future acceptance rates.</p>
+<p>Below, we describe a method for smoothing proportion data using only the observed values from data on multiple regions, stores, schools, and so on.</p>
+<section id="smoothing-using-bayes-theorem" class="level2"><h2 class="anchored" data-anchor-id="smoothing-using-bayes-theorem">Smoothing using Bayes’ theorem</h2>
+<p>Assume that the count data follows a Poisson distribution, and that the true value of the proportion follows a Gamma distribution, which is the conjugate prior of the Poisson distribution.</p>
 <p><span class="math display">\[
 \begin{align}
   \theta &amp;\sim \text{Gamma}(\alpha, \beta) \\
   n \mid \theta &amp;\sim \text{Poisson}(N \theta)
 \end{align}
 \]</span></p>
-<p>すると，ベイズの定理を用いて，<span class="math inline">\(\theta\)</span>の事後分布，すなわち観測値<span class="math inline">\(n\)</span>が与えられたときの<span class="math inline">\(\theta\)</span>の分布は以下のようになります．</p>
+<p>Then, using Bayes’ theorem, the posterior distribution of <span class="math inline">\(\theta\)</span> — that is, the distribution of <span class="math inline">\(\theta\)</span> given the observed value <span class="math inline">\(n\)</span> — is as follows.</p>
 <p><span class="math display">\[
 \begin{align}
   P(\theta \mid n) &amp;\propto P(n \mid \theta) P(\theta) \\
@@ -257,67 +264,67 @@ n \sim \text{Poisson}(N \theta)
   \theta \mid n &amp;\sim \text{Gamma}(n + \alpha, N + \beta)
 \end{align}
 \]</span></p>
-<p>そのため，<span class="math inline">\(\theta\)</span>の事後分布の期待値は以下のような簡単な式で表され，この式を用いることで，観測ノイズを除去（平滑化）することができます．</p>
+<p>Therefore, the expected value of the posterior distribution of <span class="math inline">\(\theta\)</span> can be expressed by the following simple formula, and by using this formula we can remove the observation noise (i.e., smooth the data).</p>
 <p><span class="math display">\[
 \text{E}[\theta \mid n] = \frac{n + \alpha}{N + \beta}
 \]</span></p>
-<p>一方で，こうした平滑化を行うためには，<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>の値を決める必要があります． 以下では，事前分布のパラメータ<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>を観測値から推定する方法について説明します．</p>
-</section><section id="経験ベイズ法による事前分布のパラメータ推定" class="level2"><h2 class="anchored" data-anchor-id="経験ベイズ法による事前分布のパラメータ推定">経験ベイズ法による事前分布のパラメータ推定</h2>
-<p>経験ベイズ法は，観測値から事前分布のパラメータを（経験的に）推定する方法です． 経験ベイズ法における事前分布のパラメータの推定方法として，モーメント法や最尤法を用いる方法が考えられますが，以下では，最尤法を用いた方法について説明します．</p>
-<p>最尤法を行うにあたって，事前に<span class="math inline">\(n\)</span>が従う分布を確かめておきましょう． <span class="math inline">\(n\)</span>は，以下のようなガンマ分布とポアソン分布の混合分布に従うと考えられます． 通常，混合分布を求めるには積分計算が必要となってしまいますが，ガンマ分布とポアソン分布の混合分布は，負の二項分布に従うことが知られています． そのため，あらかじめ以下のように<span class="math inline">\(n\)</span>の確率分布を求めておきます．</p>
+<p>On the other hand, to perform this kind of smoothing, we need to determine the values of <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>. Below, we describe a method for estimating the prior distribution parameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> from the observed values.</p>
+</section><section id="estimating-prior-distribution-parameters-with-empirical-bayes" class="level2"><h2 class="anchored" data-anchor-id="estimating-prior-distribution-parameters-with-empirical-bayes">Estimating prior distribution parameters with empirical Bayes</h2>
+<p>Empirical Bayes is a method for estimating the parameters of the prior distribution (empirically) from the observed values. Possible approaches for estimating the prior distribution parameters with empirical Bayes include the method of moments and maximum likelihood estimation; below, we describe the approach using maximum likelihood estimation.</p>
+<p>Before performing maximum likelihood estimation, let’s first check the distribution that <span class="math inline">\(n\)</span> follows. <span class="math inline">\(n\)</span> is considered to follow a mixture of the Gamma and Poisson distributions, as shown below. Normally, computing a mixture distribution requires integral calculus, but it is known that the mixture of the Gamma and Poisson distributions follows a negative binomial distribution. Therefore, we derive the probability distribution of <span class="math inline">\(n\)</span> in advance, as follows.</p>
 <p><span class="math display">\[
 \begin{align}
   P(n) &amp;= \int_{0}^{\infty} P(n \mid \theta) P(\theta) d\theta \\
   &amp;= \int_{0}^{\infty} \frac{1}{n!} (N \theta)^n \exp(-N \theta) \cdot \frac{\beta^{\alpha}}{\Gamma(\alpha)} \theta^{\alpha - 1} \exp(-\beta\theta) d\theta \\
   &amp;= \frac{N^n \beta^{\alpha}}{n! \Gamma(\alpha)} \int_{0}^{\infty} \theta^{n + \alpha - 1} \exp[-(N + \beta)\theta] d\theta \\
-  &amp;= \frac{N^n \beta^{\alpha}}{n! \Gamma(\alpha)} \cdot \frac{\Gamma(n + \alpha)}{(N + \beta)^{n + \alpha}} \quad \text{(ガンマ分布のカーネルの積分は正規化定数の逆数に等しい)} \\
+  &amp;= \frac{N^n \beta^{\alpha}}{n! \Gamma(\alpha)} \cdot \frac{\Gamma(n + \alpha)}{(N + \beta)^{n + \alpha}} \quad \text{(the integral of the Gamma distribution kernel equals the reciprocal of the normalizing constant)} \\
   &amp;= \frac{\Gamma(n + \alpha)}{\Gamma(n + 1) \Gamma(\alpha)} \left( \frac{N}{N + \beta} \right)^{n} \left( \frac{\beta}{N + \beta} \right)^\alpha \\
   &amp;= \binom{n + \alpha - 1}{n} \left( \frac{\frac{\alpha}{\beta} N}{\frac{\alpha}{\beta} N + \alpha} \right)^{n} \left( \frac{\alpha}{\frac{\alpha}{\beta} N + \alpha} \right)^{\alpha} \\
 \end{align}
 \]</span></p>
-<p>以上の式より，<span class="math inline">\(n\)</span>は以下のような負の二項分布に従うことがわかります． ただし，負の二項分布にはいくつかのパラメータ設定方法があるため注意が必要です． ここでのパラメータ設定方法は，<a href="https://mc-stan.org/docs/functions-reference/unbounded_discrete_distributions.html#nbalt">stanのNegBinomial2</a>と同様です．</p>
+<p>From the formula above, we can see that <span class="math inline">\(n\)</span> follows a negative binomial distribution as shown below. Note, however, that there are several ways to parameterize the negative binomial distribution, so some care is needed. The parameterization used here is the same as <a href="https://mc-stan.org/docs/functions-reference/unbounded_discrete_distributions.html#nbalt">Stan’s NegBinomial2</a>.</p>
 <p><span class="math display">\[
 n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 \]</span></p>
-<p>このように，<span class="math inline">\(n\)</span>は，負の二項分布と呼ばれる一般的な確率分布に従うことがわかるため，Rで提供されている既存の関数を用いて最尤法を行うことができます． 以下では，実験的に作成したテストデータを対象に，R MASSパッケージの<code>glm.nb()</code>関数を用いて最尤法を行い，割合データの平滑化を行ってみます．</p>
-</section><section id="平滑化の実例" class="level2"><h2 class="anchored" data-anchor-id="平滑化の実例">平滑化の実例</h2>
+<p>In this way, we find that <span class="math inline">\(n\)</span> follows a common probability distribution called the negative binomial distribution, which means we can perform maximum likelihood estimation using existing functions provided in R. Below, using experimentally created test data, we perform maximum likelihood estimation with the <code>glm.nb()</code> function from R’s MASS package, and use it to smooth the proportion data.</p>
+</section><section id="a-worked-example-of-smoothing" class="level2"><h2 class="anchored" data-anchor-id="a-worked-example-of-smoothing">A worked example of smoothing</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="テストデータの作成" class="level3"><h3 class="anchored" data-anchor-id="テストデータの作成">テストデータの作成</h3>
-<p>まず，サンプルサイズを10,000とし，割合の真値を<span class="math inline">\(\alpha = 5, \beta = 50\)</span>のガンマ分布からランダムに生成します．</p>
+<section id="creating-test-data" class="level3"><h3 class="anchored" data-anchor-id="creating-test-data">Creating test data</h3>
+<p>First, we set the sample size to 10,000 and randomly generate the true values of the proportion from a Gamma distribution with <span class="math inline">\(\alpha = 5, \beta = 50\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># サンプルサイズ</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample size</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e4</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 割合 (真値)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Proportion (true value)</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>alpha_true <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>beta_true <span class="ot">&lt;-</span> <span class="dv">50</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>rate_true <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(n, <span class="at">shape =</span> alpha_true, <span class="at">rate =</span> beta_true)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>割合の真値<code>rate_true</code>は以下のような分布を持ちます．</p>
+<p>The true value of the proportion, <code>rate_true</code>, has the following distribution.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">rate_true =</span> rate_true) <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">rate_true =</span> rate_true) <span class="sc">|&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(rate_true)) <span class="sc">+</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">1e-2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>次に，人口（分母）<code>population</code>を1から100までの整数からランダムに選びます． さらに，割合の真値<code>rate_true</code>に基づき，ポアソン分布からカウントデータ（分子）<code>count</code>を生成し，これらの結果をデータフレーム<code>data</code>にまとめます．</p>
+<p>Next, we randomly select the population (denominator), <code>population</code>, from integers between 1 and 100. Then, based on the true value of the proportion, <code>rate_true</code>, we generate the count data (numerator), <code>count</code>, from a Poisson distribution, and combine these results into the data frame <code>data</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 人口 (分母)</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Population (denominator)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>population <span class="ot">&lt;-</span> <span class="fu">sample</span>(x, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># カウントデータ (分子)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Count data (numerator)</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>count <span class="ot">&lt;-</span> <span class="fu">rpois</span>(n, rate_true <span class="sc">*</span> population)</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
@@ -334,10 +341,10 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 </div>
 </div>
 </div>
-</section><section id="少数問題の確認" class="level3"><h3 class="anchored" data-anchor-id="少数問題の確認">少数問題の確認</h3>
-<p>それでは，テストデータを用いて，少数問題が発生しているかを確認してみましょう． まずは，割り算を用いた割合の推定値<code>rate_crude</code>を計算し，<code>population</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画します． すると，以下のように，<code>population</code>が小さい場合に，<code>rate_crude</code>が大きくなる傾向がみられることがわかります． もし，手元のデータでも同様の傾向がみられる場合，少数問題が発生している可能性があります．</p>
+</section><section id="checking-for-the-small-number-problem" class="level3"><h3 class="anchored" data-anchor-id="checking-for-the-small-number-problem">Checking for the small number problem</h3>
+<p>Now, let’s use the test data to check whether the small number problem is occurring. First, we compute the naive proportion estimate, <code>rate_crude</code>, using division, and draw a scatter plot with <code>population</code> on the x-axis and <code>rate_crude</code> on the y-axis. As shown below, we can see a tendency for <code>rate_crude</code> to become large when <code>population</code> is small. If a similar tendency is seen in your own data, the small number problem may be occurring there as well.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_crude =</span> count <span class="sc">/</span> population</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  )</span>
@@ -349,19 +356,19 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(population, rate_crude)) <span class="sc">+</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>通常のデータでは割合の真値<code>rate_true</code>はわかりませんが，ここでは<code>rate_true</code>と<code>rate_crude</code>の関係も確認することができます． 以下のように，<code>rate_true</code>をX軸・<code>rate_crude</code>をY軸にとる散布図を描画すると，<code>population</code>が小さい場合に，<code>rate_crude</code>が45度線から大きく外れる傾向がみられることがわかります． 以上の結果より，テストデータで少数問題が発生していることが確認できました．</p>
+<p>With ordinary data, the true value of the proportion, <code>rate_true</code>, is unknown, but here we can also check the relationship between <code>rate_true</code> and <code>rate_crude</code>. As shown below, drawing a scatter plot with <code>rate_true</code> on the x-axis and <code>rate_crude</code> on the y-axis shows that <code>rate_crude</code> tends to deviate greatly from the 45-degree line when <code>population</code> is small. From these results, we have confirmed that the small number problem is occurring in the test data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_crude <span class="sc">|&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(rate_true, rate_crude, <span class="at">color =</span> population)) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
@@ -369,21 +376,21 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  tune<span class="sc">::</span><span class="fu">coord_obs_pred</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section></section><section id="負の二項分布を用いた平滑化" class="level2"><h2 class="anchored" data-anchor-id="負の二項分布を用いた平滑化">負の二項分布を用いた平滑化</h2>
-<p>それでは，負の二項分布を用いて平滑化を行ってみましょう． ここでは，Rで簡単に利用可能なMASSパッケージの<code>glm.nb()</code>関数を用いて，最尤法を行います． <code>glm.nb()</code>により，目的変数が負の二項分布に従うような一般化線形モデルを推定することができます．</p>
-<p>以下のような簡単なコードで負の二項分布のパラメータ推定ができます． ここでは，期待値が<code>population</code>に比例するよう，<code>log(population)</code>をオフセット項に指定しています．</p>
+</section></section><section id="smoothing-using-the-negative-binomial-distribution" class="level2"><h2 class="anchored" data-anchor-id="smoothing-using-the-negative-binomial-distribution">Smoothing using the negative binomial distribution</h2>
+<p>Now, let’s perform smoothing using the negative binomial distribution. Here, we perform maximum likelihood estimation using the <code>glm.nb()</code> function from R’s MASS package, which is readily available. <code>glm.nb()</code> lets us estimate a generalized linear model in which the response variable follows a negative binomial distribution.</p>
+<p>The parameters of the negative binomial distribution can be estimated with simple code like the following. Here, we specify <code>log(population)</code> as an offset term so that the expected value is proportional to <code>population</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  count <span class="sc">~</span> <span class="fu">offset</span>(<span class="fu">log</span>(population)),</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> data</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>次に，<code>glm.nb()</code>の出力値を格納した<code>model</code>からガンマ分布のパラメータを取得します． ガンマ分布の<span class="math inline">\(\alpha\)</span>は，<code>model$theta</code>で取得できます． <span class="math inline">\(\alpha\)</span>の推定値<code>alpha_estimated</code>は，真値の<code>alpha_true</code>とおおよそ一致することがわかります．</p>
+<p>Next, we obtain the parameters of the Gamma distribution from <code>model</code>, which stores the output of <code>glm.nb()</code>. The Gamma distribution’s <span class="math inline">\(\alpha\)</span> can be obtained from <code>model$theta</code>. We can see that the estimated value of <span class="math inline">\(\alpha\)</span>, <code>alpha_estimated</code>, roughly matches the true value, <code>alpha_true</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>alpha_estimated <span class="ot">&lt;-</span> model<span class="sc">$</span>theta</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -396,7 +403,7 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <pre><code>[1] 5.014545</code></pre>
 </div>
 </div>
-<p>また，ガンマ分布の<span class="math inline">\(\beta\)</span>は，上に示した<span class="math inline">\(\mu\)</span>の関係式より以下で求められます． <span class="math inline">\(\mu\)</span>はサンプルサイズの数だけ出力されますが，<span class="math inline">\(\beta\)</span>の推定値<code>beta_estimated</code>が全てほぼ同等の値をもち，さらに，真値の<code>beta_true</code>とおおよそ一致することがわかります．</p>
+<p>Also, the Gamma distribution’s <span class="math inline">\(\beta\)</span> can be obtained from the relationship for <span class="math inline">\(\mu\)</span> shown above, as follows. Although <span class="math inline">\(\mu\)</span> is output once for each sample, we can see that the estimated values of <span class="math inline">\(\beta\)</span>, <code>beta_estimated</code>, are all nearly identical, and that they roughly match the true value, <code>beta_true</code>.</p>
 <p><span class="math display">\[
 \beta = \frac{a N}{\mu}
 \]</span></p>
@@ -418,12 +425,12 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 50.07359 50.07359 50.07359 50.07359 50.07359 50.07359 </code></pre>
 </div>
 </div>
-<p>それでは，最後に求められたガンマ分布の<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>を使って割合の平滑化を行ってみましょう． 以下に，平滑化に使用する式を再掲します． この式に従って平滑化した割合<code>rate_smoothed</code>を対象に，先ほどと同様のグラフを描画してみます． すると，<code>population</code>が小さい場合であっても，割合が過大・過小になる傾向がみられないことがわかり，少数問題が解消されていることが確認できました．</p>
+<p>Finally, let’s use the estimated Gamma distribution parameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> to smooth the proportion. We reproduce the smoothing formula below for reference. We compute the smoothed proportion, <code>rate_smoothed</code>, following this formula, and draw the same kind of plots as before. As a result, we can see that there is no tendency for the proportion to be over- or under-estimated even when <code>population</code> is small, confirming that the small number problem has been resolved.</p>
 <p><span class="math display">\[
 \frac{n + \alpha}{N + \beta}
 \]</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>data_smoothed <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>data_smoothed <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_smoothed =</span> (count <span class="sc">+</span> alpha_estimated) <span class="sc">/</span> (population <span class="sc">+</span> beta_estimated)</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  )</span>
@@ -440,11 +447,11 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>data_smoothed <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>data_smoothed <span class="sc">|&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(rate_true, rate_smoothed, <span class="at">color =</span> population)) <span class="sc">+</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
@@ -452,15 +459,15 @@ n \sim \text{NegBinomial2}(\mu, \alpha), \quad \mu = \frac{\alpha}{\beta} N
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  tune<span class="sc">::</span><span class="fu">coord_obs_pred</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="removal-of-observation-noise-from-proportion.en_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section><section id="おわりに" class="level2"><h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p>この記事では，割合データにおける少数問題への対処法として，経験ベイズ法を用いた平滑化手法について説明しました． 分母の人口等が小さい場合に割合データのばらつきが大きくなる現象は，実務でもしばしば問題になると思われます． そうした場合には，何らかのしきい値で分母の小さいデータを除外する方法も考えられますが， この記事で説明した方法を使うと全てのデータを活用できるという利点もあります．</p>
-<p>この記事で用いたMASSパッケージの<code>glm.nb()</code>は，一般化線形モデル用の関数であるため，分母にあたる<code>offset(log(population))</code>以外の項も説明変数として含むことが可能です． これにより，地域特性等によって<span class="math inline">\(\beta\)</span>が異なる状況を再現できる可能性があります．</p>
-<p>また，汎用性の高いと思われるポアソン分布を対象としましたが，二項分布でも同様の枠組みが利用できます． 二項分布の場合，事前分布としてベータ分布を用いると，平滑化の式は以下のようになります． また，混合分布はベータ・二項分布となるため，既存のRパッケージ（例：bbmle）等を用いれば，比較的簡単にパラメータ推定が可能だと思われます．</p>
+</section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In this article, we explained a smoothing method using empirical Bayes as an approach for dealing with the small number problem in proportion data. The phenomenon where the variability of proportion data becomes large when the denominator, such as the population, is small is likely to be a problem in practice as well. In such cases, one option is to exclude data with a small denominator based on some threshold, but the method described in this article has the advantage of allowing us to make use of all the data.</p>
+<p>The <code>glm.nb()</code> function from the MASS package used in this article is a function for generalized linear models, so it is possible to include terms other than the denominator term, <code>offset(log(population))</code>, as explanatory variables. This makes it possible to reproduce situations in which <span class="math inline">\(\beta\)</span> varies depending on factors such as regional characteristics.</p>
+<p>Also, although we focused on the Poisson distribution, which we consider to be highly versatile, the same framework can also be applied to the binomial distribution. In the case of the binomial distribution, if we use a Beta distribution as the prior, the smoothing formula becomes as follows. In addition, since the mixture distribution in this case is the Beta-binomial distribution, parameter estimation should be relatively straightforward using existing R packages (e.g., bbmle).</p>
 <p><span class="math display">\[
 \frac{n + \alpha}{N + \alpha + \beta}
 \]</span></p>

@@ -119,8 +119,8 @@ dir_create("quantify-vote-disparity-between-generations")
 # jpstatパッケージを使って2020年国勢調査データをダウンロードしています
 if (!file_exists("quantify-vote-disparity-between-generations/pop_2020.parquet")) {
   # 注意: jpstatパッケージはe-Stat APIを利用するためAPIキーが必要です
-  census_2020 <- estat(keyring::key_get("estat-api"),
-                       "https://www.e-stat.go.jp/dbview?sid=0003445139")
+  # あらかじめ Sys.setenv(ESTAT_API_KEY = "取得したappId") を実行しておいてください
+  census_2020 <- estat(statsDataId = "https://www.e-stat.go.jp/dbview?sid=0003445139")
 
   pop_2020 <- census_2020 |>
     activate(tab) |>

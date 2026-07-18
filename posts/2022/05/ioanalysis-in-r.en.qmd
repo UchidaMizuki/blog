@@ -304,37 +304,39 @@ spillover |>
 
 We introduced a method for performing input-output analysis in R.
 
-The calculations shown here have been packaged as [jpio](https://github.com/UchidaMizuki/jpio). As shown below, you can perform the same calculations as above using this package.
+The calculations shown here have been packaged as [econio](https://github.com/UchidaMizuki/econio). The [econiodatajp](https://github.com/UchidaMizuki/econiodatajp) package also lets you fetch an input-output table directly, without having to download and reshape it from e-Stat yourself. As shown below, you can perform the same calculations as above using these packages (note: the jpio package used in an earlier version of this article is no longer maintained and has been replaced by econio/econiodatajp).
 
 ```{r}
-#| label: jpio
+#| label: econio
 
-# pak::pak("UchidaMizuki/jpio")
+# pak::pak("UchidaMizuki/econio")
+# pak::pak("UchidaMizuki/econiodatajp")
 
-# Input-output table
-iotable <- read_csv("iotable_3sector_2011.csv",
-                    col_types = cols(.default = "c",
-                                     value_M = "n")) |> 
-  jpio::as_iotable()
+library(econio)
+library(econiodatajp)
+
+# Input-output table (2020, national, integrated large classification)
+iotable <- io_table_get(
+  region_type = "regional",
+  region_class = "nation",
+  year = 2020,
+  sector_class = "large",
+  language = "en"
+)
 
 iotable
 
 # Input coefficient
-jpio::input_coef(iotable)
+io_input_coef(iotable)
 
 # Leontief inverse matrix
-jpio::leontief_inv(iotable)
-
-# Economic ripple effect
-jpio::spillover_effect(iotable,
-                       list(`01_primary` = 1,
-                            `02_secondary` = 1,
-                            `03_tertiary` = 1))
+io_leontief_inverse(iotable)
 
 # Skyline chart
-jpio::skyline_chart(iotable, 
-                    ylim = c(-0.5, NA))
+autoplot(iotable, type = "skyline")
 ```
+
+econio doesn't provide a dedicated function for the economic ripple effect from a specific final demand change. As shown earlier, you can compute it directly by multiplying the Leontief inverse matrix by the final demand change vector.
 
 ```{r}
 #| label: save-plot-spillover

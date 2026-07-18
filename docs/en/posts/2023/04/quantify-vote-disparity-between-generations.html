@@ -272,8 +272,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <details class="code-fold"><summary>Downloading and processing the 2020 Population Census data</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Using the jpstat package to download the 2020 Population Census data</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file_exists</span>(<span class="st">"quantify-vote-disparity-between-generations/pop_2020.parquet"</span>)) {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Note: the jpstat package requires an API key because it uses the e-Stat API</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  census_2020 <span class="ot">&lt;-</span> <span class="fu">estat</span>(keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">"estat-api"</span>),</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"https://www.e-stat.go.jp/dbview?sid=0003445139"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run Sys.setenv(ESTAT_API_KEY = "your appId") beforehand</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  census_2020 <span class="ot">&lt;-</span> <span class="fu">estat</span>(<span class="at">statsDataId =</span> <span class="st">"https://www.e-stat.go.jp/dbview?sid=0003445139"</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  pop_2020 <span class="ot">&lt;-</span> census_2020 <span class="sc">|&gt;</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">activate</span>(tab) <span class="sc">|&gt;</span></span>

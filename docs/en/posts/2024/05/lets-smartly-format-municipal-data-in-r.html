@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html" />
 <link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2024/05/lets-smartly-format-municipal-data-in-r.en.html" />
@@ -8,7 +8,7 @@
 <meta name="generator" content="quarto-1.6.40">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="dcterms.date" content="2024-05-25">
-<title>Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など） – UchidaMizuki</title>
+<title>Let’s Smartly Format Municipal Data in R (Municipal Mergers, Designated-City Data Aggregation, and More) – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -144,7 +144,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
       </div> <!-- /container-fluid -->
     </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Rで市区町村データをスマートに整形しよう（市町村合併や政令指定都市の集計処理など）</h1>
+      <h1 class="title">Let’s Smartly Format Municipal Data in R (Municipal Mergers, Designated-City Data Aggregation, and More)</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">English</div>
                 <div class="quarto-category">jpcity</div>
@@ -172,15 +172,16 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><p>この記事は，はじめに市区町村データの分析で注意すべき点について説明し， 次に，Rのjpcityパッケージを用いて市区町村データをスマートに整形する方法について紹介します．</p>
-<section id="市区町村データの分析で注意すべきことは" class="level2"><h2 class="anchored" data-anchor-id="市区町村データの分析で注意すべきことは">市区町村データの分析で注意すべきことは？</h2>
-<p>市区町村別の統計データを分析する際には，どのようなことに気をつけるべきでしょうか． 以下では，主な注意点を3つに絞って紹介します．</p>
-<section id="市区町村名の重複に注意する" class="level3"><h3 class="anchored" data-anchor-id="市区町村名の重複に注意する">①市区町村名の重複に注意する</h3>
-<p>まず気をつけるべきことは，同じ名称をもつ市区町村名が複数存在する場合があることです． 実際に，2020年1月1日時点で漢字表記が重複する市町村は，以下のように60市町村弱存在します<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>．</p>
-<p>ここで，表の一番左列<code>city_code</code>に記載されている5桁の数字は， 市区町村コード（全国地方公共団体コード）と呼ばれるもので市区町村を一意に識別するための番号です． そのため，市区町村データを分析する際には，市区町村名ではなく市区町村コードを用いて市区町村を識別することが望ましいと言えるでしょう．</p>
-<p>ちなみに，市区町村コードの上2桁の数字は都道府県の識別番号であり，都道府県コードと呼ばれます．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2024/05/lets-smartly-format-municipal-data-in-r.html">my Japanese article</a>.</p>
+<p>This article first explains points to watch out for when analyzing municipal data, and then introduces how to smartly format municipal data in R using the jpcity package.</p>
+<section id="what-should-you-watch-out-for-when-analyzing-municipal-data" class="level2"><h2 class="anchored" data-anchor-id="what-should-you-watch-out-for-when-analyzing-municipal-data">What should you watch out for when analyzing municipal data?</h2>
+<p>What should you be careful about when analyzing statistical data broken down by municipality? Below, I’ll introduce three main points to watch out for.</p>
+<section id="watch-out-for-duplicate-municipality-names" class="level3"><h3 class="anchored" data-anchor-id="watch-out-for-duplicate-municipality-names">1. Watch out for duplicate municipality names</h3>
+<p>The first thing to watch out for is that there can be multiple municipalities with the same name. In fact, as of January 1, 2020, there are just under 60 municipalities whose kanji notation overlaps with another, as shown below<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>Here, the 5-digit number in the leftmost column of the table, <code>city_code</code>, is called the municipality code (the National Local Government Code), a number used to uniquely identify each municipality. For this reason, when analyzing municipal data, it’s preferable to identify municipalities by their municipality code rather than by name.</p>
+<p>Incidentally, the first two digits of the municipality code are the identification number for the prefecture, known as the prefecture code.</p>
 <div class="cell">
-<details class="code-fold"><summary>市区町村名の重複箇所の抽出</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<details class="code-fold"><summary>Extracting duplicate municipality names</summary><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpcity)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">get_city</span>(<span class="st">"2020-01-01"</span>) <span class="sc">|&gt;</span> </span>
@@ -199,13 +200,13 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section><section id="市町村合併廃置分合による市区町村コードの変更に注意する" class="level3"><h3 class="anchored" data-anchor-id="市町村合併廃置分合による市区町村コードの変更に注意する">②市町村合併（廃置分合）による市区町村コードの変更に注意する</h3>
-<p>市区町村コードを使ってさえいれば問題ないのでしょうか？ 残念ながら，市区町村コードによる分析にはもう一つの落とし穴があります． それは，市町村合併（廃置分合）によって市区町村コードが変更されることがあるという点です．</p>
-<p>市区町村コードは1970年4月1日に利用が開始されましたが，その後の平成の大合併（1999年～2010年）などによって市区町村数は大きく減少しました． そのため，特に1999年～2010年ごろの市区町村データを分析する際には，別途，面倒な集計・按分処理（いわゆる廃置分合処理）が必要となることがあります．</p>
-<p>例として，1970年4月1日から2020年1月1日にかけて最も多くの市区町村が合併してできた市区町村を抽出してみましょう． 抽出の結果（下表），これまでに最も多くの市町村合併を経た市区町村は15市町村が合併してできた新潟県上越市であることがわかりました．</p>
-<p>また，市町村合併だけでなく町制変更や市制施行などによって市区町村コードが変更されることもあります． そのため，市区町村データを分析する際には，こうした市区町村コードの変更事由や変更時期を考慮したデータ整形が必要となることがあります．</p>
+</section><section id="watch-out-for-municipality-code-changes-due-to-municipal-mergers-haichi-bungō" class="level3"><h3 class="anchored" data-anchor-id="watch-out-for-municipality-code-changes-due-to-municipal-mergers-haichi-bungō">2. Watch out for municipality code changes due to municipal mergers (haichi-bungō)</h3>
+<p>Does that mean everything is fine as long as you use municipality codes? Unfortunately, there is another pitfall in analysis based on municipality codes: municipality codes can change due to municipal mergers (haichi-bungō, i.e., the abolition, establishment, division, and merger of municipalities).</p>
+<p>Municipality codes came into use on April 1, 1970, but the number of municipalities subsequently decreased significantly due to the Great Heisei Mergers (1999-2010) and other consolidations. Because of this, analyzing municipal data from around 1999-2010 in particular can require separate, tedious aggregation and apportionment processing (so-called haichi-bungō processing).</p>
+<p>As an example, let’s extract the municipality formed from the largest number of merged municipalities between April 1, 1970 and January 1, 2020. The results (table below) show that the municipality that has undergone the most municipal mergers is Joetsu City in Niigata Prefecture, formed from the merger of 15 municipalities.</p>
+<p>Municipality codes can also change due to reasons other than mergers, such as a village being reclassified as a town or a town being reclassified as a city. For this reason, when analyzing municipal data, it can be necessary to format the data while taking into account the reason for and timing of these municipality code changes.</p>
 <div class="cell">
-<details class="code-fold"><summary>最も多くの市区町村が合併してできた市区町村の抽出</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">city_after =</span> <span class="fu">get_city</span>(<span class="st">"2020-01-01"</span>),</span>
+<details class="code-fold"><summary>Extracting the municipality formed from the most merged municipalities</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">city_after =</span> <span class="fu">get_city</span>(<span class="st">"2020-01-01"</span>),</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">city_before =</span> city_after <span class="sc">|&gt;</span> </span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">city_convert</span>(<span class="st">"2020-01-01"</span>, <span class="st">"1970-04-01"</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">size_city_before =</span> vctrs<span class="sc">::</span><span class="fu">list_sizes</span>(city_before)) <span class="sc">|&gt;</span> </span>
@@ -222,18 +223,18 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </details><div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["city_code_before"],"name":[1],"type":["chr"],"align":["left"]},{"label":["city_name_before"],"name":[2],"type":["chr"],"align":["left"]},{"label":["city_code_after"],"name":[3],"type":["chr"],"align":["left"]},{"label":["city_name_after"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"15203","2":"高田市","3":"15222","4":"上越市"},{"1":"15214","2":"直江津市","3":"15222","4":"上越市"},{"1":"15521","2":"安塚町","3":"15222","4":"上越市"},{"1":"15522","2":"浦川原村","3":"15222","4":"上越市"},{"1":"15525","2":"大島村","3":"15222","4":"上越市"},{"1":"15526","2":"牧村","3":"15222","4":"上越市"},{"1":"15541","2":"柿崎町","3":"15222","4":"上越市"},{"1":"15542","2":"大潟町","3":"15222","4":"上越市"},{"1":"15543","2":"頸城村","3":"15222","4":"上越市"},{"1":"15544","2":"吉川町","3":"15222","4":"上越市"},{"1":"15546","2":"中郷村","3":"15222","4":"上越市"},{"1":"15548","2":"板倉町","3":"15222","4":"上越市"},{"1":"15549","2":"清里村","3":"15222","4":"上越市"},{"1":"15550","2":"三和村","3":"15222","4":"上越市"},{"1":"15561","2":"名立町","3":"15222","4":"上越市"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[20],"max":[20]},"pages":{}}}
+{"columns":[{"label":["city_code_before"],"name":[1],"type":["chr"],"align":["left"]},{"label":["city_name_before"],"name":[2],"type":["chr"],"align":["left"]},{"label":["city_code_after"],"name":[3],"type":["chr"],"align":["left"]},{"label":["city_name_after"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"15201","2":"新潟市","3":"15100","4":"新潟市"},{"1":"15207","2":"新津市","3":"15100","4":"新潟市"},{"1":"15220","2":"白根市","3":"15100","4":"新潟市"},{"1":"15305","2":"豊栄町","3":"15100","4":"新潟市"},{"1":"15321","2":"小須戸町","3":"15100","4":"新潟市"},{"1":"15323","2":"横越村","3":"15100","4":"新潟市"},{"1":"15324","2":"亀田町","3":"15100","4":"新潟市"},{"1":"15341","2":"岩室村","3":"15100","4":"新潟市"},{"1":"15345","2":"巻町","3":"15100","4":"新潟市"},{"1":"15346","2":"西川町","3":"15100","4":"新潟市"},{"1":"15347","2":"黒埼村","3":"15100","4":"新潟市"},{"1":"15348","2":"味方村","3":"15100","4":"新潟市"},{"1":"15349","2":"潟東村","3":"15100","4":"新潟市"},{"1":"15350","2":"月潟村","3":"15100","4":"新潟市"},{"1":"15351","2":"中之口村","3":"15100","4":"新潟市"},{"1":"15203","2":"高田市","3":"15222","4":"上越市"},{"1":"15214","2":"直江津市","3":"15222","4":"上越市"},{"1":"15521","2":"安塚町","3":"15222","4":"上越市"},{"1":"15522","2":"浦川原村","3":"15222","4":"上越市"},{"1":"15525","2":"大島村","3":"15222","4":"上越市"},{"1":"15526","2":"牧村","3":"15222","4":"上越市"},{"1":"15541","2":"柿崎町","3":"15222","4":"上越市"},{"1":"15542","2":"大潟町","3":"15222","4":"上越市"},{"1":"15543","2":"頸城村","3":"15222","4":"上越市"},{"1":"15544","2":"吉川町","3":"15222","4":"上越市"},{"1":"15546","2":"中郷村","3":"15222","4":"上越市"},{"1":"15548","2":"板倉町","3":"15222","4":"上越市"},{"1":"15549","2":"清里村","3":"15222","4":"上越市"},{"1":"15550","2":"三和村","3":"15222","4":"上越市"},{"1":"15561","2":"名立町","3":"15222","4":"上越市"},{"1":"33201","2":"岡山市","3":"33100","4":"岡山市"},{"1":"33301","2":"御津町","3":"33100","4":"岡山市"},{"1":"33302","2":"一宮町","3":"33100","4":"岡山市"},{"1":"33303","2":"建部町","3":"33100","4":"岡山市"},{"1":"33304","2":"津高町","3":"33100","4":"岡山市"},{"1":"33321","2":"瀬戸町","3":"33100","4":"岡山市"},{"1":"33381","2":"上道町","3":"33100","4":"岡山市"},{"1":"33401","2":"灘崎町","3":"33100","4":"岡山市"},{"1":"33402","2":"興除村","3":"33100","4":"岡山市"},{"1":"33403","2":"藤田村","3":"33100","4":"岡山市"},{"1":"33421","2":"吉備町","3":"33100","4":"岡山市"},{"1":"33424","2":"妹尾町","3":"33100","4":"岡山市"},{"1":"33426","2":"福田村","3":"33100","4":"岡山市"},{"1":"33501","2":"高松町","3":"33100","4":"岡山市"},{"1":"33502","2":"足守町","3":"33100","4":"岡山市"},{"1":"34201","2":"広島市","3":"34100","4":"広島市"},{"1":"34301","2":"安芸町","3":"34100","4":"広島市"},{"1":"34303","2":"船越町","3":"34100","4":"広島市"},{"1":"34305","2":"瀬野川町","3":"34100","4":"広島市"},{"1":"34306","2":"熊野跡村","3":"34100","4":"広島市"},{"1":"34308","2":"矢野町","3":"34100","4":"広島市"},{"1":"34321","2":"五日市町","3":"34100","4":"広島市"},{"1":"34341","2":"祇園町","3":"34100","4":"広島市"},{"1":"34342","2":"安古市町","3":"34100","4":"広島市"},{"1":"34343","2":"佐東町","3":"34100","4":"広島市"},{"1":"34344","2":"沼田町","3":"34100","4":"広島市"},{"1":"34345","2":"安佐町","3":"34100","4":"広島市"},{"1":"34346","2":"可部町","3":"34100","4":"広島市"},{"1":"34347","2":"高陽町","3":"34100","4":"広島市"},{"1":"34387","2":"白木町","3":"34100","4":"広島市"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[20],"max":[20]},"pages":{}}}
   </script>
 </div>
 </div>
 </div>
-</section><section id="政令指定都市の市区の扱いに注意する" class="level3"><h3 class="anchored" data-anchor-id="政令指定都市の市区の扱いに注意する">③政令指定都市の市区の扱いに注意する</h3>
-<p>上記の注意点を押さえれば，市区町村データの整形の山場を乗り越えたと言えるでしょう． 最後に，細かい点ではありますが，政令指定都市の市区の扱いについて取り上げておきます．</p>
-<p>統計データによっては，政令指定都市の区レベルのデータが入手可能な市区町村データではなく， 市レベルで集計した市町村データしか入手できないことがあります．</p>
-<p>政令指定都市の市と区には，それぞれに異なる市区町村コードが割り振られているため， こうした地域区分の異なるデータを統合する際には，市区町村コードの対応付けが必要となります．</p>
-<p>例として，横浜市における市と区の対応付けを下表に示します．</p>
+</section><section id="watch-out-for-how-wards-of-designated-cities-seirei-shitei-toshi-are-handled" class="level3"><h3 class="anchored" data-anchor-id="watch-out-for-how-wards-of-designated-cities-seirei-shitei-toshi-are-handled">3. Watch out for how wards of designated cities (seirei shitei toshi) are handled</h3>
+<p>Once you’ve grasped the points above, you can say you’ve cleared the biggest hurdle in formatting municipal data. Finally, though it’s a minor point, let’s look at how wards of designated cities are handled.</p>
+<p>Depending on the statistical data, you may only be able to obtain municipal data aggregated at the city level, rather than municipal data available at the ward level for designated cities.</p>
+<p>Since the city and its wards in a designated city are each assigned different municipality codes, mapping between municipality codes is necessary when integrating data with these different regional breakdowns.</p>
+<p>As an example, the table below shows the mapping between the city and its wards for Yokohama City.</p>
 <div class="cell">
-<details class="code-fold"><summary>政令指定都市の市と区の対応付け</summary><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">city =</span> <span class="fu">find_city</span>(<span class="st">"横浜市"</span>, <span class="st">"2020-01-01"</span>) <span class="sc">|&gt;</span> </span>
+<details class="code-fold"><summary>Mapping between the city and wards of a designated city</summary><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">city =</span> <span class="fu">find_city</span>(<span class="st">"横浜市"</span>, <span class="st">"2020-01-01"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">city_desig_merge</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         vctrs<span class="sc">::</span><span class="fu">vec_unique</span>(),</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">city_desig =</span> city <span class="sc">|&gt;</span> </span>
@@ -253,16 +254,16 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 </div>
 </div>
 </div>
-</section></section><section id="rで市区町村データをスマートに整形する" class="level2"><h2 class="anchored" data-anchor-id="rで市区町村データをスマートに整形する">Rで市区町村データをスマートに整形する</h2>
-<p>ここまでの注意点を踏まえて，Rを用いて市区町村データをスマートに整形する方法を紹介します． 実は，上に示した事例は，いずれもe-Statの 「<a href="https://www.e-stat.go.jp/municipalities/cities/areacode">市区町村を探す</a>」と 「<a href="https://www.e-stat.go.jp/municipalities/cities/absorption-separation-of-municipalities">廃置分合等情報を探す</a>」で 公開されている情報に基づいています．</p>
-<p>しかし，「廃置分合等情報を探す」では，市町村合併等による市区町村コードの変更内容がテキスト形式で記載されているため， そのままではデータ整形に利用しにくいという問題があります．</p>
-<p>そこで，こうした複雑なデータ整形を行うことなく，簡単に廃置分合処理や政令指定都市の市区の対応付けを行うために， 新たに，<a href="https://uchidamizuki.github.io/jpcity/">jpcity</a>パッケージを作成しました<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>． ちなみに，上に示した表はすべてjpcityパッケージを用いて作成したものです． jpcityは，CRANに登録済みであるため，以下のコードを実行することでインストールすることができます． ここからは，jpcityの使い方について簡単に説明していきます．</p>
+</section></section><section id="smartly-formatting-municipal-data-in-r" class="level2"><h2 class="anchored" data-anchor-id="smartly-formatting-municipal-data-in-r">Smartly formatting municipal data in R</h2>
+<p>With the points above in mind, let’s introduce how to smartly format municipal data using R. In fact, all of the examples shown above are based on information published by e-Stat in <a href="https://www.e-stat.go.jp/municipalities/cities/areacode">“Search Municipalities”</a> and <a href="https://www.e-stat.go.jp/municipalities/cities/absorption-separation-of-municipalities">“Search Municipal Merger Information”</a>.</p>
+<p>However, “Search Municipal Merger Information” describes changes to municipality codes due to mergers and other events in text form, which makes it difficult to use directly for data formatting.</p>
+<p>So, to make it easy to perform haichi-bungō processing and map between the cities and wards of designated cities without having to do this kind of complex data formatting, I created a new package called <a href="https://uchidamizuki.github.io/jpcity/">jpcity</a><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Incidentally, all of the tables shown above were created using the jpcity package. Since jpcity is registered on CRAN, it can be installed by running the code below. From here, I’ll briefly explain how to use jpcity.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"jpcity"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="市区町村コードや市区町村名の読込み" class="level3"><h3 class="anchored" data-anchor-id="市区町村コードや市区町村名の読込み">①市区町村コードや市区町村名の読込み</h3>
-<p>jpcityでは，<code>parse_city()</code>関数を用いて市区町村コードから市区町村オブジェクトを構築することができます<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>． また，<code>find_city()</code>関数を用いて市区町村名から市区町村オブジェクトを構築することができます． ただし，<code>find_city()</code>は市区町村名が重複する場合にすべての市区町村が返されてしまうため，基本的には<code>parse_city()</code>を用いることが推奨されます． さらに，<code>parse_city()</code>・<code>find_city()</code>は，ともに第2引数<code>when</code>に日付を指定することで， その時点での市区町村を取得することができます<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>．</p>
-<p>また，市区町村オブジェクトの市区町村コードや市区町村名への（文字列）変換には，<code>city_code()</code>関数や<code>city_name()</code>関数を用いることができます．</p>
+<section id="reading-in-municipality-codes-and-names" class="level3"><h3 class="anchored" data-anchor-id="reading-in-municipality-codes-and-names">1. Reading in municipality codes and names</h3>
+<p>In jpcity, you can build a municipality object from a municipality code using the <code>parse_city()</code> function<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. You can also build a municipality object from a municipality name using the <code>find_city()</code> function. However, since <code>find_city()</code> returns all matching municipalities when the name is a duplicate, it’s generally recommended to use <code>parse_city()</code>. Furthermore, both <code>parse_city()</code> and <code>find_city()</code> let you specify a date as the second argument, <code>when</code>, to retrieve the municipality as of that point in time<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
+<p>You can also use the <code>city_code()</code> and <code>city_name()</code> functions to convert a municipality object to a (character) municipality code or municipality name, respectively.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpcity)</span>
@@ -278,8 +279,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 1 15222 [新潟県上越市] 15222 [新潟県上越市]</code></pre>
 </div>
 </div>
-</section><section id="市町村合併廃置分合処理" class="level3"><h3 class="anchored" data-anchor-id="市町村合併廃置分合処理">②市町村合併（廃置分合）処理</h3>
-<p><code>city_convert()</code>関数を用いて市区町村合併（廃置分合）処理を行うことができます． ここでは，さきほど読み込んだ上越市を例に，2000年1月1日時点での市区町村に変換してみましょう<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>． <code>city_convert()</code>の第2引数<code>from</code>は変換前の日付<code>"2020-01-01"</code>，第3引数<code>to</code>は変換後の日付<code>"2000-01-01"</code>を指定します．</p>
+</section><section id="municipal-merger-haichi-bungō-processing" class="level3"><h3 class="anchored" data-anchor-id="municipal-merger-haichi-bungō-processing">2. Municipal merger (haichi-bungō) processing</h3>
+<p>You can perform municipal merger (haichi-bungō) processing using the <code>city_convert()</code> function. Here, let’s take the Joetsu City we read in earlier as an example and convert it to the municipality as of January 1, 2000<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>. For <code>city_convert()</code>, specify the pre-conversion date <code>"2020-01-01"</code> as the second argument, <code>from</code>, and the post-conversion date <code>"2000-01-01"</code> as the third argument, <code>to</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>city <span class="sc">|&gt;</span> </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(city_parsed) <span class="sc">|&gt;</span> </span>
@@ -306,11 +307,11 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 14 15222 [新潟県上越市] 15222 [新潟県上越市]  </code></pre>
 </div>
 </div>
-</section><section id="政令指定都市の市区の対応付け" class="level3"><h3 class="anchored" data-anchor-id="政令指定都市の市区の対応付け">③政令指定都市の市区の対応付け</h3>
-<p><code>city_desig_split()</code>関数や<code>city_desig_merge()</code>関数を用いて政令指定都市の市区の対応付けを行うことができます． ここでは，さきほど事例として挙げた横浜市を対象に，市区の対応付けを行ってみましょう．</p>
-<p><code>city_desig_split()</code>関数は，政令指定都市の市を区に分割する関数です．<code>city_desig_split()</code>により，横浜市に14の区が存在することがわかります． <code>city_desig_merge()</code>関数は，政令指定都市の区を市に統合する関数です．<code>city_desig_merge()</code>により，さきほど分割した横浜市の区を市に戻すことができます．</p>
+</section><section id="mapping-between-the-city-and-wards-of-a-designated-city" class="level3"><h3 class="anchored" data-anchor-id="mapping-between-the-city-and-wards-of-a-designated-city">3. Mapping between the city and wards of a designated city</h3>
+<p>You can map between the city and wards of a designated city using the <code>city_desig_split()</code> and <code>city_desig_merge()</code> functions. Here, let’s perform this mapping for Yokohama City, the example we used earlier.</p>
+<p>The <code>city_desig_split()</code> function splits a designated city into its wards. Using <code>city_desig_split()</code>, we can see that Yokohama City has 14 wards. The <code>city_desig_merge()</code> function merges the wards of a designated city back into the city. Using <code>city_desig_merge()</code>, we can convert the wards of Yokohama City we just split back into the city.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 政令指定都市の市を区に分割</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the designated city into its wards</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>city_desig <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">city =</span> <span class="fu">parse_city</span>(<span class="st">"14100"</span>, <span class="st">"2020-01-01"</span>),</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">city_desig =</span> <span class="fu">city_desig_split</span>(city)) <span class="sc">|&gt;</span> </span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(city_desig)</span>
@@ -334,7 +335,7 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 13 14100 [神奈川県横浜市] 14113 [神奈川県横浜市緑区]      
 14 14100 [神奈川県横浜市] 14114 [神奈川県横浜市瀬谷区]    </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 政令指定都市の区を市に統合 (最初の数行だけ表示)</span></span>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the wards of the designated city back into the city (showing only the first few rows)</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>city_desig <span class="sc">|&gt;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(city_desig) <span class="sc">|&gt;</span> </span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city =</span> <span class="fu">city_desig_merge</span>(city_desig)) <span class="sc">|&gt;</span> </span>
@@ -351,18 +352,18 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 6 14106 [神奈川県横浜市保土ケ谷区] 14100 [神奈川県横浜市]</code></pre>
 </div>
 </div>
-</section></section><section id="まとめ" class="level2"><h2 class="anchored" data-anchor-id="まとめ">まとめ</h2>
-<p>この記事では，市区町村データの分析で注意すべき点と，Rのjpcityパッケージを用いて市区町村データをスマートに整形する方法について紹介しました． jpcityパッケージに対する要望・バグ報告や質問などがあれば，<a href="https://github.com/uchidaMizuki/jpcity">GitHub</a>か以下のコメント欄からお気軽にご意見をお寄せください．</p>
+</section></section><section id="summary" class="level2"><h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this article, I introduced points to watch out for when analyzing municipal data, and how to smartly format municipal data in R using the jpcity package. If you have any requests, bug reports, or questions about the jpcity package, feel free to reach out via <a href="https://github.com/uchidaMizuki/jpcity">GitHub</a> or the comment section below.</p>
 
 
 </section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>ここでは，ひらがな表記（読み方）が異なっていても漢字表記が同じであれば「重複」としてカウントしています．また，政令指定都市の区名は重複が多いので対象外としています．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>jpcityは，e-Statの公開に公開されている「市区町村を探す」と「廃置分合等情報を探す」のデータに基づいて構築されています．<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p><code>parse_city()</code>は，チェックデジット付きの6桁の市区町村コードにも対応しています．<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p><code>when</code> 引数を指定しない場合には，いつの期間の市区町村かを推測して読込みを行います．また，期間が整合しない市区町村が含まれる場合には，読込みエラーとなります．<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>上越市は，1971年4月29日に高田市と直江津市が合併して新設され，その後，2005年1月1日に13町村が上越市に合併されました．<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>Here, municipalities are counted as “duplicates” if their kanji notation is the same, even if the hiragana reading differs. Also, ward names of designated cities (seirei shitei toshi) are excluded, since there are many overlaps among them.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>jpcity is built on data published by e-Stat in “Search Municipalities” and “Search Municipal Merger Information”.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p><code>parse_city()</code> also supports 6-digit municipality codes that include a check digit.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>If the <code>when</code> argument isn’t specified, jpcity infers which period the municipality belongs to and reads it in accordingly. If municipalities with inconsistent periods are included, a read error will occur.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Joetsu City was newly established on April 29, 1971 through the merger of Takada City and Naoetsu City, and later, on January 1, 2005, 13 towns and villages were merged into Joetsu City.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

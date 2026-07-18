@@ -177,9 +177,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <p>現在，日本の都市部と地方は以下の表のような関係にあるとされ，「1票の格差」が「地方で新幹線が整備される一方で東京の通勤ラッシュが解消されない」といった経済効率性の低下などを引き起こすことが問題視されています<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>．</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 15%">
-<col style="width: 50%">
-<col style="width: 33%">
+<col style="width: 10%">
+<col style="width: 52%">
+<col style="width: 35%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: center;">地域</th>
@@ -212,9 +212,9 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <p>さきほど示した都市・地方部の関係と同様に，若年層と高齢者層は，以下の表のような関係にあると考えられます．地方における人口減少・人手不足が深刻となった最近になってようやく，国は，少子化対策を国の最重要課題に位置づけましたが，これまで，こうした若年層向けの政策が十分に行われなかった<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>のは世代間の「1票の格差」の影響によるものかもしれません．</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 49%">
-<col style="width: 32%">
+<col style="width: 12%">
+<col style="width: 51%">
+<col style="width: 34%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: center;">世代</th>
@@ -288,8 +288,8 @@ gtag('config', 'G-3NGKDDYEYX', { 'anonymize_ip': true});
 <details class="code-fold"><summary>2020年国勢調査人口のダウンロード・データ整形</summary><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># jpstatパッケージを使って2020年国勢調査データをダウンロードしています</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file_exists</span>(<span class="st">"quantify-vote-disparity-between-generations/pop_2020.parquet"</span>)) {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 注意: jpstatパッケージはe-Stat APIを利用するためAPIキーが必要です</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  census_2020 <span class="ot">&lt;-</span> <span class="fu">estat</span>(keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">"estat-api"</span>),</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"https://www.e-stat.go.jp/dbview?sid=0003445139"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># あらかじめ Sys.setenv(ESTAT_API_KEY = "取得したappId") を実行しておいてください</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  census_2020 <span class="ot">&lt;-</span> <span class="fu">estat</span>(<span class="at">statsDataId =</span> <span class="st">"https://www.e-stat.go.jp/dbview?sid=0003445139"</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  pop_2020 <span class="ot">&lt;-</span> census_2020 <span class="sc">|&gt;</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">activate</span>(tab) <span class="sc">|&gt;</span></span>

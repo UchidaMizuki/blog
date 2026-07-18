@@ -149,9 +149,10 @@ poppyramid <- pop |>
   transition_time(year)
 
 # 幅・高さを変更
-animate(poppyramid, 
+animate(poppyramid,
         width = 800,
         height = 600,
+        units = "px",
         res = 150,
         renderer = gifski_renderer())
 ```

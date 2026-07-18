@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <link rel="alternate" hreflang="ja" href="https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html" />
 <link rel="alternate" hreflang="en" href="https://uchidamizuki.quarto.pub/blog/en/posts/2023/09/circle-area-by-numerical-integration-in-r.en.html" />
@@ -8,7 +8,7 @@
 <meta name="generator" content="quarto-1.6.40">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="dcterms.date" content="2023-09-10">
-<title>Rの数値積分で円の面積を求める – UchidaMizuki</title>
+<title>Calculating the Area of a Circle Using Numerical Integration in R – UchidaMizuki</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -168,7 +168,7 @@ window.Quarto = {
       </div> <!-- /container-fluid -->
     </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Rの数値積分で円の面積を求める</h1>
+      <h1 class="title">Calculating the Area of a Circle Using Numerical Integration in R</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">R</div>
                 <div class="quarto-category">English</div>
@@ -196,10 +196,11 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content"><section id="はじめに" class="level2"><h2 class="anchored" data-anchor-id="はじめに">はじめに</h2>
-<p>最近，R statsパッケージ<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>の<code>integrate()</code> 関数で一次元関数の数値積分ができることを知りました．そこで，この記事では，<a href="https://mathwords.net/enmensekibun">こちらの記事</a>を参考に積分で円の面積を計算してみました．</p>
-</section><section id="半円を描く関数" class="level2"><h2 class="anchored" data-anchor-id="半円を描く関数">半円を描く関数</h2>
-<p>半径<span class="math inline">\(r\)</span>の半円を描く関数は <a href="#eq-semicircle" class="quarto-xref">Equation 1</a> と表せます．Rで書くと<code>semicircle()</code> 関数のようになります．</p>
+<main class="content quarto-banner-title-block" id="quarto-document-content"><p>Note: This article is translated from <a href="https://uchidamizuki.quarto.pub/blog/posts/2023/09/circle-area-by-numerical-integration-in-r.html">my Japanese article</a>.</p>
+<section id="introduction" class="level2"><h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>I recently learned that the <code>integrate()</code> function in R’s stats package<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> can perform numerical integration of one-dimensional functions. So in this article, referring to <a href="https://mathwords.net/enmensekibun">this article</a>, I tried calculating the area of a circle using integration.</p>
+</section><section id="a-function-to-draw-a-semicircle" class="level2"><h2 class="anchored" data-anchor-id="a-function-to-draw-a-semicircle">A function to draw a semicircle</h2>
+<p>A function that draws a semicircle of radius <span class="math inline">\(r\)</span> can be expressed as <a href="#eq-semicircle" class="quarto-xref">Equation 1</a>. Written in R, this becomes the <code>semicircle()</code> function.</p>
 <p><span id="eq-semicircle"><span class="math display">\[
 y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
 \tag{1}\]</span></span></p>
@@ -208,24 +209,24 @@ y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>(radius<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> x<span class="sc">^</span><span class="dv">2</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>実装した<code>semicircle()</code> 関数で半径<span class="math inline">\(r = 5\)</span>の半円を描いてみましょう．</p>
+<p>Let’s use the <code>semicircle()</code> function we implemented to draw a semicircle with radius <span class="math inline">\(r = 5\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>radius <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">semicircle</span>(x, radius), <span class="sc">-</span>radius, radius,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">asp =</span> <span class="dv">1</span>) <span class="co"># アスペクト比を1:1にする</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">asp =</span> <span class="dv">1</span>) <span class="co"># Set the aspect ratio to 1:1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><img src="circle-area-by-numerical-integration-in-r_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<figure class="figure"><p><img src="circle-area-by-numerical-integration-in-r.en_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section><section id="数値積分で円の面積を求める" class="level2"><h2 class="anchored" data-anchor-id="数値積分で円の面積を求める">数値積分で円の面積を求める</h2>
-<p>次に，<code>stats::integrate()</code> 関数を用いて，さきほど書いた<code>semicircle()</code> を数値積分してみましょう．半径<span class="math inline">\(r = 5\)</span>の場合，積分すると半円の面積<span class="math inline">\(\frac{1}{2}\pi r^2\)</span>とほぼ等しくなることが確認できます．</p>
+</section><section id="calculating-the-area-of-a-circle-with-numerical-integration" class="level2"><h2 class="anchored" data-anchor-id="calculating-the-area-of-a-circle-with-numerical-integration">Calculating the area of a circle with numerical integration</h2>
+<p>Next, let’s use the <code>stats::integrate()</code> function to numerically integrate the <code>semicircle()</code> function we just wrote. For radius <span class="math inline">\(r = 5\)</span>, we can confirm that the integral is approximately equal to the area of a semicircle, <span class="math inline">\(\frac{1}{2}\pi r^2\)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 半径を5とする</span></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the radius to 5</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>radius <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(semicircle, <span class="sc">-</span>radius, radius, <span class="co"># -radiusからradiusまでの範囲で積分する</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(semicircle, <span class="sc">-</span>radius, radius, <span class="co"># Integrate over the range from -radius to radius</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">radius =</span> radius)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>39.26991 with absolute error &lt; 2.5e-08</code></pre>
@@ -235,7 +236,7 @@ y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
 <pre><code>[1] 39.26991</code></pre>
 </div>
 </div>
-<p>そのため，円の面積を近似的に求める<code>circle_area_approx()</code>が以下のように書けます（数値積分の結果は，<code>stats::integrate()</code> 関数の戻り値の<code>value</code> に格納されています）．</p>
+<p>Therefore, we can write <code>circle_area_approx()</code>, which approximately computes the area of a circle, as follows (the result of the numerical integration is stored in the <code>value</code> element of the return value of <code>stats::integrate()</code>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>circle_area_approx <span class="ot">&lt;-</span> <span class="cf">function</span>(radius) {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">integrate</span>(semicircle, <span class="sc">-</span>radius, radius,</span>
@@ -248,8 +249,8 @@ y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
 <pre><code>[1] 78.53982</code></pre>
 </div>
 </div>
-<p>最後に，半径<span class="math inline">\(1 \le r \le 10\)</span>の範囲で近似値<code>circle_area_approx()</code>と理論値<code>circle_area_true()</code>（<span class="math inline">\(\pi r^2\)</span>）を比較してみましょう．</p>
-<p>計算の結果，近似値と理論値で円の面積がほぼ等しいことが確認できました．</p>
+<p>Finally, let’s compare the approximate values from <code>circle_area_approx()</code> with the theoretical values from <code>circle_area_true()</code> (<span class="math inline">\(\pi r^2\)</span>) over the range <span class="math inline">\(1 \le r \le 10\)</span>.</p>
+<p>The calculation confirms that the approximate and theoretical circle areas are nearly equal.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>circle_area_true <span class="ot">&lt;-</span> <span class="cf">function</span>(radius) {</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  pi <span class="sc">*</span> radius <span class="sc">^</span> <span class="dv">2</span></span>
@@ -321,17 +322,17 @@ y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
 </table>
 </div>
 </div>
-</section><section id="おわりに" class="level2"><h2 class="anchored" data-anchor-id="おわりに">おわりに</h2>
-<p><code>stats::integrate()</code> 関数を使えば，簡単に一次元関数の数値積分ができることがわかりました．</p>
-<section id="注意点" class="level3"><h3 class="anchored" data-anchor-id="注意点">注意点</h3>
-<p><code>stats::integrate()</code> 関数では，<span class="math inline">\(-\infty \le x \le \infty\)</span>の範囲での数値積分も可能ですが，<span class="math inline">\(10^{-6} \le x \le 10^6\)</span>のような大きな値を代入すると数値積分が適切に行われませんのでご注意ください．</p>
+</section><section id="conclusion" class="level2"><h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>We have seen that the <code>stats::integrate()</code> function makes it easy to perform numerical integration of one-dimensional functions.</p>
+<section id="a-note-of-caution" class="level3"><h3 class="anchored" data-anchor-id="a-note-of-caution">A note of caution</h3>
+<p>The <code>stats::integrate()</code> function can also perform numerical integration over the range <span class="math inline">\(-\infty \le x \le \infty\)</span>, but be aware that it may not integrate correctly when given large values such as <span class="math inline">\(10^{-6} \le x \le 10^6\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OK</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(dnorm, <span class="sc">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 with absolute error &lt; 9.4e-05</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># NG</span></span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Not OK</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">integrate</span>(dnorm, <span class="sc">-</span><span class="fl">1e6</span>, <span class="fl">1e6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0 with absolute error &lt; 0</code></pre>
@@ -342,7 +343,7 @@ y = \sqrt{r^2 - x^2} \qquad (-r \le x \le r)
 </section></section><div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>statsパッケージは，Rにデフォルトで入っているパッケージの一つです．<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>The stats package is one of the packages that comes with R by default.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

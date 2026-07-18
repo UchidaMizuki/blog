@@ -100,8 +100,8 @@ dir_create("quantify-vote-disparity-between-generations")
 # Using the jpstat package to download the 2020 Population Census data
 if (!file_exists("quantify-vote-disparity-between-generations/pop_2020.parquet")) {
   # Note: the jpstat package requires an API key because it uses the e-Stat API
-  census_2020 <- estat(keyring::key_get("estat-api"),
-                       "https://www.e-stat.go.jp/dbview?sid=0003445139")
+  # Run Sys.setenv(ESTAT_API_KEY = "your appId") beforehand
+  census_2020 <- estat(statsDataId = "https://www.e-stat.go.jp/dbview?sid=0003445139")
 
   pop_2020 <- census_2020 |>
     activate(tab) |>
